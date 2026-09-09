@@ -864,3 +864,724 @@ body {
         line-height: 1.35;
     }
 }
+
+/* ==========================================================================
+   PART 4 — TRENDING NEAR YOU (Premium Marketplace Listing Grid)
+   ========================================================================== */
+
+.trending-section {
+    background-color: var(--bg-base);
+    padding: 56px 0 68px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Location Tag in Heading */
+.heading-location-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: var(--color-primary-subtle);
+    border: 1px solid var(--color-primary-border);
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    vertical-align: middle;
+    margin-left: 10px;
+    letter-spacing: normal;
+}
+.heading-location-tag i {
+    font-size: 0.8rem;
+}
+
+/* Listing Card Container */
+.listing-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.listing-card:hover {
+    transform: translateY(-4px);
+    background-color: var(--bg-surface-hover);
+    border-color: rgba(73, 209, 125, 0.35);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.listing-card.is-featured {
+    border-color: rgba(73, 209, 125, 0.3);
+}
+
+/* Listing Image Stage */
+.listing-image-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background-color: #04101e;
+    overflow: hidden;
+}
+
+.listing-image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.listing-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.35s ease;
+}
+
+.listing-card:hover .listing-image {
+    transform: scale(1.04);
+}
+
+/* Top-Left Badges */
+.listing-badge-wrap {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.listing-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: var(--radius-xs);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.listing-badge.badge-featured {
+    background-color: #49D17D;
+    color: #06182B;
+}
+
+.listing-badge.badge-new {
+    background-color: #38BDF8;
+    color: #06182B;
+}
+
+.listing-badge.badge-urgent {
+    background-color: #F43F5E;
+    color: #FFFFFF;
+}
+
+/* Top-Right Floating Favorite Button */
+.btn-listing-favorite {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-pill);
+    background-color: rgba(6, 24, 43, 0.72);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 0;
+    transition: var(--transition-fast);
+}
+
+.btn-listing-favorite:hover {
+    background-color: rgba(6, 24, 43, 0.95);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: scale(1.08);
+}
+
+.btn-listing-favorite .heart-outline {
+    display: inline-block;
+}
+.btn-listing-favorite .heart-filled {
+    display: none;
+}
+
+.btn-listing-favorite.active {
+    background-color: rgba(6, 24, 43, 0.95);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+.btn-listing-favorite.active .heart-outline {
+    display: none;
+}
+.btn-listing-favorite.active .heart-filled {
+    display: inline-block;
+    color: var(--color-primary);
+}
+
+/* Bottom-Right Photo Count Indicator */
+.listing-photo-count {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 2;
+    background-color: rgba(6, 24, 43, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #F1F5F9;
+    border-radius: var(--radius-xs);
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+.listing-photo-count i {
+    font-size: 0.75rem;
+    color: #CBD5E1;
+}
+
+/* Listing Details Body */
+.listing-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.listing-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
+.listing-price-group {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.listing-price {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.listing-original-price {
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.price-drop-badge {
+    color: var(--color-primary);
+    background-color: var(--color-primary-subtle);
+    border: 1px solid var(--color-primary-border);
+    padding: 1px 5px;
+    border-radius: var(--radius-xs);
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+}
+.price-drop-badge i {
+    font-size: 0.85rem;
+    margin-right: -1px;
+}
+
+.listing-category-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
+    padding: 2px 7px;
+    border-radius: var(--radius-xs);
+    white-space: nowrap;
+}
+
+.listing-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.38;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.65em;
+}
+
+.listing-title a {
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.listing-title a:hover {
+    color: var(--color-primary);
+}
+
+.listing-footer-meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 10px;
+}
+
+.listing-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 65%;
+}
+
+.listing-location i {
+    color: var(--color-primary);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.listing-time {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Empty State Styling */
+.empty-trending-card {
+    background-color: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 48px 24px;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.empty-icon-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-pill);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+}
+
+.empty-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Responsive Adjustments for Trending Grid */
+@media (max-width: 991px) {
+    .trending-section {
+        padding: 44px 0 52px;
+    }
+    .listing-card-body {
+        padding: 14px 12px;
+    }
+    .listing-price {
+        font-size: 1.15rem;
+    }
+    .listing-title {
+        font-size: 0.9rem;
+        min-height: 2.5em;
+    }
+}
+
+@media (max-width: 576px) {
+    .trending-section {
+        padding: 36px 0 44px;
+    }
+    .heading-location-tag {
+        display: none;
+    }
+    .listing-card-body {
+        padding: 12px 10px;
+    }
+    .listing-price {
+        font-size: 1.05rem;
+    }
+    .listing-category-tag {
+        display: none;
+    }
+    .listing-title {
+        font-size: 0.85rem;
+        min-height: 2.4em;
+        margin-bottom: 8px;
+    }
+    .listing-footer-meta {
+        font-size: 0.72rem;
+        padding-top: 8px;
+    }
+    .btn-listing-favorite {
+        width: 28px;
+        height: 28px;
+        font-size: 0.82rem;
+        top: 8px;
+        right: 8px;
+    }
+}
+
+/* ==========================================================================
+   PART 5 — BROWSE BY LOCATION (Canadian Communities Grid)
+   ========================================================================== */
+
+.locations-section {
+    background-color: var(--bg-base);
+    background-image: 
+        radial-gradient(ellipse 70% 60% at 85% 20%, rgba(73, 209, 125, 0.05), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 15% 85%, rgba(56, 189, 248, 0.035), transparent 70%),
+        url("data:image/svg+xml,%3Csvg width='800' height='600' viewBox='0 0 800 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%2349D17D' stroke-width='1.2' stroke-opacity='0.03'%3E%3Cpath d='M-50,150 C150,120 300,190 500,140 C700,90 850,170 950,130' /%3E%3Cpath d='M-50,220 C180,180 340,260 520,200 C710,150 860,240 950,200' /%3E%3Cpath d='M-50,290 C200,240 370,330 550,270 C730,210 880,300 950,270' /%3E%3Cpath d='M-50,360 C220,310 400,390 580,330 C750,280 890,370 950,340' /%3E%3Cpath d='M-50,430 C240,380 430,460 610,400 C780,340 910,430 950,410' /%3E%3C/g%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-width='1' stroke-opacity='0.02'%3E%3Cpath d='M-50,80 C120,60 270,120 470,80 C670,40 820,100 950,70' /%3E%3Cpath d='M-50,500 C260,450 460,530 640,470 C810,410 930,500 950,480' /%3E%3Ccircle cx='680' cy='180' r='90' stroke-dasharray='3 6' /%3E%3Ccircle cx='680' cy='180' r='160' stroke-dasharray='3 6' /%3E%3Ccircle cx='680' cy='180' r='230' stroke-dasharray='3 6' /%3E%3Cpath d='M680,30 L680,330 M530,180 L830,180' stroke-dasharray='2 4' /%3E%3C/g%3E%3C/svg%3E");
+    background-size: cover, cover, 800px 600px;
+    background-position: center, center, center;
+    background-repeat: no-repeat, no-repeat, repeat;
+    padding: 56px 0 68px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+/* Location Card Container */
+.location-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 124px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px 16px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.location-card:hover {
+    transform: translateY(-3px);
+    background-color: var(--bg-surface-hover);
+    border-color: rgba(73, 209, 125, 0.35);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.location-card:focus-visible {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.25);
+}
+
+/* Top: City & Province + Geo Icon */
+.location-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.location-name-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.location-city-name {
+    color: var(--text-main);
+    font-size: 1.12rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-bottom: 0;
+    transition: color 0.15s ease;
+}
+
+.location-card:hover .location-city-name {
+    color: #FFFFFF;
+}
+
+.province-code-pill {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background-color: var(--color-primary-subtle);
+    border: 1px solid var(--color-primary-border);
+    padding: 1px 6px;
+    border-radius: var(--radius-xs);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.location-province-name {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.location-pin-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-pill);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-light);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    color: #94A3B8;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.location-card:hover .location-pin-icon {
+    background-color: var(--color-primary-subtle);
+    border-color: var(--color-primary-border);
+    color: var(--color-primary);
+}
+
+/* Bottom: Listing Count & Arrow */
+.location-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+    margin-top: auto;
+}
+
+.location-count-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.location-count-text strong {
+    color: #E2E8F0;
+    font-weight: 600;
+}
+
+.location-arrow {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.location-card:hover .location-arrow {
+    color: var(--color-primary);
+    transform: translateX(4px);
+}
+
+/* Responsive Adjustments for Locations Grid */
+@media (max-width: 991px) {
+    .locations-section {
+        padding: 44px 0 52px;
+    }
+    .location-card {
+        min-height: 116px;
+        padding: 16px 16px 14px;
+    }
+    .location-city-name {
+        font-size: 1.05rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .locations-section {
+        padding: 36px 0 44px;
+    }
+    .location-card {
+        min-height: 108px;
+        padding: 14px 12px 12px;
+        border-radius: var(--radius-md);
+    }
+    .location-city-name {
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+    .location-province-name {
+        font-size: 0.74rem;
+    }
+    .location-pin-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+    .location-card-bottom {
+        padding-top: 8px;
+    }
+    .location-count-text {
+        font-size: 0.72rem;
+    }
+    .location-arrow {
+        font-size: 0.85rem;
+    }
+}
+
+/* ==========================================================================
+   PART 6 — FEATURED LISTINGS (Promoted Marketplace Showcase)
+   ========================================================================== */
+
+.featured-listings-section {
+    background-color: var(--bg-base);
+    padding: 56px 0 68px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Promote Your Ad Pill Button */
+.btn-promote-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--color-primary-subtle);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary-border);
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--transition-fast);
+}
+.btn-promote-pill i {
+    font-size: 0.9rem;
+}
+.btn-promote-pill:hover {
+    background-color: var(--color-primary);
+    color: var(--text-dark);
+    box-shadow: 0 4px 12px rgba(73, 209, 125, 0.28);
+}
+
+/* Featured Header Carousel Navigation Buttons */
+.featured-carousel-nav {
+    display: inline-flex;
+    align-items: center;
+}
+
+.featured-nav-btn {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+.featured-nav-btn:hover:not(.swiper-button-disabled) {
+    background-color: var(--bg-surface-hover);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+.featured-nav-btn.swiper-button-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-color: var(--border-color);
+}
+
+/* Swiper Container for Featured Listings */
+.featured-listings-swiper {
+    overflow: hidden;
+    position: relative;
+    padding: 4px 0 10px;
+}
+.featured-listings-swiper .swiper-slide {
+    height: auto;
+    display: flex;
+}
+.featured-listings-swiper .swiper-slide .listing-card {
+    width: 100%;
+}
+
+/* Enhanced styling for is-featured cards */
+.listing-card.is-featured {
+    border-color: rgba(73, 209, 125, 0.28);
+    background: linear-gradient(180deg, rgba(73, 209, 125, 0.03) 0%, var(--bg-surface) 120px);
+}
+
+.listing-card.is-featured:hover {
+    border-color: rgba(73, 209, 125, 0.5);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(73, 209, 125, 0.18);
+}
+
+@media (max-width: 991px) {
+    .featured-listings-section {
+        padding: 44px 0 52px;
+    }
+}
+
+@media (max-width: 576px) {
+    .featured-listings-section {
+        padding: 36px 0 44px;
+    }
+    .btn-promote-pill {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+}
