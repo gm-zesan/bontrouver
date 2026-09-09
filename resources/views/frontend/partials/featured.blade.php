@@ -157,10 +157,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 nextEl: '.featured-next',
                 prevEl: '.featured-prev',
             },
-            pagination: {
-                el: '.featured-pagination',
-                clickable: true,
-            },
             breakpoints: {
                 480: {
                     slidesPerView: 2,

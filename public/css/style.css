@@ -1585,3 +1585,145 @@ body {
         padding: 6px 12px;
     }
 }
+
+/* ==========================================================================
+   GLOBAL RESPONSIVENESS & DEVICE-SPECIFIC POLISH
+   ========================================================================== */
+
+/* Universal Layout & Overflow Guards */
+html {
+    scroll-behavior: smooth;
+}
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+}
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Base Responsive Image Behavior */
+img, picture, video, canvas, svg {
+    max-width: 100%;
+}
+
+/* Medium Screen Refinements (768px – 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .hero-ad-body {
+        padding: 32px 28px;
+    }
+    .hero-listing-title {
+        font-size: 1.6rem;
+    }
+    .hero-price {
+        font-size: 1.9rem;
+    }
+    .section-heading {
+        font-size: 1.6rem;
+    }
+}
+
+/* Mobile Screen Refinements (max-width: 576px) */
+@media (max-width: 576px) {
+    .site-header .brand-logo {
+        font-size: 1.18rem;
+    }
+    .btn-post-ad {
+        height: 36px;
+        padding: 0 12px;
+        font-size: 0.82rem;
+    }
+    .btn-location {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 0.82rem;
+    }
+    .section-eyebrow {
+        font-size: 0.7rem;
+    }
+    .section-heading {
+        font-size: 1.32rem;
+    }
+    .section-subtext {
+        font-size: 0.86rem;
+    }
+    .section-header-wrap {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+    .section-header-right {
+        width: 100%;
+    }
+    .section-header-right .view-all-btn,
+    .section-header-right .btn-promote-pill {
+        flex: 1 1 auto;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+/* Extra Small Screen Refinements (< 380px) */
+@media (max-width: 380px) {
+    .site-header .brand-logo {
+        font-size: 1.05rem;
+    }
+    .btn-post-ad {
+        padding: 0 8px;
+        font-size: 0.78rem;
+    }
+    .btn-post-ad span {
+        display: none;
+    }
+    .btn-post-ad::after {
+        content: "Post";
+        display: inline;
+    }
+    .category-card {
+        padding: 10px 8px;
+        min-height: 124px;
+    }
+    .category-icon-box {
+        width: 30px;
+        height: 30px;
+        font-size: 0.95rem;
+    }
+    .category-title {
+        font-size: 0.82rem;
+    }
+    .category-description {
+        font-size: 0.7rem;
+        line-height: 1.25;
+    }
+    .listing-card-body {
+        padding: 10px 8px;
+    }
+    .listing-price {
+        font-size: 0.98rem;
+    }
+    .listing-original-price {
+        font-size: 0.76rem;
+    }
+    .price-drop-badge {
+        font-size: 0.62rem;
+        padding: 1px 3px;
+    }
+    .listing-title {
+        font-size: 0.8rem;
+        min-height: 2.3em;
+    }
+    .location-card {
+        padding: 12px 10px;
+        min-height: 98px;
+    }
+    .location-city-name {
+        font-size: 0.88rem;
+    }
+    .province-code-pill {
+        font-size: 0.6rem;
+        padding: 0 4px;
+    }
+    .location-count-text {
+        font-size: 0.68rem;
+    }
+}
