@@ -18,22 +18,6 @@
                     <span class="country-flag-icon" aria-hidden="true">🇨🇦</span>
                     <span>Canada's local marketplace</span>
                 </div>
-
-                <!-- Social Links -->
-                <div class="footer-social-links" aria-label="Social media channels">
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Facebook">
-                        <i class="bi bi-facebook" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Instagram">
-                        <i class="bi bi-instagram" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on X (formerly Twitter)">
-                        <i class="bi bi-twitter-x" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Subscribe to Bontrouver on YouTube">
-                        <i class="bi bi-youtube" aria-hidden="true"></i>
-                    </a>
-                </div>
             </div>
 
             <!-- Column 2: BONTROUVER (Company) -->
@@ -79,7 +63,25 @@
             </div>
         </div>
 
-        <!-- Bottom Footer Bar -->
+        <!-- Social Media Links (At the bottom, centered) -->
+        <div class="footer-bottom-social">
+            <div class="footer-social-links" aria-label="Social media channels">
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Facebook">
+                    <i class="bi bi-facebook" aria-hidden="true"></i>
+                </a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Instagram">
+                    <i class="bi bi-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on X (formerly Twitter)">
+                    <i class="bi bi-twitter-x" aria-hidden="true"></i>
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Subscribe to Bontrouver on YouTube">
+                    <i class="bi bi-youtube" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Bottom Footer Bar (Copyright & Legal) -->
         <div class="footer-bottom-bar">
             <div class="footer-copyright">
                 © {{ date('Y') }} Bontrouver. All rights reserved.

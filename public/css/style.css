@@ -1844,29 +1844,46 @@ svg {
 
     .section-eyebrow {
         font-size: 0.7rem;
+        display: inline-block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .section-heading {
         font-size: 1.32rem;
+        text-align: center;
     }
 
     .section-subtext {
         font-size: 0.86rem;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 480px;
     }
 
     .section-header-wrap {
         flex-direction: column;
-        align-items: flex-start !important;
+        align-items: center !important;
+        text-align: center;
         gap: 12px;
+    }
+
+    .section-header-left {
+        text-align: center;
+        width: 100%;
     }
 
     .section-header-right {
         width: 100%;
+        display: flex;
+        justify-content: center;
     }
 
     .section-header-right .view-all-btn,
     .section-header-right .btn-promote-pill {
         flex: 1 1 auto;
+        max-width: 280px;
         justify-content: center;
         text-align: center;
     }
@@ -3225,13 +3242,21 @@ svg {
         max-width: 100%;
     }
 
+    .why-us-header {
+        text-align: center;
+    }
+
     .why-us-heading {
         font-size: 1.55rem;
         line-height: 1.22;
+        text-align: center;
     }
 
     .why-us-lead {
         font-size: 0.9rem;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .why-us-benefits-list {
@@ -3284,6 +3309,7 @@ svg {
         font-size: 0.78rem;
         gap: 6px 8px;
         flex-wrap: wrap;
+        justify-content: center;
     }
 }
 
@@ -3681,33 +3707,52 @@ svg {
         flex-direction: column;
         gap: 28px;
         border-radius: 20px;
+        text-align: center;
     }
 
     .seller-cta-content {
         max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .seller-cta-eyebrow {
+        justify-content: center;
+        margin-bottom: 10px;
     }
 
     .seller-cta-heading {
         font-size: 1.65rem;
         line-height: 1.25;
+        text-align: center;
     }
 
     .seller-cta-desc {
         font-size: 0.92rem;
         margin-bottom: 22px;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .seller-cta-actions {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
+        width: 100%;
+        max-width: 320px;
         gap: 12px;
         margin-bottom: 18px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .btn-seller-post {
         width: 100%;
         padding: 13px;
         font-size: 0.92rem;
+        justify-content: center;
     }
 
     .seller-learn-more {
@@ -3717,7 +3762,9 @@ svg {
 
     .seller-cta-perks {
         font-size: 0.78rem;
-        gap: 8px;
+        gap: 8px 12px;
+        justify-content: center;
+        text-align: center;
     }
 
     .seller-mockup-card {
@@ -3773,7 +3820,7 @@ svg {
     display: grid;
     grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
     gap: 40px;
-    margin-bottom: 48px;
+    margin-bottom: 40px;
 }
 
 /* Column 1: Brand */
@@ -3821,22 +3868,31 @@ svg {
     font-size: 0.9rem;
 }
 
-/* Social Icon Buttons */
+/* Bottom Social Media Bar */
+.footer-bottom-social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
 .footer-social-links {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 12px;
 }
 
 .social-icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    background-color: #0B2238;
-    border: 1px solid var(--border-color);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #081B2E;
+    border: 1px solid rgba(255, 255, 255, 0.09);
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.95rem;
@@ -3905,8 +3961,8 @@ svg {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding-top: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     flex-wrap: wrap;
 }
 
@@ -3962,32 +4018,79 @@ svg {
 @media (max-width: 767.98px) {
     .site-footer {
         padding: 44px 0 20px;
+        text-align: center;
     }
 
     .footer-main-grid {
         grid-template-columns: 1fr 1fr;
         gap: 28px 18px;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
     }
 
     .footer-brand-col {
         grid-column: 1 / -1;
-        margin-bottom: 6px;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .footer-logo {
+        justify-content: center;
     }
 
     .footer-brand-desc {
-        max-width: 100%;
+        max-width: 320px;
         font-size: 0.86rem;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .footer-country-tag {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .footer-nav-col {
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-col-title {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .footer-links-list {
+        align-items: center;
+        text-align: center;
+        gap: 9px;
+    }
+
+    .footer-link {
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .footer-bottom-social {
+        padding: 18px 0 16px;
     }
 
     .footer-bottom-bar {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        text-align: center;
         gap: 10px;
-        padding-top: 18px;
+        padding-top: 14px;
+    }
+
+    .footer-copyright {
+        text-align: center;
     }
 
     .footer-legal-links {
+        justify-content: center;
+        text-align: center;
         flex-wrap: wrap;
         gap: 6px 12px;
     }
@@ -3996,8 +4099,8 @@ svg {
 /* Extra Small Mobile (< 420px) */
 @media (max-width: 419.98px) {
     .footer-main-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 12px;
     }
 
     .footer-legal-links {
