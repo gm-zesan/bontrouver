@@ -2105,7 +2105,7 @@ svg {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    height: 100%;
+    width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -2113,7 +2113,8 @@ svg {
    -------------------------------------------------------------------------- */
 .spotlight-jobs-card {
     position: relative;
-    flex: 1 1 0;
+    flex: 1 1 auto;
+    width: 100%;
     min-height: 248px;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-card);
@@ -2130,6 +2131,7 @@ svg {
 .spotlight-jobs-content {
     position: relative;
     z-index: 2;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -2263,7 +2265,8 @@ svg {
    -------------------------------------------------------------------------- */
 .spotlight-classifieds-card {
     position: relative;
-    flex: 1 1 0;
+    flex: 1 1 auto;
+    width: 100%;
     min-height: 248px;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-card);
@@ -2282,6 +2285,7 @@ svg {
     position: relative;
     z-index: 2;
     flex: 1 1 auto;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -2425,12 +2429,13 @@ svg {
 /* Tablet (768px to 991px) */
 @media (min-width: 768px) and (max-width: 991.98px) {
     .spotlight-grid {
+        display: grid;
         grid-template-columns: 1fr;
         gap: 20px;
     }
 
     .spotlight-housing-card {
-        min-height: 400px;
+        min-height: 380px;
         padding: 30px;
     }
 
@@ -2442,28 +2447,55 @@ svg {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+        width: 100%;
+        height: auto;
     }
 
     .spotlight-jobs-card,
     .spotlight-classifieds-card {
         min-height: 270px;
+        height: auto;
+        padding: 24px 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .spotlight-jobs-content,
+    .spotlight-classifieds-content {
+        height: 100%;
+        min-height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 12px;
     }
 
     .spotlight-classifieds-card {
         flex-direction: column;
-        align-items: flex-start;
-        justify-content: space-between;
+        align-items: stretch;
+        gap: 14px;
     }
 
     .spotlight-classifieds-collage {
-        margin-top: 14px;
-        grid-template-columns: repeat(4, 56px);
+        margin-top: 10px;
+        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
+        width: 100%;
+        padding: 0;
     }
 
     .collage-item {
-        width: 56px;
-        height: 56px;
+        width: 100%;
+        height: 60px;
+        border-radius: 8px;
+    }
+
+    .collage-item-1,
+    .collage-item-2,
+    .collage-item-3,
+    .collage-item-4 {
+        transform: none !important;
     }
 }
 
@@ -2477,61 +2509,152 @@ svg {
         display: flex;
         flex-direction: column;
         gap: 16px;
+        width: 100%;
     }
 
     .spotlight-side-stack {
         display: flex;
         flex-direction: column;
         gap: 16px;
+        width: 100%;
+        height: auto;
     }
 
     .spotlight-housing-card {
-        min-height: 360px;
-        padding: 24px 20px 20px;
+        min-height: 340px;
+        padding: 22px 18px 18px;
+        border-radius: 16px;
+        width: 100%;
     }
 
     .spotlight-housing-heading {
-        font-size: 1.55rem;
+        font-size: 1.48rem;
+        line-height: 1.25;
     }
 
     .spotlight-housing-desc {
-        font-size: 0.88rem;
+        font-size: 0.86rem;
+    }
+
+    .spotlight-housing-chips {
+        gap: 6px;
+    }
+
+    .housing-chip {
+        font-size: 0.74rem;
+        padding: 4px 10px;
     }
 
     .spotlight-jobs-card,
     .spotlight-classifieds-card {
-        padding: 22px 20px;
+        padding: 22px 18px;
         min-height: auto;
+        height: auto;
+        flex: none;
+        width: 100%;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        overflow: visible;
     }
 
-    .spotlight-jobs-heading {
-        font-size: 1.3rem;
+    .spotlight-jobs-content,
+    .spotlight-classifieds-content {
+        height: auto;
+        min-height: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .spotlight-jobs-body,
+    .spotlight-classifieds-body {
+        margin: 6px 0 10px;
+    }
+
+    .spotlight-jobs-heading,
+    .spotlight-classifieds-heading {
+        font-size: 1.26rem;
+        line-height: 1.28;
+    }
+
+    .spotlight-jobs-desc,
+    .spotlight-classifieds-desc {
+        font-size: 0.85rem;
+        line-height: 1.45;
+    }
+
+    .spotlight-jobs-chips {
+        gap: 6px;
+    }
+
+    .jobs-tag-chip {
+        font-size: 0.74rem;
+        padding: 4px 10px;
     }
 
     .spotlight-classifieds-card {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        align-items: stretch;
+        gap: 14px;
     }
 
     .spotlight-classifieds-collage {
-        grid-template-columns: repeat(4, 58px);
+        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
         width: 100%;
-        justify-content: space-between;
+        margin: 4px 0 0;
+        padding: 0;
     }
 
     .collage-item {
-        width: 58px;
-        height: 58px;
+        width: 100%;
+        height: 64px;
+        border-radius: 8px;
+    }
+
+    .collage-item-1,
+    .collage-item-2,
+    .collage-item-3,
+    .collage-item-4 {
+        transform: none !important;
+    }
+
+    .collage-item-label {
+        font-size: 0.64rem;
+        padding: 2px 4px;
     }
 }
 
-/* Extra Small Mobile (< 400px) */
-@media (max-width: 399.98px) {
+/* Extra Small Mobile (< 420px) */
+@media (max-width: 419.98px) {
+    .spotlight-housing-card {
+        min-height: 300px;
+        padding: 18px 14px 16px;
+    }
+
+    .spotlight-housing-heading {
+        font-size: 1.32rem;
+    }
+
+    .spotlight-jobs-card,
+    .spotlight-classifieds-card {
+        padding: 18px 14px;
+    }
+
+    .spotlight-jobs-heading,
+    .spotlight-classifieds-heading {
+        font-size: 1.18rem;
+    }
+
     .spotlight-classifieds-collage {
-        grid-template-columns: repeat(2, 60px);
-        justify-content: flex-start;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .collage-item {
+        height: 72px;
     }
 }
 
@@ -3002,13 +3125,13 @@ svg {
 /* Mobile (< 768px) */
 @media (max-width: 767.98px) {
     .why-us-section {
-        padding: 48px 0 54px;
+        padding: 44px 0 52px;
     }
 
     .why-us-layout {
         display: flex;
         flex-direction: column;
-        gap: 32px;
+        gap: 30px;
     }
 
     .why-us-content {
@@ -3016,35 +3139,37 @@ svg {
     }
 
     .why-us-heading {
-        font-size: 1.65rem;
+        font-size: 1.55rem;
         line-height: 1.22;
     }
 
     .why-us-lead {
-        font-size: 0.92rem;
+        font-size: 0.9rem;
     }
 
     .why-us-benefits-list {
-        gap: 14px;
+        gap: 12px;
     }
 
     .benefit-item {
         padding: 12px 14px;
         gap: 14px;
+        border-radius: 12px;
     }
 
     .benefit-title {
-        font-size: 0.88rem;
+        font-size: 0.86rem;
     }
 
     .benefit-desc {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
     }
 
     .marketplace-canvas {
-        padding: 20px 16px;
+        padding: 18px 14px;
         min-height: auto;
         gap: 12px;
+        border-radius: 16px;
     }
 
     .visual-node-listing,
@@ -3053,10 +3178,61 @@ svg {
         margin-left: 0;
     }
 
+    .visual-node-location {
+        margin: 6px auto;
+        padding: 6px 14px;
+    }
+
     .flow-pill-tracker {
-        font-size: 0.65rem;
+        font-size: 0.64rem;
         padding: 4px 10px;
         margin-top: 6px;
+        max-width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px 6px;
+    }
+
+    .why-us-trust-strip {
+        font-size: 0.78rem;
+        gap: 6px 8px;
+        flex-wrap: wrap;
+    }
+}
+
+/* Extra Small Mobile (< 420px) */
+@media (max-width: 419.98px) {
+    .why-us-section {
+        padding: 36px 0 44px;
+    }
+
+    .why-us-heading {
+        font-size: 1.38rem;
+    }
+
+    .benefit-item {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .marketplace-canvas {
+        padding: 14px 10px;
+    }
+
+    .visual-listing-title {
+        font-size: 0.78rem;
+    }
+
+    .visual-listing-price {
+        font-size: 0.92rem;
+    }
+
+    .visual-msg-bubble {
+        padding: 8px 10px;
+    }
+
+    .visual-msg-text {
+        font-size: 0.74rem;
     }
 }
 
@@ -3463,6 +3639,36 @@ svg {
     }
 }
 
+/* Extra Small Mobile (< 420px) */
+@media (max-width: 419.98px) {
+    .seller-cta-banner {
+        padding: 22px 16px;
+        border-radius: 16px;
+        gap: 22px;
+    }
+
+    .seller-cta-heading {
+        font-size: 1.42rem;
+    }
+
+    .seller-cta-desc {
+        font-size: 0.86rem;
+    }
+
+    .seller-mockup-card {
+        padding: 14px 12px;
+        border-radius: 14px;
+    }
+
+    .seller-mockup-title {
+        font-size: 0.88rem;
+    }
+
+    .seller-mockup-price {
+        font-size: 1.22rem;
+    }
+}
+
 /* ==========================================================================
    PART 10 — PREMIUM MARKETPLACE FOOTER
    ========================================================================== */
@@ -3668,28 +3874,35 @@ svg {
 /* Mobile (< 768px) */
 @media (max-width: 767.98px) {
     .site-footer {
-        padding: 48px 0 24px;
+        padding: 44px 0 20px;
     }
 
     .footer-main-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 32px 20px;
-        margin-bottom: 36px;
+        gap: 28px 18px;
+        margin-bottom: 32px;
     }
 
     .footer-brand-col {
         grid-column: 1 / -1;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .footer-brand-desc {
         max-width: 100%;
+        font-size: 0.86rem;
     }
 
     .footer-bottom-bar {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 10px;
+        padding-top: 18px;
+    }
+
+    .footer-legal-links {
+        flex-wrap: wrap;
+        gap: 6px 12px;
     }
 }
 
@@ -3697,6 +3910,14 @@ svg {
 @media (max-width: 419.98px) {
     .footer-main-grid {
         grid-template-columns: 1fr;
-        gap: 28px;
+        gap: 24px;
+    }
+
+    .footer-legal-links {
+        gap: 4px 8px;
+    }
+
+    .legal-separator {
+        display: none;
     }
 }
