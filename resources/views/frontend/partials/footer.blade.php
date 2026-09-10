@@ -1,9 +1,9 @@
 <footer class="site-footer" aria-labelledby="footer-brand-heading">
     <h2 id="footer-brand-heading" class="visually-hidden">Site Footer</h2>
     <div class="container-xl">
-        <!-- Main 5-Column Grid -->
+        <!-- Main Footer Grid (Brand + 4 Reference Columns) -->
         <div class="footer-main-grid">
-            <!-- Column 1: Brand & Community -->
+            <!-- Column 1: Brand Info -->
             <div class="footer-brand-col">
                 <a href="{{ url('/') }}" class="brand-logo footer-logo" aria-label="Bontrouver Homepage">
                     <span>BON<span class="accent">TROUVER</span></span>
@@ -36,57 +36,45 @@
                 </div>
             </div>
 
-            <!-- Column 2: Marketplace Categories -->
+            <!-- Column 2: BONTROUVER (Company) -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Marketplace</h3>
+                <h3 class="footer-col-title">Bontrouver</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/buy-sell') }}" class="footer-link">Buy & Sell</a></li>
-                    <li><a href="{{ url('/cars-vehicles') }}" class="footer-link">Cars & Vehicles</a></li>
-                    <li><a href="{{ url('/real-estate') }}" class="footer-link">Real Estate</a></li>
-                    <li><a href="{{ url('/jobs') }}" class="footer-link">Jobs</a></li>
-                    <li><a href="{{ url('/services') }}" class="footer-link">Services</a></li>
-                    <li><a href="{{ url('/pets') }}" class="footer-link">Pets</a></li>
-                    <li><a href="{{ url('/community') }}" class="footer-link">Community</a></li>
-                    <li><a href="{{ url('/vacation-rentals') }}" class="footer-link">Vacation Rentals</a></li>
+                    <li><a href="{{ url('/about') }}" class="footer-link">About</a></li>
+                    <li><a href="{{ url('/careers') }}" class="footer-link">Join Us</a></li>
+                    <li><a href="{{ url('/member-benefits') }}" class="footer-link">Member Benefits</a></li>
+                    <li><a href="{{ url('/advertise') }}" class="footer-link">Advertise on Bontrouver</a></li>
                 </ul>
             </div>
 
-            <!-- Column 3: Explore -->
+            <!-- Column 3: EXPLORE -->
             <div class="footer-nav-col">
                 <h3 class="footer-col-title">Explore</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/listings') }}" class="footer-link">Browse Listings</a></li>
-                    <li><a href="{{ url('/categories') }}" class="footer-link">Browse Categories</a></li>
-                    <li><a href="{{ url('/locations') }}" class="footer-link">Browse Locations</a></li>
-                    <li><a href="{{ url('/featured') }}" class="footer-link">Featured Listings</a></li>
-                    <li><a href="{{ url('/how-it-works') }}" class="footer-link">How It Works</a></li>
-                    <li><a href="{{ url('/post-ad') }}" class="footer-link footer-link-highlight">Post an Ad</a></li>
+                    <li><a href="{{ url('/promote-tools') }}" class="footer-link">Tools to promote ads</a></li>
                 </ul>
             </div>
 
-            <!-- Column 4: Account -->
+            <!-- Column 4: INFO -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Account</h3>
+                <h3 class="footer-col-title">Info</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ Route::has('login') ? route('login') : url('/login') }}" class="footer-link">Sign In</a></li>
-                    <li><a href="{{ Route::has('register') ? route('register') : url('/register') }}" class="footer-link">Create Account</a></li>
-                    <li><a href="{{ Route::has('dashboard') ? route('dashboard') : url('/dashboard') }}" class="footer-link">My Listings</a></li>
-                    <li><a href="{{ url('/favorites') }}" class="footer-link">Favorites</a></li>
-                    <li><a href="{{ url('/messages') }}" class="footer-link">Messages</a></li>
-                    <li><a href="{{ Route::has('profile.edit') ? route('profile.edit') : url('/profile') }}" class="footer-link">Account Settings</a></li>
+                    <li><a href="{{ url('/verification') }}" class="footer-link">Verification</a></li>
+                    <li><a href="{{ url('/terms') }}" class="footer-link">Terms of Use</a></li>
+                    <li><a href="{{ url('/privacy') }}" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="{{ url('/posting-policy') }}" class="footer-link">Posting Policy</a></li>
+                    <li><a href="{{ url('/security') }}" class="footer-link">Security</a></li>
+                    <li><a href="{{ url('/ad-choices') }}" class="footer-link">AdChoices</a></li>
                 </ul>
             </div>
 
-            <!-- Column 5: Support & Trust -->
+            <!-- Column 5: SUPPORT -->
             <div class="footer-nav-col">
                 <h3 class="footer-col-title">Support</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/help') }}" class="footer-link">Help Center</a></li>
-                    <li><a href="{{ url('/safety') }}" class="footer-link">Safety Tips</a></li>
-                    <li><a href="{{ url('/contact') }}" class="footer-link">Contact Us</a></li>
-                    <li><a href="{{ url('/report') }}" class="footer-link">Report a Listing</a></li>
-                    <li><a href="{{ url('/terms') }}" class="footer-link">Terms of Use</a></li>
-                    <li><a href="{{ url('/privacy') }}" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="{{ url('/community-connect') }}" class="footer-link">Community Connect</a></li>
+                    <li><a href="{{ url('/fr') }}" class="footer-link">Bontrouver en Français</a></li>
+                    <li><a href="{{ url('/accessibility') }}" class="footer-link">Accessibility</a></li>
                 </ul>
             </div>
         </div>
@@ -102,7 +90,7 @@
                 <li class="legal-separator" aria-hidden="true">•</li>
                 <li><a href="{{ url('/privacy') }}" class="legal-link">Privacy</a></li>
                 <li class="legal-separator" aria-hidden="true">•</li>
-                <li><a href="{{ url('/cookies') }}" class="legal-link">Cookies</a></li>
+                <li><a href="{{ url('/ad-choices') }}" class="legal-link">AdChoices</a></li>
             </ul>
         </div>
     </div>

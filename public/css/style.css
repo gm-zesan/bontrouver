@@ -311,14 +311,30 @@ body {
     color: var(--text-main);
 }
 
+/* Language Toggle Button (like Kijiji FR / EN) */
+.lang-toggle-btn {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 6px 8px;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    line-height: 1;
+}
+
+.lang-toggle-btn:hover {
+    color: #FFFFFF;
+}
+
 /* Post an Ad Primary CTA Button */
 .btn-post-ad {
     background-color: var(--color-primary);
     color: var(--text-dark) !important;
     font-weight: 700;
     font-size: 0.88rem;
-    height: 40px;
-    padding: 0 18px;
+    height: 38px;
+    padding: 0 16px;
     border-radius: var(--radius-md);
     text-decoration: none;
     display: inline-flex;
@@ -336,16 +352,87 @@ body {
     box-shadow: 0 4px 10px rgba(73, 209, 125, 0.25);
 }
 
-/* Mobile Offcanvas Drawer */
-.mobile-offcanvas {
-    background-color: var(--bg-base) !important;
-    color: var(--text-main) !important;
-    border-left: 1px solid var(--border-color) !important;
-    max-width: 320px;
+/* Mobile Search Input Form */
+.mobile-search-group {
+    height: 44px;
+    padding: 3px 6px 3px 16px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
 }
 
-.mobile-offcanvas .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
+.mobile-search-group .search-input {
+    font-size: 0.92rem;
+}
+
+/* Mobile Header Category Rail (Swiper Sliding) */
+.mobile-header-categories-wrap {
+    padding: 8px 0 2px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 4px;
+}
+
+.mobile-header-categories-swiper {
+    overflow: hidden;
+    padding: 2px 2px 6px;
+}
+
+.mobile-header-categories-swiper .swiper-slide {
+    width: auto !important;
+    display: flex;
+    flex-shrink: 0;
+}
+
+.mobile-cat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--text-primary);
+    padding: 2px 4px;
+    min-width: 66px;
+    max-width: 82px;
+    text-align: center;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.mobile-cat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #0E2942;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: var(--color-primary);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.mobile-cat-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #CBD5E1;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+    display: block;
+}
+
+.mobile-cat-pill:hover .mobile-cat-icon,
+.mobile-cat-pill:active .mobile-cat-icon {
+    background-color: var(--color-primary);
+    color: var(--text-dark);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+}
+
+.mobile-cat-pill:hover .mobile-cat-name,
+.mobile-cat-pill:active .mobile-cat-name {
+    color: #FFFFFF;
 }
 
 /* ==========================================================================

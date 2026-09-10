@@ -1,16 +1,17 @@
 <header class="site-header">
     <div class="container-xl header-container">
-        <div class="d-flex align-items-center justify-content-between gap-3">
+        <!-- Top Row: Brand Logo, Location, Language / Auth, & Post Button -->
+        <div class="d-flex align-items-center justify-content-between gap-2 gap-md-3">
             
-            <!-- Left: Logo & Categories -->
-            <div class="d-flex align-items-center gap-3">
+            <!-- Left: Logo & Desktop Categories -->
+            <div class="d-flex align-items-center gap-2 gap-lg-3">
                 <!-- Logo -->
                 <a href="{{ url('/') }}" class="brand-logo" aria-label="Bontrouver Homepage">
                     <span>BON<span class="accent">TROUVER</span></span>
                 </a>
 
-                <!-- Categories Dropdown (Desktop & Tablet) -->
-                <div class="dropdown d-none d-md-block">
+                <!-- Categories Dropdown (Desktop >= 992px) -->
+                <div class="dropdown d-none d-lg-block">
                     <button class="btn-categories" type="button" id="categoriesMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid"></i>
                         <span>Categories</span>
@@ -20,39 +21,51 @@
                     <div class="dropdown-menu dropdown-categories-menu" aria-labelledby="categoriesMenuBtn">
                         <div class="row g-2">
                             <div class="col-6">
-                                <a href="#vehicles" class="category-link">
+                                <a href="{{ url('/cars-vehicles') }}" class="category-link">
                                     <i class="bi bi-car-front"></i>
                                     <span>Cars & Vehicles</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="#real-estate" class="category-link">
+                                <a href="{{ url('/real-estate') }}" class="category-link">
                                     <i class="bi bi-house-door"></i>
                                     <span>Real Estate</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="#electronics" class="category-link">
-                                    <i class="bi bi-laptop"></i>
-                                    <span>Electronics</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="#home-garden" class="category-link">
-                                    <i class="bi bi-lamp"></i>
-                                    <span>Home & Garden</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="#buy-sell" class="category-link">
+                                <a href="{{ url('/buy-sell') }}" class="category-link">
                                     <i class="bi bi-bag"></i>
                                     <span>Buy & Sell</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="#services" class="category-link">
+                                <a href="{{ url('/jobs') }}" class="category-link">
                                     <i class="bi bi-briefcase"></i>
-                                    <span>Services & Jobs</span>
+                                    <span>Jobs & Careers</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url('/services') }}" class="category-link">
+                                    <i class="bi bi-tools"></i>
+                                    <span>Services</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url('/pets') }}" class="category-link">
+                                    <i class="bi bi-heart"></i>
+                                    <span>Pets</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url('/community') }}" class="category-link">
+                                    <i class="bi bi-people"></i>
+                                    <span>Community</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="{{ url('/vacation-rentals') }}" class="category-link">
+                                    <i class="bi bi-compass"></i>
+                                    <span>Vacation Rentals</span>
                                 </a>
                             </div>
                         </div>
@@ -60,12 +73,12 @@
                 </div>
             </div>
 
-            <!-- Center: Search Input (Desktop) -->
+            <!-- Center: Search Input (Desktop >= 992px) -->
             <div class="flex-grow-1 d-none d-lg-block mx-3" style="max-width: 520px;">
-                <form action="#" method="GET" class="header-search-form" role="search">
+                <form action="{{ url('/listings') }}" method="GET" class="header-search-form" role="search">
                     <div class="search-input-group">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="search-input" name="q" placeholder="Search marketplace..." aria-label="Search listings">
+                        <input type="text" class="search-input" name="q" placeholder="What are you looking for?" aria-label="Search listings">
                         <button type="submit" class="btn-search-submit" aria-label="Search">
                             <i class="bi bi-arrow-right"></i>
                         </button>
@@ -73,10 +86,10 @@
                 </form>
             </div>
 
-            <!-- Right: Location, Auth & Post Ad Button -->
-            <div class="d-flex align-items-center gap-2 gap-lg-3">
+            <!-- Right: Location Selector, Language, Auth & Post Button -->
+            <div class="d-flex align-items-center gap-2 gap-sm-3">
                 
-                <!-- Location Selector -->
+                <!-- Location Selector (Desktop/Tablet >= 576px) -->
                 <div class="dropdown d-none d-sm-block">
                     <button class="btn-location" type="button" id="locationDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-geo-alt"></i>
@@ -96,12 +109,15 @@
                     </div>
                 </div>
 
+                <!-- Language Toggle (FR) -->
+                <a href="#fr" class="lang-toggle-btn" title="Passer en français">FR</a>
+
                 <!-- Auth Navigation -->
                 @auth
                     <div class="dropdown">
                         <button class="btn-location" type="button" id="userMenuBtn" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle"></i>
-                            <span>{{ Auth::user()->name }}</span>
+                            <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
                             <i class="bi bi-chevron-down ms-1" style="font-size: 0.68rem;"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu" aria-labelledby="userMenuBtn">
@@ -120,69 +136,120 @@
                     </div>
                 @else
                     @if (Route::has('login'))
-                        <a href="{{ route('login') }}" class="auth-nav-link d-none d-sm-inline-block">Login</a>
+                        <a href="{{ route('login') }}" class="auth-nav-link">Sign In</a>
                     @else
-                        <a href="#login" class="auth-nav-link d-none d-sm-inline-block">Login</a>
+                        <a href="{{ url('/login') }}" class="auth-nav-link">Sign In</a>
                     @endif
                 @endauth
 
-                <!-- Post an Ad CTA -->
-                <a href="#post-ad" class="btn-post-ad">
+                <!-- Post an Ad Primary Button -->
+                <a href="{{ url('/post-ad') }}" class="btn-post-ad" id="headerPostAdBtn">
                     <i class="bi bi-plus-lg"></i>
-                    <span>Post an Ad</span>
+                    <span>Post</span>
                 </a>
-
-                <!-- Mobile Menu Toggle Button -->
-                <button class="btn btn-outline-secondary d-lg-none border-0 text-white p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenuOffcanvas" aria-controls="mobileMenuOffcanvas" aria-label="Toggle navigation">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
             </div>
         </div>
 
-        <!-- Mobile Search Bar (Screens < 992px) -->
-        <div class="d-lg-none pt-2">
-            <form action="#" method="GET" class="header-search-form" role="search">
-                <div class="search-input-group">
+        <!-- Mobile Search Input Bar (Screens < 992px) -->
+        <div class="d-lg-none pt-2 pb-1">
+            <form action="{{ url('/listings') }}" method="GET" class="header-search-form" role="search">
+                <div class="search-input-group mobile-search-group">
                     <i class="bi bi-search search-icon"></i>
-                    <input type="text" class="search-input" name="q" placeholder="Search marketplace..." aria-label="Search listings">
+                    <input type="text" class="search-input" name="q" placeholder="What are you looking for?" aria-label="Search marketplace">
                     <button type="submit" class="btn-search-submit" aria-label="Search">
                         <i class="bi bi-arrow-right"></i>
                     </button>
                 </div>
             </form>
         </div>
+
+        <!-- Mobile Sliding/Scrolling Category Rail via Swiper (Screens < 992px) -->
+        <div class="d-lg-none mobile-header-categories-wrap">
+            <div class="swiper mobile-header-categories-swiper" id="mobileHeaderCategoriesSwiper">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <a href="{{ url('/buy-sell') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-tag"></i>
+                            </div>
+                            <span class="mobile-cat-name">Buy & Sell</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/cars-vehicles') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-car-front"></i>
+                            </div>
+                            <span class="mobile-cat-name">Cars & Vehicles</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/real-estate') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-house-door"></i>
+                            </div>
+                            <span class="mobile-cat-name">Real Estate</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/jobs') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-briefcase"></i>
+                            </div>
+                            <span class="mobile-cat-name">Jobs</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/services') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-tools"></i>
+                            </div>
+                            <span class="mobile-cat-name">Services</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/pets') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-heart"></i>
+                            </div>
+                            <span class="mobile-cat-name">Pets</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/community') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <span class="mobile-cat-name">Community</span>
+                        </a>
+                    </div>
+                    <div class="swiper-slide">
+                        <a href="{{ url('/vacation-rentals') }}" class="mobile-cat-pill">
+                            <div class="mobile-cat-icon">
+                                <i class="bi bi-compass"></i>
+                            </div>
+                            <span class="mobile-cat-name">Vacation Rentals</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </header>
 
-<!-- Mobile Navigation Offcanvas -->
-<div class="offcanvas offcanvas-end mobile-offcanvas" tabindex="-1" id="mobileMenuOffcanvas" aria-labelledby="mobileMenuLabel">
-    <div class="offcanvas-header border-bottom border-secondary border-opacity-25 px-4 py-3">
-        <h5 class="offcanvas-title text-white fw-bold brand-logo" id="mobileMenuLabel">
-            BON<span class="accent">TROUVER</span>
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    
-    <div class="offcanvas-body p-4 d-flex flex-column justify-content-between">
-        <div class="d-flex flex-column gap-3">
-            <div class="text-secondary small fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.05em;">Browse Categories</div>
-            <a href="#vehicles" class="category-link"><i class="bi bi-car-front"></i> Cars & Vehicles</a>
-            <a href="#real-estate" class="category-link"><i class="bi bi-house-door"></i> Real Estate</a>
-            <a href="#electronics" class="category-link"><i class="bi bi-laptop"></i> Electronics</a>
-            <a href="#home-garden" class="category-link"><i class="bi bi-lamp"></i> Home & Garden</a>
-            <a href="#buy-sell" class="category-link"><i class="bi bi-bag"></i> Buy & Sell</a>
-            <a href="#services" class="category-link"><i class="bi bi-briefcase"></i> Services & Jobs</a>
-        </div>
-
-        <div class="pt-4 border-top border-secondary border-opacity-25 d-flex flex-column gap-2">
-            @auth
-                <a href="{{ route('dashboard') }}" class="btn-location justify-content-center text-center py-2">My Dashboard</a>
-            @else
-                @if (Route::has('login'))
-                    <a href="{{ route('login') }}" class="btn-location justify-content-center text-center py-2">Sign In / Register</a>
-                @endif
-            @endauth
-            <a href="#post-ad" class="btn-post-ad justify-content-center text-center py-2 mt-1">+ Post an Ad</a>
-        </div>
-    </div>
-</div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Swiper !== 'undefined' && document.getElementById('mobileHeaderCategoriesSwiper')) {
+        new Swiper('#mobileHeaderCategoriesSwiper', {
+            slidesPerView: 'auto',
+            spaceBetween: 10,
+            freeMode: true,
+            grabCursor: true,
+            resistanceRatio: 0.6,
+        });
+    }
+});
+</script>
+@endpush
