@@ -15,6 +15,9 @@
 
     <!-- Part 6: Featured Listings Section (Promoted Marketplace Inventory) -->
     @include('frontend.partials.featured')
+
+    <!-- Part 7: Category Spotlight Section (Asymmetric Feature Showcase) -->
+    @include('frontend.partials.spotlight')
 @endsection
 
 

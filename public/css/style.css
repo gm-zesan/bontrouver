@@ -1727,3 +1727,598 @@ img, picture, video, canvas, svg {
         font-size: 0.68rem;
     }
 }
+
+/* ==========================================================================
+   PART 7 — CATEGORY SPOTLIGHT (Asymmetric Visual Feature Trio)
+   ========================================================================== */
+
+.spotlight-section {
+    background-color: var(--bg-base);
+    padding: 56px 0 68px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+/* Asymmetric Grid Layout */
+.spotlight-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+
+/* Bespoke Category Eyebrows (Clean & Editorial) */
+.spotlight-category-header {
+    margin-bottom: auto;
+}
+.spotlight-tag-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+.tag-indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.housing-tag-eyebrow {
+    color: var(--color-primary);
+    background: rgba(6, 24, 43, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(73, 209, 125, 0.35);
+}
+.housing-tag-eyebrow .tag-indicator-dot {
+    background-color: var(--color-primary);
+    box-shadow: 0 0 6px rgba(73, 209, 125, 0.8);
+}
+
+.jobs-tag-eyebrow {
+    color: var(--color-primary);
+}
+.jobs-tag-eyebrow .tag-indicator-dot {
+    background-color: var(--color-primary);
+    box-shadow: 0 0 6px rgba(73, 209, 125, 0.7);
+}
+
+.classifieds-tag-eyebrow {
+    color: #38BDF8;
+}
+.classifieds-tag-eyebrow .tag-indicator-dot {
+    background-color: #38BDF8;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
+}
+
+/* Common Spotlight CTA */
+.spotlight-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: var(--transition-fast);
+}
+.spotlight-cta-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+.spotlight-cta-arrow i {
+    font-size: 0.85rem;
+    transition: transform 0.25s ease;
+}
+
+/* --------------------------------------------------------------------------
+   1. Housing & Rentals — Large Dominant Feature Panel
+   -------------------------------------------------------------------------- */
+.spotlight-housing-card {
+    position: relative;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border-card);
+    overflow: hidden;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 520px;
+    padding: 34px 34px 30px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.spotlight-housing-bg-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+}
+.spotlight-housing-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.spotlight-housing-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(6, 24, 43, 0.72);
+    transition: background-color 0.3s ease;
+}
+.spotlight-housing-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.spotlight-housing-main {
+    margin-top: auto;
+    margin-bottom: 22px;
+}
+.spotlight-housing-heading {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 12px;
+}
+.spotlight-housing-desc {
+    font-size: 1rem;
+    color: #CBD5E1;
+    line-height: 1.5;
+    margin-bottom: 18px;
+    max-width: 480px;
+}
+
+/* Housing Tag Chips */
+.spotlight-housing-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.housing-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #06182B;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.housing-chip i {
+    font-size: 0.82rem;
+    color: var(--color-primary);
+}
+.housing-cta {
+    color: #FFFFFF;
+}
+.housing-cta .spotlight-cta-arrow {
+    background-color: var(--color-primary);
+    color: var(--text-dark);
+}
+
+/* Housing Hover Interactions */
+.spotlight-housing-card:hover {
+    border-color: rgba(73, 209, 125, 0.45);
+    box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
+}
+.spotlight-housing-card:hover .spotlight-housing-img {
+    transform: scale(1.05);
+}
+.spotlight-housing-card:hover .spotlight-housing-overlay {
+    background-color: rgba(6, 24, 43, 0.62);
+}
+.spotlight-housing-card:hover .housing-chip {
+    border-color: rgba(73, 209, 125, 0.4);
+    background-color: #0B2238;
+    color: #FFFFFF;
+}
+.spotlight-housing-card:hover .housing-cta .spotlight-cta-arrow {
+    transform: translateX(4px);
+    background-color: var(--color-primary-hover);
+}
+
+/* --------------------------------------------------------------------------
+   Right Stack Container
+   -------------------------------------------------------------------------- */
+.spotlight-side-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   2. Jobs / Work — Editorial / Informational Panel
+   -------------------------------------------------------------------------- */
+.spotlight-jobs-card {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 248px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    text-decoration: none;
+    padding: 26px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+}
+.spotlight-jobs-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.spotlight-jobs-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.jobs-live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #06182B;
+    color: var(--text-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+}
+.pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    animation: pulseGlow 2s infinite ease-in-out;
+}
+@keyframes pulseGlow {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
+}
+.spotlight-jobs-body {
+    margin: 12px 0 14px;
+}
+.spotlight-jobs-heading {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.015em;
+    line-height: 1.28;
+    margin-bottom: 6px;
+}
+.spotlight-jobs-desc {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 12px;
+}
+
+/* Modern Interactive Job Tag Chips */
+.spotlight-jobs-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.jobs-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: var(--radius-sm);
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #CBD5E1;
+    background-color: #06182B;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+.jobs-tag-chip i {
+    font-size: 0.78rem;
+    color: var(--color-primary);
+    transition: transform 0.2s ease;
+}
+.jobs-cta {
+    color: var(--color-primary);
+}
+.jobs-cta .spotlight-cta-arrow {
+    background-color: rgba(73, 209, 125, 0.12);
+    color: var(--color-primary);
+}
+
+/* Jobs Hover Interactions */
+.spotlight-jobs-card:hover {
+    border-color: rgba(73, 209, 125, 0.4);
+    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+.spotlight-jobs-card:hover .jobs-tag-chip {
+    background-color: #102D46;
+    border-color: rgba(73, 209, 125, 0.35);
+    color: #FFFFFF;
+}
+.spotlight-jobs-card:hover .jobs-tag-chip i {
+    transform: scale(1.1);
+}
+.spotlight-jobs-card:hover .jobs-cta .spotlight-cta-arrow {
+    transform: translateX(4px);
+    background-color: var(--color-primary);
+    color: var(--text-dark);
+}
+
+/* --------------------------------------------------------------------------
+   3. Classifieds — Energetic Product Collage Panel
+   -------------------------------------------------------------------------- */
+.spotlight-classifieds-card {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 248px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    text-decoration: none;
+    padding: 26px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+}
+.spotlight-classifieds-content {
+    position: relative;
+    z-index: 2;
+    flex: 1 1 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.spotlight-classifieds-body {
+    margin: 10px 0 12px;
+}
+.spotlight-classifieds-heading {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.015em;
+    line-height: 1.28;
+    margin-bottom: 6px;
+}
+.spotlight-classifieds-desc {
+    font-size: 0.86rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin-bottom: 0;
+}
+.classifieds-cta {
+    color: #FFFFFF;
+    margin-top: 10px;
+}
+.classifieds-cta .spotlight-cta-arrow {
+    background-color: rgba(56, 189, 248, 0.15);
+    color: #38BDF8;
+}
+
+/* Small Product Collage */
+.spotlight-classifieds-collage {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(2, 68px);
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 4px;
+}
+.collage-item {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+    background-color: #06182B;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.collage-item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.collage-item-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(6, 24, 43, 0.9);
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    text-align: center;
+    padding: 3px 2px;
+    letter-spacing: -0.01em;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
+/* Subtle organic tilt to the thumbnails */
+.collage-item-1 {
+    transform: rotate(-3deg) translateY(-2px);
+}
+.collage-item-2 {
+    transform: rotate(3deg) translateY(4px);
+}
+.collage-item-3 {
+    transform: rotate(2deg) translateY(-2px);
+}
+.collage-item-4 {
+    transform: rotate(-2deg) translateY(3px);
+}
+
+/* Classifieds Hover Interactions */
+.spotlight-classifieds-card:hover {
+    border-color: rgba(56, 189, 248, 0.45);
+    box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+}
+.spotlight-classifieds-card:hover .collage-item-1 {
+    transform: rotate(-5deg) translateY(-6px) scale(1.04);
+    border-color: rgba(56, 189, 248, 0.5);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+.spotlight-classifieds-card:hover .collage-item-2 {
+    transform: rotate(5deg) translateY(1px) scale(1.04);
+    border-color: rgba(73, 209, 125, 0.5);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+.spotlight-classifieds-card:hover .collage-item-3 {
+    transform: rotate(4deg) translateY(-6px) scale(1.04);
+    border-color: rgba(251, 191, 36, 0.5);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+.spotlight-classifieds-card:hover .collage-item-4 {
+    transform: rotate(-4deg) translateY(0px) scale(1.04);
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+.spotlight-classifieds-card:hover .classifieds-cta .spotlight-cta-arrow {
+    transform: translateX(4px);
+    background-color: #38BDF8;
+    color: var(--text-dark);
+}
+
+/* ==========================================================================
+   PART 7 — RESPONSIVE MEDIA QUERIES
+   ========================================================================== */
+
+/* Tablet (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .spotlight-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .spotlight-housing-card {
+        min-height: 400px;
+        padding: 30px;
+    }
+    .spotlight-housing-heading {
+        font-size: 1.85rem;
+    }
+    .spotlight-side-stack {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .spotlight-jobs-card,
+    .spotlight-classifieds-card {
+        min-height: 270px;
+    }
+    .spotlight-classifieds-card {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    .spotlight-classifieds-collage {
+        margin-top: 14px;
+        grid-template-columns: repeat(4, 56px);
+        gap: 8px;
+    }
+    .collage-item {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* Mobile & Small Screens (< 768px) */
+@media (max-width: 767.98px) {
+    .spotlight-section {
+        padding: 42px 0 52px;
+    }
+    .spotlight-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .spotlight-side-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .spotlight-housing-card {
+        min-height: 360px;
+        padding: 24px 20px 20px;
+    }
+    .spotlight-housing-heading {
+        font-size: 1.55rem;
+    }
+    .spotlight-housing-desc {
+        font-size: 0.88rem;
+    }
+    .spotlight-jobs-card,
+    .spotlight-classifieds-card {
+        padding: 22px 20px;
+        min-height: auto;
+    }
+    .spotlight-jobs-heading {
+        font-size: 1.3rem;
+    }
+    .spotlight-classifieds-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .spotlight-classifieds-collage {
+        grid-template-columns: repeat(4, 58px);
+        gap: 8px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .collage-item {
+        width: 58px;
+        height: 58px;
+    }
+}
+
+/* Extra Small Mobile (< 400px) */
+@media (max-width: 399.98px) {
+    .spotlight-classifieds-collage {
+        grid-template-columns: repeat(2, 60px);
+        justify-content: flex-start;
+    }
+}
