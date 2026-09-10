@@ -352,28 +352,39 @@ body {
     box-shadow: 0 4px 10px rgba(73, 209, 125, 0.25);
 }
 
-/* Mobile Search Input Form */
+/* Mobile Sticky Search Bar (Screens < 992px) */
+.mobile-sticky-search-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1035;
+    background-color: var(--bg-base);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 .mobile-search-group {
-    height: 44px;
-    padding: 3px 6px 3px 16px;
+    height: 42px;
+    padding: 3px 6px 3px 14px;
     background-color: var(--bg-surface);
     border: 1px solid var(--border-color);
 }
 
 .mobile-search-group .search-input {
-    font-size: 0.92rem;
+    font-size: 0.88rem;
 }
 
-/* Mobile Header Category Rail (Swiper Sliding) */
-.mobile-header-categories-wrap {
-    padding: 8px 0 2px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    margin-top: 4px;
+/* Mobile Header Category Rail (Screens < 992px) */
+.mobile-header-categories-section {
+    background-color: var(--bg-base);
+    padding: 10px 0 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mobile-header-categories-swiper {
     overflow: hidden;
-    padding: 2px 2px 6px;
+    padding: 2px 2px 4px;
 }
 
 .mobile-header-categories-swiper .swiper-slide {
@@ -1803,6 +1814,16 @@ video,
 canvas,
 svg {
     max-width: 100%;
+}
+
+/* Mobile & Tablet Header Behavior (< 992px): Only Search Bar is Sticky */
+@media (max-width: 991.98px) {
+    .site-header {
+        position: relative !important;
+        top: auto;
+        box-shadow: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
 }
 
 /* Medium Screen Refinements (768px – 991px) */
