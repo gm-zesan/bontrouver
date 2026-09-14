@@ -103,17 +103,17 @@ class Category extends Model
     public function getUrlAttribute(): string
     {
         if ($this->isRoot()) {
-            return url('/' . $this->slug);
+            return url('/category/' . $this->slug);
         }
 
         $ancestors = $this->getAncestors();
         $root = $ancestors->first();
 
         if (!$root) {
-            return url('/' . $this->slug);
+            return url('/category/' . $this->slug);
         }
 
-        $url = url('/' . $root->slug);
+        $url = url('/category/' . $root->slug);
         $remaining = $ancestors->slice(1)->push($this)->values();
 
         if ($remaining->isNotEmpty()) {

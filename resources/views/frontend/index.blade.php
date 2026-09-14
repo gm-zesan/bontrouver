@@ -437,7 +437,7 @@
                     <p class="section-subtext">Discover listings, services, jobs and more in communities across Canada.</p>
                 </div>
                 <div class="section-header-right">
-                    <a href="{{ url('/locations') }}" class="view-all-btn" id="viewAllLocationsBtn">
+                    <a href="{{ url('/listings') }}" class="view-all-btn" id="viewAllLocationsBtn">
                         <span>View All Locations</span>
                         <i class="bi bi-arrow-right" aria-hidden="true"></i>
                     </a>
@@ -557,7 +557,7 @@
                     </a>
 
                     <!-- View All Link -->
-                    <a href="{{ url('/featured') }}" class="view-all-btn" id="viewAllFeaturedBtn">
+                    <a href="{{ url('/listings') }}" class="view-all-btn" id="viewAllFeaturedBtn">
                         <span>View All</span>
                         <i class="bi bi-arrow-right" aria-hidden="true"></i>
                     </a>
@@ -613,13 +613,13 @@
             'heading' => 'Find a place that feels like home.',
             'description' => 'Explore apartments, condos, detached homes & room rentals across top Canadian cities.',
             'tags' => [
-                ['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/real-estate?type=apartments')],
-                ['label' => 'Condos', 'icon' => 'bi-building-check', 'url' => url('/real-estate?type=condos')],
-                ['label' => 'Houses', 'icon' => 'bi-house-door', 'url' => url('/real-estate?type=houses')],
-                ['label' => 'Room Sublets', 'icon' => 'bi-key', 'url' => url('/real-estate?type=rooms')]
+                ['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/category/real-estate?sub=apartments-condos')],
+                ['label' => 'Condos', 'icon' => 'bi-building-check', 'url' => url('/category/real-estate?sub=apartments-condos')],
+                ['label' => 'Houses', 'icon' => 'bi-house-door', 'url' => url('/category/real-estate?sub=house-rental')],
+                ['label' => 'Room Sublets', 'icon' => 'bi-key', 'url' => url('/category/real-estate?sub=room-rentals')]
             ],
             'cta_text' => 'Explore Housing',
-            'url' => url('/real-estate'),
+            'url' => url('/category/real-estate'),
             'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
             'alt' => 'Modern Canadian home and rental properties'
         ];
@@ -629,13 +629,13 @@
             'heading' => 'Find your next opportunity.',
             'description' => 'Connect directly with verified Canadian employers hiring across high-demand industries.',
             'tags' => [
-                ['label' => 'Remote Friendly', 'icon' => 'bi-laptop', 'url' => url('/jobs?type=remote')],
-                ['label' => 'Full-time', 'icon' => 'bi-briefcase', 'url' => url('/jobs?type=full-time')],
-                ['label' => 'Part-time', 'icon' => 'bi-hourglass-split', 'url' => url('/jobs?type=part-time')],
-                ['label' => 'Local Roles', 'icon' => 'bi-geo-alt', 'url' => url('/jobs?type=local')]
+                ['label' => 'Remote Friendly', 'icon' => 'bi-laptop', 'url' => url('/category/jobs?q=remote')],
+                ['label' => 'Full-time', 'icon' => 'bi-briefcase', 'url' => url('/category/jobs?q=full-time')],
+                ['label' => 'Part-time', 'icon' => 'bi-hourglass-split', 'url' => url('/category/jobs?q=part-time')],
+                ['label' => 'Local Roles', 'icon' => 'bi-geo-alt', 'url' => url('/category/jobs')]
             ],
             'cta_text' => 'Explore Jobs',
-            'url' => url('/jobs'),
+            'url' => url('/category/jobs'),
             'badge' => '3,400+ Active Openings'
         ];
 
@@ -644,7 +644,7 @@
             'heading' => 'Everyday finds, local deals & more.',
             'description' => 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
             'cta_text' => 'Browse Classifieds',
-            'url' => url('/buy-sell'),
+            'url' => url('/category/buy-sell'),
             'items' => [
                 [
                     'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',

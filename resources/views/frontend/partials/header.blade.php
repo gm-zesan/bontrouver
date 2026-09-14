@@ -31,7 +31,7 @@
                                         @php
                                             $catName = $cat['name'] ?? ucfirst($catSlug);
                                             $catIcon = $cat['icon'] ?? 'bi-tag';
-                                            $catUrl = $cat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug));
+                                            $catUrl = $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug));
                                         @endphp
                                         <a href="{{ $catUrl }}" class="mega-cat-item {{ $loop->first ? 'active' : '' }}"
                                             data-category="{{ $catSlug }}"
@@ -51,7 +51,7 @@
                                 @foreach($categoryData as $catSlug => $cat)
                                     @php
                                         $catName = $cat['name'] ?? ucfirst($catSlug);
-                                        $catUrl = $cat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug));
+                                        $catUrl = $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug));
                                         $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
                                     @endphp
                                     <div class="mega-subcat-pane {{ $loop->first ? 'active' : '' }}"
@@ -68,7 +68,7 @@
                                                 @php
                                                     $subName = $subcat['name'] ?? 'Subcategory';
                                                     $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                                                    $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
+                                                    $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
                                                     $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
                                                     $hasKids = !empty($children);
                                                 @endphp
@@ -97,7 +97,7 @@
                                         @php
                                             $subName = $subcat['name'] ?? 'Subcategory';
                                             $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                                            $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
+                                            $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
                                             $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
                                             $hasKids = !empty($children);
                                             $isFirst = ($loop->parent->first && $subIdx === 0);

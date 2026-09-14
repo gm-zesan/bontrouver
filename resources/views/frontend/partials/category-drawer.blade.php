@@ -51,7 +51,7 @@
             <div class="drawer-view drawer-subcat-view" id="drawerViewSubcat-{{ $key }}" style="display: none;">
                 
                 <!-- See All in [Category] Link -->
-                <a href="{{ $cat['url'] ?? url('/' . ($cat['slug'] ?? $key)) }}" class="drawer-see-all-link">
+                <a href="{{ $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $key)) }}" class="drawer-see-all-link">
                     <span>See all in {{ $cat['name'] }}</span>
                     <i class="bi bi-arrow-right"></i>
                 </a>
@@ -63,7 +63,7 @@
                             $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
                             $subChildren = $subcat['children'] ?? $subcat['subcategories'] ?? [];
                             $hasKids = !empty($subChildren);
-                            $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $key) . '?sub=' . $subSlug);
+                            $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $key) . '?sub=' . $subSlug);
                         @endphp
                         @if($hasKids)
                             <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('{{ $key }}', '{{ $subSlug }}')">
@@ -92,7 +92,7 @@
                 @php
                     $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
                     $subChildren = $subcat['children'] ?? $subcat['subcategories'] ?? [];
-                    $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug);
+                    $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug);
                 @endphp
                 @if(!empty($subChildren))
                     <div class="drawer-view drawer-child-view" id="drawerViewChildren-{{ $catKey }}-{{ $subSlug }}" style="display: none;">
@@ -108,7 +108,7 @@
                             @foreach($subChildren as $childIdx => $child)
                                 @php
                                     $childSlug = $child['slug'] ?? 'child-' . $childIdx;
-                                    $childUrl = $child['url'] ?? url('/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug);
+                                    $childUrl = $child['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug);
                                     $grandChildren = $child['children'] ?? $child['subcategories'] ?? [];
                                 @endphp
                                 <div class="drawer-child-block">
@@ -121,7 +121,7 @@
                                             @foreach($grandChildren as $gc)
                                                 @php
                                                     $gcSlug = $gc['slug'] ?? '';
-                                                    $gcUrl = $gc['url'] ?? url('/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
+                                                    $gcUrl = $gc['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
                                                 @endphp
                                                 <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ $gc['name'] }}</a>
                                             @endforeach
