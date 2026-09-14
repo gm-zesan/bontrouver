@@ -16,7 +16,7 @@
                 'description' => 'Single-owner 2024 RAV4 Hybrid XSE AWD in Wind Chill Pearl. Includes Technology Package, heated steering wheel, Apple CarPlay, panoramic sunroof, and winter tire set.',
                 'image' => asset('images/hero/toyota-rav4.jpg'),
                 'alt' => '2024 Toyota RAV4 Hybrid XSE AWD Wind Chill Pearl',
-                'url' => '#listing-1'
+                'url' => url('/listing/1')
             ],
             [
                 'id' => 2,
@@ -28,7 +28,7 @@
                 'description' => 'Factory unlocked 256GB iPhone 16 Pro Max. Sealed in original Apple box with purchase receipt. Local public meetup in downtown Vancouver or safe tracked shipping.',
                 'image' => asset('images/hero/iphone-16-pro.jpg'),
                 'alt' => 'Apple iPhone 16 Pro Max 256GB Natural Titanium Sealed',
-                'url' => '#listing-2'
+                'url' => url('/listing/2')
             ],
             [
                 'id' => 3,
@@ -40,7 +40,7 @@
                 'description' => 'Authentic Herman Miller Embody in Sync Black fabric with graphite base and frame. Fully adjustable arms, posturefit back support, pristine condition.',
                 'image' => asset('images/hero/herman-miller-embody.jpg'),
                 'alt' => 'Herman Miller Embody Ergonomic Chair Graphite Frame',
-                'url' => '#listing-3'
+                'url' => url('/listing/3')
             ]
         ];
     @endphp
@@ -200,7 +200,7 @@
                 'badge' => 'FEATURED',
                 'image' => 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80',
                 'alt' => '2023 Honda Civic Touring Sedan',
-                'url' => '#listing-1'
+                'url' => url('/listing/1')
             ],
             [
                 'id' => 2,
@@ -213,7 +213,7 @@
                 'badge' => 'NEW',
                 'image' => 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Sony PlayStation 5 Disc Edition',
-                'url' => '#listing-2'
+                'url' => url('/listing/2')
             ],
             [
                 'id' => 3,
@@ -227,7 +227,7 @@
                 'category' => 'Buy & Sell',
                 'image' => 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Mid-Century Modern Teak Dining Set',
-                'url' => '#listing-3'
+                'url' => url('/listing/3')
             ],
             [
                 'id' => 4,
@@ -239,7 +239,7 @@
                 'category' => 'Sports & Outdoors',
                 'image' => 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Trek Domane SL 6 Carbon Road Bike',
-                'url' => '#listing-4'
+                'url' => url('/listing/4')
             ],
             [
                 'id' => 5,
@@ -254,7 +254,7 @@
                 'badge' => 'URGENT',
                 'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Apple MacBook Pro 14 Space Black',
-                'url' => '#listing-5'
+                'url' => url('/listing/5')
             ],
             [
                 'id' => 6,
@@ -267,7 +267,7 @@
                 'badge' => 'NEW',
                 'image' => 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Modern 1 Bed Condo Interior',
-                'url' => '#listing-6'
+                'url' => url('/listing/6')
             ],
             [
                 'id' => 7,
@@ -279,7 +279,7 @@
                 'category' => 'Home & Tools',
                 'image' => 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'DeWalt 20V MAX Cordless Power Tool Set',
-                'url' => '#listing-7'
+                'url' => url('/listing/7')
             ],
             [
                 'id' => 8,
@@ -293,7 +293,7 @@
                 'category' => 'Furniture',
                 'image' => 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80',
                 'alt' => 'Handcrafted Solid White Oak Coffee Table',
-                'url' => '#listing-8'
+                'url' => url('/listing/8')
             ]
         ];
     @endphp

@@ -11,6 +11,7 @@ Route::get('/', function () {
 // Category and Search Results Page
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/category/{categorySlug}', [ListingController::class, 'index'])->name('listings.category');
+Route::get('/listing/{idOrSlug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->name('search.suggestions');
 
 Route::get('/dashboard', function () {

@@ -2,7 +2,8 @@
 
 @php
     $slug = $listing['slug'] ?? '';
-    $url = $listing['url'] ?? ($slug ? url('/listings/' . $slug) : '#listing-' . ($listing['id'] ?? ''));
+    $id = $listing['id'] ?? '';
+    $url = $listing['url'] ?? ($slug ? url('/listing/' . $slug) : ($id ? url('/listing/' . $id) : url('/listings')));
     $title = $listing['title'] ?? '';
     $price = $listing['price'] ?? '';
     $originalPrice = $listing['original_price'] ?? $listing['old_price'] ?? null;
