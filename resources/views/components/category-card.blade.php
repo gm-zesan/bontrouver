@@ -8,7 +8,7 @@
     $icon = $category['icon'] ?? 'bi-grid';
 @endphp
 
-<a href="{{ $url }}" class="category-card" id="cat-{{ $slug }}" aria-label="{{ $name }} - {{ $description }}">
+<a href="{{ $url }}" class="category-card" id="cat-{{ $slug }}" onclick="openCategoryDrawer('{{ $slug }}'); return false;" aria-label="{{ $name }} - {{ $description }}">
     <div class="category-card-header">
         <div class="category-icon-box">
             <i class="bi {{ $icon }}" aria-hidden="true"></i>

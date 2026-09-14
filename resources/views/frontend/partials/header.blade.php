@@ -1,77 +1,173 @@
+@include('frontend.partials.category-data')
+
 <header class="site-header">
     <div class="container-xl header-container">
-        <!-- Top Row: Brand Logo, Location, Language / Auth, & Post Button -->
+        <!-- Top Row: Brand Logo, Categories, Search Input (Desktop), Location, Auth & Post Button -->
         <div class="d-flex align-items-center justify-content-between gap-2 gap-md-3">
 
-            <!-- Left: Logo & Desktop Categories -->
+            <!-- Left: Logo & Desktop Categories Mega-Menu -->
             <div class="d-flex align-items-center gap-2 gap-lg-3">
                 <!-- Logo -->
                 <a href="{{ url('/') }}" class="brand-logo" aria-label="Bontrouver Homepage">
                     <span>BON<span class="accent">TROUVER</span></span>
                 </a>
 
-                <!-- Categories Dropdown (Desktop >= 992px) -->
-                <div class="dropdown d-none d-lg-block">
-                    <button class="btn-categories" type="button" id="categoriesMenuBtn" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                <!-- Categories Mega-Dropdown (Desktop >= 992px) -->
+                <div class="desktop-categories-dropdown" id="desktopCategoriesDropdown">
+                    <button class="btn-categories" type="button" id="categoriesMenuBtn" aria-haspopup="true" aria-expanded="false">
                         <i class="bi bi-grid"></i>
                         <span>Categories</span>
                         <i class="bi bi-chevron-down ms-1" style="font-size: 0.72rem;"></i>
                     </button>
 
-                    <div class="dropdown-menu dropdown-categories-menu" aria-labelledby="categoriesMenuBtn">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <a href="{{ url('/cars-vehicles') }}" class="category-link">
-                                    <i class="bi bi-car-front"></i>
-                                    <span>Cars & Vehicles</span>
-                                </a>
+                    <!-- Desktop 3-Column Mega Menu (Clean, Modern, Uncluttered) -->
+                    <div class="desktop-mega-menu shadow-lg" id="desktopMegaMenu" role="region"
+                        aria-label="Explore Marketplace Categories">
+                        <div class="mega-menu-grid">
+
+                            <!-- Col 1: Main Categories List -->
+                            <div class="mega-menu-left">
+                                <div class="mega-menu-heading">Categories</div>
+                                <div class="mega-categories-list">
+                                    @foreach($categoryData as $catSlug => $cat)
+                                        @php
+                                            $catName = $cat['name'] ?? ucfirst($catSlug);
+                                            $catIcon = $cat['icon'] ?? 'bi-tag';
+                                            $catUrl = $cat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug));
+                                        @endphp
+                                        <a href="{{ $catUrl }}" class="mega-cat-item {{ $loop->first ? 'active' : '' }}"
+                                            data-category="{{ $catSlug }}"
+                                            onmouseenter="selectDesktopCategory('{{ $catSlug }}')">
+                                            <div class="d-flex align-items-center gap-2 min-w-0">
+                                                <i class="bi {{ $catIcon }} mega-cat-icon"></i>
+                                                <span class="mega-cat-title">{{ $catName }}</span>
+                                            </div>
+                                            <i class="bi bi-chevron-right mega-arrow"></i>
+                                        </a>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="col-6">
-                                <a href="{{ url('/real-estate') }}" class="category-link">
-                                    <i class="bi bi-house-door"></i>
-                                    <span>Real Estate</span>
-                                </a>
+
+                            <!-- Col 2: Subcategories List (Per Active Main Category) -->
+                            <div class="mega-menu-middle">
+                                @foreach($categoryData as $catSlug => $cat)
+                                    @php
+                                        $catName = $cat['name'] ?? ucfirst($catSlug);
+                                        $catUrl = $cat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug));
+                                        $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
+                                    @endphp
+                                    <div class="mega-subcat-pane {{ $loop->first ? 'active' : '' }}"
+                                        id="megaSubcatPane-{{ $catSlug }}">
+                                        <div class="mega-pane-header">
+                                            <h3 class="mega-pane-title">{{ $catName }}</h3>
+                                            <a href="{{ $catUrl }}" class="mega-see-all">
+                                                <span>See all</span>
+                                                <i class="bi bi-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                        <div class="mega-subcat-list">
+                                            @foreach($subcategories as $subIdx => $subcat)
+                                                @php
+                                                    $subName = $subcat['name'] ?? 'Subcategory';
+                                                    $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
+                                                    $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
+                                                    $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
+                                                    $hasKids = !empty($children);
+                                                @endphp
+                                                <a href="{{ $subUrl }}"
+                                                    class="mega-subcat-item {{ $subIdx === 0 ? 'active' : '' }} {{ $hasKids ? 'has-children' : '' }}"
+                                                    data-cat="{{ $catSlug }}" data-subcat="{{ $subSlug }}"
+                                                    onmouseenter="selectDesktopSubcategory('{{ $catSlug }}', '{{ $subSlug }}')">
+                                                    <span class="mega-subcat-name">{{ $subName }}</span>
+                                                    @if($hasKids)
+                                                        <i class="bi bi-chevron-right mega-sub-arrow"></i>
+                                                    @endif
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                            <div class="col-6">
-                                <a href="{{ url('/buy-sell') }}" class="category-link">
-                                    <i class="bi bi-bag"></i>
-                                    <span>Buy & Sell</span>
-                                </a>
+
+                            <!-- Col 3: 3rd-Level Child Categories (Clean 2-Column Grid) -->
+                            <div class="mega-menu-right">
+                                @foreach($categoryData as $catSlug => $cat)
+                                    @php
+                                        $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
+                                    @endphp
+                                    @foreach($subcategories as $subIdx => $subcat)
+                                        @php
+                                            $subName = $subcat['name'] ?? 'Subcategory';
+                                            $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
+                                            $subUrl = $subcat['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
+                                            $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
+                                            $hasKids = !empty($children);
+                                            $isFirst = ($loop->parent->first && $subIdx === 0);
+                                        @endphp
+                                        <div class="mega-children-pane {{ $isFirst ? 'active' : '' }}"
+                                            id="megaChildrenPane-{{ $catSlug }}-{{ $subSlug }}">
+
+                                            <div class="mega-pane-header">
+                                                <h4 class="mega-children-title">{{ $subName }}</h4>
+                                                <a href="{{ $subUrl }}" class="mega-see-all">
+                                                    <span>See all</span>
+                                                    <i class="bi bi-arrow-right ms-1"></i>
+                                                </a>
+                                            </div>
+
+                                            @if($hasKids)
+                                                <div class="mega-children-grid">
+                                                    @foreach($children as $childIdx => $child)
+                                                        @php
+                                                            $childName = $child['name'] ?? 'Child Category';
+                                                            $childSlug = $child['slug'] ?? 'child-' . $childIdx;
+                                                            $childUrl = $child['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug . '&child=' . $childSlug);
+                                                            $grandChildren = $child['children'] ?? $child['subcategories'] ?? [];
+                                                            $hasGrandKids = !empty($grandChildren);
+                                                        @endphp
+                                                        <div class="mega-child-block {{ $hasGrandKids ? 'has-subchildren' : '' }}">
+                                                            <a href="{{ $childUrl }}" class="mega-child-link">
+                                                                <span class="mega-child-text">{{ $childName }}</span>
+                                                            </a>
+
+                                                            {{-- Generic 4th level recursion support --}}
+                                                            @if($hasGrandKids)
+                                                                <div class="mega-subchild-tags">
+                                                                    @foreach($grandChildren as $grandChild)
+                                                                        @php
+                                                                            $gcName = $grandChild['name'] ?? 'Tag';
+                                                                            $gcSlug = $grandChild['slug'] ?? '';
+                                                                            $gcUrl = $grandChild['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
+                                                                        @endphp
+                                                                        <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ $gcName }}</a>
+                                                                    @endforeach
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="mega-no-children-card">
+                                                    <div class="mega-no-children-icon">
+                                                        <i class="bi bi-grid"></i>
+                                                    </div>
+                                                    <h5 class="text-white fw-bold mb-1">{{ $subName }}</h5>
+                                                    <p class="text-secondary small mb-3">Browse all listings and ads in
+                                                        <strong>{{ $subName }}</strong>.</p>
+                                                    <a href="{{ $subUrl }}" class="btn btn-sm btn-primary-custom">
+                                                        Explore {{ $subName }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @endforeach
                             </div>
-                            <div class="col-6">
-                                <a href="{{ url('/jobs') }}" class="category-link">
-                                    <i class="bi bi-briefcase"></i>
-                                    <span>Jobs & Careers</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url('/services') }}" class="category-link">
-                                    <i class="bi bi-tools"></i>
-                                    <span>Services</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url('/pets') }}" class="category-link">
-                                    <i class="bi bi-heart"></i>
-                                    <span>Pets</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url('/community') }}" class="category-link">
-                                    <i class="bi bi-people"></i>
-                                    <span>Community</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="{{ url('/vacation-rentals') }}" class="category-link">
-                                    <i class="bi bi-compass"></i>
-                                    <span>Vacation Rentals</span>
-                                </a>
-                            </div>
+
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Center: Search Input (Desktop >= 992px) -->
@@ -88,7 +184,7 @@
                 </form>
             </div>
 
-            <!-- Right: Location Selector, Language, Auth & Post Button -->
+            <!-- Right: Location Selector, Auth & Post Button -->
             <div class="d-flex align-items-center gap-2 gap-sm-3">
 
                 <!-- Location Selector (Desktop/Tablet >= 576px) -->
@@ -120,6 +216,7 @@
                             NS</button>
                     </div>
                 </div>
+
                 <!-- Auth Navigation -->
                 @auth
                     <div class="dropdown">
@@ -187,87 +284,128 @@
     <div class="container-xl">
         <div class="swiper mobile-header-categories-swiper" id="mobileHeaderCategoriesSwiper">
             <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <a href="{{ url('/buy-sell') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-tag"></i>
-                        </div>
-                        <span class="mobile-cat-name">Buy & Sell</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/cars-vehicles') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-car-front"></i>
-                        </div>
-                        <span class="mobile-cat-name">Cars & Vehicles</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/real-estate') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-house-door"></i>
-                        </div>
-                        <span class="mobile-cat-name">Real Estate</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/jobs') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-briefcase"></i>
-                        </div>
-                        <span class="mobile-cat-name">Jobs</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/services') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-tools"></i>
-                        </div>
-                        <span class="mobile-cat-name">Services</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/pets') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-heart"></i>
-                        </div>
-                        <span class="mobile-cat-name">Pets</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/community') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <span class="mobile-cat-name">Community</span>
-                    </a>
-                </div>
-                <div class="swiper-slide">
-                    <a href="{{ url('/vacation-rentals') }}" class="mobile-cat-pill">
-                        <div class="mobile-cat-icon">
-                            <i class="bi bi-compass"></i>
-                        </div>
-                        <span class="mobile-cat-name">Vacation Rentals</span>
-                    </a>
-                </div>
+                @foreach($categoryData as $slug => $cat)
+                    <div class="swiper-slide">
+                        <button type="button" class="mobile-cat-pill btn p-0 border-0 bg-transparent text-start"
+                            onclick="openCategoryDrawer('{{ $slug }}')" aria-label="Open {{ $cat['name'] }} subcategories">
+                            <div class="mobile-cat-icon">
+                                <i class="bi {{ $cat['icon'] }}"></i>
+                            </div>
+                            <span class="mobile-cat-name">{{ $cat['short_name'] ?? $cat['name'] }}</span>
+                        </button>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
 </div>
 
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof Swiper !== 'undefined' && document.getElementById('mobileHeaderCategoriesSwiper')) {
-                new Swiper('#mobileHeaderCategoriesSwiper', {
-                    slidesPerView: 'auto',
-                    spaceBetween: 10,
-                    freeMode: true,
-                    grabCursor: true,
-                    resistanceRatio: 0.6,
-                });
+<script>
+    function selectDesktopCategory(catSlug) {
+        // Highlight active Category in Col 1
+        document.querySelectorAll('.mega-cat-item').forEach(item => {
+            if (item.getAttribute('data-category') === catSlug) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
             }
         });
-    </script>
-@endpush
+
+        // Show corresponding subcategory pane in Col 2
+        document.querySelectorAll('.mega-subcat-pane').forEach(pane => {
+            if (pane.id === 'megaSubcatPane-' + catSlug) {
+                pane.classList.add('active');
+
+                // Select first subcategory of this newly active category
+                const firstSubcatItem = pane.querySelector('.mega-subcat-item');
+                if (firstSubcatItem) {
+                    const subcatSlug = firstSubcatItem.getAttribute('data-subcat');
+                    selectDesktopSubcategory(catSlug, subcatSlug);
+                }
+            } else {
+                pane.classList.remove('active');
+            }
+        });
+    }
+
+    function selectDesktopSubcategory(catSlug, subcatSlug) {
+        // Highlight active Subcategory in Col 2
+        const currentPane = document.getElementById('megaSubcatPane-' + catSlug);
+        if (currentPane) {
+            currentPane.querySelectorAll('.mega-subcat-item').forEach(item => {
+                if (item.getAttribute('data-subcat') === subcatSlug) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Show corresponding Children pane in Col 3
+        document.querySelectorAll('.mega-children-pane').forEach(pane => {
+            if (pane.id === 'megaChildrenPane-' + catSlug + '-' + subcatSlug) {
+                pane.classList.add('active');
+            } else {
+                pane.classList.remove('active');
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Robust Mega Menu Hover Intent Controller with seamless buffer
+        const dropdownContainer = document.getElementById('desktopCategoriesDropdown');
+        const megaMenu = document.getElementById('desktopMegaMenu');
+        const triggerBtn = document.getElementById('categoriesMenuBtn');
+        let hoverTimeout = null;
+
+        if (dropdownContainer && megaMenu) {
+            function showMegaMenu() {
+                clearTimeout(hoverTimeout);
+                megaMenu.classList.add('is-open');
+                triggerBtn?.classList.add('active');
+            }
+
+            function hideMegaMenuWithDelay() {
+                hoverTimeout = setTimeout(function () {
+                    megaMenu.classList.remove('is-open');
+                    triggerBtn?.classList.remove('active');
+                }, 200); // 200ms grace period so moving mouse across never closes accidentally
+            }
+
+            dropdownContainer.addEventListener('mouseenter', showMegaMenu);
+            dropdownContainer.addEventListener('mouseleave', hideMegaMenuWithDelay);
+
+            // Also support clicking button
+            triggerBtn?.addEventListener('click', function (e) {
+                if (window.innerWidth >= 992) {
+                    e.preventDefault();
+                    if (megaMenu.classList.contains('is-open')) {
+                        megaMenu.classList.remove('is-open');
+                        triggerBtn.classList.remove('active');
+                    } else {
+                        showMegaMenu();
+                    }
+                }
+            });
+
+            // Close on ESC key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    megaMenu.classList.remove('is-open');
+                    triggerBtn?.classList.remove('active');
+                }
+            });
+        }
+
+        // Mobile Swiper Category Rail
+        if (typeof Swiper !== 'undefined' && document.getElementById('mobileHeaderCategoriesSwiper')) {
+            new Swiper('#mobileHeaderCategoriesSwiper', {
+                slidesPerView: 'auto',
+                spaceBetween: 10,
+                freeMode: true,
+                grabCursor: true,
+                resistanceRatio: 0.6,
+            });
+        }
+    });
+</script>
