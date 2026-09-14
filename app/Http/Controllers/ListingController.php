@@ -348,6 +348,470 @@ class ListingController extends Controller
     }
 
     /**
+     * Show the Post an Ad / Create Listing form.
+     */
+    public function create(Request $request)
+    {
+        $categories = CategoryService::getAll();
+        $preselectedCategory = $request->query('category', '');
+        $preselectedSub = $request->query('sub', '');
+
+        // Canadian Provinces & Territories
+        $provinces = [
+            'ON' => 'Ontario',
+            'BC' => 'British Columbia',
+            'QC' => 'Quebec',
+            'AB' => 'Alberta',
+            'MB' => 'Manitoba',
+            'SK' => 'Saskatchewan',
+            'NS' => 'Nova Scotia',
+            'NB' => 'New Brunswick',
+            'NL' => 'Newfoundland and Labrador',
+            'PE' => 'Prince Edward Island',
+            'NT' => 'Northwest Territories',
+            'YT' => 'Yukon',
+            'NU' => 'Nunavut',
+        ];
+
+        $breadcrumbs = [
+            ['title' => 'Home', 'url' => url('/')],
+            ['title' => 'Post an Ad', 'url' => url('/post-ad')],
+        ];
+
+        return view('frontend.post-ad', [
+            'categories' => $categories,
+            'provinces' => $provinces,
+            'preselectedCategory' => $preselectedCategory,
+            'preselectedSub' => $preselectedSub,
+            'breadcrumbs' => $breadcrumbs,
+        ]);
+    }
+
+    /**
+     * Return dynamic attribute schema definitions for a given category/subcategory.
+     */
+    public function getCategoryAttributes(string $categorySlug, Request $request)
+    {
+        $subSlug = $request->query('sub', '');
+        $attributes = $this->resolveCategoryAttributes($categorySlug, $subSlug);
+
+        return response()->json([
+            'success' => true,
+            'category_slug' => $categorySlug,
+            'sub_slug' => $subSlug,
+            'attributes' => $attributes,
+        ]);
+    }
+
+    /**
+     * Handle store / publish new ad submission.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|min:6|max:100',
+            'category_slug' => 'required|string',
+            'subcategory_slug' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
+            'price_type' => 'required|in:fixed,negotiable,free,contact',
+            'condition' => 'nullable|string',
+            'description' => 'required|string|min:15|max:5000',
+            'city' => 'required|string|max:100',
+            'province' => 'required|string|size:2',
+            'postal_code' => 'nullable|string|max:10',
+            'neighbourhood' => 'nullable|string|max:100',
+            'show_approximate_location' => 'nullable|boolean',
+            'delivery_options' => 'nullable|array',
+            'contact_preference' => 'nullable|array',
+            'images' => 'nullable|array|max:10',
+            'attributes' => 'nullable|array',
+            'promotions' => 'nullable|array',
+        ]);
+
+        // In a database persistence workflow, Listing::create(...) would be executed here.
+        // For demonstration and prototype state, return success JSON with preview ID.
+        $generatedId = rand(100, 999);
+        $slug = \Illuminate\Support\Str::slug($validated['title']) . '-' . $generatedId;
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your ad has been successfully published!',
+                'listing_id' => $generatedId,
+                'listing_slug' => $slug,
+                'view_url' => url('/listing/' . $generatedId),
+                'manage_url' => url('/dashboard'),
+            ]);
+        }
+
+        return redirect()->route('listings.show', $generatedId)
+            ->with('success', 'Your ad is live and published successfully!');
+    }
+
+    /**
+     * Resolve attribute schema definitions based on category and subcategory.
+     */
+    protected function resolveCategoryAttributes(string $categorySlug, string $subSlug = ''): array
+    {
+        $schema = [];
+
+        // 1. Cars & Vehicles
+        if (in_array($categorySlug, ['cars-vehicles', 'cars-trucks', 'vehicles', 'autos'])) {
+            $years = range((int)date('Y') + 1, 1990);
+            $schema = [
+                [
+                    'name' => 'make',
+                    'label' => 'Make',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Hyundai', 'Nissan', 'Mazda', 'Subaru', 'Volkswagen', 'Lexus', 'Jeep', 'Other'],
+                    'placeholder' => 'Select Make',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'model',
+                    'label' => 'Model',
+                    'type' => 'text',
+                    'required' => true,
+                    'placeholder' => 'e.g. RAV4, Civic, Model Y, F-150',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'year',
+                    'label' => 'Year',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => array_map('strval', $years),
+                    'placeholder' => 'Select Year',
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'kilometers',
+                    'label' => 'Kilometers (km)',
+                    'type' => 'number',
+                    'required' => true,
+                    'placeholder' => 'e.g. 45000',
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'transmission',
+                    'label' => 'Transmission',
+                    'type' => 'select',
+                    'required' => false,
+                    'options' => ['Automatic', 'Manual', 'CVT / eCVT', 'Direct Drive (EV)'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'fuel_type',
+                    'label' => 'Fuel Type',
+                    'type' => 'select',
+                    'required' => false,
+                    'options' => ['Gasoline', 'Hybrid (Gas/Electric)', 'Plug-in Hybrid (PHEV)', 'Electric (EV)', 'Diesel'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'drivetrain',
+                    'label' => 'Drivetrain',
+                    'type' => 'select',
+                    'required' => false,
+                    'options' => ['All-Wheel Drive (AWD)', 'Front-Wheel Drive (FWD)', 'Rear-Wheel Drive (RWD)', '4x4 / Four-Wheel Drive'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'body_type',
+                    'label' => 'Body Type',
+                    'type' => 'select',
+                    'required' => false,
+                    'options' => ['SUV / Crossover', 'Sedan', 'Pickup Truck', 'Coupe', 'Hatchback', 'Van / Minivan', 'Convertible', 'Wagon'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'features',
+                    'label' => 'Key Features',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Clean CARFAX', 'Sunroof / Moonroof', 'Apple CarPlay', 'Leather Seats', 'Heated Seats', 'Backup Camera', 'Navigation', 'Winter Tires Set', 'Alloy Wheels', 'Remote Start'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 2. Housing & Real Estate
+        elseif (in_array($categorySlug, ['housing', 'real-estate', 'apartments-condos-rent', 'houses-rent', 'houses-sale', 'condos-sale'])) {
+            $schema = [
+                [
+                    'name' => 'property_type',
+                    'label' => 'Property Type',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['Apartment / Condo', 'Detached House', 'Townhouse / Rowhouse', 'Basement Apartment', 'Room for Rent', 'Duplex / Triplex', 'Commercial Space'],
+                    'placeholder' => 'Select Property Type',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'listing_type',
+                    'label' => 'Listing Type',
+                    'type' => 'pills_radio',
+                    'required' => true,
+                    'options' => ['For Rent', 'For Sale', 'Sublet / Lease Transfer'],
+                    'default' => 'For Rent',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'bedrooms',
+                    'label' => 'Bedrooms',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['Bachelor / Studio', '1 Bedroom', '1 + Den', '2 Bedrooms', '2 + Den', '3 Bedrooms', '4+ Bedrooms'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'bathrooms',
+                    'label' => 'Bathrooms',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['1', '1.5', '2', '2.5', '3+'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'sqft',
+                    'label' => 'Square Footage (sq ft)',
+                    'type' => 'number',
+                    'required' => false,
+                    'placeholder' => 'e.g. 750',
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'furnished',
+                    'label' => 'Furnished Status',
+                    'type' => 'select',
+                    'options' => ['Unfurnished', 'Fully Furnished', 'Partially Furnished'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'parking',
+                    'label' => 'Parking',
+                    'type' => 'select',
+                    'options' => ['Included (1 Spot)', 'Included (2+ Spots)', 'Available for Extra Fee', 'Street Parking Only', 'No Parking'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'amenities',
+                    'label' => 'Included Utilities & Amenities',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Hydro / Electricity Included', 'Heat & Water Included', 'Air Conditioning', 'In-Unit Laundry', 'Balcony', 'Gym / Pool', 'Pet Friendly', 'Storage Locker', 'Dishwasher'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 3. Jobs & Careers
+        elseif (in_array($categorySlug, ['jobs', 'employment', 'careers'])) {
+            $schema = [
+                [
+                    'name' => 'job_type',
+                    'label' => 'Job Type',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['Full-Time', 'Part-Time', 'Contract / Temporary', 'Casual / On-Call', 'Internship / Co-op', 'Apprenticeship'],
+                    'placeholder' => 'Select Job Type',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'workplace_type',
+                    'label' => 'Workplace Setting',
+                    'type' => 'pills_radio',
+                    'required' => true,
+                    'options' => ['On-Site', 'Hybrid', 'Fully Remote'],
+                    'default' => 'On-Site',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'salary_range',
+                    'label' => 'Salary / Compensation',
+                    'type' => 'text',
+                    'required' => false,
+                    'placeholder' => 'e.g. $25/hr or $65,000 - $75,000/year',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'experience_level',
+                    'label' => 'Experience Level',
+                    'type' => 'select',
+                    'options' => ['No Experience Required / Entry Level', '1-2 Years', '3-5 Years', '5+ Years (Senior / Lead)', 'Executive / Director'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'company_name',
+                    'label' => 'Company / Employer Name',
+                    'type' => 'text',
+                    'placeholder' => 'e.g. Maple Leaf Tech Corp',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'benefits',
+                    'label' => 'Benefits & Perks',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Health & Dental Insurance', 'RRSP / Pension Matching', 'Flexible Hours', 'Paid Time Off', 'Career Growth', 'Tips / Commission', 'Transit Pass'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 4. Electronics, Phones, Computers (Buy & Sell subcategories)
+        elseif (in_array($categorySlug, ['electronics', 'phones-telecommunication', 'computers-tablets', 'audio-stereo', 'cameras-camcorders', 'video-games-consoles']) || 
+                in_array($subSlug, ['phones-telecommunication', 'computers-tablets', 'audio-stereo', 'cameras-camcorders', 'video-games-consoles'])) {
+            $schema = [
+                [
+                    'name' => 'brand',
+                    'label' => 'Brand / Manufacturer',
+                    'type' => 'text',
+                    'required' => true,
+                    'placeholder' => 'e.g. Apple, Samsung, Sony, Dell, Lenovo, Nintendo',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'model',
+                    'label' => 'Model Name / Number',
+                    'type' => 'text',
+                    'required' => true,
+                    'placeholder' => 'e.g. iPhone 16 Pro Max, PlayStation 5, MacBook Pro M3',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'storage_capacity',
+                    'label' => 'Storage / Memory',
+                    'type' => 'select',
+                    'options' => ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB', '2 TB+'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'color',
+                    'label' => 'Color',
+                    'type' => 'text',
+                    'placeholder' => 'e.g. Space Black, Natural Titanium',
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'warranty',
+                    'label' => 'Warranty Status',
+                    'type' => 'select',
+                    'options' => ['Factory / AppleCare Warranty Included', 'Store Warranty Available', 'No Warranty (Sold As-Is)'],
+                    'col' => 4,
+                ],
+                [
+                    'name' => 'accessories',
+                    'label' => 'Included Accessories',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Original Box', 'Charger & Cable Included', 'Receipt / Proof of Purchase', 'Protective Case / Cover', 'Extra Controllers / Battery', 'Screen Protector Applied'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 5. Furniture & Home (Buy & Sell subcategories)
+        elseif (in_array($categorySlug, ['furniture', 'home-indoor', 'home-outdoor-garden']) || 
+                in_array($subSlug, ['furniture', 'home-indoor', 'home-outdoor-garden'])) {
+            $schema = [
+                [
+                    'name' => 'furniture_type',
+                    'label' => 'Item Type',
+                    'type' => 'select',
+                    'options' => ['Sofa / Couch', 'Dining Table & Chairs', 'Bed Frame & Mattress', 'Office Desk & Chair', 'Coffee Table', 'Dresser / Wardrobe', 'Bookshelf / Storage', 'Outdoor Patio Set'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'material',
+                    'label' => 'Material',
+                    'type' => 'select',
+                    'options' => ['Solid Wood (Oak, Walnut, Pine)', 'Engineered Wood / MDF', 'Genuine Leather', 'Fabric / Linen', 'Metal / Steel', 'Glass', 'Velvet', 'Rattan / Wicker'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'dimensions',
+                    'label' => 'Dimensions (L × W × H)',
+                    'type' => 'text',
+                    'placeholder' => 'e.g. 60" L × 36" W × 30" H',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'color',
+                    'label' => 'Color',
+                    'type' => 'text',
+                    'placeholder' => 'e.g. Natural Oak, Walnut, Charcoal Grey',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'features',
+                    'label' => 'Highlights',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Pet-Free Home', 'Smoke-Free Home', 'Disassembled & Ready for Pickup', 'Like New / Barely Used', 'Authentic Mid-Century', 'Easy Assembly'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 6. Services & Trades
+        elseif (in_array($categorySlug, ['services', 'trades', 'skilled-trades', 'business-services'])) {
+            $schema = [
+                [
+                    'name' => 'service_type',
+                    'label' => 'Service Specialty',
+                    'type' => 'select',
+                    'required' => true,
+                    'options' => ['Home Renovation & Handyman', 'Plumbing & Drain Services', 'Electrical & Wiring', 'Painting & Drywall', 'Moving & Delivery Services', 'Cleaning & Maid Service', 'Landscaping & Snow Removal', 'Tutoring & Education', 'IT & Computer Repair'],
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'pricing_structure',
+                    'label' => 'Rate Structure',
+                    'type' => 'pills_radio',
+                    'options' => ['Hourly Rate', 'Flat Project Fee', 'Free Estimate / Quote'],
+                    'default' => 'Free Estimate / Quote',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'licensing',
+                    'label' => 'Credentials & Guarantees',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Licensed & Insured ($2M+)', 'WSIB Covered', 'Red Seal Certified', 'Free Estimates / Quotes', 'Senior & Student Discount', 'Emergency 24/7 Service', 'Satisfaction Guaranteed'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        // 7. General Default / Buy & Sell
+        else {
+            $schema = [
+                [
+                    'name' => 'brand',
+                    'label' => 'Brand / Manufacturer',
+                    'type' => 'text',
+                    'required' => false,
+                    'placeholder' => 'e.g. Nike, IKEA, Herman Miller, Bosch',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'model',
+                    'label' => 'Model / Product Name',
+                    'type' => 'text',
+                    'required' => false,
+                    'placeholder' => 'e.g. Series 7, Pro Edition',
+                    'col' => 6,
+                ],
+                [
+                    'name' => 'features',
+                    'label' => 'Item Highlights',
+                    'type' => 'multiselect_pills',
+                    'options' => ['Original Packaging', 'Tested & Working', 'Receipt Available', 'Smoke-Free Home', 'Firm Price', 'Open to Trades'],
+                    'col' => 12,
+                ],
+            ];
+        }
+
+        return $schema;
+    }
+
+    /**
      * Provide comprehensive realistic Canadian marketplace listing dataset.
      */
     protected function getSampleListings(): array

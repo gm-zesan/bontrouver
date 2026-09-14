@@ -14,6 +14,11 @@ Route::get('/category/{categorySlug}', [ListingController::class, 'index'])->nam
 Route::get('/listing/{idOrSlug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->name('search.suggestions');
 
+// Post an Ad / Create Listing Flow
+Route::get('/post-ad', [ListingController::class, 'create'])->name('listings.create');
+Route::post('/post-ad', [ListingController::class, 'store'])->name('listings.store');
+Route::get('/api/category-attributes/{categorySlug}', [ListingController::class, 'getCategoryAttributes'])->name('listings.category.attributes');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
