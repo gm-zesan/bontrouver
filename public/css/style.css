@@ -143,7 +143,8 @@ body {
 }
 
 .btn-categories i.bi-grid {
-    color: var(--color-primary); /* Green #49D17D */
+    color: var(--color-primary);
+    /* Green #49D17D */
     font-size: 0.95rem;
     display: inline-flex;
     align-items: center;
@@ -466,7 +467,7 @@ body {
     padding-left: 14px;
 }
 
-/* 4th-level nested child tag pills */
+/* 4th-level and Deep Nested Child Tags */
 .mega-subchild-tags {
     display: flex;
     flex-wrap: wrap;
@@ -476,15 +477,24 @@ body {
     margin-bottom: 4px;
 }
 
+.mega-subchild-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
 .mega-subchild-tag {
     font-size: 0.72rem;
     color: #94A3B8;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1px 7px;
+    padding: 2px 8px;
     border-radius: 10px;
     text-decoration: none;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
 }
 
 .mega-subchild-tag:hover {
@@ -492,6 +502,31 @@ body {
     color: #041221;
     border-color: var(--color-primary);
     font-weight: 600;
+}
+
+/* 5th-level+ Recursive Pills */
+.mega-deepchild-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    padding-left: 6px;
+    margin-top: 2px;
+}
+
+.mega-deepchild-tag {
+    font-size: 0.68rem;
+    color: #64748B;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1px 6px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.mega-deepchild-tag:hover {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Card when subcategory has no nested children */
@@ -540,6 +575,7 @@ body {
         opacity: 0;
         transform: translateX(4px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -2219,6 +2255,14 @@ svg {
 
 /* Mobile & Tablet Header Behavior (< 992px): Only Search Bar is Sticky */
 @media (max-width: 991.98px) {
+
+    .desktop-categories-dropdown,
+    .desktop-mega-menu {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
     .site-header {
         position: relative !important;
         top: auto;
@@ -3453,7 +3497,7 @@ svg {
     border-radius: var(--radius-pill);
     padding: 8px 16px;
     width: fit-content;
-    margin: 12px auto;
+    margin: 12px 0 12px auto;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
@@ -4440,13 +4484,19 @@ svg {
 @media (max-width: 767.98px) {
     .site-footer {
         padding: 44px 0 20px;
-        text-align: center;
+        text-align: left;
+    }
+
+    .site-footer .container-xl {
+        padding-left: 24px;
+        padding-right: 20px;
     }
 
     .footer-main-grid {
         grid-template-columns: 1fr 1fr;
-        gap: 28px 18px;
+        gap: 28px 20px;
         margin-bottom: 28px;
+        text-align: left;
     }
 
     .footer-brand-col {
@@ -4461,7 +4511,7 @@ svg {
     }
 
     .footer-brand-desc {
-        max-width: 320px;
+        max-width: 340px;
         font-size: 0.86rem;
         text-align: center;
         margin-left: auto;
@@ -4474,28 +4524,36 @@ svg {
     }
 
     .footer-nav-col {
-        align-items: center;
-        text-align: center;
+        align-items: flex-start;
+        text-align: left;
+        padding-left: 4px;
     }
 
     .footer-col-title {
-        text-align: center;
+        text-align: left;
         margin-bottom: 12px;
     }
 
     .footer-links-list {
-        align-items: center;
-        text-align: center;
-        gap: 9px;
+        align-items: flex-start;
+        text-align: left;
+        gap: 10px;
     }
 
     .footer-link {
-        text-align: center;
-        margin: 0 auto;
+        text-align: left;
+        margin: 0;
+        display: inline-block;
+        width: fit-content;
     }
 
     .footer-bottom-social {
         padding: 18px 0 16px;
+        justify-content: center;
+    }
+
+    .footer-social-links {
+        justify-content: center;
     }
 
     .footer-bottom-bar {

@@ -1,5 +1,3 @@
-@include('frontend.partials.category-data')
-
 <header class="site-header">
     <div class="container-xl header-container">
         <!-- Top Row: Brand Logo, Categories, Search Input (Desktop), Location, Auth & Post Button -->
@@ -13,7 +11,7 @@
                 </a>
 
                 <!-- Categories Mega-Dropdown (Desktop >= 992px) -->
-                <div class="desktop-categories-dropdown" id="desktopCategoriesDropdown">
+                <div class="desktop-categories-dropdown d-none d-lg-block" id="desktopCategoriesDropdown">
                     <button class="btn-categories" type="button" id="categoriesMenuBtn" aria-haspopup="true" aria-expanded="false">
                         <i class="bi bi-grid"></i>
                         <span>Categories</span>
@@ -117,34 +115,11 @@
 
                                             @if($hasKids)
                                                 <div class="mega-children-grid">
-                                                    @foreach($children as $childIdx => $child)
-                                                        @php
-                                                            $childName = $child['name'] ?? 'Child Category';
-                                                            $childSlug = $child['slug'] ?? 'child-' . $childIdx;
-                                                            $childUrl = $child['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug . '&child=' . $childSlug);
-                                                            $grandChildren = $child['children'] ?? $child['subcategories'] ?? [];
-                                                            $hasGrandKids = !empty($grandChildren);
-                                                        @endphp
-                                                        <div class="mega-child-block {{ $hasGrandKids ? 'has-subchildren' : '' }}">
-                                                            <a href="{{ $childUrl }}" class="mega-child-link">
-                                                                <span class="mega-child-text">{{ $childName }}</span>
-                                                            </a>
-
-                                                            {{-- Generic 4th level recursion support --}}
-                                                            @if($hasGrandKids)
-                                                                <div class="mega-subchild-tags">
-                                                                    @foreach($grandChildren as $grandChild)
-                                                                        @php
-                                                                            $gcName = $grandChild['name'] ?? 'Tag';
-                                                                            $gcSlug = $grandChild['slug'] ?? '';
-                                                                            $gcUrl = $grandChild['url'] ?? url('/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
-                                                                        @endphp
-                                                                        <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ $gcName }}</a>
-                                                                    @endforeach
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
+                                                    @include('frontend.partials.category-tree-node', [
+                                                        'items' => $children,
+                                                        'level' => 3,
+                                                        'parentUrl' => $subUrl
+                                                    ])
                                                 </div>
                                             @else
                                                 <div class="mega-no-children-card">

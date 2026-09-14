@@ -1,5 +1,3 @@
-@include('frontend.partials.category-data')
-
 <!-- Category & Subcategory Offcanvas/Modal Drawer (Kijiji Style with 3-Level Drilldown) -->
 <div class="category-drawer-backdrop" id="categoryDrawerBackdrop" onclick="closeCategoryDrawer()" aria-hidden="true"></div>
 
