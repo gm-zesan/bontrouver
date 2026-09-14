@@ -19,6 +19,7 @@
 
     <!-- Custom Marketplace Styles -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : time() }}">
+    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ file_exists(public_path('css/responsive.css')) ? filemtime(public_path('css/responsive.css')) : time() }}">
 </head>
 <body class="auth-pure-body">
 

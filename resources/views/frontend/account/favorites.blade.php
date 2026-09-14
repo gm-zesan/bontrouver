@@ -1,63 +1,10 @@
-@extends('frontend.layouts.app', [
+@extends('frontend.account.layout', [
     'title' => 'My Favorites & Saved Ads | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'View, compare and organize all your saved marketplace ads and favorite listings.'
+    'metaDescription' => 'View, compare and organize all your saved marketplace ads and favorite listings.',
+    'activeNav' => 'favorites'
 ])
 
-@section('content')
-    <div class="account-dashboard-wrapper py-4 py-lg-5">
-        <div class="container-xl">
-
-            <!-- Mobile Top Nav -->
-            <div class="d-lg-none mb-4">
-                <div class="mobile-account-nav-wrap">
-                    <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
-                        <li class="nav-item">
-                            <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
-                                <i class="bi bi-person-fill me-1"></i> Profile
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('listings.my') }}" class="nav-link mobile-dark-pill">
-                                <i class="bi bi-collection-play-fill me-1"></i> My Listings
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/favorites') }}" class="nav-link mobile-dark-pill active">
-                                <i class="bi bi-heart-fill me-1"></i> Favorites
-                                <span class="badge bg-danger ms-1" id="mobileFavCountBadge">{{ count($favorites) }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/messages') }}" class="nav-link mobile-dark-pill">
-                                <i class="bi bi-chat-left-text-fill me-1"></i> Messages
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/notifications') }}" class="nav-link mobile-dark-pill">
-                                <i class="bi bi-bell-fill me-1"></i> Notifications
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill">
-                                <i class="bi bi-gear-fill me-1"></i> Settings
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="row g-4 g-xl-5">
-
-                <!-- Left Sidebar Navigation (Desktop >= 992px) -->
-                <div class="col-lg-4 col-xl-3 d-none d-lg-block">
-                    <div class="sticky-top" style="top: 85px; z-index: 10;">
-                        @include('frontend.partials.account-sidebar', ['activeNav' => 'favorites', 'stats' => $stats])
-                    </div>
-                </div>
-
-                <!-- Main Content Area -->
-                <div class="col-12 col-lg-8 col-xl-9">
-
+@section('account_content')
                     <!-- 2. Search & Category Filters Bar -->
                     <div class="dark-surface-card p-3 mb-4"
                         style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px;">
@@ -226,11 +173,7 @@
                         </button>
                     </div>
 
-                </div>
-            </div>
-
-        </div>
-    </div>
+                @endsection
 
     @push('scripts')
         <script>
@@ -344,4 +287,3 @@
             if (sortFilter) sortFilter.addEventListener('change', filterFavorites);
         </script>
     @endpush
-@endsection

@@ -1,63 +1,10 @@
-@extends('frontend.layouts.app', [
+@extends('frontend.account.layout', [
     'title' => 'Messages & Inbox | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Chat with buyers and sellers in real time, negotiate deals, and manage marketplace conversations.'
+    'metaDescription' => 'Chat with buyers and sellers in real time, negotiate deals, and manage marketplace conversations.',
+    'activeNav' => 'messages'
 ])
 
-@section('content')
-<div class="account-dashboard-wrapper py-4 py-lg-5">
-    <div class="container-xl">
-        
-        <!-- Mobile Top Nav -->
-        <div class="d-lg-none mb-4">
-            <div class="mobile-account-nav-wrap">
-                <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
-                    <li class="nav-item">
-                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-person-fill me-1"></i> Profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('listings.my') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-collection-play-fill me-1"></i> My Listings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/favorites') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-heart-fill me-1"></i> Favorites
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/messages') }}" class="nav-link mobile-dark-pill active">
-                            <i class="bi bi-chat-left-text-fill me-1"></i> Messages
-                            <span class="badge bg-danger ms-1">2</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/notifications') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-bell-fill me-1"></i> Notifications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-gear-fill me-1"></i> Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row g-4 g-xl-5">
-            
-            <!-- Left Sidebar Navigation (Desktop >= 992px) -->
-            <div class="col-lg-4 col-xl-3 d-none d-lg-block">
-                <div class="sticky-top" style="top: 85px; z-index: 10;">
-                    @include('frontend.partials.account-sidebar', ['activeNav' => 'messages', 'stats' => $stats])
-                </div>
-            </div>
-
-            <!-- Main Content Area: Modern 2-Panel Messaging Interface -->
-            <div class="col-12 col-lg-8 col-xl-9">
-
+@section('account_content')
                 <!-- Messaging Card Container -->
                 <div class="dark-surface-card overflow-hidden" 
                      style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; min-height: 600px; height: calc(100vh - 260px); max-height: 750px;">
@@ -146,22 +93,29 @@
                                         <i class="bi bi-chevron-left"></i>
                                     </a>
 
-                                    <img src="{{ $activeConversation['user']['avatar'] }}" 
-                                         alt="{{ $activeConversation['user']['name'] }}" 
-                                         class="rounded-circle object-fit-cover flex-shrink-0" 
-                                         style="width: 42px; height: 42px; border: 1.5px solid rgba(255,255,255,0.1);">
+                                    @if(!empty($activeConversation['user']['avatar']))
+                                        <img src="{{ $activeConversation['user']['avatar'] }}" 
+                                             alt="{{ $activeConversation['user']['name'] ?? 'User' }}" 
+                                             class="rounded-circle object-fit-cover flex-shrink-0" 
+                                             style="width: 42px; height: 42px; border: 1.5px solid rgba(255,255,255,0.1);">
+                                    @else
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-dark fw-bold"
+                                             style="width: 42px; height: 42px; background: #49D17D; font-size: 0.9rem;">
+                                            {{ strtoupper(substr($activeConversation['user']['name'] ?? 'U', 0, 1)) }}
+                                        </div>
+                                    @endif
                                     
                                     <div class="min-w-0">
                                         <div class="d-flex align-items-center gap-2">
                                             <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.92rem;">
-                                                {{ $activeConversation['user']['name'] }}
+                                                {{ $activeConversation['user']['name'] ?? 'User' }}
                                             </h6>
-                                            @if($activeConversation['user']['verified'])
+                                            @if(!empty($activeConversation['user']['verified']))
                                                 <i class="bi bi-patch-check-fill text-success" title="Verified User" style="font-size: 0.85rem;"></i>
                                             @endif
                                         </div>
                                         <span class="small text-secondary" style="font-size: 0.75rem;">
-                                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] }} • {{ $activeConversation['user']['online'] ? 'Online now' : 'Active recently' }}
+                                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}
                                         </span>
                                     </div>
                                 </div>
@@ -223,12 +177,7 @@
                     </div>
 
                 </div>
-
-            </div>
-        </div>
-
-    </div>
-</div>
+@endsection
 
 @push('scripts')
 <script>
@@ -289,4 +238,3 @@ if (chatSearchInput) {
 }
 </script>
 @endpush
-@endsection

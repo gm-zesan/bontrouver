@@ -91,8 +91,8 @@
                         {{-- 1. CATEGORY HIERARCHY TREE --}}
                         <div class="filter-section">
                             <div class="filter-section-title">Category</div>
-                            <div class="filter-category-tree">
-                                <a href="javascript:void(0)" class="cat-tree-link {{ empty($activeCategory) ? 'active' : '' }}" onclick="selectCategoryFilter('')">
+                            <div class="filter-category-tree" id="desktopCategoryTree">
+                                <a href="javascript:void(0)" class="cat-tree-link {{ empty($activeCategory) ? 'active' : '' }}" onclick="selectCategoryFilter('')" data-category-slug="">
                                     <span>All Categories</span>
                                 </a>
 
@@ -102,19 +102,20 @@
                                         $subcats = $cat['children'] ?? [];
                                     @endphp
                                     <div class="cat-tree-group">
-                                        <a href="javascript:void(0)" class="cat-tree-link {{ $isCatActive ? 'active' : '' }}" onclick="selectCategoryFilter('{{ $catKey }}')">
+                                        <a href="javascript:void(0)" class="cat-tree-link {{ $isCatActive ? 'active' : '' }}" onclick="selectCategoryFilter('{{ $catKey }}')" data-category-slug="{{ $catKey }}">
                                             <i class="bi {{ $cat['icon'] ?? 'bi-tag' }} me-2 text-muted"></i>
                                             <span>{{ $cat['name'] }}</span>
                                         </a>
 
-                                        @if($isCatActive && !empty($subcats))
-                                            <div class="cat-subtree ps-3">
+                                        @if(!empty($subcats))
+                                            <div class="cat-subtree ps-3" id="desktopSubtree-{{ $catKey }}" style="{{ $isCatActive ? '' : 'display: none;' }}">
                                                 @foreach($subcats as $subcat)
                                                     @php
                                                         $isSubActive = ($subSlug === ($subcat['slug'] ?? ''));
                                                     @endphp
                                                     <a href="javascript:void(0)" class="subcat-tree-link {{ $isSubActive ? 'active' : '' }}"
-                                                        onclick="selectSubcategoryFilter('{{ $catKey }}', '{{ $subcat['slug'] }}')">
+                                                        onclick="selectSubcategoryFilter('{{ $catKey }}', '{{ $subcat['slug'] }}')"
+                                                        data-category-slug="{{ $catKey }}" data-subcat-slug="{{ $subcat['slug'] }}">
                                                         <span>{{ $subcat['name'] }}</span>
                                                     </a>
                                                 @endforeach
@@ -483,16 +484,48 @@
     </div>
 
     <div class="mobile-drawer-body">
+        <!-- Category & Subcategory Selection for Mobile -->
+        <div class="mobile-filter-group">
+            <label class="mobile-group-label" for="mobileCategorySelect">Category</label>
+            <div class="mobile-drawer-select-wrap">
+                <select id="mobileCategorySelect" class="mobile-drawer-select" onchange="handleMobileCategoryChange(this.value)">
+                    <option value="" {{ empty($categorySlug) ? 'selected' : '' }}>All Categories</option>
+                    @foreach($categories as $catKey => $cat)
+                        <option value="{{ $catKey }}" {{ ($categorySlug === $catKey) ? 'selected' : '' }}>{{ $cat['name'] }}</option>
+                    @endforeach
+                </select>
+                <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
+            </div>
+        </div>
+
+        <div class="mobile-filter-group" id="mobileSubcategoryGroup" style="{{ (empty($categorySlug) || empty($categories[$categorySlug]['children'])) ? 'display: none;' : '' }}">
+            <label class="mobile-group-label" for="mobileSubcategorySelect">Subcategory</label>
+            <div class="mobile-drawer-select-wrap">
+                <select id="mobileSubcategorySelect" class="mobile-drawer-select" onchange="handleMobileSubcategoryChange(this.value)">
+                    <option value="">All Subcategories</option>
+                    @if(!empty($categorySlug) && !empty($categories[$categorySlug]['children']))
+                        @foreach($categories[$categorySlug]['children'] as $subcat)
+                            <option value="{{ $subcat['slug'] }}" {{ ($subSlug === ($subcat['slug'] ?? '')) ? 'selected' : '' }}>{{ $subcat['name'] }}</option>
+                        @endforeach
+                    @endif
+                </select>
+                <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
+            </div>
+        </div>
+
         <!-- Reusable Filter Blocks rendered directly for mobile with instantaneous live event listeners -->
         <div class="mobile-filter-group">
-            <label class="mobile-group-label">Distance</label>
-            <select id="mobileFilterRadiusSelect" class="search-field search-select w-100" onchange="syncRadius(this.value)">
-                <option value="5">Within 5 km</option>
-                <option value="10">Within 10 km</option>
-                <option value="25" selected>Within 25 km</option>
-                <option value="50">Within 50 km</option>
-                <option value="all">All Distance</option>
-            </select>
+            <label class="mobile-group-label" for="mobileFilterRadiusSelect">Distance</label>
+            <div class="mobile-drawer-select-wrap">
+                <select id="mobileFilterRadiusSelect" class="mobile-drawer-select" onchange="syncRadius(this.value)">
+                    <option value="5">Within 5 km</option>
+                    <option value="10">Within 10 km</option>
+                    <option value="25" selected>Within 25 km</option>
+                    <option value="50">Within 50 km</option>
+                    <option value="all">All Distance</option>
+                </select>
+                <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
+            </div>
         </div>
 
         <div class="mobile-filter-group">
@@ -570,6 +603,7 @@
 
     // Master dataset
     const allListingsData = @json($listings);
+    const allCategoriesData = @json($categories);
 
     document.addEventListener('DOMContentLoaded', function () {
         // Parse initial URL query params and populate UI
@@ -612,6 +646,9 @@
             document.getElementById('desktopSortSelect').value = s;
             document.getElementById('mobileSortSelect').value = s;
         }
+
+        // Sync category UI states
+        syncCategoryUI(currentCategory, currentSubcategory);
 
         // Trigger initial calculation
         renderFilteredResults();
@@ -821,7 +858,9 @@
             chips.push({ label: `"${filters.keyword}"`, clear: () => clearKeywordInput() });
         }
         if (currentCategory) {
-            chips.push({ label: `Category: ${currentCategory}`, clear: () => selectCategoryFilter('') });
+            const catName = allCategoriesData[currentCategory]?.name || currentCategory;
+            const subName = currentSubcategory ? ` > ${allCategoriesData[currentCategory]?.children?.find(s => s.slug === currentSubcategory)?.name || currentSubcategory}` : '';
+            chips.push({ label: `Category: ${catName}${subName}`, clear: () => selectCategoryFilter('') });
         }
         if (filters.minPrice > 0 || (filters.maxPrice && filters.maxPrice !== Infinity)) {
             const minText = filters.minPrice > 0 ? `$${filters.minPrice}` : '$0';
@@ -871,24 +910,96 @@
         triggerLiveFilter();
     }
 
+    function handleMobileCategoryChange(slug) {
+        selectCategoryFilter(slug);
+    }
+
+    function handleMobileSubcategoryChange(subSlug) {
+        selectSubcategoryFilter(currentCategory, subSlug);
+    }
+
+    function updateMobileSubcategoryOptions(catSlug, selectedSub = '') {
+        const subGroup = document.getElementById('mobileSubcategoryGroup');
+        const subSelect = document.getElementById('mobileSubcategorySelect');
+        if (!subGroup || !subSelect) return;
+
+        if (!catSlug || !allCategoriesData[catSlug] || !allCategoriesData[catSlug].children || allCategoriesData[catSlug].children.length === 0) {
+            subGroup.style.display = 'none';
+            subSelect.innerHTML = '<option value="">All Subcategories</option>';
+            return;
+        }
+
+        const catName = allCategoriesData[catSlug].name;
+        const subs = allCategoriesData[catSlug].children;
+        let optionsHtml = `<option value="">All in ${catName}</option>`;
+        subs.forEach(sub => {
+            const isSel = (sub.slug === selectedSub) ? 'selected' : '';
+            optionsHtml += `<option value="${sub.slug}" ${isSel}>${sub.name}</option>`;
+        });
+
+        subSelect.innerHTML = optionsHtml;
+        subSelect.value = selectedSub;
+        subGroup.style.display = 'block';
+    }
+
+    function syncCategoryUI(catSlug, subSlug = '') {
+        // 1. Mobile Drawer Category Select
+        const mobCatSel = document.getElementById('mobileCategorySelect');
+        if (mobCatSel) mobCatSel.value = catSlug || '';
+
+        // 2. Mobile Drawer Subcategory Select
+        updateMobileSubcategoryOptions(catSlug, subSlug);
+
+        // 3. Desktop Category Tree Links
+        document.querySelectorAll('.cat-tree-link').forEach(link => {
+            const lCat = link.getAttribute('data-category-slug') || '';
+            if (lCat === (catSlug || '')) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // Show/hide subtrees on desktop
+        document.querySelectorAll('.cat-subtree').forEach(tree => {
+            tree.style.display = 'none';
+        });
+        if (catSlug) {
+            const currentSubtree = document.getElementById('desktopSubtree-' + catSlug);
+            if (currentSubtree) currentSubtree.style.display = 'block';
+        }
+
+        // Subcategory desktop links
+        document.querySelectorAll('.subcat-tree-link').forEach(sLink => {
+            const sSlug = sLink.getAttribute('data-subcat-slug') || '';
+            const sCat = sLink.getAttribute('data-category-slug') || '';
+            if (sSlug === subSlug && sCat === catSlug) {
+                sLink.classList.add('active');
+            } else {
+                sLink.classList.remove('active');
+            }
+        });
+
+        // 5. Dynamic Category Facets
+        document.querySelectorAll('.category-facet').forEach(f => f.style.display = 'none');
+        if (catSlug === 'cars-vehicles') {
+            const f = document.getElementById('facetCarsVehicles');
+            if (f) f.style.display = 'block';
+        } else if (catSlug === 'housing' || catSlug === 'real-estate') {
+            const f = document.getElementById('facetHousing');
+            if (f) f.style.display = 'block';
+        } else if (catSlug === 'jobs') {
+            const f = document.getElementById('facetJobs');
+            if (f) f.style.display = 'block';
+        }
+    }
+
     function selectCategoryFilter(slug) {
         currentCategory = slug;
         currentSubcategory = '';
         currentChild = '';
 
-        // Dynamically toggle category facets
-        document.querySelectorAll('.category-facet').forEach(f => f.style.display = 'none');
-        if (slug === 'cars-vehicles') {
-            const f = document.getElementById('facetCarsVehicles');
-            if (f) f.style.display = 'block';
-        } else if (slug === 'housing') {
-            const f = document.getElementById('facetHousing');
-            if (f) f.style.display = 'block';
-        } else if (slug === 'jobs') {
-            const f = document.getElementById('facetJobs');
-            if (f) f.style.display = 'block';
-        }
-
+        syncCategoryUI(currentCategory, currentSubcategory);
         triggerLiveFilter();
     }
 
@@ -896,6 +1007,8 @@
         currentCategory = catSlug;
         currentSubcategory = subSlug;
         currentChild = '';
+
+        syncCategoryUI(currentCategory, currentSubcategory);
         triggerLiveFilter();
     }
 
@@ -926,6 +1039,7 @@
         currentCategory = '';
         currentSubcategory = '';
         currentChild = '';
+        syncCategoryUI('', '');
         setQuickPrice(null, null);
 
         document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);

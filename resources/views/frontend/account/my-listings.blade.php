@@ -1,107 +1,55 @@
-@extends('frontend.layouts.app', [
+@extends('frontend.account.layout', [
     'title' => 'My Listings & Manage Ads | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Manage, track performance, renew, edit and organize all your active ads, drafts and sold items.'
+    'metaDescription' => 'Manage, track performance, renew, edit and organize all your active ads, drafts and sold items.',
+    'activeNav' => 'my-listings',
+    'stats' => [
+        'active_listings' => $counts['active'] ?? 3,
+        'saved_favorites_count' => 6,
+        'unread_messages_count' => 2,
+        'unread_notifications_count' => 3
+    ]
 ])
 
-@section('content')
-<div class="my-listings-wrapper py-4 py-lg-5">
-    <div class="container-xl">
-        
-        <!-- Mobile Top Nav -->
-        <div class="d-lg-none mb-4">
-            <div class="mobile-account-nav-wrap">
-                <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
-                    <li class="nav-item">
-                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-person-fill me-1"></i> Profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('listings.my') }}" class="nav-link mobile-dark-pill active">
-                            <i class="bi bi-collection-play-fill me-1"></i> My Listings
-                            @if(isset($counts['active']) && $counts['active'] > 0)
-                                <span class="badge bg-success text-dark ms-1">{{ $counts['active'] }}</span>
-                            @endif
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/favorites') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-heart-fill me-1"></i> Favorites
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/messages') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-chat-left-text-fill me-1"></i> Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/notifications') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-bell-fill me-1"></i> Notifications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-gear-fill me-1"></i> Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row g-4 g-xl-5">
-            
-            <!-- Left Sidebar Navigation (Desktop >= 992px) -->
-            <div class="col-lg-4 col-xl-3 d-none d-lg-block">
-                <div class="sticky-top" style="top: 85px; z-index: 10;">
-                    @include('frontend.partials.account-sidebar', ['activeNav' => 'my-listings', 'stats' => [
-                        'active_listings' => $counts['active'],
-                        'saved_favorites_count' => 6,
-                        'unread_messages_count' => 2,
-                        'unread_notifications_count' => 3
-                    ]])
-                </div>
-            </div>
-
-            <!-- Main Listings Content Area -->
-            <div class="col-12 col-lg-8 col-xl-9">
+@section('account_content')
+            <div class="my-listings-main-card">
                 <!-- 2. Status Tabs Navigation & Filters Toolbar -->
                 <div class="dark-surface-card p-3 p-md-4 mb-4">
                     <div class="status-tabs-container">
                         <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2 pb-md-0" id="statusTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'all' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'all' ? 'active' : '' }}" 
                                         data-status="all" type="button">
-                                    All <span class="tab-badge ms-1" id="tabCountAll">({{ $counts['all'] }})</span>
+                                    All <span class="tab-badge ms-1" id="tabCountAll">({{ $counts['all'] ?? 0 }})</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'active' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'active' ? 'active' : '' }}" 
                                         data-status="active" type="button">
-                                    Active <span class="tab-badge ms-1" id="tabCountActive">({{ $counts['active'] }})</span>
+                                    Active <span class="tab-badge ms-1" id="tabCountActive">({{ $counts['active'] ?? 0 }})</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'draft' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'draft' ? 'active' : '' }}" 
                                         data-status="draft" type="button">
-                                    Drafts <span class="tab-badge ms-1" id="tabCountDrafts">({{ $counts['drafts'] }})</span>
+                                    Drafts <span class="tab-badge ms-1" id="tabCountDrafts">({{ $counts['drafts'] ?? 0 }})</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'sold' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'sold' ? 'active' : '' }}" 
                                         data-status="sold" type="button">
-                                    Sold <span class="tab-badge ms-1" id="tabCountSold">({{ $counts['sold'] }})</span>
+                                    Sold <span class="tab-badge ms-1" id="tabCountSold">({{ $counts['sold'] ?? 0 }})</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'expired' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'expired' ? 'active' : '' }}" 
                                         data-status="expired" type="button">
-                                    Expired <span class="tab-badge ms-1" id="tabCountExpired">({{ $counts['expired'] }})</span>
+                                    Expired <span class="tab-badge ms-1" id="tabCountExpired">({{ $counts['expired'] ?? 0 }})</span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link dark-tab-pill {{ $currentStatus === 'paused' ? 'active' : '' }}" 
+                                <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'paused' ? 'active' : '' }}" 
                                         data-status="paused" type="button">
-                                    Paused <span class="tab-badge ms-1" id="tabCountPaused">({{ $counts['paused'] }})</span>
+                                    Paused <span class="tab-badge ms-1" id="tabCountPaused">({{ $counts['paused'] ?? 0 }})</span>
                                 </button>
                             </li>
                         </ul>
@@ -174,12 +122,7 @@
                         </a>
                     </div>
                 </div>
-
             </div>
-        </div>
-
-    </div>
-</div>
 
 <!-- ================= MODALS & DRAWERS (DARK THEME) ================= -->
 

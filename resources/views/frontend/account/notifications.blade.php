@@ -1,63 +1,10 @@
-@extends('frontend.layouts.app', [
+@extends('frontend.account.layout', [
     'title' => 'Notifications Center | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Review recent alerts, inquiries, price drops, and marketplace account notifications.'
+    'metaDescription' => 'Review recent alerts, inquiries, price drops, and marketplace account notifications.',
+    'activeNav' => 'notifications'
 ])
 
-@section('content')
-<div class="account-dashboard-wrapper py-4 py-lg-5">
-    <div class="container-xl">
-        
-        <!-- Mobile Top Nav -->
-        <div class="d-lg-none mb-4">
-            <div class="mobile-account-nav-wrap">
-                <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
-                    <li class="nav-item">
-                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-person-fill me-1"></i> Profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('listings.my') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-collection-play-fill me-1"></i> My Listings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/favorites') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-heart-fill me-1"></i> Favorites
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/messages') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-chat-left-text-fill me-1"></i> Messages
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/notifications') }}" class="nav-link mobile-dark-pill active">
-                            <i class="bi bi-bell-fill me-1"></i> Notifications
-                            <span class="badge bg-warning text-dark ms-1">3</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-gear-fill me-1"></i> Settings
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row g-4 g-xl-5">
-            
-            <!-- Left Sidebar Navigation (Desktop >= 992px) -->
-            <div class="col-lg-4 col-xl-3 d-none d-lg-block">
-                <div class="sticky-top" style="top: 85px; z-index: 10;">
-                    @include('frontend.partials.account-sidebar', ['activeNav' => 'notifications', 'stats' => $stats])
-                </div>
-            </div>
-
-            <!-- Main Content Area -->
-            <div class="col-12 col-lg-8 col-xl-9">
-                
+@section('account_content')
                 <!-- 1. Page Header with Mark All as Read Action -->
                 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
                     <div>
@@ -123,13 +70,7 @@
                         </div>
                     @endif
 
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-</div>
+@endsection
 
 @push('scripts')
 <script>
@@ -173,4 +114,3 @@ function markSingleRead(id, btn) {
 }
 </script>
 @endpush
-@endsection
