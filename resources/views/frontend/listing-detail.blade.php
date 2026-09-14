@@ -652,60 +652,6 @@
                 </div>
             </div>
 
-            <!-- 2.5 Auth Required Modal (Please Log In Gate) -->
-            <div class="marketplace-modal-backdrop" id="authRequiredModal" style="display: none;" onclick="closeAuthModal()"
-                role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-                <div class="marketplace-modal-dialog auth-modal-dialog" onclick="event.stopPropagation();">
-                    <div class="modal-card auth-modal-card shadow-lg text-center p-4">
-                        <button type="button" class="btn-close-modal auth-modal-close-btn" onclick="closeAuthModal()"
-                            aria-label="Close modal">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-
-                        <!-- Key Visual / Icon -->
-                        <div class="auth-modal-icon-wrap mx-auto mb-3">
-                            <div class="auth-icon-circle">
-                                <i class="bi bi-shield-lock-fill text-primary-custom"></i>
-                            </div>
-                        </div>
-
-                        <h3 class="h4 fw-bold text-white mb-2" id="authModalTitle">Log In to Chat with Seller</h3>
-                        <p class="text-secondary small mb-4">
-                            To protect buyers and sellers on Bontrouver, you need to be signed in to send messages and negotiate
-                            with <strong class="text-white">{{ $seller['name'] }}</strong>.
-                        </p>
-
-                        <!-- Listing Preview Pill in Auth Modal -->
-                        <div class="auth-listing-preview-pill d-flex align-items-center gap-3 p-2 rounded mb-4">
-                            <img src="{{ $gallery[0] }}" alt="{{ $listing['title'] }}" class="auth-pill-thumb">
-                            <div class="auth-pill-info">
-                                <div class="auth-pill-title text-white small fw-bold" title="{{ $listing['title'] }}">{{ $listing['title'] }}</div>
-                                <div class="auth-pill-price text-primary-custom fw-semibold">{{ $listing['price_formatted'] }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="d-flex flex-column gap-2">
-                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}"
-                                class="btn btn-primary-custom btn-lg w-100 fw-bold d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-box-arrow-in-right fs-5"></i>
-                                <span>Log In to Continue</span>
-                            </a>
-                            <a href="{{ route('register') }}?redirect={{ urlencode(request()->fullUrl()) }}"
-                                class="btn btn-outline-light btn-md w-100 fw-semibold d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-person-plus"></i>
-                                <span>Create Free Account</span>
-                            </a>
-                        </div>
-
-                        <div class="mt-3 text-secondary" style="font-size: 0.75rem;">
-                            <i class="bi bi-shield-check text-success me-1"></i> Verified member protections & secure Canadian
-                            messaging.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- 3. Report Listing Modal -->
             <div class="marketplace-modal-backdrop" id="reportListingModal" style="display: none;" onclick="closeReportModal()"
                 role="dialog" aria-modal="true" aria-labelledby="reportModalTitle">
@@ -958,20 +904,36 @@
                 }
             }
 
-            // 4. Auth Modal Controls (Login Gate)
-            function openAuthModal() {
-                const modal = document.getElementById('authRequiredModal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
+            // 4. Auth Modal Controls (Generic Login Gate)
+            function openAuthModal(options = {}) {
+                if (typeof openAuthRequiredModal === 'function') {
+                    if (typeof options === 'string') {
+                        // Fallback if string type passed
+                        window.showAuthRequiredModal(options, @json($seller['name'] ?? 'the seller'));
+                    } else {
+                        openAuthRequiredModal({
+                            title: options.title || 'Need Login to Message Seller',
+                            message: options.message || 'Please sign in to your Bontrouver account to send direct messages and negotiate with {{ addslashes($seller['name'] ?? 'the seller') }}.',
+                            icon: options.icon || 'bi-chat-dots-fill text-success',
+                            buttonText: options.buttonText || 'Go to Login Page',
+                            features: options.features || [
+                                'Direct, real-time private chat with sellers',
+                                'Instant notifications for new replies & offers',
+                                'Safe & verified Canadian community trading'
+                            ],
+                            redirectUrl: window.location.href
+                        });
+                    }
+                } else {
+                    window.location.href = "{{ route('login') }}";
                 }
             }
 
             function closeAuthModal() {
-                const modal = document.getElementById('authRequiredModal');
-                if (modal) {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = '';
+                const modalEl = document.getElementById('authRequiredModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
                 }
             }
 

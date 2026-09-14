@@ -207,18 +207,33 @@
                             <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
                             <i class="bi bi-chevron-down ms-1" style="font-size: 0.68rem;"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu" aria-labelledby="userMenuBtn">
-                            <li><a class="dropdown-item text-white py-2" href="{{ route('dashboard') }}"><i
-                                        class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item text-white py-2" href="{{ route('profile.edit') }}"><i
-                                        class="bi bi-gear me-2"></i> Settings</a></li>
-                            <li>
-                                <hr class="dropdown-divider border-secondary opacity-25">
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-lg" aria-labelledby="userMenuBtn">
+                            <li class="px-3 py-2 border-bottom border-secondary border-opacity-10 mb-1">
+                                <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">{{ Auth::user()->name }}</div>
+                                <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">{{ Auth::user()->email ?? 'Active Account' }}</div>
                             </li>
                             <li>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                    <i class="bi bi-grid-1x2 me-2 text-info"></i> Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('listings.my') }}">
+                                    <i class="bi bi-collection-play me-2 text-success"></i> My Listings
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                    <i class="bi bi-gear me-2 text-secondary"></i> Settings
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" class="m-0">
                                     @csrf
-                                    <button type="submit" class="dropdown-item text-danger py-2">
+                                    <button type="submit" class="dropdown-item text-danger">
                                         <i class="bi bi-box-arrow-right me-2"></i> Log Out
                                     </button>
                                 </form>

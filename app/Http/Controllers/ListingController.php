@@ -256,7 +256,7 @@ class ListingController extends Controller
             }
         }
 
-        // If not found by exact match, check numeric ID fallback
+        // If not found by exact match, check numeric ID fallback or 100+ offset (e.g. 101 -> 1)
         if (!$listing && is_numeric($idOrSlug)) {
             $numId = (int)$idOrSlug;
             foreach ($sampleListings as $item) {
@@ -264,6 +264,18 @@ class ListingController extends Controller
                     $listing = $item;
                     break;
                 }
+            }
+            if (!$listing && $numId > 100) {
+                $mappedId = (($numId - 100 - 1) % count($sampleListings)) + 1;
+                foreach ($sampleListings as $item) {
+                    if ($item['id'] === $mappedId) {
+                        $listing = $item;
+                        break;
+                    }
+                }
+            }
+            if (!$listing && count($sampleListings) > 0) {
+                $listing = $sampleListings[0];
             }
         }
 
