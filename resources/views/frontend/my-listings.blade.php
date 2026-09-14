@@ -12,8 +12,8 @@
             <div class="mobile-account-nav-wrap">
                 <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
                     <li class="nav-item">
-                        <a href="{{ route('dashboard') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-grid-1x2-fill me-1"></i> Dashboard
+                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
+                            <i class="bi bi-person-fill me-1"></i> Profile
                         </a>
                     </li>
                     <li class="nav-item">
@@ -35,8 +35,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill">
-                            <i class="bi bi-person-fill me-1"></i> Profile
+                        <a href="{{ url('/notifications') }}" class="nav-link mobile-dark-pill">
+                            <i class="bi bi-bell-fill me-1"></i> Notifications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill">
+                            <i class="bi bi-gear-fill me-1"></i> Settings
                         </a>
                     </li>
                 </ul>
@@ -59,25 +64,6 @@
 
             <!-- Main Listings Content Area -->
             <div class="col-12 col-lg-8 col-xl-9">
-                
-                <!-- 1. Page Header -->
-                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-                    <div>
-                        <h1 class="h3 fw-bold text-white mb-1 d-flex align-items-center gap-2">
-                            My Listings
-                            <span class="badge bg-dark-subtle text-success border border-success-subtle fs-6 px-2 py-1 rounded-pill" id="headerTotalBadge">{{ $counts['all'] }} Ads</span>
-                        </h1>
-                        <p class="text-secondary mb-0">Manage, track performance and update all your marketplace ads.</p>
-                    </div>
-                    
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <a href="{{ url('/post-ad') }}" class="btn-theme-primary px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill">
-                            <i class="bi bi-plus-lg"></i>
-                            <span>Post an Ad</span>
-                        </a>
-                    </div>
-                </div>
-
                 <!-- 2. Status Tabs Navigation & Filters Toolbar -->
                 <div class="dark-surface-card p-3 p-md-4 mb-4">
                     <div class="status-tabs-container">

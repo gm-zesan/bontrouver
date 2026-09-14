@@ -153,7 +153,7 @@
                 features: [
                     'Sync saved items across all your devices',
                     'Receive instant alerts on price reductions',
-                    'Quickly access favorites anytime from dashboard'
+                    'Quickly access favorites anytime from your account'
                 ]
             });
         } else {

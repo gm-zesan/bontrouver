@@ -10182,8 +10182,29 @@ svg {
     border-right: none !important;
     border-top-left-radius: 10px !important;
     border-bottom-left-radius: 10px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
     padding-left: 14px !important;
     padding-right: 6px !important;
+    transition: border-color 0.15s ease !important;
+}
+
+.input-group > .dark-filter-input {
+    border-left: none !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.input-group > .dark-filter-input:not(:last-child) {
+    border-right: none !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.input-group:focus-within .dark-search-addon,
+.input-group:focus-within .dark-filter-input,
+.input-group:focus-within .dark-search-btn-clear {
+    border-color: #49D17D !important;
 }
 
 .dark-search-btn-clear {
@@ -10192,7 +10213,10 @@ svg {
     border-left: none !important;
     border-top-right-radius: 10px !important;
     border-bottom-right-radius: 10px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
     color: #64748B !important;
+    transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease !important;
 }
 
 .dark-search-btn-clear:hover {

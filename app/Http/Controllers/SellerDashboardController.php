@@ -502,14 +502,582 @@ class SellerDashboardController extends Controller
     }
 
     /**
-     * Delete listing.
+     * 1. Display Saved Favorites.
      */
-    public function destroyListing(Request $request, $id)
+    public function favorites(Request $request)
+    {
+        $user = Auth::user();
+        $categories = CategoryService::getAll();
+
+        $stats = [
+            'active_listings' => $user->active_ads_count ?? 3,
+            'saved_favorites_count' => 6,
+            'unread_messages_count' => 2,
+            'unread_notifications_count' => 3,
+        ];
+
+        $allFavorites = [
+            [
+                'id' => 101,
+                'title' => '2024 Toyota RAV4 Hybrid XSE AWD (Panoramic Sunroof)',
+                'price' => '$41,500',
+                'price_num' => 41500,
+                'category' => 'Cars & Vehicles',
+                'location' => 'Toronto, ON',
+                'posted_at' => '2 days ago',
+                'views' => 248,
+                'seller_name' => 'Metro Auto Gallery',
+                'seller_verified' => true,
+                'image' => 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => true,
+            ],
+            [
+                'id' => 102,
+                'title' => 'Apple iPhone 16 Pro Max 256GB Desert Titanium (Brand New Sealed)',
+                'price' => '$1,250',
+                'price_num' => 1250,
+                'category' => 'Electronics',
+                'location' => 'Mississauga, ON',
+                'posted_at' => '1 day ago',
+                'views' => 186,
+                'seller_name' => 'TechHub Canada',
+                'seller_verified' => true,
+                'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => false,
+            ],
+            [
+                'id' => 103,
+                'title' => 'Herman Miller Aeron Ergonomic Office Chair Size B',
+                'price' => '$780',
+                'price_num' => 780,
+                'category' => 'Home & Furniture',
+                'location' => 'Downtown Toronto, ON',
+                'posted_at' => '3 hours ago',
+                'views' => 64,
+                'seller_name' => 'Alexandre Dubois',
+                'seller_verified' => true,
+                'image' => 'https://images.unsplash.com/photo-1580481077197-2a4c14830174?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => false,
+            ],
+            [
+                'id' => 105,
+                'title' => 'Sony PlayStation 5 Disc Edition + 2 DualSense Controllers',
+                'price' => '$490',
+                'price_num' => 490,
+                'category' => 'Electronics',
+                'location' => 'Scarborough, ON',
+                'posted_at' => '5 days ago',
+                'views' => 312,
+                'seller_name' => 'David Kim',
+                'seller_verified' => false,
+                'image' => 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => false,
+            ],
+            [
+                'id' => 107,
+                'title' => 'Vintage Mid-Century Walnut Dining Table & 6 Chairs',
+                'price' => '$850',
+                'price_num' => 850,
+                'category' => 'Home & Furniture',
+                'location' => 'Etobicoke, ON',
+                'posted_at' => '1 week ago',
+                'views' => 140,
+                'seller_name' => 'Elena Rostova',
+                'seller_verified' => true,
+                'image' => 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => false,
+            ],
+            [
+                'id' => 108,
+                'title' => '2023 Specialized Tarmac SL7 Comp Road Bike (54cm)',
+                'price' => '$3,200',
+                'price_num' => 3200,
+                'category' => 'Sports & Outdoors',
+                'location' => 'Vancouver, BC',
+                'posted_at' => '4 days ago',
+                'views' => 95,
+                'seller_name' => 'Ryan Miller',
+                'seller_verified' => true,
+                'image' => 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'is_featured' => true,
+            ],
+        ];
+
+        $currentCategory = $request->query('category', 'all');
+        $currentSort = $request->query('sort', 'newest');
+        $searchQuery = $request->query('q', '');
+
+        return view('frontend.account.favorites', [
+            'user' => $user,
+            'categories' => $categories,
+            'favorites' => $allFavorites,
+            'stats' => $stats,
+            'currentCategory' => $currentCategory,
+            'currentSort' => $currentSort,
+            'searchQuery' => $searchQuery,
+        ]);
+    }
+
+    /**
+     * Remove item from Favorites.
+     */
+    public function removeFavorite(Request $request, $id)
     {
         return response()->json([
             'success' => true,
             'id' => (int) $id,
-            'message' => 'Listing deleted successfully.'
+            'message' => 'Listing removed from your favorites.'
         ]);
+    }
+
+    /**
+     * 2. Display Messages & Inbox Conversations.
+     */
+    public function messages(Request $request)
+    {
+        $user = Auth::user();
+        $categories = CategoryService::getAll();
+
+        $stats = [
+            'active_listings' => $user->active_ads_count ?? 3,
+            'saved_favorites_count' => 6,
+            'unread_messages_count' => 2,
+            'unread_notifications_count' => 3,
+        ];
+
+        $conversations = [
+            [
+                'id' => 1,
+                'user' => [
+                    'name' => 'Ahmed Rahman',
+                    'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+                    'online' => true,
+                    'location' => 'Toronto, ON',
+                    'verified' => true,
+                    'rating' => 4.9,
+                ],
+                'listing' => [
+                    'id' => 101,
+                    'title' => '2024 Toyota RAV4 Hybrid XSE AWD',
+                    'price' => '$41,500',
+                    'image' => 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=300&q=80',
+                    'status' => 'Active',
+                ],
+                'last_message' => 'Is the price negotiable if I pay cash this weekend?',
+                'last_time' => '10:45 AM',
+                'unread' => true,
+                'unread_count' => 1,
+                'messages' => [
+                    [
+                        'id' => 101,
+                        'sender' => 'them',
+                        'text' => 'Hi Sarah! I saw your 2024 Toyota RAV4 Hybrid ad in Toronto. Is it still available?',
+                        'time' => '10:30 AM',
+                    ],
+                    [
+                        'id' => 102,
+                        'sender' => 'me',
+                        'text' => 'Hello Ahmed! Yes, it is still available. Clean title with only 8,200 km.',
+                        'time' => '10:38 AM',
+                    ],
+                    [
+                        'id' => 103,
+                        'sender' => 'them',
+                        'text' => 'Is the price negotiable if I pay cash this weekend?',
+                        'time' => '10:45 AM',
+                    ],
+                ]
+            ],
+            [
+                'id' => 2,
+                'user' => [
+                    'name' => 'Jessica Wong',
+                    'avatar' => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+                    'online' => false,
+                    'location' => 'Mississauga, ON',
+                    'verified' => true,
+                    'rating' => 5.0,
+                ],
+                'listing' => [
+                    'id' => 102,
+                    'title' => 'Apple iPhone 16 Pro Max 256GB Desert Titanium',
+                    'price' => '$1,250',
+                    'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=300&q=80',
+                    'status' => 'Active',
+                ],
+                'last_message' => 'Can we meet at Square One Shopping Mall today?',
+                'last_time' => 'Yesterday',
+                'unread' => true,
+                'unread_count' => 1,
+                'messages' => [
+                    [
+                        'id' => 201,
+                        'sender' => 'them',
+                        'text' => 'Hi, is the iPhone 16 Pro Max still sealed in the original Apple box?',
+                        'time' => 'Yesterday 3:15 PM',
+                    ],
+                    [
+                        'id' => 202,
+                        'sender' => 'me',
+                        'text' => 'Yes, 100% factory sealed with 1-year Apple Canada warranty.',
+                        'time' => 'Yesterday 3:20 PM',
+                    ],
+                    [
+                        'id' => 203,
+                        'sender' => 'them',
+                        'text' => 'Can we meet at Square One Shopping Mall today?',
+                        'time' => 'Yesterday 4:00 PM',
+                    ],
+                ]
+            ],
+            [
+                'id' => 3,
+                'user' => [
+                    'name' => 'Michael Chen',
+                    'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+                    'online' => false,
+                    'location' => 'Montreal, QC',
+                    'verified' => true,
+                    'rating' => 4.8,
+                ],
+                'listing' => [
+                    'id' => 104,
+                    'title' => 'MacBook Pro 16" M3 Max 36GB / 1TB',
+                    'price' => '$3,150',
+                    'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=300&q=80',
+                    'status' => 'Sold',
+                ],
+                'last_message' => 'Thanks for the smooth pickup Sarah! Rating you 5 stars.',
+                'last_time' => '3 days ago',
+                'unread' => false,
+                'unread_count' => 0,
+                'messages' => [
+                    [
+                        'id' => 301,
+                        'sender' => 'them',
+                        'text' => 'I just arrived at the Starbucks on Saint-Laurent.',
+                        'time' => 'Sept 11, 2:10 PM',
+                    ],
+                    [
+                        'id' => 302,
+                        'sender' => 'me',
+                        'text' => 'Great, I am sitting by the window in the black jacket.',
+                        'time' => 'Sept 11, 2:12 PM',
+                    ],
+                    [
+                        'id' => 303,
+                        'sender' => 'them',
+                        'text' => 'Thanks for the smooth pickup Sarah! Rating you 5 stars.',
+                        'time' => 'Sept 11, 3:45 PM',
+                    ],
+                ]
+            ],
+        ];
+
+        $activeConversationId = (int) $request->query('c', $conversations[0]['id']);
+        $activeConversation = collect($conversations)->firstWhere('id', $activeConversationId) ?? $conversations[0];
+
+        return view('frontend.account.messages', [
+            'user' => $user,
+            'categories' => $categories,
+            'conversations' => $conversations,
+            'activeConversation' => $activeConversation,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Send new message in conversation.
+     */
+    public function sendMessage(Request $request, $conversationId)
+    {
+        $text = $request->input('message');
+        if (empty(trim($text))) {
+            return response()->json(['success' => false, 'message' => 'Message cannot be empty.'], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => [
+                'id' => time(),
+                'sender' => 'me',
+                'text' => e($text),
+                'time' => 'Just now',
+            ]
+        ]);
+    }
+
+    /**
+     * 3. Display Notifications Center.
+     */
+    public function notifications(Request $request)
+    {
+        $user = Auth::user();
+        $categories = CategoryService::getAll();
+
+        $stats = [
+            'active_listings' => $user->active_ads_count ?? 3,
+            'saved_favorites_count' => 6,
+            'unread_messages_count' => 2,
+            'unread_notifications_count' => 3,
+        ];
+
+        $notifications = [
+            'today' => [
+                [
+                    'id' => 1,
+                    'type' => 'message',
+                    'icon' => 'bi-chat-left-dots-fill text-primary',
+                    'bg' => 'bg-primary-subtle',
+                    'title' => 'New message from Ahmed Rahman',
+                    'body' => 'Ahmed sent a message about "2024 Toyota RAV4 Hybrid XSE AWD".',
+                    'time' => '10:45 AM',
+                    'read' => false,
+                    'action_url' => url('/messages?c=1'),
+                    'action_label' => 'Reply to Message',
+                ],
+                [
+                    'id' => 2,
+                    'type' => 'favorite',
+                    'icon' => 'bi-heart-fill text-danger',
+                    'bg' => 'bg-danger-subtle',
+                    'title' => 'Someone saved your ad',
+                    'body' => 'Your listing "Apple iPhone 16 Pro Max" was added to favorites by 3 new buyers.',
+                    'time' => '8:20 AM',
+                    'read' => false,
+                    'action_url' => url('/my-listings'),
+                    'action_label' => 'View Stats',
+                ],
+            ],
+            'yesterday' => [
+                [
+                    'id' => 3,
+                    'type' => 'price_drop',
+                    'icon' => 'bi-arrow-down-circle-fill text-success',
+                    'bg' => 'bg-success-subtle',
+                    'title' => 'Price Drop Alert on Saved Item',
+                    'body' => '"Sony PlayStation 5 Disc Edition" dropped from $530 to $490.',
+                    'time' => 'Yesterday at 5:30 PM',
+                    'read' => false,
+                    'action_url' => url('/listing/105'),
+                    'action_label' => 'View Listing',
+                ],
+                [
+                    'id' => 4,
+                    'type' => 'listing_approved',
+                    'icon' => 'bi-check-circle-fill text-success',
+                    'bg' => 'bg-success-subtle',
+                    'title' => 'Your listing is now live!',
+                    'body' => '"2024 Toyota RAV4 Hybrid" has passed verification and is active across Canada.',
+                    'time' => 'Yesterday at 11:15 AM',
+                    'read' => true,
+                    'action_url' => url('/listing/101'),
+                    'action_label' => 'View Public Ad',
+                ],
+            ],
+            'earlier' => [
+                [
+                    'id' => 5,
+                    'type' => 'listing_expiry',
+                    'icon' => 'bi-hourglass-bottom text-warning',
+                    'bg' => 'bg-warning-subtle',
+                    'title' => 'Listing expiring soon',
+                    'body' => 'Your listing "Canon EOS R6 Mark II" expires in 4 days. Renew now to maintain search rankings.',
+                    'time' => 'Sep 11, 2026',
+                    'read' => true,
+                    'action_url' => url('/my-listings?status=attention'),
+                    'action_label' => 'Renew Ad',
+                ],
+                [
+                    'id' => 6,
+                    'type' => 'security',
+                    'icon' => 'bi-shield-check text-info',
+                    'bg' => 'bg-info-subtle',
+                    'title' => 'New login from Chrome on macOS',
+                    'body' => 'Your account was accessed from Montreal, QC. If this was not you, please reset your password.',
+                    'time' => 'Sep 10, 2026',
+                    'read' => true,
+                    'action_url' => url('/settings'),
+                    'action_label' => 'Security Settings',
+                ],
+            ]
+        ];
+
+        return view('frontend.account.notifications', [
+            'user' => $user,
+            'categories' => $categories,
+            'notifications' => $notifications,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Mark all notifications as read.
+     */
+    public function markAllNotificationsRead(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'All notifications marked as read.'
+        ]);
+    }
+
+    /**
+     * Mark single notification as read.
+     */
+    public function markNotificationRead(Request $request, $id)
+    {
+        return response()->json([
+            'success' => true,
+            'id' => (int) $id,
+            'message' => 'Notification marked as read.'
+        ]);
+    }
+
+    /**
+     * 4. Display User Public & Account Profile.
+     */
+    public function profileView(Request $request)
+    {
+        $user = Auth::user();
+        $categories = CategoryService::getAll();
+
+        $stats = [
+            'active_listings' => $user->active_ads_count ?? 3,
+            'saved_favorites_count' => 6,
+            'unread_messages_count' => 2,
+            'unread_notifications_count' => 3,
+        ];
+
+        $userListings = [
+            [
+                'id' => 101,
+                'title' => '2024 Toyota RAV4 Hybrid XSE AWD (Panoramic Sunroof)',
+                'price' => '$41,500',
+                'category' => 'Cars & Vehicles',
+                'location' => 'Toronto, ON',
+                'posted_at' => '2 days ago',
+                'views' => 248,
+                'saves' => 14,
+                'image' => 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'featured' => true,
+            ],
+            [
+                'id' => 102,
+                'title' => 'Apple iPhone 16 Pro Max 256GB Desert Titanium',
+                'price' => '$1,250',
+                'category' => 'Electronics',
+                'location' => 'Mississauga, ON',
+                'posted_at' => '1 day ago',
+                'views' => 186,
+                'saves' => 21,
+                'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'featured' => false,
+            ],
+            [
+                'id' => 103,
+                'title' => 'Herman Miller Aeron Ergonomic Office Chair Size B',
+                'price' => '$780',
+                'category' => 'Home & Furniture',
+                'location' => 'Downtown Toronto, ON',
+                'posted_at' => '3 hours ago',
+                'views' => 64,
+                'saves' => 9,
+                'image' => 'https://images.unsplash.com/photo-1580481077197-2a4c14830174?auto=format&fit=crop&w=600&q=80',
+                'status' => 'active',
+                'featured' => false,
+            ],
+        ];
+
+        $badges = [
+            ['label' => 'Verified Canadian User', 'icon' => 'bi-shield-fill-check', 'color' => 'text-success'],
+            ['label' => 'Email Confirmed', 'icon' => 'bi-check-circle-fill', 'color' => 'text-success'],
+            ['label' => 'Phone Verified', 'icon' => 'bi-phone-fill', 'color' => 'text-success'],
+            ['label' => 'Top Rated Seller (4.9★)', 'icon' => 'bi-star-fill', 'color' => 'text-warning'],
+            ['label' => 'Fast Responder (~15m)', 'icon' => 'bi-lightning-charge-fill', 'color' => 'text-info'],
+        ];
+
+        $reviews = [
+            [
+                'author' => 'David Kim',
+                'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+                'rating' => 5,
+                'date' => '2 weeks ago',
+                'comment' => 'Fantastic seller! The MacBook Pro was in mint condition exactly as described. Prompt communication.',
+                'item_title' => 'MacBook Pro 16" M3 Max'
+            ],
+            [
+                'author' => 'Marc Bouchard',
+                'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
+                'rating' => 5,
+                'date' => '1 month ago',
+                'comment' => 'Smooth transaction, very honest seller. Met in a secure bank lobby in Toronto.',
+                'item_title' => 'Sony Alpha Camera Body'
+            ],
+        ];
+
+        return view('frontend.account.profile', [
+            'user' => $user,
+            'categories' => $categories,
+            'stats' => $stats,
+            'userListings' => $userListings,
+            'badges' => $badges,
+            'reviews' => $reviews,
+        ]);
+    }
+
+    /**
+     * 5. Display Account Settings & Preferences.
+     */
+    public function settings(Request $request)
+    {
+        $user = Auth::user();
+        $categories = CategoryService::getAll();
+
+        $stats = [
+            'active_listings' => $user->active_ads_count ?? 3,
+            'saved_favorites_count' => 6,
+            'unread_messages_count' => 2,
+            'unread_notifications_count' => 3,
+        ];
+
+        return view('frontend.account.settings', [
+            'user' => $user,
+            'categories' => $categories,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Save Account Settings updates.
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($request->has('name')) {
+            $user->name = $request->input('name');
+        }
+        if ($request->has('phone')) {
+            $user->phone = $request->input('phone');
+        }
+        if ($request->has('location')) {
+            $user->location = $request->input('location');
+        }
+        if ($request->has('bio')) {
+            $user->bio = $request->input('bio');
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('status', 'Settings updated successfully.');
     }
 }

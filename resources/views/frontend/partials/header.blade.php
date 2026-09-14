@@ -213,18 +213,8 @@
                                 <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">{{ Auth::user()->email ?? 'Active Account' }}</div>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="{{ route('dashboard') }}">
-                                    <i class="bi bi-grid-1x2 me-2 text-info"></i> Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('listings.my') }}">
-                                    <i class="bi bi-collection-play me-2 text-success"></i> My Listings
-                                </a>
-                            </li>
-                            <li>
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                                    <i class="bi bi-gear me-2 text-secondary"></i> Settings
+                                    <i class="bi bi-person me-2 text-warning"></i> Profile
                                 </a>
                             </li>
                             <li>
@@ -234,7 +224,7 @@
                                 <form method="POST" action="{{ route('logout') }}" class="m-0">
                                     @csrf
                                     <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-box-arrow-right me-2"></i> Log Out
+                                        <i class="bi bi-box-arrow-right me-2"></i> Sign Out
                                     </button>
                                 </form>
                             </li>

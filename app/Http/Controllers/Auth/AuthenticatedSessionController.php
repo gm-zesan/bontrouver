@@ -32,7 +32,7 @@ class AuthenticatedSessionController extends Controller
             return redirect($request->input('redirect_to'));
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('profile.edit', absolute: false));
     }
 
     /**

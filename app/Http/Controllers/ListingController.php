@@ -452,7 +452,7 @@ class ListingController extends Controller
                 'listing_id' => $generatedId,
                 'listing_slug' => $slug,
                 'view_url' => url('/listing/' . $generatedId),
-                'manage_url' => url('/dashboard'),
+                'manage_url' => url('/my-listings'),
             ]);
         }
 
