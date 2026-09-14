@@ -6160,3 +6160,288 @@ svg {
         margin-bottom: 20px;
     }
 }
+
+/* =========================================================================
+   Part 13: Instant Search Autocomplete & Suggestions Dropdown
+   ========================================================================= */
+.btn-clear-search-input {
+    background: none;
+    border: none;
+    color: #64748B;
+    padding: 0 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+}
+
+.btn-clear-search-input:hover {
+    color: #FFFFFF;
+}
+
+.search-suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background-color: #06182B;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    z-index: 1060;
+    max-height: 480px;
+    overflow-y: auto;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
+    animation: suggestFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes suggestFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-suggestions-mobile {
+    top: calc(100% + 6px);
+    border-radius: var(--radius-md);
+    max-height: 380px;
+}
+
+.suggestion-group {
+    margin-bottom: 12px;
+}
+
+.suggestion-group:last-child {
+    margin-bottom: 0;
+}
+
+.suggestion-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+    margin-bottom: 8px;
+    padding: 0 4px;
+}
+
+.btn-clear-history {
+    background: none;
+    border: none;
+    color: #94A3B8;
+    font-size: 0.72rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+    transition: color 0.15s ease;
+}
+
+.btn-clear-history:hover {
+    color: #EF4444;
+}
+
+.recent-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.recent-search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    color: #CBD5E1;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.recent-search-chip:hover {
+    background-color: rgba(73, 209, 125, 0.1);
+    border-color: rgba(73, 209, 125, 0.3);
+    color: #FFFFFF;
+}
+
+.btn-remove-recent {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #64748B;
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-remove-recent:hover {
+    color: #EF4444;
+}
+
+.suggestion-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: #CBD5E1;
+    font-size: 0.88rem;
+    transition: background-color 0.12s ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item.is-active-focus {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #FFFFFF;
+}
+
+.suggest-item-icon {
+    color: #64748B;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.suggest-item-badge {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #F59E0B;
+    background-color: rgba(245, 158, 11, 0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.suggest-action-icon {
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.suggest-mark {
+    background-color: transparent;
+    color: var(--color-primary);
+    font-weight: 700;
+    padding: 0;
+}
+
+.suggest-quick-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.suggest-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background-color: #041221;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #94A3B8;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.suggest-cat-pill:hover {
+    background-color: rgba(73, 209, 125, 0.12);
+    border-color: rgba(73, 209, 125, 0.3);
+    color: #FFFFFF;
+}
+
+.suggest-listings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.suggest-listing-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+}
+
+.suggest-listing-card:hover,
+.suggest-listing-card.is-active-focus {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.suggest-listing-thumb {
+    width: 48px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    background-color: #041221;
+}
+
+.suggest-listing-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    line-height: 1.2;
+}
+
+.suggest-listing-price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.suggest-listing-cat {
+    font-size: 0.72rem;
+    color: #64748B;
+    font-weight: 500;
+}
+
+.suggestion-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin-top: 8px;
+    padding-top: 8px;
+    text-align: center;
+}
+
+.suggest-view-all-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.15s ease;
+}
+
+.suggest-view-all-link:hover,
+.suggest-view-all-link.is-active-focus {
+    background-color: rgba(73, 209, 125, 0.1);
+}

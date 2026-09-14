@@ -122,6 +122,122 @@ class ListingController extends Controller
     }
 
     /**
+     * Search suggestions autocomplete endpoint.
+     */
+    public function suggestions(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $categories = CategoryService::getAll();
+        $sampleListings = $this->getSampleListings();
+
+        // Popular search keywords dictionary
+        $popularKeywords = [
+            'Toyota RAV4 Hybrid',
+            'Honda Civic Touring',
+            'Apple iPhone 16 Pro Max',
+            'Sony PlayStation 5',
+            'Herman Miller Embody Chair',
+            '1 Bedroom Condo Apartment',
+            'Porsche Macan GTS',
+            'Tesla Model Y AWD',
+            'RTX 4090 Gaming PC',
+            'Eames Lounge Chair',
+            'Winter Tires Set',
+            'MacBook Pro M3 Max',
+            'Trek Mountain Bike',
+            'Apartments for Rent Toronto',
+            'Remote Software Engineer Job',
+        ];
+
+        if (empty($q)) {
+            // Return top trending searches and categories
+            $trendingCategories = [];
+            foreach (array_slice($categories, 0, 5) as $cat) {
+                $trendingCategories[] = [
+                    'name' => $cat['name'],
+                    'slug' => $cat['slug'],
+                    'icon' => $cat['icon'] ?? 'bi-grid',
+                    'url' => url('/category/' . $cat['slug']),
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'type' => 'trending',
+                'trending_keywords' => array_slice($popularKeywords, 0, 6),
+                'categories' => $trendingCategories,
+            ]);
+        }
+
+        $lowerQ = mb_strtolower($q);
+
+        // 1. Matched Keywords
+        $matchedKeywords = [];
+        foreach ($popularKeywords as $kw) {
+            if (mb_stripos($kw, $lowerQ) !== false) {
+                $matchedKeywords[] = $kw;
+            }
+        }
+
+        // 2. Matched Categories & Subcategories
+        $matchedCategories = [];
+        foreach ($categories as $cat) {
+            $catName = $cat['name'] ?? '';
+            $catSlug = $cat['slug'] ?? '';
+            if (mb_stripos($catName, $lowerQ) !== false) {
+                $matchedCategories[] = [
+                    'title' => 'Search for "' . e($q) . '" in ' . $catName,
+                    'category_name' => $catName,
+                    'url' => url('/category/' . $catSlug . '?q=' . urlencode($q)),
+                    'icon' => $cat['icon'] ?? 'bi-tag',
+                ];
+            }
+
+            foreach ($cat['children'] ?? [] as $sub) {
+                $subName = $sub['name'] ?? '';
+                $subSlug = $sub['slug'] ?? '';
+                if (mb_stripos($subName, $lowerQ) !== false) {
+                    $matchedCategories[] = [
+                        'title' => 'Search in ' . $catName . ' > ' . $subName,
+                        'category_name' => $catName . ' > ' . $subName,
+                        'url' => url('/category/' . $catSlug . '?sub=' . $subSlug . '&q=' . urlencode($q)),
+                        'icon' => 'bi-arrow-return-right',
+                    ];
+                }
+            }
+        }
+
+        // 3. Top Matched Listings
+        $matchedListings = [];
+        foreach ($sampleListings as $item) {
+            $matchTitle = mb_stripos($item['title'], $lowerQ) !== false;
+            $matchDesc = mb_stripos($item['description'], $lowerQ) !== false;
+            $matchCat = mb_stripos($item['category_name'] ?? '', $lowerQ) !== false;
+
+            if ($matchTitle || $matchDesc || $matchCat) {
+                $matchedListings[] = [
+                    'id' => $item['id'],
+                    'title' => $item['title'],
+                    'price' => $item['price_formatted'] ?? ('$' . number_format($item['price'])),
+                    'category' => $item['subcategory_name'] ?? $item['category_name'] ?? 'Classifieds',
+                    'location' => $item['location'],
+                    'image' => $item['image'],
+                    'url' => $item['url'] ?? url('/listings?q=' . urlencode($item['title'])),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'type' => 'matches',
+            'query' => $q,
+            'keywords' => array_slice($matchedKeywords, 0, 5),
+            'categories' => array_slice($matchedCategories, 0, 3),
+            'listings' => array_slice($matchedListings, 0, 3),
+        ]);
+    }
+
+    /**
      * Provide comprehensive realistic Canadian marketplace listing dataset.
      */
     protected function getSampleListings(): array
