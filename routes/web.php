@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SellerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,29 +27,29 @@ Route::middleware(['auth'])->group(function () {
     // Redirect legacy dashboard routes to Profile
     Route::get('/dashboard', fn() => redirect()->route('profile.edit'))->name('dashboard');
     Route::get('/seller/panel', fn() => redirect()->route('profile.edit'))->name('seller.panel');
-    Route::get('/my-listings', [\App\Http\Controllers\SellerDashboardController::class, 'myListings'])->name('listings.my');
-    Route::post('/my-listings/{id}/status', [\App\Http\Controllers\SellerDashboardController::class, 'updateStatus'])->name('listings.my.status');
-    Route::delete('/my-listings/{id}', [\App\Http\Controllers\SellerDashboardController::class, 'destroyListing'])->name('listings.my.destroy');
+    Route::get('/my-listings', [SellerDashboardController::class, 'myListings'])->name('listings.my');
+    Route::post('/my-listings/{id}/status', [SellerDashboardController::class, 'updateStatus'])->name('listings.my.status');
+    Route::delete('/my-listings/{id}', [SellerDashboardController::class, 'destroyListing'])->name('listings.my.destroy');
 
     // 1. Favorites / Saved Ads
-    Route::get('/favorites', [\App\Http\Controllers\SellerDashboardController::class, 'favorites'])->name('favorites.index');
-    Route::delete('/favorites/{id}', [\App\Http\Controllers\SellerDashboardController::class, 'removeFavorite'])->name('favorites.destroy');
+    Route::get('/favorites', [SellerDashboardController::class, 'favorites'])->name('favorites.index');
+    Route::delete('/favorites/{id}', [SellerDashboardController::class, 'removeFavorite'])->name('favorites.destroy');
 
     // 2. Messages / Inbox Conversations
-    Route::get('/messages', [\App\Http\Controllers\SellerDashboardController::class, 'messages'])->name('messages.index');
-    Route::post('/messages/{conversationId}/reply', [\App\Http\Controllers\SellerDashboardController::class, 'sendMessage'])->name('messages.send');
+    Route::get('/messages', [SellerDashboardController::class, 'messages'])->name('messages.index');
+    Route::post('/messages/{conversationId}/reply', [SellerDashboardController::class, 'sendMessage'])->name('messages.send');
 
     // 3. Notifications Center
-    Route::get('/notifications', [\App\Http\Controllers\SellerDashboardController::class, 'notifications'])->name('notifications.index');
-    Route::post('/notifications/read-all', [\App\Http\Controllers\SellerDashboardController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
-    Route::post('/notifications/{id}/read', [\App\Http\Controllers\SellerDashboardController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::get('/notifications', [SellerDashboardController::class, 'notifications'])->name('notifications.index');
+    Route::post('/notifications/read-all', [SellerDashboardController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
+    Route::post('/notifications/{id}/read', [SellerDashboardController::class, 'markNotificationRead'])->name('notifications.read');
 
     // 4. User Public / Account Profile
-    Route::get('/profile/view', [\App\Http\Controllers\SellerDashboardController::class, 'profileView'])->name('profile.view');
+    Route::get('/profile/view', [SellerDashboardController::class, 'profileView'])->name('profile.view');
 
     // 5. Account Settings & Preferences
-    Route::get('/settings', [\App\Http\Controllers\SellerDashboardController::class, 'settings'])->name('settings.index');
-    Route::post('/settings', [\App\Http\Controllers\SellerDashboardController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/settings', [SellerDashboardController::class, 'settings'])->name('settings.index');
+    Route::post('/settings', [SellerDashboardController::class, 'updateSettings'])->name('settings.update');
 
     // Breeze Profile edit routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -56,4 +57,21 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// Static Marketplace Info & Footer Pages
+Route::controller(\App\Http\Controllers\StaticPageController::class)->group(function () {
+    Route::get('/about', 'about')->name('pages.about');
+    Route::get('/member-benefits', 'memberBenefits')->name('pages.member-benefits');
+    Route::get('/terms', 'terms')->name('pages.terms');
+    Route::get('/privacy', 'privacy')->name('pages.privacy');
+    Route::get('/posting-policy', 'postingPolicy')->name('pages.posting-policy');
+    Route::get('/security', 'security')->name('pages.security');
+    Route::get('/verification', 'verification')->name('pages.verification');
+    Route::get('/advertise', 'advertise')->name('pages.advertise');
+    Route::get('/promote-tools', 'promoteTools')->name('pages.promote-tools');
+    Route::get('/community-connect', 'communityConnect')->name('pages.community-connect');
+    Route::get('/accessibility', 'accessibility')->name('pages.accessibility');
+    Route::get('/ad-choices', 'adChoices')->name('pages.ad-choices');
+});
+
+require __DIR__ . '/auth.php';
+

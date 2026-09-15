@@ -1820,4 +1820,39 @@ svg {
         border-top: 1px solid rgba(255, 255, 255, 0.05);
         padding-top: 10px;
     }
+
+    .static-hero-section {
+        padding: 36px 0 28px;
+    }
+
+    .static-hero-title {
+        font-size: 1.65rem;
+    }
+
+    .static-hero-desc {
+        font-size: 0.92rem;
+    }
+
+    .static-section {
+        padding: 36px 0;
+    }
+
+    .static-card,
+    .static-step-box {
+        padding: 20px 16px;
+    }
+
+    .static-cta-banner {
+        padding: 32px 20px;
+    }
+
+    .static-cta-title {
+        font-size: 1.45rem;
+    }
+
+    .static-card-surface,
+    .static-article-card {
+        padding: 24px 18px;
+    }
 }
+

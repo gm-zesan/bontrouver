@@ -25,7 +25,6 @@
                 <h3 class="footer-col-title">Bontrouver</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ url('/about') }}" class="footer-link">About</a></li>
-                    <li><a href="{{ url('/careers') }}" class="footer-link">Join Us</a></li>
                     <li><a href="{{ url('/member-benefits') }}" class="footer-link">Member Benefits</a></li>
                     <li><a href="{{ url('/advertise') }}" class="footer-link">Advertise on Bontrouver</a></li>
                 </ul>
