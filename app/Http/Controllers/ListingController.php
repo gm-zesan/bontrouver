@@ -93,8 +93,8 @@ class ListingController extends Controller
             ];
         }
 
-        // 3. Sample rich inventory
-        $sampleListings = $this->getSampleListings();
+        // 3. Dynamic inventory from DB
+        $sampleListings = $this->getDatabaseListings();
 
         // 4. If AJAX request for live filtering, return JSON
         if ($request->ajax() || $request->wantsJson()) {
@@ -128,7 +128,7 @@ class ListingController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
         $categories = CategoryService::getAll();
-        $sampleListings = $this->getSampleListings();
+        $sampleListings = $this->getDatabaseListings();
 
         // Popular search keywords dictionary
         $popularKeywords = [
@@ -243,7 +243,7 @@ class ListingController extends Controller
     public function show(Request $request, string $idOrSlug)
     {
         $categories = CategoryService::getAll();
-        $sampleListings = $this->getSampleListings();
+        $sampleListings = $this->getDatabaseListings();
 
         // 1. Find listing by ID or title slug
         $listing = null;
@@ -821,6 +821,75 @@ class ListingController extends Controller
         }
 
         return $schema;
+    }
+
+    /**
+     * Provide comprehensive realistic Canadian marketplace listing dataset.
+     */
+    protected function getDatabaseListings(): array
+    {
+        $listings = \App\Models\Listing::with(['category', 'primaryImage', 'user'])
+            ->where('status', 'active')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $listings->map(function ($listing) {
+            return [
+                'id' => $listing->id,
+                'title' => $listing->title,
+                'slug' => $listing->slug,
+                'category' => $listing->category->slug ?? 'category',
+                'category_name' => $listing->category->name ?? 'Category',
+                'subcategory' => $listing->category->slug ?? 'subcategory',
+                'subcategory_name' => $listing->category->name ?? 'Subcategory',
+                'price' => $listing->price,
+                'price_formatted' => '$' . number_format($listing->price, 2),
+                'price_type' => $listing->price_type,
+                'price_type_label' => ucfirst($listing->price_type),
+                'currency' => 'CAD',
+                'location' => $listing->city . ', ' . $listing->province . ' • ' . $listing->location_name,
+                'neighbourhood' => $listing->location_name,
+                'postal_code_prefix' => '',
+                'distance_km' => rand(1, 15) / 10,
+                'posted_at' => $listing->created_at->diffForHumans(),
+                'posted_date' => $listing->created_at->format('F j, Y'),
+                'condition' => $listing->condition,
+                'condition_label' => $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : '',
+                'delivery' => 'pickup',
+                'seller_type' => 'private',
+                'seller_type_label' => 'Private Seller',
+                'badge' => $listing->views_count > 500 ? 'FEATURED' : null,
+                'badge_type' => $listing->views_count > 500 ? 'featured' : null,
+                'can_buy_now' => false,
+                'views_count' => $listing->views_count,
+                'photos_count' => 1,
+                'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+                'gallery' => [
+                    $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80'
+                ],
+                'description' => $listing->description,
+                'attributes' => [
+                    'Condition' => $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : 'N/A',
+                ],
+                'specs_pills' => [$listing->category->name ?? ''],
+                'seller' => [
+                    'name' => $listing->user->name ?? 'User',
+                    'type' => 'Private Seller',
+                    'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($listing->user->name ?? 'U'),
+                    'rating' => 5.0,
+                    'reviews_count' => rand(0, 10),
+                    'member_since' => 'Member since ' . ($listing->user->created_at ? $listing->user->created_at->format('Y') : '2023'),
+                    'active_ads_count' => rand(1, 5),
+                    'response_rate' => '100%',
+                    'response_time' => 'Replies in ~5 mins',
+                    'phone' => null,
+                    'badges' => [
+                        'email_verified' => true,
+                    ],
+                ],
+                'url' => url('/listing/' . $listing->slug),
+            ];
+        })->toArray();
     }
 
     /**

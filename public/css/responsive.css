@@ -119,13 +119,21 @@ svg {
     .hero-image-wrap {
         padding: 12px;
         min-height: 260px;
-        max-height: 320px;
+        height: 280px;
     }
 
-    .hero-image-box,
-    .hero-image {
+    .hero-image-box {
         min-height: 240px;
-        max-height: 300px;
+        height: 100%;
+        position: relative;
+    }
+
+    .hero-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
 
     .category-card {
@@ -623,21 +631,20 @@ svg {
     .hero-image-wrap {
         padding: 12px;
         min-height: 260px;
-        max-height: 320px;
+        height: 280px;
     }
-}
-
-@media (max-width: 991px) {
     .hero-image-box {
         min-height: 240px;
-        max-height: 300px;
+        height: 100%;
+        position: relative;
     }
-}
-
-@media (max-width: 991px) {
     .hero-image {
-        min-height: 240px;
-        max-height: 300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 }
 

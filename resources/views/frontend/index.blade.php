@@ -4,48 +4,9 @@
     {{-- =========================================================================
          Part 2: Featured Hero (Sponsored Ad Carousel)
          ========================================================================= --}}
-    @php
-        $featuredAds = [
-            [
-                'id' => 1,
-                'title' => '2024 Toyota RAV4 Hybrid XSE AWD',
-                'specs' => ['Cars & Vehicles', '12,400 km', 'Clean Carfax', '1-Owner'],
-                'price' => '$41,500',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • North York',
-                'description' => 'Single-owner 2024 RAV4 Hybrid XSE AWD in Wind Chill Pearl. Includes Technology Package, heated steering wheel, Apple CarPlay, panoramic sunroof, and winter tire set.',
-                'image' => asset('images/hero/toyota-rav4.jpg'),
-                'alt' => '2024 Toyota RAV4 Hybrid XSE AWD Wind Chill Pearl',
-                'url' => url('/listing/1')
-            ],
-            [
-                'id' => 2,
-                'title' => 'Apple iPhone 16 Pro Max 256GB Natural Titanium',
-                'specs' => ['Electronics', 'Brand New / Sealed', 'Unlocked', 'Full Warranty'],
-                'price' => '$1,250',
-                'currency' => 'CAD',
-                'location' => 'Vancouver, BC • Downtown',
-                'description' => 'Factory unlocked 256GB iPhone 16 Pro Max. Sealed in original Apple box with purchase receipt. Local public meetup in downtown Vancouver or safe tracked shipping.',
-                'image' => asset('images/hero/iphone-16-pro.jpg'),
-                'alt' => 'Apple iPhone 16 Pro Max 256GB Natural Titanium Sealed',
-                'url' => url('/listing/2')
-            ],
-            [
-                'id' => 3,
-                'title' => 'Herman Miller Embody Ergonomic Chair (Black/Sync)',
-                'specs' => ['Home & Office', 'Fully Adjustable', 'Graphite Frame', 'Like New'],
-                'price' => '$1,100',
-                'currency' => 'CAD',
-                'location' => 'Montréal, QC • Plateau',
-                'description' => 'Authentic Herman Miller Embody in Sync Black fabric with graphite base and frame. Fully adjustable arms, posturefit back support, pristine condition.',
-                'image' => asset('images/hero/herman-miller-embody.jpg'),
-                'alt' => 'Herman Miller Embody Ergonomic Chair Graphite Frame',
-                'url' => url('/listing/3')
-            ]
-        ];
-    @endphp
-
-
+    {{-- =========================================================================
+         Part 2: Featured Hero (Sponsored Ad Carousel)
+         ========================================================================= --}}
     <section class="featured-hero-section">
         <div class="container-xl">
             <!-- Swiper Container for Featured Ads -->
@@ -67,13 +28,13 @@
 
                                         <!-- Listing Title -->
                                         <h1 class="hero-listing-title">
-                                            <a href="{{ $ad['url'] ?? '#' }}">{{ $ad['title'] }}</a>
+                                            <a href="{{ url('/listing/' . $ad['slug']) }}">{{ $ad['title'] }}</a>
                                         </h1>
 
                                         <!-- Price & Location Block -->
                                         <div class="hero-price-wrap">
                                             <span class="hero-price">{{ $ad['price'] }}</span>
-                                            <span class="currency">{{ $ad['currency'] ?? 'CAD' }}</span>
+                                            <span class="currency">CAD</span>
                                         </div>
 
                                         <div class="hero-location">
@@ -82,13 +43,13 @@
                                         </div>
 
                                         <!-- Key Specs Tags -->
-                                        @if(!empty($ad['specs']))
-                                            <div class="hero-specs-row">
-                                                @foreach($ad['specs'] as $spec)
+                                        <div class="hero-specs-row">
+                                            @foreach($ad['specs'] as $spec)
+                                                @if(!empty($spec))
                                                     <span class="spec-pill">{{ $spec }}</span>
-                                                @endforeach
-                                            </div>
-                                        @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
 
                                         <!-- Short Description -->
                                         <p class="hero-description">
@@ -98,7 +59,7 @@
 
                                     <!-- Action Buttons -->
                                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                                        <a href="{{ $ad['url'] ?? '#' }}" class="hero-btn-primary">
+                                        <a href="{{ url('/listing/' . $ad['slug']) }}" class="hero-btn-primary">
                                             <span>View Listing</span>
                                             <i class="bi bi-arrow-right"></i>
                                         </a>
@@ -114,7 +75,7 @@
                                     <div class="hero-image-wrap">
                                         <div class="hero-image-box">
                                             <img src="{{ $ad['image'] }}" 
-                                                 alt="{{ $ad['alt'] ?? $ad['title'] }}" 
+                                                 alt="{{ $ad['alt'] }}" 
                                                  class="hero-image" 
                                                  width="600" 
                                                  height="400"
@@ -184,120 +145,6 @@
     {{-- =========================================================================
          Part 4: Trending Near You Section
          ========================================================================= --}}
-    @php
-        $locationName = 'Toronto, ON';
-        $trendingListings = [
-            [
-                'id' => 1,
-                'title' => '2023 Honda Civic Touring Sedan (Low Mileage)',
-                'price' => '$28,900',
-                'original_price' => '$30,500',
-                'price_drop' => '$1,600',
-                'photos_count' => 8,
-                'location' => 'Toronto, ON • North York',
-                'posted_at' => '45m ago',
-                'category' => 'Cars & Vehicles',
-                'badge' => 'FEATURED',
-                'image' => 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=800&q=80',
-                'alt' => '2023 Honda Civic Touring Sedan',
-                'url' => url('/listing/1')
-            ],
-            [
-                'id' => 2,
-                'title' => 'Sony PlayStation 5 Disc Edition + 2 Controllers',
-                'price' => '$480',
-                'photos_count' => 4,
-                'location' => 'Vancouver, BC • Kitsilano',
-                'posted_at' => '1h ago',
-                'category' => 'Electronics',
-                'badge' => 'NEW',
-                'image' => 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Sony PlayStation 5 Disc Edition',
-                'url' => url('/listing/2')
-            ],
-            [
-                'id' => 3,
-                'title' => 'Mid-Century Modern Teak Dining Table & 6 Chairs',
-                'price' => '$750',
-                'original_price' => '$900',
-                'price_drop' => '$150',
-                'photos_count' => 6,
-                'location' => 'Montréal, QC • Mile End',
-                'posted_at' => '2h ago',
-                'category' => 'Buy & Sell',
-                'image' => 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Mid-Century Modern Teak Dining Set',
-                'url' => url('/listing/3')
-            ],
-            [
-                'id' => 4,
-                'title' => 'Trek Domane SL 6 Carbon Disc Road Bike (56cm)',
-                'price' => '$2,200',
-                'photos_count' => 5,
-                'location' => 'Calgary, AB • Downtown',
-                'posted_at' => '3h ago',
-                'category' => 'Sports & Outdoors',
-                'image' => 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Trek Domane SL 6 Carbon Road Bike',
-                'url' => url('/listing/4')
-            ],
-            [
-                'id' => 5,
-                'title' => 'Apple MacBook Pro 14" M3 Pro 18GB 512GB Space Black',
-                'price' => '$1,850',
-                'original_price' => '$2,100',
-                'price_drop' => '$250',
-                'photos_count' => 7,
-                'location' => 'Ottawa, ON • Centretown',
-                'posted_at' => '4h ago',
-                'category' => 'Electronics',
-                'badge' => 'URGENT',
-                'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Apple MacBook Pro 14 Space Black',
-                'url' => url('/listing/5')
-            ],
-            [
-                'id' => 6,
-                'title' => 'Spacious 1-Bed + Den Condo with Balcony & Parking',
-                'price' => '$2,350/mo',
-                'photos_count' => 12,
-                'location' => 'Toronto, ON • Liberty Village',
-                'posted_at' => '5h ago',
-                'category' => 'Real Estate',
-                'badge' => 'NEW',
-                'image' => 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Modern 1 Bed Condo Interior',
-                'url' => url('/listing/6')
-            ],
-            [
-                'id' => 7,
-                'title' => 'DeWalt 20V MAX 5-Tool Cordless Power Tool Combo Kit',
-                'price' => '$320',
-                'photos_count' => 4,
-                'location' => 'Edmonton, AB • Southside',
-                'posted_at' => '6h ago',
-                'category' => 'Home & Tools',
-                'image' => 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'DeWalt 20V MAX Cordless Power Tool Set',
-                'url' => url('/listing/7')
-            ],
-            [
-                'id' => 8,
-                'title' => 'Handcrafted Solid White Oak Minimalist Coffee Table',
-                'price' => '$140',
-                'original_price' => '$180',
-                'price_drop' => '$40',
-                'photos_count' => 3,
-                'location' => 'Mississauga, ON • Port Credit',
-                'posted_at' => '8h ago',
-                'category' => 'Furniture',
-                'image' => 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Handcrafted Solid White Oak Coffee Table',
-                'url' => url('/listing/8')
-            ]
-        ];
-    @endphp
-
     <section class="trending-section" aria-labelledby="trending-heading">
         <div class="container-xl">
             <!-- Section Header -->
@@ -358,75 +205,6 @@
     {{-- =========================================================================
          Part 5: Browse by Location Section
          ========================================================================= --}}
-    @php
-        $locations = [
-            [
-                'id' => 1,
-                'city' => 'Toronto',
-                'province' => 'Ontario',
-                'province_code' => 'ON',
-                'listings_count' => 24820,
-                'slug' => 'toronto-on',
-            ],
-            [
-                'id' => 2,
-                'city' => 'Vancouver',
-                'province' => 'British Columbia',
-                'province_code' => 'BC',
-                'listings_count' => 18430,
-                'slug' => 'vancouver-bc',
-            ],
-            [
-                'id' => 3,
-                'city' => 'Montréal',
-                'province' => 'Quebec',
-                'province_code' => 'QC',
-                'listings_count' => 21340,
-                'slug' => 'montreal-qc',
-            ],
-            [
-                'id' => 4,
-                'city' => 'Calgary',
-                'province' => 'Alberta',
-                'province_code' => 'AB',
-                'listings_count' => 12850,
-                'slug' => 'calgary-ab',
-            ],
-            [
-                'id' => 5,
-                'city' => 'Ottawa',
-                'province' => 'Ontario',
-                'province_code' => 'ON',
-                'listings_count' => 9740,
-                'slug' => 'ottawa-on',
-            ],
-            [
-                'id' => 6,
-                'city' => 'Edmonton',
-                'province' => 'Alberta',
-                'province_code' => 'AB',
-                'listings_count' => 11210,
-                'slug' => 'edmonton-ab',
-            ],
-            [
-                'id' => 7,
-                'city' => 'Winnipeg',
-                'province' => 'Manitoba',
-                'province_code' => 'MB',
-                'listings_count' => 6480,
-                'slug' => 'winnipeg-mb',
-            ],
-            [
-                'id' => 8,
-                'city' => 'Halifax',
-                'province' => 'Nova Scotia',
-                'province_code' => 'NS',
-                'listings_count' => 5190,
-                'slug' => 'halifax-ns',
-            ],
-        ];
-    @endphp
-
     <section class="locations-section" aria-labelledby="locations-heading">
         <div class="container-xl">
             <!-- Section Header -->
@@ -458,87 +236,6 @@
     {{-- =========================================================================
          Part 6: Featured Listings Section (Promoted Marketplace Inventory)
          ========================================================================= --}}
-    @php
-        $featuredListings = [
-            [
-                'id' => 101,
-                'title' => '2024 Porsche Macan GTS AWD (V6 Twin-Turbo)',
-                'price' => '$84,900',
-                'photos_count' => 16,
-                'location' => 'Vancouver, BC • Downtown',
-                'posted_at' => '1h ago',
-                'category' => 'Cars & Vehicles',
-                'image' => 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-                'alt' => '2024 Porsche Macan GTS AWD',
-                'url' => '#featured-1'
-            ],
-            [
-                'id' => 102,
-                'title' => 'Waterfront 2-Bed Luxury Penthouse with CN Tower Views',
-                'price' => '$3,850/mo',
-                'photos_count' => 14,
-                'location' => 'Toronto, ON • Harbourfront',
-                'posted_at' => '2h ago',
-                'category' => 'Real Estate',
-                'image' => 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Waterfront Luxury Penthouse Interior',
-                'url' => '#featured-2'
-            ],
-            [
-                'id' => 103,
-                'title' => 'Custom Liquid-Cooled RTX 4090 Gaming Workstation (64GB)',
-                'price' => '$3,650',
-                'original_price' => '$4,100',
-                'price_drop' => '$450',
-                'photos_count' => 8,
-                'location' => 'Calgary, AB • Beltline',
-                'posted_at' => '3h ago',
-                'category' => 'Electronics',
-                'image' => 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Custom Liquid-Cooled RTX 4090 Gaming Workstation',
-                'url' => '#featured-3'
-            ],
-            [
-                'id' => 104,
-                'title' => 'Original Eames Lounge Chair & Ottoman (Walnut / Black)',
-                'price' => '$4,200',
-                'photos_count' => 10,
-                'location' => 'Montréal, QC • Westmount',
-                'posted_at' => '5h ago',
-                'category' => 'Home & Furniture',
-                'image' => 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Original Eames Lounge Chair & Ottoman',
-                'url' => '#featured-4'
-            ],
-            [
-                'id' => 105,
-                'title' => '2023 Tesla Model Y Long Range AWD (Autopilot & Tow Package)',
-                'price' => '$52,400',
-                'photos_count' => 12,
-                'location' => 'Ottawa, ON • Kanata',
-                'posted_at' => '6h ago',
-                'category' => 'Cars & Vehicles',
-                'image' => 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80',
-                'alt' => '2023 Tesla Model Y Long Range',
-                'url' => '#featured-5'
-            ],
-            [
-                'id' => 106,
-                'title' => 'Minimalist Scandinavian Custom Modular Oak Dining Set',
-                'price' => '$1,950',
-                'original_price' => '$2,300',
-                'price_drop' => '$350',
-                'photos_count' => 7,
-                'location' => 'Edmonton, AB • Glenora',
-                'posted_at' => '8h ago',
-                'category' => 'Home & Furniture',
-                'image' => 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80',
-                'alt' => 'Scandinavian Modular Oak Dining Set',
-                'url' => '#featured-6'
-            ]
-        ];
-    @endphp
-
     <section class="featured-listings-section" aria-labelledby="featured-listings-heading">
         <div class="container-xl">
             <!-- Section Header -->
@@ -607,62 +304,6 @@
     {{-- =========================================================================
          Part 7: Category Spotlight Section (Asymmetric Feature Showcase)
          ========================================================================= --}}
-    @php
-        $housing = [
-            'category' => 'HOUSING & RENTALS',
-            'heading' => 'Find a place that feels like home.',
-            'description' => 'Explore apartments, condos, detached homes & room rentals across top Canadian cities.',
-            'tags' => [
-                ['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/category/real-estate?sub=apartments-condos')],
-                ['label' => 'Condos', 'icon' => 'bi-building-check', 'url' => url('/category/real-estate?sub=apartments-condos')],
-                ['label' => 'Houses', 'icon' => 'bi-house-door', 'url' => url('/category/real-estate?sub=house-rental')],
-                ['label' => 'Room Sublets', 'icon' => 'bi-key', 'url' => url('/category/real-estate?sub=room-rentals')]
-            ],
-            'cta_text' => 'Explore Housing',
-            'url' => url('/category/real-estate'),
-            'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-            'alt' => 'Modern Canadian home and rental properties'
-        ];
-
-        $jobs = [
-            'category' => 'JOBS & CAREERS',
-            'heading' => 'Find your next opportunity.',
-            'description' => 'Connect directly with verified Canadian employers hiring across high-demand industries.',
-            'tags' => [
-                ['label' => 'Remote Friendly', 'icon' => 'bi-laptop', 'url' => url('/category/jobs?q=remote')],
-                ['label' => 'Full-time', 'icon' => 'bi-briefcase', 'url' => url('/category/jobs?q=full-time')],
-                ['label' => 'Part-time', 'icon' => 'bi-hourglass-split', 'url' => url('/category/jobs?q=part-time')],
-                ['label' => 'Local Roles', 'icon' => 'bi-geo-alt', 'url' => url('/category/jobs')]
-            ],
-            'cta_text' => 'Explore Jobs',
-            'url' => url('/category/jobs'),
-            'badge' => '3,400+ Active Openings'
-        ];
-
-        $classifieds = [
-            'category' => 'BUY & SELL / CLASSIFIEDS',
-            'heading' => 'Everyday finds, local deals & more.',
-            'description' => 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
-            'cta_text' => 'Browse Classifieds',
-            'url' => url('/category/buy-sell'),
-            'items' => [
-                [
-                    'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
-                    'label' => 'Tech & Gear',
-                    'alt' => 'Laptops and electronics'
-                ],
-                [
-                    'image' => 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=320&q=80',
-                    'label' => 'Furniture',
-                    'alt' => 'Modern furniture and decor'
-                ],
-                [
-                    'image' => 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=320&q=80',
-                    'label' => 'Cameras',
-                    'alt' => 'Photography and vintage goods'
-                ],
-                [
-                    'image' => 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=320&q=80',
                     'label' => 'Sports & Bikes',
                     'alt' => 'Bicycles and outdoor equipment'
                 ]
