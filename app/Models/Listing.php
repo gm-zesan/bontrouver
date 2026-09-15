@@ -19,6 +19,7 @@ class Listing extends Model
         'price_type',
         'price_period',
         'condition',
+        'city_id',
         'location_name',
         'city',
         'province',
@@ -51,6 +52,11 @@ class Listing extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function images()

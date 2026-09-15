@@ -105,23 +105,56 @@ Predefined options for 'select' type attributes (e.g., 'Toyota', 'Honda' for 'Ma
 
 ---
 
-## 3. LISTINGS & MEDIA
+## 3. LOCATIONS (PROVINCES & CITIES)
+
+### `provinces`
+Authoritative master table for Canada's 10 Provinces & 3 Territories.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `name` (VARCHAR 255) - e.g., 'Ontario', 'Quebec', 'British Columbia'
+- `code` (VARCHAR 4, UNIQUE) - e.g., 'ON', 'QC', 'BC', 'AB'
+- `slug` (VARCHAR 255, UNIQUE) - e.g., 'ontario', 'quebec'
+- `country_code` (VARCHAR 3) - Default: 'CA'
+- `sort_order` (INT) - Default: 0
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `code`, `slug`*
+
+### `cities`
+Normalized Canadian metropolitan centers, towns, and municipal regions.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `province_id` (FK -> provinces.id, CASCADE DELETE)
+- `name` (VARCHAR 255) - e.g., 'Toronto', 'Montreal', 'Vancouver'
+- `slug` (VARCHAR 255, UNIQUE) - e.g., 'toronto', 'montreal'
+- `latitude` (DECIMAL 10,8) - Exact centroid coordinates for distance filtering
+- `longitude` (DECIMAL 11,8) - Exact centroid coordinates for distance filtering
+- `population` (INT, UNSIGNED, NULLABLE)
+- `is_featured` (BOOLEAN) - Default: false (Shown in homepage Browse by Location)
+- `is_active` (BOOLEAN) - Default: true
+- `sort_order` (INT) - Default: 0
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `province_id`, `slug`, `[latitude, longitude]`, `[is_featured, sort_order]`, `is_active`*
+
+---
+
+## 4. LISTINGS & MEDIA
 
 ### `listings`
 Core marketplace advertisements.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `user_id` (FK -> users.id, CASCADE DELETE)
 - `category_id` (FK -> categories.id, RESTRICT ON DELETE)
+- `city_id` (FK -> cities.id, NULLABLE, SET NULL ON DELETE)
 - `title` (VARCHAR 255)
 - `slug` (VARCHAR 255, UNIQUE)
 - `description` (TEXT)
 - `price` (DECIMAL 10,2, NULLABLE)
 - `price_type` (VARCHAR 50) - 'fixed', 'negotiable', 'free', 'contact'
 - `price_period` (VARCHAR 50, NULLABLE) - 'one_time', 'hour', 'day', 'week', 'month'
-- `condition` (VARCHAR 50, NULLABLE) - 'new', 'used_excellent', etc. (Optional here or moved to dynamic attrs)
-- `location_name` (VARCHAR 255, NULLABLE) - e.g., 'Liberty Village'
-- `city` (VARCHAR 255) - e.g., 'Toronto'
-- `province` (VARCHAR 255) - e.g., 'ON'
+- `condition` (VARCHAR 50, NULLABLE) - 'new', 'used_excellent', etc.
+- `location_name` (VARCHAR 255, NULLABLE) - e.g., 'Liberty Village' (neighborhood / address)
+- `city` (VARCHAR 255, NULLABLE) - Denormalized string cache for display
+- `province` (VARCHAR 255, NULLABLE) - Denormalized string cache for display
 - `postal_code` (VARCHAR 20, NULLABLE)
 - `latitude` (DECIMAL 10,8, NULLABLE)
 - `longitude` (DECIMAL 11,8, NULLABLE)
@@ -134,7 +167,7 @@ Core marketplace advertisements.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE)
-*Indexes: `status`, `is_featured`, `is_sponsored`, `city`, `province`, `[latitude, longitude]`*
+*Indexes: `city_id`, `status`, `is_featured`, `is_sponsored`, `city`, `province`, `[latitude, longitude]`*
 
 ### `listing_images`
 Images for listings.
@@ -214,7 +247,7 @@ Standard database notification table.
 
 ---
 
-## 5. SMART ALERTS
+## 6. SMART ALERTS
 
 ### `smart_alerts`
 User preferences for receiving notifications.
@@ -223,6 +256,8 @@ User preferences for receiving notifications.
 - `name` (VARCHAR 255, NULLABLE)
 - `keyword` (VARCHAR 255, NULLABLE)
 - `category_id` (FK -> categories.id, NULLABLE, SET NULL ON DELETE)
+- `city_id` (FK -> cities.id, NULLABLE, SET NULL ON DELETE)
+- `province_id` (FK -> provinces.id, NULLABLE, SET NULL ON DELETE)
 - `city` (VARCHAR 255, NULLABLE)
 - `min_price` (DECIMAL 10,2, NULLABLE)
 - `max_price` (DECIMAL 10,2, NULLABLE)
@@ -241,7 +276,7 @@ Dynamic filters for Smart Alerts (e.g., Alert me when 'Make' = 'Honda').
 
 ---
 
-## 6. COMMUNITY & COMPANIONSHIP
+## 7. COMMUNITY & COMPANIONSHIP
 
 ### `companionship_requests`
 Social meetups.
@@ -251,9 +286,10 @@ Social meetups.
 - `title` (VARCHAR 255)
 - `description` (TEXT)
 - `meetup_date_time` (TIMESTAMP)
+- `city_id` (FK -> cities.id, NULLABLE, SET NULL ON DELETE)
 - `location_name` (VARCHAR 255)
-- `city` (VARCHAR 255)
-- `province` (VARCHAR 255)
+- `city` (VARCHAR 255, NULLABLE)
+- `province` (VARCHAR 255, NULLABLE)
 - `headcount_limit` (INT, NULLABLE)
 - `status` (VARCHAR 50) - 'open', 'full', 'cancelled', 'completed'
 - `created_at` (TIMESTAMP, NULLABLE)

@@ -36,29 +36,30 @@
                     <!-- Location Selector -->
                     <div class="search-col search-location-col">
                         <i class="bi bi-geo-alt search-icon"></i>
-                        <select id="filterLocation" class="search-field search-select" aria-label="Location" onchange="triggerLiveFilter()">
-                            <option value="Toronto, ON (GTA)" {{ in_array(($location ?? ''), ['Toronto, ON (GTA)', 'Toronto, ON', '']) ? 'selected' : '' }}>Toronto, ON (GTA)</option>
-                            <option value="Toronto, ON" {{ ($location ?? '') === 'Toronto, ON' ? 'selected' : '' }}>Toronto, ON</option>
-                            <option value="Mississauga, ON" {{ ($location ?? '') === 'Mississauga, ON' ? 'selected' : '' }}>Mississauga, ON</option>
-                            <option value="North York, ON" {{ ($location ?? '') === 'North York, ON' ? 'selected' : '' }}>North York, ON</option>
-                            <option value="Vancouver, BC" {{ ($location ?? '') === 'Vancouver, BC' ? 'selected' : '' }}>Vancouver, BC</option>
-                            <option value="Montréal, QC" {{ ($location ?? '') === 'Montréal, QC' ? 'selected' : '' }}>Montréal, QC</option>
-                            <option value="Calgary, AB" {{ ($location ?? '') === 'Calgary, AB' ? 'selected' : '' }}>Calgary, AB</option>
-                            <option value="Ottawa, ON" {{ ($location ?? '') === 'Ottawa, ON' ? 'selected' : '' }}>Ottawa, ON</option>
-                            <option value="Edmonton, AB" {{ ($location ?? '') === 'Edmonton, AB' ? 'selected' : '' }}>Edmonton, AB</option>
-                            <option value="All Canada" {{ ($location ?? '') === 'All Canada' ? 'selected' : '' }}>All Canada</option>
+                        <select id="filterLocation" class="search-field search-select" aria-label="Location" onchange="syncLocationFilter(this.value)">
+                            <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
+                            @if(!empty($canadianCities))
+                                @foreach($canadianCities as $cName => $cInfo)
+                                    @php
+                                        $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
+                                    @endphp
+                                    <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
+                                @endforeach
+                            @endif
                         </select>
                     </div>
 
                     <!-- Radius Distance Selector -->
                     <div class="search-col search-radius-col d-none d-md-flex">
                         <i class="bi bi-compass search-icon"></i>
-                        <select id="filterRadius" class="search-field search-select" aria-label="Distance Radius" onchange="syncRadius(this.value)">
-                            <option value="5">Within 5 km</option>
-                            <option value="10">Within 10 km</option>
-                            <option value="25" selected>Within 25 km</option>
-                            <option value="50">Within 50 km</option>
-                            <option value="all">Any distance</option>
+                        <select id="filterRadiusSelect" class="search-field search-select" aria-label="Distance Radius" onchange="syncRadius(this.value)">
+                            <option value="5" {{ ($radius ?? '25') == '5' ? 'selected' : '' }}>Within 5 km</option>
+                            <option value="10" {{ ($radius ?? '25') == '10' ? 'selected' : '' }}>Within 10 km</option>
+                            <option value="25" {{ ($radius ?? '25') == '25' ? 'selected' : '' }}>Within 25 km</option>
+                            <option value="50" {{ ($radius ?? '25') == '50' ? 'selected' : '' }}>Within 50 km</option>
+                            <option value="100" {{ ($radius ?? '25') == '100' ? 'selected' : '' }}>Within 100 km</option>
+                            <option value="250" {{ ($radius ?? '25') == '250' ? 'selected' : '' }}>Within 250 km</option>
+                            <option value="all" {{ ($radius ?? '25') == 'all' ? 'selected' : '' }}>Any distance</option>
                         </select>
                     </div>
 
@@ -991,7 +992,8 @@
         const minPrice = parseFloat(document.getElementById('filterPriceMin')?.value) || 0;
         const maxPrice = parseFloat(document.getElementById('filterPriceMax')?.value) || Infinity;
         const sortOption = document.getElementById('desktopSortSelect')?.value || 'recent';
-        const radiusVal = document.getElementById('filterRadiusSelect')?.value || '25';
+        const radiusVal = document.getElementById('filterRadiusSelect')?.value || document.getElementById('mobileFilterRadiusSelect')?.value || 'all';
+        const locationVal = (document.getElementById('filterLocation')?.value || '').toLowerCase().trim();
 
         // Selected checkboxes for generic filters
         const selectedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked')).map(c => c.value);
@@ -1045,10 +1047,28 @@
             // Price range check
             if (item.price < minPrice || item.price > maxPrice) return false;
 
-            // Radius distance check (if radius is not 'all')
-            if (radiusVal !== 'all' && item.distance_km) {
+            // Location & Radius distance check
+            if (locationVal && locationVal !== 'all canada' && locationVal !== '') {
+                const cityName = locationVal.split(',')[0].trim().toLowerCase();
+                const itemCity = (item.city || '').toLowerCase();
+                const itemLoc = (item.location || '').toLowerCase();
+                const matchesDirectCity = itemCity.includes(cityName) || itemLoc.includes(cityName);
+
+                if (radiusVal !== 'all') {
+                    const maxRadius = parseFloat(radiusVal);
+                    if (typeof item.distance_km === 'number' && item.distance_km !== null) {
+                        if (item.distance_km > maxRadius) return false;
+                    } else if (!matchesDirectCity) {
+                        return false;
+                    }
+                } else if (!matchesDirectCity && typeof item.distance_km === 'number' && item.distance_km > 250) {
+                    return false;
+                }
+            } else if (radiusVal !== 'all') {
                 const maxRadius = parseFloat(radiusVal);
-                if (item.distance_km > maxRadius) return false;
+                if (typeof item.distance_km === 'number' && item.distance_km !== null && item.distance_km > maxRadius) {
+                    return false;
+                }
             }
 
             // Category-specific Housing filters
@@ -1288,8 +1308,13 @@
             const maxText = f.maxPrice !== Infinity ? `$${f.maxPrice}` : 'Any';
             chips.push({ label: `Price: ${minText} – ${maxText}`, clear: () => setQuickPrice(null, null) });
         }
-        if (f.radiusVal && f.radiusVal !== '25' && f.radiusVal !== 'all') {
-            chips.push({ label: `Within ${f.radiusVal} km`, clear: () => syncRadius('25') });
+        if (f.locationVal && f.locationVal !== 'all canada' && f.locationVal !== '') {
+            const locEl = document.getElementById('filterLocation');
+            const locText = locEl?.options[locEl.selectedIndex]?.text || f.locationVal;
+            chips.push({ label: `Location: ${locText}`, clear: () => resetLocationFilter() });
+        }
+        if (f.radiusVal && f.radiusVal !== 'all') {
+            chips.push({ label: `Within ${f.radiusVal} km`, clear: () => syncRadius('all') });
         }
 
         // Housing chips
@@ -1396,6 +1421,17 @@
         const m = document.getElementById('mobileFilterRadiusSelect');
         if (d) d.value = val;
         if (m) m.value = val;
+        triggerLiveFilter();
+    }
+
+    function syncLocationFilter(val) {
+        triggerLiveFilter();
+    }
+
+    function resetLocationFilter() {
+        const locSelect = document.getElementById('filterLocation');
+        if (locSelect) locSelect.value = 'All Canada';
+        syncRadius('all');
         triggerLiveFilter();
     }
 

@@ -509,9 +509,16 @@ class ListingSeeder extends Seeder
 
             $slug = Str::slug($data['title']) . '-' . Str::random(5);
 
+            // Find matching City from cities table
+            $citySlug = Str::slug($data['city']);
+            $cityModel = \App\Models\City::where('slug', $citySlug)
+                ->orWhere('name', 'like', '%' . $data['city'] . '%')
+                ->first();
+
             $listing = Listing::create([
                 'user_id'      => $user->id,
                 'category_id'  => $category->id,
+                'city_id'      => $cityModel?->id,
                 'title'        => $data['title'],
                 'slug'         => $slug,
                 'description'  => $data['description'],
@@ -520,11 +527,11 @@ class ListingSeeder extends Seeder
                 'price_period' => $data['price_period'] ?? null,
                 'condition'    => $data['condition'] ?? null,
                 'location_name'=> $data['location_name'],
-                'city'         => $data['city'],
-                'province'     => $data['province'],
+                'city'         => $cityModel?->name ?? $data['city'],
+                'province'     => $cityModel?->province?->code ?? $data['province'],
                 'postal_code'  => $data['postal_code'] ?? null,
-                'latitude'     => $data['latitude'] ?? null,
-                'longitude'    => $data['longitude'] ?? null,
+                'latitude'     => $data['latitude'] ?? $cityModel?->latitude,
+                'longitude'    => $data['longitude'] ?? $cityModel?->longitude,
                 'status'       => 'active',
                 'is_featured'  => $data['is_featured'] ?? false,
                 'is_sponsored' => $data['is_sponsored'] ?? false,

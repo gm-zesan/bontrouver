@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             MemberTierSeeder::class,
             CategorySeeder::class,
             CategoryAttributeSeeder::class,
+            ProvinceSeeder::class,
+            CitySeeder::class,
             ListingSeeder::class,
             FavoriteSeeder::class,
             SmartAlertSeeder::class,

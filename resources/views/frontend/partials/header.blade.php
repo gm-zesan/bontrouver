@@ -12,7 +12,8 @@
 
                 <!-- Categories Mega-Dropdown (Desktop >= 992px) -->
                 <div class="desktop-categories-dropdown d-none d-lg-block" id="desktopCategoriesDropdown">
-                    <button class="btn-categories" type="button" id="categoriesMenuBtn" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn-categories" type="button" id="categoriesMenuBtn" aria-haspopup="true"
+                        aria-expanded="false">
                         <i class="bi bi-grid"></i>
                         <span>Categories</span>
                         <i class="bi bi-chevron-down ms-1" style="font-size: 0.72rem;"></i>
@@ -128,7 +129,8 @@
                                                     </div>
                                                     <h5 class="text-white fw-bold mb-1">{{ $subName }}</h5>
                                                     <p class="text-secondary small mb-3">Browse all listings and ads in
-                                                        <strong>{{ $subName }}</strong>.</p>
+                                                        <strong>{{ $subName }}</strong>.
+                                                    </p>
                                                     <a href="{{ $subUrl }}" class="btn btn-sm btn-primary-custom">
                                                         Explore {{ $subName }}
                                                     </a>
@@ -146,13 +148,18 @@
             </div>
 
             <!-- Center: Search Input (Desktop >= 992px) -->
-            <div class="flex-grow-1 d-none d-lg-block mx-3 header-search-col" style="max-width: 520px; position: relative;">
-                <form action="{{ url('/listings') }}" method="GET" class="header-search-form" id="desktopSearchForm" role="search">
+            <div class="flex-grow-1 d-none d-lg-block mx-3 header-search-col"
+                style="max-width: 520px; position: relative;">
+                <form action="{{ url('/listings') }}" method="GET" class="header-search-form" id="desktopSearchForm"
+                    role="search">
                     <div class="search-input-group">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="search-input header-search-input" id="desktopSearchInput" name="q" placeholder="What are you looking for?"
-                            autocomplete="off" aria-label="Search listings" aria-expanded="false" aria-controls="desktopSearchSuggestions">
-                        <button type="button" class="btn-clear-search-input" id="desktopClearSearchBtn" style="display: none;" aria-label="Clear search input" onclick="clearHeaderSearch('desktop')">
+                        <input type="text" class="search-input header-search-input" id="desktopSearchInput" name="q"
+                            placeholder="What are you looking for?" autocomplete="off" aria-label="Search listings"
+                            aria-expanded="false" aria-controls="desktopSearchSuggestions">
+                        <button type="button" class="btn-clear-search-input" id="desktopClearSearchBtn"
+                            style="display: none;" aria-label="Clear search input"
+                            onclick="clearHeaderSearch('desktop')">
                             <i class="bi bi-x-circle-fill"></i>
                         </button>
                         <button type="submit" class="btn-search-submit" aria-label="Search">
@@ -162,39 +169,81 @@
                 </form>
 
                 <!-- Desktop Search Suggestions Dropdown -->
-                <div class="search-suggestions-dropdown shadow-lg" id="desktopSearchSuggestions" style="display: none;" role="listbox"></div>
+                <div class="search-suggestions-dropdown shadow-lg" id="desktopSearchSuggestions" style="display: none;"
+                    role="listbox"></div>
             </div>
 
             <!-- Right: Location Selector, Auth & Post Button -->
             <div class="d-flex align-items-center gap-2 gap-sm-3">
 
                 <!-- Location Selector (Desktop/Tablet >= 576px) -->
-                <div class="dropdown d-none d-sm-block">
+                <div class="dropdown d-none d-sm-block position-relative">
                     <button class="btn-location" type="button" id="locationDropdownBtn" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        <i class="bi bi-geo-alt"></i>
-                        <span id="headerLocationLabel">Toronto, ON</span>
-                        <i class="bi bi-chevron-down ms-1" style="font-size: 0.68rem;"></i>
+                        data-bs-auto-close="outside" aria-expanded="false" title="Change location">
+                        <i class="bi bi-geo-alt-fill text-primary"></i>
+                        <span id="headerLocationLabel" class="text-truncate"
+                            style="max-width: 130px;">{{ $currentLocationLabel ?? 'All Canada' }}</span>
+                        <i class="bi bi-chevron-down ms-1 text-secondary" style="font-size: 0.65rem;"></i>
                     </button>
 
-                    <div class="dropdown-menu dropdown-menu-end dropdown-location-menu"
+                    <div class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-xl p-0"
                         aria-labelledby="locationDropdownBtn">
-                        <div class="px-2 py-1 text-secondary small fw-bold text-uppercase"
-                            style="font-size: 0.72rem; letter-spacing: 0.05em;">Select City</div>
-                        <button type="button" class="location-item active" onclick="setLocation('Toronto, ON')">Toronto,
-                            ON</button>
-                        <button type="button" class="location-item" onclick="setLocation('Vancouver, BC')">Vancouver,
-                            BC</button>
-                        <button type="button" class="location-item" onclick="setLocation('Montréal, QC')">Montréal,
-                            QC</button>
-                        <button type="button" class="location-item" onclick="setLocation('Calgary, AB')">Calgary,
-                            AB</button>
-                        <button type="button" class="location-item" onclick="setLocation('Ottawa, ON')">Ottawa,
-                            ON</button>
-                        <button type="button" class="location-item" onclick="setLocation('Edmonton, AB')">Edmonton,
-                            AB</button>
-                        <button type="button" class="location-item" onclick="setLocation('Halifax, NS')">Halifax,
-                            NS</button>
+                        <!-- Compact Search & Auto-Detect -->
+                        <div class="p-2 border-bottom border-white border-opacity-10">
+                            <div class="location-search-wrap position-relative mb-1.5">
+                                <i class="bi bi-search location-search-icon"></i>
+                                <input type="text" class="location-search-input w-100" id="locationFilterInput"
+                                    placeholder="Search city..." onkeyup="filterLocationList(this.value)"
+                                    autocomplete="off">
+                            </div>
+                            <button type="button"
+                                class="btn-autodetect-location w-100 d-flex align-items-center justify-content-center gap-1"
+                                id="btnAutoDetectLocation" onclick="autoDetectUserLocation()">
+                                <i class="bi bi-crosshair" id="autoDetectIcon" style="font-size: 0.75rem;"></i>
+                                <span id="autoDetectText">Use current location</span>
+                            </button>
+                        </div>
+
+                        <!-- Compact City List -->
+                        <div class="location-items-list p-1" id="locationItemsList">
+                            <!-- All Canada Option -->
+                            <button type="button"
+                                class="location-dropdown-item {{ empty($currentSelectedCity) ? 'active' : '' }}"
+                                onclick="selectAppLocation('', 'All Canada')"
+                                data-city-name="all canada countrywide nationwide">
+                                <span class="location-item-title d-flex align-items-center gap-1.5">
+                                    <i class="bi bi-globe-americas text-primary" style="font-size: 0.8rem;"></i>
+                                    &nbsp;&nbsp;
+                                    <span> All Canada</span>
+                                </span>
+                                @if(empty($currentSelectedCity))
+                                    <i class="bi bi-check2 text-primary fw-bold" style="font-size: 0.85rem;"></i>
+                                @endif
+                            </button>
+
+                            <div class="location-divider my-1"></div>
+
+                            <!-- Canadian Cities -->
+                            @if(!empty($canadianCities))
+                                @foreach($canadianCities as $cityName => $cityInfo)
+                                    @php
+                                        $isSelected = (strtolower($currentSelectedCity ?? '') === strtolower($cityName));
+                                    @endphp
+                                    <button type="button" class="location-dropdown-item {{ $isSelected ? 'active' : '' }}"
+                                        onclick="selectAppLocation('{{ $cityName }}', '{{ $cityInfo['label'] }}')"
+                                        data-city-name="{{ strtolower($cityName . ' ' . $cityInfo['province'] . ' ' . ($cityInfo['province_code'] ?? '')) }}">
+                                        <span class="location-item-title">{{ $cityName }}</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span
+                                                class="badge-province">{{ $cityInfo['province_code'] ?? $cityInfo['province'] }}</span>
+                                            @if($isSelected)
+                                                <i class="bi bi-check2 text-primary fw-bold" style="font-size: 0.85rem;"></i>
+                                            @endif
+                                        </div>
+                                    </button>
+                                @endforeach
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -207,10 +256,15 @@
                             <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
                             <i class="bi bi-chevron-down ms-1" style="font-size: 0.68rem;"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-lg" aria-labelledby="userMenuBtn">
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-lg"
+                            aria-labelledby="userMenuBtn">
                             <li class="px-3 py-2 border-bottom border-secondary border-opacity-10 mb-1">
-                                <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">{{ Auth::user()->name }}</div>
-                                <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">{{ Auth::user()->email ?? 'Active Account' }}</div>
+                                <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
+                                    {{ Auth::user()->name }}
+                                </div>
+                                <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">
+                                    {{ Auth::user()->email ?? 'Active Account' }}
+                                </div>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
@@ -252,12 +306,15 @@
 <!-- Mobile Sticky Search Bar (Screens < 992px - Sticks to Top on Mobile) -->
 <div class="mobile-sticky-search-wrapper d-lg-none">
     <div class="container-xl position-relative">
-        <form action="{{ url('/listings') }}" method="GET" class="header-search-form" id="mobileSearchForm" role="search">
+        <form action="{{ url('/listings') }}" method="GET" class="header-search-form" id="mobileSearchForm"
+            role="search">
             <div class="search-input-group mobile-search-group">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" class="search-input header-search-input" id="mobileSearchInput" name="q" placeholder="What are you looking for?"
-                    autocomplete="off" aria-label="Search marketplace" aria-expanded="false" aria-controls="mobileSearchSuggestions">
-                <button type="button" class="btn-clear-search-input" id="mobileClearSearchBtn" style="display: none;" aria-label="Clear search input" onclick="clearHeaderSearch('mobile')">
+                <input type="text" class="search-input header-search-input" id="mobileSearchInput" name="q"
+                    placeholder="What are you looking for?" autocomplete="off" aria-label="Search marketplace"
+                    aria-expanded="false" aria-controls="mobileSearchSuggestions">
+                <button type="button" class="btn-clear-search-input" id="mobileClearSearchBtn" style="display: none;"
+                    aria-label="Clear search input" onclick="clearHeaderSearch('mobile')">
                     <i class="bi bi-x-circle-fill"></i>
                 </button>
                 <button type="submit" class="btn-search-submit" aria-label="Search">
@@ -267,7 +324,8 @@
         </form>
 
         <!-- Mobile Search Suggestions Dropdown -->
-        <div class="search-suggestions-dropdown search-suggestions-mobile shadow-lg" id="mobileSearchSuggestions" style="display: none;" role="listbox"></div>
+        <div class="search-suggestions-dropdown search-suggestions-mobile shadow-lg" id="mobileSearchSuggestions"
+            style="display: none;" role="listbox"></div>
     </div>
 </div>
 
@@ -371,7 +429,7 @@
             if (searches.length > MAX_RECENT) searches = searches.slice(0, MAX_RECENT);
             try {
                 localStorage.setItem(RECENT_KEY, JSON.stringify(searches));
-            } catch (e) {}
+            } catch (e) { }
         }
 
         window.removeRecentSearch = function (e, query, mode) {
@@ -382,7 +440,7 @@
             let searches = getRecentSearches().filter(s => s.toLowerCase() !== query.toLowerCase());
             try {
                 localStorage.setItem(RECENT_KEY, JSON.stringify(searches));
-            } catch (err) {}
+            } catch (err) { }
             renderEmptyState(mode);
         };
 
@@ -393,7 +451,7 @@
             }
             try {
                 localStorage.setItem(RECENT_KEY, JSON.stringify([]));
-            } catch (err) {}
+            } catch (err) { }
             renderEmptyState(mode);
         };
 
@@ -772,5 +830,163 @@
                 });
             }
         });
+
+        // Dynamic Location Selector & Auto-Detection
+        window.selectAppLocation = function (city, label) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const headerLabel = document.getElementById('headerLocationLabel');
+            if (headerLabel && label) {
+                headerLabel.textContent = label;
+            }
+
+            fetch('{{ url("/api/location/set") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ city: city, label: label })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const currentUrl = new URL(window.location.href);
+                    if (city) {
+                        currentUrl.searchParams.set('city', city);
+                    } else {
+                        currentUrl.searchParams.delete('city');
+                    }
+                    window.location.href = currentUrl.toString();
+                })
+                .catch(err => {
+                    console.error('Location set error:', err);
+                    const currentUrl = new URL(window.location.href);
+                    if (city) {
+                        currentUrl.searchParams.set('city', city);
+                    } else {
+                        currentUrl.searchParams.delete('city');
+                    }
+                    window.location.href = currentUrl.toString();
+                });
+        };
+
+        window.autoDetectUserLocation = function () {
+            const btn = document.getElementById('btnAutoDetectLocation');
+            const icon = document.getElementById('autoDetectIcon');
+            const text = document.getElementById('autoDetectText');
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser. Please choose your city manually.');
+                return;
+            }
+
+            if (btn) btn.disabled = true;
+            if (icon) icon.className = 'spinner-border spinner-border-sm text-primary';
+            if (text) text.textContent = 'Detecting GPS...';
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    if (text) text.textContent = 'Matching city...';
+
+                    fetch('{{ url("/api/location/detect") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        })
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                if (data.is_outside_canada) {
+                                    if (text) text.textContent = 'All Canada (Intl)';
+                                    const headerLabel = document.getElementById('headerLocationLabel');
+                                    if (headerLabel) headerLabel.textContent = 'All Canada';
+
+                                    setTimeout(() => {
+                                        const currentUrl = new URL(window.location.href);
+                                        currentUrl.searchParams.delete('city');
+                                        window.location.href = currentUrl.toString();
+                                    }, 500);
+                                } else if (data.city) {
+                                    if (text) text.textContent = `Found: ${data.city}!`;
+                                    const headerLabel = document.getElementById('headerLocationLabel');
+                                    if (headerLabel && data.label) headerLabel.textContent = data.label;
+
+                                    setTimeout(() => {
+                                        const currentUrl = new URL(window.location.href);
+                                        currentUrl.searchParams.set('city', data.city);
+                                        window.location.href = currentUrl.toString();
+                                    }, 400);
+                                }
+                            } else {
+                                alert(data.message || 'Could not detect Canadian location.');
+                                resetBtn();
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Detection error:', err);
+                            alert('Location auto-detection failed. Please choose your city from the list.');
+                            resetBtn();
+                        });
+                },
+                function (error) {
+                    console.warn('Geolocation error:', error);
+                    let msg = 'Unable to retrieve your location.';
+                    if (error.code === 1) {
+                        msg = 'Location permission was denied. Please allow location access or select your city manually.';
+                    } else if (error.code === 2) {
+                        msg = 'Location information is unavailable.';
+                    } else if (error.code === 3) {
+                        msg = 'Location request timed out.';
+                    }
+                    alert(msg);
+                    resetBtn();
+                },
+                { timeout: 10000, maximumAge: 60000, enableHighAccuracy: false }
+            );
+
+            function resetBtn() {
+                if (btn) btn.disabled = false;
+                if (icon) icon.className = 'bi bi-crosshair fs-14';
+                if (text) text.textContent = 'Auto-Detect My Location';
+            }
+        };
+
+        window.filterLocationList = function (query) {
+            const filter = (query || '').toLowerCase().trim();
+            const items = document.querySelectorAll('#locationItemsList .location-dropdown-item');
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const cityName = item.getAttribute('data-city-name') || '';
+                if (!filter || cityName.includes(filter)) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            let noResults = document.getElementById('locationNoResults');
+            if (visibleCount === 0) {
+                if (!noResults) {
+                    noResults = document.createElement('div');
+                    noResults.id = 'locationNoResults';
+                    noResults.className = 'text-center py-3 text-secondary small';
+                    noResults.innerHTML = '<i class="bi bi-search me-1"></i> No matching Canadian city';
+                    document.getElementById('locationItemsList').appendChild(noResults);
+                }
+                noResults.style.display = 'block';
+            } else if (noResults) {
+                noResults.style.display = 'none';
+            }
+        };
     })();
 </script>

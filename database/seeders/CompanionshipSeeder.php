@@ -116,6 +116,14 @@ class CompanionshipSeeder extends Seeder
             $attendees = $reqData['attendees'] ?? [];
             unset($reqData['attendees']);
 
+            $cityModel = \App\Models\City::where('slug', \Illuminate\Support\Str::slug($reqData['city']))
+                ->orWhere('name', 'like', '%' . $reqData['city'] . '%')
+                ->first();
+
+            $reqData['city_id'] = $cityModel?->id;
+            $reqData['city'] = $cityModel?->name ?? $reqData['city'];
+            $reqData['province'] = $cityModel?->province?->code ?? $reqData['province'];
+
             $request = CompanionshipRequest::create($reqData);
 
             foreach ($attendees as $attendeeData) {

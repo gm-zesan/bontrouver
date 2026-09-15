@@ -3,8 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\CategoryAttribute;
+use App\Models\City;
+use App\Models\Listing;
+use App\Models\Province;
 use App\Services\CategoryService;
+use App\Services\LocationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ListingController extends Controller
 {
@@ -18,7 +24,11 @@ class ListingController extends Controller
         $subSlug = $request->query('sub') ?? $request->query('subcategory');
         $childSlug = $request->query('child');
         $searchQuery = $request->query('q');
-        $location = $request->query('location', 'Toronto, ON');
+
+        $selectedCity = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
+        $citiesMap = HomeController::getCitiesMap();
+        $location = $request->query('location') ?? ($selectedCity ? ($citiesMap[$selectedCity]['label'] ?? $selectedCity) : 'All Canada');
+        $radius = $request->query('radius', '25');
 
         $categories = CategoryService::getAll();
         $activeCategory = null;
@@ -93,8 +103,8 @@ class ListingController extends Controller
             ];
         }
 
-        // 3. Dynamic inventory from DB
-        $sampleListings = $this->getDatabaseListings();
+        // 3. Dynamic inventory from DB with distance calculated from current location/city
+        $sampleListings = $this->getDatabaseListings($selectedCity);
 
         // 4. If AJAX request for live filtering, return JSON
         if ($request->ajax() || $request->wantsJson()) {
@@ -116,9 +126,29 @@ class ListingController extends Controller
             'childSlug' => $childSlug,
             'searchQuery' => $searchQuery,
             'location' => $location,
+            'selectedCity' => $selectedCity,
+            'radius' => $radius,
             'breadcrumbs' => $breadcrumbs,
             'listings' => $sampleListings,
         ]);
+    }
+
+    /**
+     * Redirect SEO /location/{cityOrSlug} URLs to the listings search page
+     */
+    public function locationRedirect(Request $request, string $cityOrSlug)
+    {
+        $slugLower = Str::slug($cityOrSlug);
+        $cityModel = City::where('slug', $slugLower)
+            ->orWhere('name', 'like', '%' . $cityOrSlug . '%')
+            ->first();
+
+        if ($cityModel) {
+            return redirect()->route('listings.index', ['city' => $cityModel->name]);
+        }
+
+        $resolvedCity = ucwords(str_replace('-', ' ', $cityOrSlug));
+        return redirect()->route('listings.index', ['city' => $resolvedCity]);
     }
 
     /**
@@ -248,9 +278,11 @@ class ListingController extends Controller
         // 1. Find listing by ID or title slug
         $listing = null;
         foreach ($sampleListings as $item) {
-            if ((string)$item['id'] === (string)$idOrSlug || 
-                ($item['slug'] ?? '') === $idOrSlug || 
-                \Illuminate\Support\Str::slug($item['title']) === $idOrSlug) {
+            if (
+                (string) $item['id'] === (string) $idOrSlug ||
+                ($item['slug'] ?? '') === $idOrSlug ||
+                Str::slug($item['title']) === $idOrSlug
+            ) {
                 $listing = $item;
                 break;
             }
@@ -258,7 +290,7 @@ class ListingController extends Controller
 
         // If not found by exact match, check numeric ID fallback or 100+ offset (e.g. 101 -> 1)
         if (!$listing && is_numeric($idOrSlug)) {
-            $numId = (int)$idOrSlug;
+            $numId = (int) $idOrSlug;
             foreach ($sampleListings as $item) {
                 if ($item['id'] === $numId) {
                     $listing = $item;
@@ -325,7 +357,7 @@ class ListingController extends Controller
         }
 
         $breadcrumbs[] = [
-            'title' => \Illuminate\Support\Str::limit($listing['title'], 45),
+            'title' => Str::limit($listing['title'], 45),
             'url' => url('/listing/' . $listing['id']),
         ];
 
@@ -339,7 +371,8 @@ class ListingController extends Controller
                 if ($item['id'] !== $listing['id'] && !in_array($item, $similarListings, true)) {
                     $similarListings[] = $item;
                 }
-                if (count($similarListings) >= 4) break;
+                if (count($similarListings) >= 4)
+                    break;
             }
         }
 
@@ -368,22 +401,9 @@ class ListingController extends Controller
         $preselectedCategory = $request->query('category', '');
         $preselectedSub = $request->query('sub', '');
 
-        // Canadian Provinces & Territories
-        $provinces = [
-            'ON' => 'Ontario',
-            'BC' => 'British Columbia',
-            'QC' => 'Quebec',
-            'AB' => 'Alberta',
-            'MB' => 'Manitoba',
-            'SK' => 'Saskatchewan',
-            'NS' => 'Nova Scotia',
-            'NB' => 'New Brunswick',
-            'NL' => 'Newfoundland and Labrador',
-            'PE' => 'Prince Edward Island',
-            'NT' => 'Northwest Territories',
-            'YT' => 'Yukon',
-            'NU' => 'Nunavut',
-        ];
+        // Dynamic Canadian Provinces & Territories from database
+        $provinces = Province::orderBy('sort_order')->pluck('name', 'code')->toArray();
+        $citiesMap = City::getCitiesMap();
 
         $breadcrumbs = [
             ['title' => 'Home', 'url' => url('/')],
@@ -393,6 +413,7 @@ class ListingController extends Controller
         return view('frontend.post-ad', [
             'categories' => $categories,
             'provinces' => $provinces,
+            'citiesMap' => $citiesMap,
             'preselectedCategory' => $preselectedCategory,
             'preselectedSub' => $preselectedSub,
             'breadcrumbs' => $breadcrumbs,
@@ -429,7 +450,7 @@ class ListingController extends Controller
             'condition' => 'nullable|string',
             'description' => 'required|string|min:15|max:5000',
             'city' => 'required|string|max:100',
-            'province' => 'required|string|size:2',
+            'province' => 'required|string|max:10',
             'postal_code' => 'nullable|string|max:10',
             'neighbourhood' => 'nullable|string|max:100',
             'show_approximate_location' => 'nullable|boolean',
@@ -440,417 +461,168 @@ class ListingController extends Controller
             'promotions' => 'nullable|array',
         ]);
 
-        // In a database persistence workflow, Listing::create(...) would be executed here.
-        // For demonstration and prototype state, return success JSON with preview ID.
-        $generatedId = rand(100, 999);
-        $slug = \Illuminate\Support\Str::slug($validated['title']) . '-' . $generatedId;
+        $cityName = trim($validated['city']);
+        $provinceCode = strtoupper(trim($validated['province']));
+
+        $cityModel = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
+            ->orWhere('name', 'like', "%{$cityName}%")
+            ->first();
+
+        $cityId = $cityModel?->id;
+        $latitude = $cityModel?->latitude ?? 43.6532;
+        $longitude = $cityModel?->longitude ?? -79.3832;
+
+        $targetCategory = null;
+        if (!empty($validated['subcategory_slug'])) {
+            $targetCategory = Category::where('slug', $validated['subcategory_slug'])->first();
+        }
+        if (!$targetCategory && !empty($validated['category_slug'])) {
+            $targetCategory = Category::where('slug', $validated['category_slug'])->first();
+        }
+        if (!$targetCategory) {
+            $targetCategory = Category::first();
+        }
+
+        $userId = auth()->id() ?? \App\Models\User::first()?->id ?? 1;
+        $slug = Str::slug($validated['title']) . '-' . rand(1000, 9999);
+
+        $listing = Listing::create([
+            'user_id' => $userId,
+            'category_id' => $targetCategory?->id ?? 1,
+            'city_id' => $cityId,
+            'title' => $validated['title'],
+            'slug' => $slug,
+            'description' => $validated['description'],
+            'price' => $validated['price'] ?? 0,
+            'price_type' => $validated['price_type'] ?? 'fixed',
+            'condition' => $validated['condition'] ?? 'used',
+            'city' => $cityModel?->name ?? $cityName,
+            'province' => $provinceCode,
+            'postal_code' => $validated['postal_code'] ?? null,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'status' => 'active',
+            'views_count' => 0,
+            'is_featured' => !empty($validated['promotions']['featured']),
+            'is_sponsored' => false,
+            'published_at' => now(),
+        ]);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Your ad has been successfully published!',
-                'listing_id' => $generatedId,
-                'listing_slug' => $slug,
-                'view_url' => url('/listing/' . $generatedId),
+                'listing_id' => $listing->id,
+                'listing_slug' => $listing->slug,
+                'view_url' => url('/listing/' . $listing->id),
                 'manage_url' => url('/my-listings'),
             ]);
         }
 
-        return redirect()->route('listings.show', $generatedId)
+        return redirect()->route('listings.show', $listing->id)
             ->with('success', 'Your ad is live and published successfully!');
     }
 
     /**
-     * Resolve attribute schema definitions based on category and subcategory.
+     * Resolve dynamic attribute schema definitions directly from database models.
      */
     protected function resolveCategoryAttributes(string $categorySlug, string $subSlug = ''): array
     {
-        $schema = [];
-
-        // 1. Cars & Vehicles
-        if (in_array($categorySlug, ['cars-vehicles', 'cars-trucks', 'vehicles', 'autos'])) {
-            $years = range((int)date('Y') + 1, 1990);
-            $schema = [
-                [
-                    'name' => 'make',
-                    'label' => 'Make',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW', 'Mercedes-Benz', 'Audi', 'Tesla', 'Hyundai', 'Nissan', 'Mazda', 'Subaru', 'Volkswagen', 'Lexus', 'Jeep', 'Other'],
-                    'placeholder' => 'Select Make',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'model',
-                    'label' => 'Model',
-                    'type' => 'text',
-                    'required' => true,
-                    'placeholder' => 'e.g. RAV4, Civic, Model Y, F-150',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'year',
-                    'label' => 'Year',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => array_map('strval', $years),
-                    'placeholder' => 'Select Year',
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'kilometers',
-                    'label' => 'Kilometers (km)',
-                    'type' => 'number',
-                    'required' => true,
-                    'placeholder' => 'e.g. 45000',
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'transmission',
-                    'label' => 'Transmission',
-                    'type' => 'select',
-                    'required' => false,
-                    'options' => ['Automatic', 'Manual', 'CVT / eCVT', 'Direct Drive (EV)'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'fuel_type',
-                    'label' => 'Fuel Type',
-                    'type' => 'select',
-                    'required' => false,
-                    'options' => ['Gasoline', 'Hybrid (Gas/Electric)', 'Plug-in Hybrid (PHEV)', 'Electric (EV)', 'Diesel'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'drivetrain',
-                    'label' => 'Drivetrain',
-                    'type' => 'select',
-                    'required' => false,
-                    'options' => ['All-Wheel Drive (AWD)', 'Front-Wheel Drive (FWD)', 'Rear-Wheel Drive (RWD)', '4x4 / Four-Wheel Drive'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'body_type',
-                    'label' => 'Body Type',
-                    'type' => 'select',
-                    'required' => false,
-                    'options' => ['SUV / Crossover', 'Sedan', 'Pickup Truck', 'Coupe', 'Hatchback', 'Van / Minivan', 'Convertible', 'Wagon'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'features',
-                    'label' => 'Key Features',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Clean CARFAX', 'Sunroof / Moonroof', 'Apple CarPlay', 'Leather Seats', 'Heated Seats', 'Backup Camera', 'Navigation', 'Winter Tires Set', 'Alloy Wheels', 'Remote Start'],
-                    'col' => 12,
-                ],
-            ];
+        // 1. Resolve target category and parent hierarchy from database
+        $category = null;
+        if (!empty($subSlug)) {
+            $category = Category::where('slug', $subSlug)->first();
+        }
+        if (!$category && !empty($categorySlug)) {
+            $category = Category::where('slug', $categorySlug)->first();
         }
 
-        // 2. Housing & Real Estate
-        elseif (in_array($categorySlug, ['housing', 'real-estate', 'apartments-condos-rent', 'houses-rent', 'houses-sale', 'condos-sale'])) {
-            $schema = [
-                [
-                    'name' => 'property_type',
-                    'label' => 'Property Type',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['Apartment / Condo', 'Detached House', 'Townhouse / Rowhouse', 'Basement Apartment', 'Room for Rent', 'Duplex / Triplex', 'Commercial Space'],
-                    'placeholder' => 'Select Property Type',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'listing_type',
-                    'label' => 'Listing Type',
-                    'type' => 'pills_radio',
-                    'required' => true,
-                    'options' => ['For Rent', 'For Sale', 'Sublet / Lease Transfer'],
-                    'default' => 'For Rent',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'bedrooms',
-                    'label' => 'Bedrooms',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['Bachelor / Studio', '1 Bedroom', '1 + Den', '2 Bedrooms', '2 + Den', '3 Bedrooms', '4+ Bedrooms'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'bathrooms',
-                    'label' => 'Bathrooms',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['1', '1.5', '2', '2.5', '3+'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'sqft',
-                    'label' => 'Square Footage (sq ft)',
-                    'type' => 'number',
-                    'required' => false,
-                    'placeholder' => 'e.g. 750',
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'furnished',
-                    'label' => 'Furnished Status',
-                    'type' => 'select',
-                    'options' => ['Unfurnished', 'Fully Furnished', 'Partially Furnished'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'parking',
-                    'label' => 'Parking',
-                    'type' => 'select',
-                    'options' => ['Included (1 Spot)', 'Included (2+ Spots)', 'Available for Extra Fee', 'Street Parking Only', 'No Parking'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'amenities',
-                    'label' => 'Included Utilities & Amenities',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Hydro / Electricity Included', 'Heat & Water Included', 'Air Conditioning', 'In-Unit Laundry', 'Balcony', 'Gym / Pool', 'Pet Friendly', 'Storage Locker', 'Dishwasher'],
-                    'col' => 12,
-                ],
-            ];
+        if (!$category) {
+            return [];
         }
 
-        // 3. Jobs & Careers
-        elseif (in_array($categorySlug, ['jobs', 'employment', 'careers'])) {
-            $schema = [
-                [
-                    'name' => 'job_type',
-                    'label' => 'Job Type',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['Full-Time', 'Part-Time', 'Contract / Temporary', 'Casual / On-Call', 'Internship / Co-op', 'Apprenticeship'],
-                    'placeholder' => 'Select Job Type',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'workplace_type',
-                    'label' => 'Workplace Setting',
-                    'type' => 'pills_radio',
-                    'required' => true,
-                    'options' => ['On-Site', 'Hybrid', 'Fully Remote'],
-                    'default' => 'On-Site',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'salary_range',
-                    'label' => 'Salary / Compensation',
-                    'type' => 'text',
-                    'required' => false,
-                    'placeholder' => 'e.g. $25/hr or $65,000 - $75,000/year',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'experience_level',
-                    'label' => 'Experience Level',
-                    'type' => 'select',
-                    'options' => ['No Experience Required / Entry Level', '1-2 Years', '3-5 Years', '5+ Years (Senior / Lead)', 'Executive / Director'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'company_name',
-                    'label' => 'Company / Employer Name',
-                    'type' => 'text',
-                    'placeholder' => 'e.g. Maple Leaf Tech Corp',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'benefits',
-                    'label' => 'Benefits & Perks',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Health & Dental Insurance', 'RRSP / Pension Matching', 'Flexible Hours', 'Paid Time Off', 'Career Growth', 'Tips / Commission', 'Transit Pass'],
-                    'col' => 12,
-                ],
-            ];
+        // 2. Collect category IDs (category + parent to inherit root attributes)
+        $categoryIds = [$category->id];
+        if ($category->parent_id) {
+            $categoryIds[] = $category->parent_id;
         }
 
-        // 4. Electronics, Phones, Computers (Buy & Sell subcategories)
-        elseif (in_array($categorySlug, ['electronics', 'phones-telecommunication', 'computers-tablets', 'audio-stereo', 'cameras-camcorders', 'video-games-consoles']) || 
-                in_array($subSlug, ['phones-telecommunication', 'computers-tablets', 'audio-stereo', 'cameras-camcorders', 'video-games-consoles'])) {
-            $schema = [
-                [
-                    'name' => 'brand',
-                    'label' => 'Brand / Manufacturer',
-                    'type' => 'text',
-                    'required' => true,
-                    'placeholder' => 'e.g. Apple, Samsung, Sony, Dell, Lenovo, Nintendo',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'model',
-                    'label' => 'Model Name / Number',
-                    'type' => 'text',
-                    'required' => true,
-                    'placeholder' => 'e.g. iPhone 16 Pro Max, PlayStation 5, MacBook Pro M3',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'storage_capacity',
-                    'label' => 'Storage / Memory',
-                    'type' => 'select',
-                    'options' => ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB', '2 TB+'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'color',
-                    'label' => 'Color',
-                    'type' => 'text',
-                    'placeholder' => 'e.g. Space Black, Natural Titanium',
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'warranty',
-                    'label' => 'Warranty Status',
-                    'type' => 'select',
-                    'options' => ['Factory / AppleCare Warranty Included', 'Store Warranty Available', 'No Warranty (Sold As-Is)'],
-                    'col' => 4,
-                ],
-                [
-                    'name' => 'accessories',
-                    'label' => 'Included Accessories',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Original Box', 'Charger & Cable Included', 'Receipt / Proof of Purchase', 'Protective Case / Cover', 'Extra Controllers / Battery', 'Screen Protector Applied'],
-                    'col' => 12,
-                ],
-            ];
-        }
+        // 3. Query dynamic attributes and options from database
+        $attributes = CategoryAttribute::with([
+            'options' => function ($query) {
+                $query->where('is_active', true)->orderBy('sort_order');
+            }
+        ])
+            ->whereIn('category_id', $categoryIds)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
-        // 5. Furniture & Home (Buy & Sell subcategories)
-        elseif (in_array($categorySlug, ['furniture', 'home-indoor', 'home-outdoor-garden']) || 
-                in_array($subSlug, ['furniture', 'home-indoor', 'home-outdoor-garden'])) {
-            $schema = [
-                [
-                    'name' => 'furniture_type',
-                    'label' => 'Item Type',
-                    'type' => 'select',
-                    'options' => ['Sofa / Couch', 'Dining Table & Chairs', 'Bed Frame & Mattress', 'Office Desk & Chair', 'Coffee Table', 'Dresser / Wardrobe', 'Bookshelf / Storage', 'Outdoor Patio Set'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'material',
-                    'label' => 'Material',
-                    'type' => 'select',
-                    'options' => ['Solid Wood (Oak, Walnut, Pine)', 'Engineered Wood / MDF', 'Genuine Leather', 'Fabric / Linen', 'Metal / Steel', 'Glass', 'Velvet', 'Rattan / Wicker'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'dimensions',
-                    'label' => 'Dimensions (L × W × H)',
-                    'type' => 'text',
-                    'placeholder' => 'e.g. 60" L × 36" W × 30" H',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'color',
-                    'label' => 'Color',
-                    'type' => 'text',
-                    'placeholder' => 'e.g. Natural Oak, Walnut, Charcoal Grey',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'features',
-                    'label' => 'Highlights',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Pet-Free Home', 'Smoke-Free Home', 'Disassembled & Ready for Pickup', 'Like New / Barely Used', 'Authentic Mid-Century', 'Easy Assembly'],
-                    'col' => 12,
-                ],
-            ];
-        }
+        // 4. Map to standard form/filter schema
+        return $attributes->map(function ($attr) {
+            $options = $attr->options->pluck('label')->toArray();
 
-        // 6. Services & Trades
-        elseif (in_array($categorySlug, ['services', 'trades', 'skilled-trades', 'business-services'])) {
-            $schema = [
-                [
-                    'name' => 'service_type',
-                    'label' => 'Service Specialty',
-                    'type' => 'select',
-                    'required' => true,
-                    'options' => ['Home Renovation & Handyman', 'Plumbing & Drain Services', 'Electrical & Wiring', 'Painting & Drywall', 'Moving & Delivery Services', 'Cleaning & Maid Service', 'Landscaping & Snow Removal', 'Tutoring & Education', 'IT & Computer Repair'],
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'pricing_structure',
-                    'label' => 'Rate Structure',
-                    'type' => 'pills_radio',
-                    'options' => ['Hourly Rate', 'Flat Project Fee', 'Free Estimate / Quote'],
-                    'default' => 'Free Estimate / Quote',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'licensing',
-                    'label' => 'Credentials & Guarantees',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Licensed & Insured ($2M+)', 'WSIB Covered', 'Red Seal Certified', 'Free Estimates / Quotes', 'Senior & Student Discount', 'Emergency 24/7 Service', 'Satisfaction Guaranteed'],
-                    'col' => 12,
-                ],
+            return [
+                'id' => $attr->id,
+                'name' => $attr->slug,
+                'label' => $attr->name,
+                'type' => $attr->type, // select, text, number, boolean
+                'required' => (bool) $attr->is_required,
+                'filterable' => (bool) $attr->is_filterable,
+                'options' => !empty($options) ? $options : null,
+                'placeholder' => 'Enter ' . $attr->name,
+                'col' => ($attr->type === 'boolean' || count($options) > 6) ? 12 : 6,
             ];
-        }
-
-        // 7. General Default / Buy & Sell
-        else {
-            $schema = [
-                [
-                    'name' => 'brand',
-                    'label' => 'Brand / Manufacturer',
-                    'type' => 'text',
-                    'required' => false,
-                    'placeholder' => 'e.g. Nike, IKEA, Herman Miller, Bosch',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'model',
-                    'label' => 'Model / Product Name',
-                    'type' => 'text',
-                    'required' => false,
-                    'placeholder' => 'e.g. Series 7, Pro Edition',
-                    'col' => 6,
-                ],
-                [
-                    'name' => 'features',
-                    'label' => 'Item Highlights',
-                    'type' => 'multiselect_pills',
-                    'options' => ['Original Packaging', 'Tested & Working', 'Receipt Available', 'Smoke-Free Home', 'Firm Price', 'Open to Trades'],
-                    'col' => 12,
-                ],
-            ];
-        }
-
-        return $schema;
+        })->values()->toArray();
     }
 
     /**
-     * Provide comprehensive realistic Canadian marketplace listing dataset.
+     * Provide comprehensive realistic Canadian marketplace listing dataset with accurate geo-distance.
      */
-    protected function getDatabaseListings(): array
+    protected function getDatabaseListings(?string $selectedCity = null): array
     {
-        $listings = \App\Models\Listing::with(['category', 'primaryImage', 'user'])
+        $listings = Listing::with(['category', 'primaryImage', 'user', 'city.province'])
             ->where('status', 'active')
             ->orderByDesc('created_at')
             ->get();
 
-        return $listings->map(function ($listing) {
+        // Target reference coordinates
+        $refLat = null;
+        $refLng = null;
+        $citiesMap = HomeController::getCitiesMap();
+
+        if ($selectedCity && isset($citiesMap[$selectedCity])) {
+            $refLat = $citiesMap[$selectedCity]['latitude'];
+            $refLng = $citiesMap[$selectedCity]['longitude'];
+        }
+
+        return $listings->map(function ($listing) use ($refLat, $refLng, $selectedCity) {
+            $dist = null;
+            if ($refLat && $refLng && $listing->latitude && $listing->longitude) {
+                $dist = round(LocationService::calculateDistance($refLat, $refLng, (float) $listing->latitude, (float) $listing->longitude), 1);
+            } elseif ($selectedCity && strcasecmp($listing->city, $selectedCity) === 0) {
+                $dist = 2.5; // within same city
+            }
+
             return [
                 'id' => $listing->id,
                 'title' => $listing->title,
                 'slug' => $listing->slug,
+                'city' => $listing->city,
+                'province' => $listing->province,
                 'category' => $listing->category->slug ?? 'category',
                 'category_name' => $listing->category->name ?? 'Category',
                 'subcategory' => $listing->category->slug ?? 'subcategory',
                 'subcategory_name' => $listing->category->name ?? 'Subcategory',
-                'price' => $listing->price,
+                'price' => (float) $listing->price,
                 'price_formatted' => '$' . number_format($listing->price, 2),
                 'price_type' => $listing->price_type,
                 'price_type_label' => ucfirst($listing->price_type),
                 'currency' => 'CAD',
-                'location' => $listing->city . ', ' . $listing->province . ' • ' . $listing->location_name,
+                'location' => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
                 'neighbourhood' => $listing->location_name,
-                'postal_code_prefix' => '',
-                'distance_km' => rand(1, 15) / 10,
+                'postal_code_prefix' => $listing->postal_code ?? '',
+                'distance_km' => $dist,
                 'posted_at' => $listing->created_at->diffForHumans(),
                 'posted_date' => $listing->created_at->format('F j, Y'),
                 'condition' => $listing->condition,
@@ -858,11 +630,11 @@ class ListingController extends Controller
                 'delivery' => 'pickup',
                 'seller_type' => 'private',
                 'seller_type_label' => 'Private Seller',
-                'badge' => $listing->views_count > 500 ? 'FEATURED' : null,
-                'badge_type' => $listing->views_count > 500 ? 'featured' : null,
+                'badge' => $listing->is_sponsored ? 'SPONSORED' : ($listing->is_featured ? 'FEATURED' : ($listing->views_count > 400 ? 'TRENDING' : null)),
+                'badge_type' => $listing->is_sponsored ? 'sponsored' : ($listing->is_featured ? 'featured' : ($listing->views_count > 400 ? 'trending' : null)),
                 'can_buy_now' => false,
                 'views_count' => $listing->views_count,
-                'photos_count' => 1,
+                'photos_count' => $listing->images()->count() ?: 1,
                 'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
                 'gallery' => [
                     $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80'
@@ -890,708 +662,5 @@ class ListingController extends Controller
                 'url' => url('/listing/' . $listing->slug),
             ];
         })->toArray();
-    }
-
-    /**
-     * Provide comprehensive realistic Canadian marketplace listing dataset.
-     */
-    protected function getSampleListings(): array
-    {
-        return [
-            [
-                'id' => 1,
-                'title' => '2024 Toyota RAV4 Hybrid XSE AWD (Tech Package, Panoramic Sunroof)',
-                'slug' => '2024-toyota-rav4-hybrid-xse-awd',
-                'category' => 'cars-vehicles',
-                'category_name' => 'Cars & Vehicles',
-                'subcategory' => 'cars-trucks',
-                'subcategory_name' => 'Cars & Trucks',
-                'price' => 41500,
-                'price_formatted' => '$41,500',
-                'price_type' => 'negotiable', // fixed | negotiable | contact | free
-                'price_type_label' => 'Negotiable',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • North York',
-                'neighbourhood' => 'North York (Yonge & Finch area)',
-                'postal_code_prefix' => 'M2N',
-                'distance_km' => 4.2,
-                'posted_at' => '25 mins ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => 'used',
-                'condition_label' => 'Used — Excellent Condition',
-                'delivery' => 'pickup',
-                'seller_type' => 'dealer',
-                'seller_type_label' => 'Verified Dealership',
-                'badge' => 'FEATURED',
-                'badge_type' => 'featured',
-                'can_buy_now' => false,
-                'views_count' => 342,
-                'photos_count' => 6,
-                'image' => '/images/hero/toyota-rav4.jpg',
-                'gallery' => [
-                    '/images/hero/toyota-rav4.jpg',
-                    'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Up for sale is a meticulously maintained 2024 Toyota RAV4 Hybrid XSE AWD in Wind Chill Pearl with Black Roof.\n\nKey Highlights & Features:\n• 2.5L 4-Cylinder Hybrid Synergy Drive Engine with Electronic On-Demand AWD\n• Technology Package: 10.5-inch Toyota Multimedia System with Wireless Apple CarPlay & Android Auto\n• Panoramic Sunroof, SofTex Heated Sport Seats with Blue Stitching, Heated Steering Wheel\n• 360-degree Bird’s Eye View Camera, Qi Wireless Charger, JBL 11-Speaker Audio System\n• Toyota Safety Sense 2.5+ (Pre-Collision, Dynamic Radar Cruise Control, Lane Tracing Assist)\n\nVehicle Condition & History:\n• Single owner, non-smoker, pet-free vehicle\n• Clean CARFAX Canada report (zero accidents, zero claims, no paint work)\n• All scheduled services done on time at Toyota dealership\n• Includes complimentary set of Bridgestone Blizzak winter tires on 18\" black alloy wheels\n• Remaining Toyota factory warranty (3-year/60,000 km comprehensive & 8-year/160,000 km Hybrid warranty)\n\nSafety certified and ready for immediate delivery. Financing and trade-ins welcome.",
-                'attributes' => [
-                    'Make' => 'Toyota',
-                    'Model' => 'RAV4 Hybrid',
-                    'Year' => '2024',
-                    'Trim' => 'XSE AWD with Tech Package',
-                    'Kilometers' => '12,400 km',
-                    'Transmission' => 'eCVT Automatic',
-                    'Fuel Type' => 'Gas / Electric Hybrid',
-                    'Drivetrain' => 'All-Wheel Drive (AWD)',
-                    'Body Type' => 'SUV / Crossover',
-                    'Exterior Color' => 'Wind Chill Pearl / Black Roof',
-                    'Interior Color' => 'Black SofTex with Blue Accents',
-                    'Doors' => '5-Door',
-                    'Condition' => 'Used — Excellent',
-                ],
-                'specs_pills' => ['2024', '12,400 km', 'Hybrid AWD', 'Clean Carfax', 'Tech Pkg'],
-                'seller' => [
-                    'name' => 'Metro Toyota & Pre-Owned Gallery',
-                    'type' => 'Authorized Dealer',
-                    'avatar' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 84,
-                    'member_since' => 'Member since 2019',
-                    'active_ads_count' => 18,
-                    'response_rate' => '99%',
-                    'response_time' => 'Replies in ~15 mins',
-                    'phone' => '+1 (416) 555-0192',
-                    'badges' => [
-                        'dealer_verified' => true,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/1'),
-            ],
-            [
-                'id' => 2,
-                'title' => 'Apple iPhone 16 Pro Max 256GB Natural Titanium (Factory Unlocked)',
-                'slug' => 'apple-iphone-16-pro-max-256gb-natural-titanium',
-                'category' => 'buy-sell',
-                'category_name' => 'Buy & Sell',
-                'subcategory' => 'phones-telecommunication',
-                'subcategory_name' => 'Phones & Accessories',
-                'price' => 1250,
-                'price_formatted' => '$1,250',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Firm Price',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Downtown',
-                'neighbourhood' => 'Downtown Toronto (Eaton Centre / Dundas Square)',
-                'postal_code_prefix' => 'M5B',
-                'distance_km' => 2.1,
-                'posted_at' => '1 hour ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => 'new',
-                'condition_label' => 'Brand New / Factory Sealed',
-                'delivery' => 'both',
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Seller',
-                'badge' => 'VERIFIED',
-                'badge_type' => 'verified',
-                'can_buy_now' => true,
-                'views_count' => 189,
-                'photos_count' => 5,
-                'image' => asset('images/hero/iphone-16-pro.jpg'),
-                'gallery' => [
-                    asset('images/hero/iphone-16-pro.jpg'),
-                    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Selling a brand new, factory-sealed Apple iPhone 16 Pro Max 256GB in the most sought-after Natural Titanium finish.\n\nProduct Details:\n• 100% genuine Canadian retail model purchased directly from Apple Store Eaton Centre\n• Clean IMEI, factory unlocked (works on Rogers, Bell, Telus, Freedom, Fido, Koodo, etc.)\n• 1-Year Apple Manufacturer Warranty activates upon initial setup\n• Eligible for AppleCare+ addition within 60 days of activation\n• Includes original retail box, braided USB-C charging cable, and Apple receipt upon request\n\nTransaction Details:\n• In-person meetup at safe public location (Police station safe exchange zone or bank branch downtown)\n• Cash or Interac e-Transfer in person upon inspection\n• Tracked Canada Post Xpresspost shipping available with signature confirmation across Canada",
-                'attributes' => [
-                    'Brand' => 'Apple',
-                    'Model' => 'iPhone 16 Pro Max',
-                    'Storage' => '256 GB',
-                    'Colour' => 'Natural Titanium',
-                    'Network' => 'Factory Unlocked (All Carriers)',
-                    'Condition' => 'Brand New / Sealed Box',
-                    'Screen Size' => '6.9-inch Super Retina XDR',
-                    'Chip' => 'A18 Pro Bionic',
-                    'Warranty' => '1 Year Apple Official',
-                ],
-                'specs_pills' => ['Brand New', '256 GB', 'Natural Titanium', 'Receipt Available'],
-                'seller' => [
-                    'name' => 'Michael Chen',
-                    'type' => 'Private Seller',
-                    'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 5.0,
-                    'reviews_count' => 19,
-                    'member_since' => 'Member since 2021',
-                    'active_ads_count' => 3,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~5 mins',
-                    'badges' => [
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/2'),
-            ],
-            [
-                'id' => 3,
-                'title' => 'Herman Miller Embody Ergonomic Office Chair (Sync Fabric / Graphite Frame)',
-                'slug' => 'herman-miller-embody-ergonomic-office-chair',
-                'category' => 'buy-sell',
-                'category_name' => 'Buy & Sell',
-                'subcategory' => 'furniture-home-decor',
-                'subcategory_name' => 'Furniture',
-                'price' => 1100,
-                'price_formatted' => '$1,100',
-                'price_type' => 'negotiable',
-                'price_type_label' => 'Negotiable',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Midtown',
-                'neighbourhood' => 'Yonge & Eglinton',
-                'postal_code_prefix' => 'M4P',
-                'distance_km' => 6.5,
-                'posted_at' => '2 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => 'used',
-                'condition_label' => 'Used — Like New (9.5/10)',
-                'delivery' => 'pickup',
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Seller',
-                'badge' => null,
-                'badge_type' => null,
-                'can_buy_now' => false,
-                'views_count' => 145,
-                'photos_count' => 5,
-                'image' => asset('images/hero/herman-miller-embody.jpg'),
-                'gallery' => [
-                    asset('images/hero/herman-miller-embody.jpg'),
-                    'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Genuine Herman Miller Embody ergonomic task chair in immaculate condition.\n\nSpecs & Details:\n• Sync Black breathable performance fabric\n• Graphite frame with Graphite base\n• Fully adjustable arms (height, width, depth)\n• Dynamic matrix of pixels in seat and back that automatically conforms to your micro-movements\n• Backfit adjustment and multi-position tilt limiter\n• Upgraded translucent hardwood casters (safe for all flooring types)\n\nManufactured in late 2023 with very light home office usage. Clean, smoke-free, pet-free home.\nPick up in Midtown Toronto (elevator building with loading bay).",
-                'attributes' => [
-                    'Brand' => 'Herman Miller',
-                    'Model' => 'Embody',
-                    'Color' => 'Black / Graphite',
-                    'Fabric' => 'Sync Performance Fabric',
-                    'Armrests' => 'Fully Adjustable 4D',
-                    'Casters' => 'Hardwood & Carpet Dual-Floor',
-                    'Condition' => 'Used — Mint 9.5/10',
-                ],
-                'specs_pills' => ['Fully Adjustable', 'Graphite Frame', 'Like New', 'Ergonomic'],
-                'seller' => [
-                    'name' => 'Sarah Jenkins',
-                    'type' => 'Private Seller',
-                    'avatar' => 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.8,
-                    'reviews_count' => 12,
-                    'member_since' => 'Member since 2022',
-                    'active_ads_count' => 2,
-                    'response_rate' => '96%',
-                    'response_time' => 'Replies in ~30 mins',
-                    'badges' => [
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => false,
-                    ],
-                ],
-                'url' => url('/listing/3'),
-            ],
-            [
-                'id' => 4,
-                'title' => 'Bright 1-Bedroom Luxury Condo with Balcony & Parking in Liberty Village',
-                'slug' => 'bright-1-bedroom-luxury-condo-liberty-village',
-                'category' => 'housing',
-                'category_name' => 'Housing & Rentals',
-                'subcategory' => 'apartments-condos-rent',
-                'subcategory_name' => 'Apartments & Condos for Rent',
-                'price' => 2350,
-                'price_formatted' => '$2,350 / mo',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Monthly Rent',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Liberty Village',
-                'neighbourhood' => 'Liberty Village (King St W & Strachan)',
-                'postal_code_prefix' => 'M6K',
-                'distance_km' => 3.8,
-                'posted_at' => '3 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => null,
-                'condition_label' => 'Available October 1st',
-                'delivery' => null,
-                'seller_type' => 'business',
-                'seller_type_label' => 'Property Manager',
-                'badge' => 'URGENT',
-                'badge_type' => 'urgent',
-                'can_buy_now' => false,
-                'views_count' => 412,
-                'photos_count' => 6,
-                'image' => 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Sun-drenched south-facing 1-bedroom suite on a high floor overlooking Lake Ontario in the heart of Liberty Village.\n\nSuite Features:\n• 585 sq.ft. of interior living space plus private 80 sq.ft. balcony\n• Modern European kitchen with quartz waterfall countertop, full-size stainless steel appliances, and integrated microwave\n• Floor-to-ceiling soundproof windows, 9ft smooth ceilings, wide-plank laminate flooring\n• Spacious bedroom comfortably fitting a King-size bed with custom built-in closet organizers\n• En-suite stacked washer & dryer\n• 1 Reserved Underground Parking Spot + 1 Storage Locker included\n\nBuilding Amenities:\n• 24/7 Concierge and security\n• Fully-equipped state-of-the-art gym, yoga studio, indoor pool, sauna & steam room\n• Rooftop terrace with BBQs, cabanas, and panoramic city/lake views\n• Guest suites, party room, and co-working lounge with high-speed Wi-Fi\n\nSteps to 504 King streetcar, Exhibition GO Train, Metro grocery, restaurants, and Waterfront trails.\nTenant pays hydro and tenant insurance. Credit check, employment letter, and references required.",
-                'attributes' => [
-                    'Property Type' => 'Condo Apartment',
-                    'Bedrooms' => '1 Bedroom',
-                    'Bathrooms' => '1 Full Bathroom',
-                    'Size' => '585 sq.ft.',
-                    'Furnishing' => 'Unfurnished',
-                    'Parking' => '1 Underground Space (Included)',
-                    'Locker' => '1 Storage Locker (Included)',
-                    'Laundry' => 'In-Suite Washer & Dryer',
-                    'Pet Friendly' => 'Yes (with restrictions)',
-                    'Lease Term' => '1 Year Minimum',
-                    'Available Date' => 'October 1, 2026',
-                ],
-                'specs_pills' => ['1 Bed', '1 Bath', 'Parking + Locker', 'Lake View', 'Balcony'],
-                'seller' => [
-                    'name' => 'Highmark Property Management',
-                    'type' => 'Verified Property Manager',
-                    'avatar' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 46,
-                    'member_since' => 'Member since 2018',
-                    'active_ads_count' => 14,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~20 mins',
-                    'phone' => '+1 (416) 555-0382',
-                    'badges' => [
-                        'dealer_verified' => true,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/4'),
-            ],
-            [
-                'id' => 5,
-                'title' => '2023 Honda Civic Touring Sedan (Leather, Bose Sound, Low KMS)',
-                'slug' => '2023-honda-civic-touring-sedan',
-                'category' => 'cars-vehicles',
-                'category_name' => 'Cars & Vehicles',
-                'subcategory' => 'cars-trucks',
-                'subcategory_name' => 'Cars & Trucks',
-                'price' => 28900,
-                'price_formatted' => '$28,900',
-                'price_type' => 'negotiable',
-                'price_type_label' => 'Price Reduced',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Scarborough',
-                'neighbourhood' => 'Scarborough (McCowan & 401)',
-                'postal_code_prefix' => 'M1S',
-                'distance_km' => 12.0,
-                'posted_at' => '4 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => 'used',
-                'condition_label' => 'Used — Like New',
-                'delivery' => 'pickup',
-                'seller_type' => 'dealer',
-                'seller_type_label' => 'Certified Dealer',
-                'badge' => 'PRICE DROP',
-                'badge_type' => 'price_drop',
-                'can_buy_now' => false,
-                'views_count' => 220,
-                'photos_count' => 5,
-                'image' => 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "2023 Honda Civic Touring in Sonic Gray Pearl. Features 1.5L VTEC Turbo, 10.2\" digital gauge cluster, Bose 12-speaker premium audio, leather heated seats, wireless charging, and full Honda Sensing suite.",
-                'attributes' => [
-                    'Make' => 'Honda',
-                    'Model' => 'Civic Sedan',
-                    'Year' => '2023',
-                    'Trim' => 'Touring',
-                    'Kilometers' => '19,800 km',
-                    'Transmission' => 'Automatic CVT',
-                    'Fuel Type' => 'Gasoline',
-                    'Drivetrain' => 'Front-Wheel Drive',
-                    'Condition' => 'Used — Certified Pre-Owned',
-                ],
-                'specs_pills' => ['2023', '19,800 km', 'Bose Audio', 'Safety Certified'],
-                'seller' => [
-                    'name' => 'Eastside Honda Auto Group',
-                    'type' => 'Authorized Dealer',
-                    'avatar' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.7,
-                    'reviews_count' => 52,
-                    'member_since' => 'Member since 2017',
-                    'active_ads_count' => 22,
-                    'response_rate' => '98%',
-                    'response_time' => 'Replies in ~20 mins',
-                    'badges' => [
-                        'dealer_verified' => true,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/5'),
-            ],
-            [
-                'id' => 6,
-                'title' => 'Sony PlayStation 5 Disc Console + 2 DualSense Controllers & 3 Games',
-                'slug' => 'sony-playstation-5-disc-console-bundle',
-                'category' => 'buy-sell',
-                'category_name' => 'Buy & Sell',
-                'subcategory' => 'video-games-consoles',
-                'subcategory_name' => 'Video Games & Consoles',
-                'price' => 480,
-                'price_formatted' => '$480',
-                'price_type' => 'negotiable',
-                'price_type_label' => 'Negotiable',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Etobicoke',
-                'neighbourhood' => 'Etobicoke (The Queensway)',
-                'postal_code_prefix' => 'M8Z',
-                'distance_km' => 8.4,
-                'posted_at' => '5 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => 'used',
-                'condition_label' => 'Used — Excellent Condition',
-                'delivery' => 'both',
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Seller',
-                'badge' => null,
-                'badge_type' => null,
-                'can_buy_now' => true,
-                'views_count' => 195,
-                'photos_count' => 4,
-                'image' => 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "PS5 Disc edition complete bundle with original packaging, power and HDMI 2.1 cables, 2 DualSense wireless controllers (White & Midnight Black), and 3 games (Spider-Man 2, God of War Ragnarok, Horizon Forbidden West). Tested, reset to factory settings, and ready to play.",
-                'attributes' => [
-                    'Platform' => 'Sony PlayStation 5',
-                    'Edition' => 'Disc Version',
-                    'Storage' => '825 GB Ultra-Fast SSD',
-                    'Accessories' => '2 DualSense Controllers, 3 Physical Games',
-                    'Condition' => 'Used — Flawless 10/10',
-                ],
-                'specs_pills' => ['Disc Edition', '2 Controllers', '3 Games Included', 'Tested & Working'],
-                'seller' => [
-                    'name' => 'David Miller',
-                    'type' => 'Private Seller',
-                    'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 14,
-                    'member_since' => 'Member since 2020',
-                    'active_ads_count' => 1,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~10 mins',
-                    'badges' => [
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/6'),
-            ],
-            [
-                'id' => 7,
-                'title' => 'Modern 2-Bedroom + Den Townhouse with Private Garage in North York',
-                'slug' => 'modern-2-bedroom-townhouse-north-york',
-                'category' => 'housing',
-                'category_name' => 'Housing & Rentals',
-                'subcategory' => 'houses-rent',
-                'subcategory_name' => 'Houses & Townhouses for Rent',
-                'price' => 3100,
-                'price_formatted' => '$3,100 / mo',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Monthly Rent',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • North York',
-                'neighbourhood' => 'North York (Bayview & Sheppard)',
-                'postal_code_prefix' => 'M2K',
-                'distance_km' => 5.2,
-                'posted_at' => '6 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => null,
-                'condition_label' => 'Available Nov 1st',
-                'delivery' => null,
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Landlord',
-                'badge' => 'VERIFIED',
-                'badge_type' => 'verified',
-                'can_buy_now' => false,
-                'views_count' => 280,
-                'photos_count' => 8,
-                'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Spacious 2-storey 2 Bed + Den townhouse with open concept kitchen, private rooftop terrace, and direct access private garage. Steps to Bayview Village and Subway.",
-                'property_type' => 'townhouse',
-                'bedrooms' => 2,
-                'bathrooms' => 2,
-                'furnished' => 'unfurnished',
-                'parking' => true,
-                'pet_friendly' => true,
-                'utilities_included' => false,
-                'lease_term' => '1 Year',
-                'attributes' => [
-                    'Property Type' => 'Townhouse',
-                    'Bedrooms' => '2 Bedrooms + Den',
-                    'Bathrooms' => '2.5 Bathrooms',
-                    'Size' => '1,120 sq.ft.',
-                    'Parking' => 'Attached Garage (1 Car)',
-                    'Furnishing' => 'Unfurnished',
-                    'Pet Friendly' => 'Yes',
-                ],
-                'specs_pills' => ['2 Bed + Den', '2.5 Bath', 'Garage Parking', 'Pet Friendly'],
-                'seller' => [
-                    'name' => 'Elena Rostova',
-                    'type' => 'Private Landlord',
-                    'avatar' => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 5.0,
-                    'reviews_count' => 8,
-                    'member_since' => 'Member since 2020',
-                    'active_ads_count' => 1,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~10 mins',
-                    'badges' => [
-                        'dealer_verified' => false,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/7'),
-            ],
-            [
-                'id' => 8,
-                'title' => 'Fully Furnished Executive 3-Bedroom Detached Home with Backyard in Mississauga',
-                'slug' => 'executive-3-bedroom-home-mississauga',
-                'category' => 'housing',
-                'category_name' => 'Housing & Rentals',
-                'subcategory' => 'houses-rent',
-                'subcategory_name' => 'Houses & Townhouses for Rent',
-                'price' => 3950,
-                'price_formatted' => '$3,950 / mo',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Monthly Rent',
-                'currency' => 'CAD',
-                'location' => 'Mississauga, ON • Port Credit',
-                'neighbourhood' => 'Port Credit (Lakeshore & Hurontario)',
-                'postal_code_prefix' => 'L5G',
-                'distance_km' => 18.5,
-                'posted_at' => '8 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => null,
-                'condition_label' => 'Available Immediately',
-                'delivery' => null,
-                'seller_type' => 'business',
-                'seller_type_label' => 'Property Manager',
-                'badge' => 'FEATURED',
-                'badge_type' => 'featured',
-                'can_buy_now' => false,
-                'views_count' => 520,
-                'photos_count' => 10,
-                'image' => 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
-                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Tastefully decorated, fully furnished executive 3-bedroom detached family home in coveted Port Credit. Includes designer furniture, all utilities & high-speed fiber internet, and 2 driveway parking spots.",
-                'property_type' => 'house',
-                'bedrooms' => 3,
-                'bathrooms' => 3,
-                'furnished' => 'furnished',
-                'parking' => true,
-                'pet_friendly' => true,
-                'utilities_included' => true,
-                'lease_term' => '1 Year',
-                'attributes' => [
-                    'Property Type' => 'Detached House',
-                    'Bedrooms' => '3 Bedrooms',
-                    'Bathrooms' => '3 Bathrooms',
-                    'Furnishing' => 'Fully Furnished',
-                    'Parking' => '2 Driveway Spots',
-                    'Utilities' => 'Included (Heat, Hydro, Water, Gigabit Internet)',
-                ],
-                'specs_pills' => ['3 Bed', '3 Bath', 'Furnished', 'Utilities Incl.', 'Backyard'],
-                'seller' => [
-                    'name' => 'Lakeshore Luxury Rentals',
-                    'type' => 'Property Management',
-                    'avatar' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 62,
-                    'member_since' => 'Member since 2017',
-                    'active_ads_count' => 9,
-                    'response_rate' => '99%',
-                    'response_time' => 'Replies in ~15 mins',
-                    'badges' => [
-                        'dealer_verified' => true,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/8'),
-            ],
-            [
-                'id' => 9,
-                'title' => 'Renovated Private 1-Bedroom Basement Apartment in The Annex (All Inclusive)',
-                'slug' => 'renovated-1-bedroom-basement-the-annex',
-                'category' => 'housing',
-                'category_name' => 'Housing & Rentals',
-                'subcategory' => 'apartments-condos-rent',
-                'subcategory_name' => 'Apartments & Condos for Rent',
-                'price' => 1650,
-                'price_formatted' => '$1,650 / mo',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Monthly Rent',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Downtown',
-                'neighbourhood' => 'The Annex (Bloor & Spadina)',
-                'postal_code_prefix' => 'M5S',
-                'distance_km' => 2.4,
-                'posted_at' => '10 hours ago',
-                'posted_date' => 'September 14, 2026',
-                'condition' => null,
-                'condition_label' => 'Available October 15th',
-                'delivery' => null,
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Landlord',
-                'badge' => null,
-                'badge_type' => null,
-                'can_buy_now' => false,
-                'views_count' => 310,
-                'photos_count' => 6,
-                'image' => 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Bright, clean, newly renovated lower level 1-bedroom suite with private side entrance, 8ft ceilings, full kitchen, and en-suite laundry. Utilities included. 3 min walk to Spadina Subway.",
-                'property_type' => 'basement',
-                'bedrooms' => 1,
-                'bathrooms' => 1,
-                'furnished' => 'unfurnished',
-                'parking' => false,
-                'pet_friendly' => false,
-                'utilities_included' => true,
-                'lease_term' => '1 Year',
-                'attributes' => [
-                    'Property Type' => 'Basement Suite',
-                    'Bedrooms' => '1 Bedroom',
-                    'Bathrooms' => '1 Full Bath',
-                    'Utilities' => 'All Utilities Included',
-                    'Laundry' => 'En-Suite',
-                ],
-                'specs_pills' => ['1 Bed', '1 Bath', 'All Utilities Included', 'Near Subway'],
-                'seller' => [
-                    'name' => 'Robert MacIntyre',
-                    'type' => 'Private Landlord',
-                    'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 5,
-                    'member_since' => 'Member since 2021',
-                    'active_ads_count' => 1,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~15 mins',
-                    'badges' => [
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/9'),
-            ],
-            [
-                'id' => 10,
-                'title' => 'Prime Creative Commercial Studio / Office Space in Queen West',
-                'slug' => 'commercial-studio-office-queen-west',
-                'category' => 'housing',
-                'category_name' => 'Housing & Rentals',
-                'subcategory' => 'commercial-office-rent',
-                'subcategory_name' => 'Commercial & Office Space',
-                'price' => 2800,
-                'price_formatted' => '$2,800 / mo',
-                'price_type' => 'fixed',
-                'price_type_label' => 'Monthly Rent',
-                'currency' => 'CAD',
-                'location' => 'Toronto, ON • Queen West',
-                'neighbourhood' => 'Queen St West & Spadina',
-                'postal_code_prefix' => 'M5V',
-                'distance_km' => 1.9,
-                'posted_at' => '12 hours ago',
-                'posted_date' => 'September 13, 2026',
-                'condition' => null,
-                'condition_label' => 'Immediate Possession',
-                'delivery' => null,
-                'seller_type' => 'business',
-                'seller_type_label' => 'Commercial Broker',
-                'badge' => 'VERIFIED',
-                'badge_type' => 'verified',
-                'can_buy_now' => false,
-                'views_count' => 380,
-                'photos_count' => 6,
-                'image' => 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85',
-                'gallery' => [
-                    'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85',
-                ],
-                'description' => "Brick-and-beam commercial loft space ideal for creative agency, photo/video studio, design firm, or tech startup. Features soaring 12ft ceilings, large industrial windows, and freight elevator.",
-                'property_type' => 'commercial',
-                'bedrooms' => 0,
-                'bathrooms' => 1,
-                'furnished' => 'unfurnished',
-                'parking' => true,
-                'pet_friendly' => true,
-                'utilities_included' => false,
-                'lease_term' => '1 Year',
-                'attributes' => [
-                    'Property Type' => 'Commercial Studio / Office',
-                    'Size' => '850 sq.ft.',
-                    'Ceilings' => '12ft Brick & Beam',
-                    'Zoning' => 'Commercial / Studio',
-                ],
-                'specs_pills' => ['850 sq.ft.', 'Brick & Beam', 'Commercial Loft', 'Freight Elevator'],
-                'seller' => [
-                    'name' => 'Metropolitan Commercial Realty',
-                    'type' => 'Commercial Broker',
-                    'avatar' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80',
-                    'rating' => 4.9,
-                    'reviews_count' => 38,
-                    'member_since' => 'Member since 2016',
-                    'active_ads_count' => 12,
-                    'response_rate' => '100%',
-                    'response_time' => 'Replies in ~5 mins',
-                    'badges' => [
-                        'dealer_verified' => true,
-                        'email_verified' => true,
-                        'phone_verified' => true,
-                        'identity_verified' => true,
-                    ],
-                ],
-                'url' => url('/listing/10'),
-            ],
-        ];
     }
 }

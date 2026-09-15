@@ -2,10 +2,7 @@
 
 @section('content')
     {{-- =========================================================================
-         Part 2: Featured Hero (Sponsored Ad Carousel)
-         ========================================================================= --}}
-    {{-- =========================================================================
-         Part 2: Featured Hero (Sponsored Ad Carousel)
+         Part 2: Featured Hero (Sponsored Ad Carousel) & Quick Location Filter
          ========================================================================= --}}
     <section class="featured-hero-section">
         <div class="container-xl">
@@ -131,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- Categories Responsive Grid (4 cols on Desktop, 3/2 on Tablet, 2 on Mobile) -->
+            <!-- Categories Responsive Grid -->
             <div class="row g-3 g-xl-4 categories-grid">
                 @foreach($displayCategories as $key => $category)
                     <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6">
@@ -203,38 +200,7 @@
     </section>
 
     {{-- =========================================================================
-         Part 5: Browse by Location Section
-         ========================================================================= --}}
-    <section class="locations-section" aria-labelledby="locations-heading">
-        <div class="container-xl">
-            <!-- Section Header -->
-            <div class="section-header-wrap">
-                <div class="section-header-left">
-                    <span class="section-eyebrow">EXPLORE LOCAL</span>
-                    <h2 class="section-heading" id="locations-heading">Browse by Location</h2>
-                    <p class="section-subtext">Discover listings, services, jobs and more in communities across Canada.</p>
-                </div>
-                <div class="section-header-right">
-                    <a href="{{ url('/listings') }}" class="view-all-btn" id="viewAllLocationsBtn">
-                        <span>View All Locations</span>
-                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Locations Grid (4 desktop, 2-3 tablet, 2 mobile) -->
-            <div class="row g-3 g-xl-4 locations-grid">
-                @foreach($locations as $location)
-                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6">
-                        <x-location-card :location="$location" />
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
-
-    {{-- =========================================================================
-         Part 6: Featured Listings Section (Promoted Marketplace Inventory)
+         Part 5: Featured Listings Section (Promoted Marketplace Inventory)
          ========================================================================= --}}
     <section class="featured-listings-section" aria-labelledby="featured-listings-heading">
         <div class="container-xl">
@@ -302,7 +268,152 @@
     </section>
 
     {{-- =========================================================================
-         Part 7: Category Spotlight Section (Asymmetric Feature Showcase)
+         Part 6: Interactive Smart Alert Builder Card
+         ========================================================================= --}}
+    <section class="smart-alert-section">
+        <div class="container-xl">
+            <div class="smart-alert-card">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <span class="smart-alert-badge">
+                            <i class="bi bi-bell-fill me-1"></i>
+                            <span>Smart Alerts</span>
+                        </span>
+                        <h2 class="smart-alert-title">Never Miss a Good Deal Near You</h2>
+                        <p class="smart-alert-desc">
+                            Set instant automated alerts tailored to your target price and location. Example: 
+                            <em>"A new room for $700 was just posted in Montreal."</em>
+                        </p>
+                    </div>
+                    <div class="col-lg-6">
+                        <form action="{{ url('/alerts') }}" method="GET" class="smart-alert-form">
+                            <input type="text" name="keyword" class="smart-alert-input" placeholder="Keyword (e.g. 1-Bed Room, RAV4)" value="{{ request('keyword') }}">
+                            <select name="city" class="smart-alert-input">
+                                <option value="">Select City</option>
+                                @foreach($availableCities as $cityKey => $cityLabel)
+                                    <option value="{{ $cityKey }}" {{ strtolower($selectedCity ?? '') === strtolower($cityKey) ? 'selected' : '' }}>
+                                        {{ $cityLabel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <input type="number" name="max_price" class="smart-alert-input" placeholder="Max Budget ($)" style="max-width: 140px;">
+                            <button type="submit" class="smart-alert-btn">
+                                <i class="bi bi-bell"></i>
+                                <span>Create Alert</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- =========================================================================
+         Part 7: Community: 'Need Companionship' Social Meetups
+         ========================================================================= --}}
+    <section class="companionship-section" aria-labelledby="companionship-heading">
+        <div class="container-xl">
+            <!-- Section Header -->
+            <div class="section-header-wrap">
+                <div class="section-header-left">
+                    <span class="section-eyebrow">COMMUNITY & MUTUAL AID</span>
+                    <h2 class="section-heading" id="companionship-heading">
+                        Need Companionship?
+                        @if(!empty($locationName))
+                            <span class="heading-location-tag">
+                                <i class="bi bi-people-fill"></i>
+                                <span>{{ $locationName }}</span>
+                            </span>
+                        @endif
+                    </h2>
+                    <p class="section-subtext">Wholesome social meetups — grab coffee, go for a walk, share food, watch matches, or play games together.</p>
+                </div>
+                <div class="section-header-right">
+                    <a href="{{ url('/community') }}" class="view-all-btn">
+                        <span>Explore Meetups</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Meetup Cards Grid -->
+            @if(!empty($companionshipRequests) && count($companionshipRequests) > 0)
+                <div class="row g-3 g-xl-4">
+                    @foreach($companionshipRequests as $req)
+                        <div class="col-xl-3 col-lg-3 col-md-6 col-12">
+                            <div class="companionship-card">
+                                <div>
+                                    <span class="companionship-type-badge">{{ $req['type'] }}</span>
+                                    <h3 class="companionship-title">{{ $req['title'] }}</h3>
+                                    <p class="companionship-desc">{{ $req['description'] }}</p>
+                                </div>
+
+                                <div>
+                                    <div class="companionship-meta-item">
+                                        <i class="bi bi-calendar3"></i>
+                                        <span>{{ $req['meetup_time'] }}</span>
+                                    </div>
+                                    <div class="companionship-meta-item">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <span>{{ $req['location'] }}</span>
+                                    </div>
+
+                                    <div class="companionship-host-bar">
+                                        <div class="companionship-host-info">
+                                            <img src="{{ $req['host_avatar'] }}" alt="{{ $req['host_name'] }}" class="companionship-host-img">
+                                            <div>
+                                                <div class="companionship-host-name">{{ $req['host_name'] }}</div>
+                                                @if($req['host_is_verified'])
+                                                    <span style="font-size: 0.68rem; color: #49D17D;"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @if(!is_null($req['spots_left']))
+                                            <span class="companionship-spots-tag">{{ $req['spots_left'] }} spot{{ $req['spots_left'] == 1 ? '' : 's' }} left</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    </section>
+
+    {{-- =========================================================================
+         Part 8: Browse by Location Section
+         ========================================================================= --}}
+    <section class="locations-section" aria-labelledby="locations-heading">
+        <div class="container-xl">
+            <!-- Section Header -->
+            <div class="section-header-wrap">
+                <div class="section-header-left">
+                    <span class="section-eyebrow">EXPLORE LOCAL</span>
+                    <h2 class="section-heading" id="locations-heading">Browse by Location</h2>
+                    <p class="section-subtext">Discover listings, services, jobs and more in communities across Canada.</p>
+                </div>
+                <div class="section-header-right">
+                    <a href="{{ url('/listings') }}" class="view-all-btn" id="viewAllLocationsBtn">
+                        <span>View All Locations</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Locations Grid (4 desktop, 2-3 tablet, 2 mobile) -->
+            <div class="row g-3 g-xl-4 locations-grid">
+                @foreach($locations as $location)
+                    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6">
+                        <x-location-card :location="$location" />
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- =========================================================================
+         Part 9: Category Spotlight Section (Asymmetric Feature Showcase)
          ========================================================================= --}}
     <section class="spotlight-section" aria-labelledby="spotlight-heading">
         <div class="container-xl">
@@ -332,6 +443,9 @@
                             <div class="spotlight-tag-eyebrow housing-tag-eyebrow">
                                 <span class="tag-label">{{ $housing['category'] }}</span>
                             </div>
+                            @if(!empty($housing['badge']))
+                                <span class="badge" style="background: rgba(0,0,0,0.4); color: #fff; font-size: 0.72rem; border-radius: 6px;">{{ $housing['badge'] }}</span>
+                            @endif
                         </div>
 
                         <div class="spotlight-housing-main">
@@ -408,8 +522,13 @@
                     <a href="{{ $classifieds['url'] }}" class="spotlight-classifieds-card" id="spotlightClassifieds"
                         aria-label="{{ $classifieds['category'] }}: {{ $classifieds['heading'] }}">
                         <div class="spotlight-classifieds-content">
-                            <div class="spotlight-tag-eyebrow classifieds-tag-eyebrow">
-                                <span class="tag-label">{{ $classifieds['category'] }}</span>
+                            <div class="spotlight-category-header">
+                                <div class="spotlight-tag-eyebrow classifieds-tag-eyebrow">
+                                    <span class="tag-label">{{ $classifieds['category'] }}</span>
+                                </div>
+                                @if(!empty($classifieds['badge']))
+                                    <span class="badge" style="background: rgba(0,0,0,0.4); color: #fff; font-size: 0.72rem; border-radius: 6px;">{{ $classifieds['badge'] }}</span>
+                                @endif
                             </div>
 
                             <div class="spotlight-classifieds-body">
@@ -453,7 +572,7 @@
     </section>
 
     {{-- =========================================================================
-         Part 8: Why Buy & Sell With Us Section
+         Part 10: Why Buy & Sell With Us Section
          ========================================================================= --}}
     <section class="why-us-section" aria-labelledby="why-us-heading">
         <div class="container-xl">
@@ -592,7 +711,7 @@
     </section>
 
     {{-- =========================================================================
-         Part 9: Seller CTA Section (Post Your Ad Banner)
+         Part 12: Seller CTA Section (Post Your Ad Banner)
          ========================================================================= --}}
     @php
         $postAdUrl = url('/post-ad');
@@ -603,83 +722,76 @@
     <section class="seller-cta-section" aria-labelledby="seller-cta-heading">
         <div class="container-xl">
             <div class="seller-cta-banner">
-                <!-- Left Content: Editorial Header, Value Proposition & CTAs -->
+                <!-- Left Column: Copy & Benefits -->
                 <div class="seller-cta-content">
-                    <span class="section-eyebrow seller-cta-eyebrow">READY TO SELL?</span>
-                    <h2 class="seller-cta-heading" id="seller-cta-heading">Have Something to Sell?</h2>
+                    <span class="seller-cta-eyebrow">POST IN UNDER 2 MINUTES</span>
+                    <h2 class="seller-cta-heading" id="seller-cta-heading">
+                        Have something to sell, rent, or share?
+                    </h2>
                     <p class="seller-cta-desc">
-                        Turn things you no longer need into opportunities. Post your ad and reach people looking for what you have.
+                        Reach thousands of active buyers and renters across Canada. Free to post, direct
+                        messaging, and zero hidden platform fees.
                     </p>
 
+                    <!-- CTA Action Buttons -->
                     <div class="seller-cta-actions">
-                        <!-- Primary CTA -->
-                        <a href="{{ $postAdUrl }}" class="btn-seller-post" id="sellerPostAdBtn">
-                            <i class="bi bi-plus-lg" aria-hidden="true"></i>
-                            <span>Post an Ad</span>
+                        <a href="{{ $postAdUrl }}" class="btn-seller-post" id="homePostAdBannerBtn">
+                            <i class="bi bi-plus-circle-fill" aria-hidden="true"></i>
+                            <span>Post an Ad for Free</span>
                         </a>
 
-                        <!-- Secondary Link -->
-                        <a href="{{ $howItWorksUrl }}" class="seller-learn-more" id="sellerLearnMoreBtn">
-                            <span>Learn how it works</span>
+                        <a href="{{ $howItWorksUrl }}" class="seller-learn-more" id="homeHowItWorksBtn">
+                            <span>How It Works</span>
                             <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </a>
                     </div>
 
-                    <!-- Seller Highlights / Perks -->
-                    <div class="seller-cta-perks" aria-label="Seller highlights">
-                        <span class="perk-item">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Free basic posting</span>
-                        </span>
+                    <!-- Seller Value Perks -->
+                    <div class="seller-cta-perks" aria-label="Seller perks">
+                        <span class="perk-item"><i class="bi bi-check-circle-fill"></i> 100% Free Listing</span>
                         <span class="perk-dot" aria-hidden="true">•</span>
-                        <span class="perk-item">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Direct buyer chat</span>
-                        </span>
+                        <span class="perk-item"><i class="bi bi-geo-alt-fill"></i> Hyper-Local Reach</span>
                         <span class="perk-dot" aria-hidden="true">•</span>
-                        <span class="perk-item">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Live in 2 minutes</span>
-                        </span>
+                        <span class="perk-item"><i class="bi bi-shield-check"></i> Safe Direct Chat</span>
                     </div>
                 </div>
 
-                <!-- Right Visual: Interactive Marketplace Listing Preview -->
-                <div class="seller-visual-stage">
-                    <a href="{{ $listingUrl }}" class="seller-mockup-card" id="sellerCtaPreviewListing"
-                        aria-label="Explore listing: Fujifilm X-T30 II (18-55mm Kit)">
-                        <!-- Top Bar with "New Listing" Status -->
+                <!-- Right Column: Visual Mockup Card -->
+                <div class="seller-visual-stage" aria-hidden="true">
+                    <a href="{{ $postAdUrl }}" class="seller-mockup-card">
                         <div class="seller-mockup-top">
                             <span class="seller-status-chip">
-                                <span>New Listing</span>
+                                <span class="seller-status-dot"></span>
+                                <span>NEW LISTING</span>
+                            </span>
+                            <span class="seller-live-broadcast">
+                                <i class="bi bi-broadcast"></i>
+                                <span>Live preview</span>
                             </span>
                         </div>
 
-                        <!-- Main Listing Content -->
                         <div class="seller-mockup-body">
                             <div class="seller-mockup-img-wrap">
-                                <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=320&q=80"
-                                    alt="Fujifilm Mirrorless Camera" class="seller-mockup-img" loading="lazy">
+                                <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80"
+                                    alt="Listing preview" class="seller-mockup-img" loading="lazy">
                             </div>
-
                             <div class="seller-mockup-info">
-                                <div class="seller-mockup-price">$1,150</div>
-                                <h3 class="seller-mockup-title">Fujifilm X-T30 II (18-55mm Kit)</h3>
+                                <div class="seller-mockup-price">$450 CAD</div>
+                                <div class="seller-mockup-title">Solid Oak Dining Table with 4 Chairs</div>
                                 <div class="seller-mockup-location">
                                     <i class="bi bi-geo-alt-fill"></i>
-                                    <span>Vancouver, BC <i class="bi bi-arrow-right flow-arrow"></i> Kitsilano</span>
+                                    <span>Montreal, QC • Le Plateau</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Bottom Inquiries Floating Pill -->
                         <div class="seller-mockup-footer">
-                            <div class="seller-inquiry-tag">
+                            <span class="seller-inquiry-tag">
                                 <i class="bi bi-chat-dots-fill"></i>
-                                <span>Direct buyer inquiry ready</span>
-                            </div>
+                                <span>3 active inquiries</span>
+                            </span>
                             <span class="seller-reach-note">
-                                <span>View item</span>
+                                <span>Post yours now</span>
                                 <i class="bi bi-arrow-right"></i>
                             </span>
                         </div>
@@ -692,81 +804,61 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // 1. Featured Hero Swiper
-    if (typeof Swiper !== 'undefined' && document.getElementById('featuredHeroSwiper')) {
-        new Swiper('#featuredHeroSwiper', {
-            loop: true,
-            speed: 400,
-            autoplay: false,
-            navigation: {
-                nextEl: '.swiper-btn-next',
-                prevEl: '.swiper-btn-prev',
-            },
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-        });
-    }
-
-    // 2. Featured Listings Carousel Swiper
-    if (typeof Swiper !== 'undefined' && document.getElementById('featuredListingsSwiper')) {
-        new Swiper('#featuredListingsSwiper', {
-            slidesPerView: 1.2,
-            spaceBetween: 14,
-            speed: 400,
-            watchOverflow: true,
-            navigation: {
-                nextEl: '.featured-next',
-                prevEl: '.featured-prev',
-            },
-            breakpoints: {
-                480: {
-                    slidesPerView: 2,
-                    spaceBetween: 16,
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Hero Featured Carousel
+        if (typeof Swiper !== 'undefined' && document.getElementById('featuredHeroSwiper')) {
+            new Swiper('#featuredHeroSwiper', {
+                slidesPerView: 1,
+                spaceBetween: 0,
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
                 },
-                768: {
-                    slidesPerView: 3,
-                    spaceBetween: 18,
+                navigation: {
+                    nextEl: '.swiper-btn-next',
+                    prevEl: '.swiper-btn-prev',
                 },
-                1200: {
-                    slidesPerView: 4,
-                    spaceBetween: 24,
-                }
-            }
-        });
-    }
-});
+                pagination: {
+                    el: '#featuredHeroSwiper .swiper-pagination',
+                    clickable: true,
+                },
+            });
+        }
 
-// Location selector helper
-function setLocation(cityName) {
-    const label = document.getElementById('headerLocationLabel');
-    if (label) {
-        label.textContent = cityName;
-    }
-    const items = document.querySelectorAll('.location-item');
-    items.forEach(item => {
-        if (item.textContent.trim() === cityName.trim()) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
+        // 2. Featured Listings Multi-Card Swiper Carousel
+        if (typeof Swiper !== 'undefined' && document.getElementById('featuredListingsSwiper')) {
+            new Swiper('#featuredListingsSwiper', {
+                slidesPerView: 1.15,
+                spaceBetween: 14,
+                navigation: {
+                    nextEl: '.featured-next',
+                    prevEl: '.featured-prev',
+                },
+                pagination: {
+                    el: '.featured-pagination',
+                    clickable: true,
+                },
+                breakpoints: {
+                    576: {
+                        slidesPerView: 2,
+                        spaceBetween: 16,
+                    },
+                    768: {
+                        slidesPerView: 2.5,
+                        spaceBetween: 18,
+                    },
+                    992: {
+                        slidesPerView: 3,
+                        spaceBetween: 20,
+                    },
+                    1200: {
+                        slidesPerView: 4,
+                        spaceBetween: 20,
+                    },
+                },
+            });
         }
     });
-}
-
-// Favorite toggle helper
-function toggleListingFavorite(button, event) {
-    if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }
-    const isFavorited = button.classList.toggle('active');
-    if (isFavorited) {
-        button.setAttribute('aria-label', 'Remove from favorites');
-    } else {
-        button.setAttribute('aria-label', 'Save to favorites');
-    }
-}
 </script>
 @endpush

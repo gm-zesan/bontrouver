@@ -55,9 +55,22 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 ### AttributeOption (`App\Models\AttributeOption`)
 - `$option->attribute()` → `belongsTo(CategoryAttribute::class, 'category_attribute_id')`
 
+### Province (`App\Models\Province`)
+- `$province->cities()` → `hasMany(City::class)`
+- `$province->listings()` → `hasManyThrough(Listing::class, City::class)`
+- `$province->smartAlerts()` → `hasMany(SmartAlert::class)`
+
+### City (`App\Models\City`)
+- `$city->province()` → `belongsTo(Province::class)`
+- `$city->listings()` → `hasMany(Listing::class)`
+- `$city->companionshipRequests()` → `hasMany(CompanionshipRequest::class)`
+- `$city->smartAlerts()` → `hasMany(SmartAlert::class)`
+- Helper: `City::getCitiesMap()` (cached active Canadian cities with province metadata & coordinates)
+
 ### Listing (`App\Models\Listing`)
 - `$listing->user()` → `belongsTo(User::class)`
 - `$listing->category()` → `belongsTo(Category::class)`
+- `$listing->city()` → `belongsTo(City::class)`
 - `$listing->images()` → `hasMany(ListingImage::class)->orderBy('sort_order')`
 - `$listing->primaryImage()` → `hasOne(ListingImage::class)->where('is_primary', true)`
 - `$listing->attributes()` → `hasMany(ListingAttribute::class)`
@@ -98,6 +111,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 ### SmartAlert (`App\Models\SmartAlert`)
 - `$alert->user()` → `belongsTo(User::class)`
 - `$alert->category()` → `belongsTo(Category::class)`
+- `$alert->cityRelation()` → `belongsTo(City::class, 'city_id')`
+- `$alert->province()` → `belongsTo(Province::class)`
 - `$alert->attributes()` → `hasMany(SmartAlertAttribute::class)`
 
 ### SmartAlertAttribute (`App\Models\SmartAlertAttribute`)
@@ -106,6 +121,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 
 ### CompanionshipRequest (`App\Models\CompanionshipRequest`)
 - `$req->user()` → `belongsTo(User::class)`
+- `$req->cityRelation()` → `belongsTo(City::class, 'city_id')`
 - `$req->attendees()` → `hasMany(CompanionshipAttendee::class)`
 
 ### CompanionshipAttendee (`App\Models\CompanionshipAttendee`)

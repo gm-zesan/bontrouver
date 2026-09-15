@@ -344,10 +344,18 @@
                                                class="form-control form-control-custom has-icon" 
                                                id="cityInput" 
                                                name="city" 
+                                               list="canadianCitiesDataList"
                                                value="Toronto" 
                                                required
                                                placeholder="e.g. Toronto, Vancouver, Calgary"
-                                               oninput="updateLocationPreview()">
+                                               oninput="handleCityInput(this.value)">
+                                        <datalist id="canadianCitiesDataList">
+                                            @if(!empty($canadianCities))
+                                                @foreach($canadianCities as $cName => $cInfo)
+                                                    <option value="{{ $cInfo['name'] ?? $cName }}">{{ $cInfo['label'] ?? ($cName . ', ' . ($cInfo['province'] ?? '')) }}</option>
+                                                @endforeach
+                                            @endif
+                                        </datalist>
                                     </div>
                                     <div class="invalid-feedback-custom" id="err-city"></div>
                                 </div>
@@ -1054,6 +1062,20 @@ function updateDescPreview(val) {
     if (snippetEl) {
         snippetEl.textContent = val.trim() ? (val.substring(0, 110) + (val.length > 110 ? '...' : '')) : 'Enter a description to see how your listing preview appears to Canadian buyers...';
     }
+}
+
+const canadianCitiesMap = @json($canadianCities ?? $citiesMap ?? []);
+
+function handleCityInput(val) {
+    const trimmed = (val || '').trim();
+    if (canadianCitiesMap && canadianCitiesMap[trimmed]) {
+        const provCode = canadianCitiesMap[trimmed].province;
+        const provSelect = document.getElementById('provinceSelect');
+        if (provSelect && provCode) {
+            provSelect.value = provCode;
+        }
+    }
+    updateLocationPreview();
 }
 
 function updateLocationPreview() {

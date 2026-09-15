@@ -11,6 +11,8 @@ class SmartAlert extends Model
         'name',
         'keyword',
         'category_id',
+        'city_id',
+        'province_id',
         'city',
         'min_price',
         'max_price',
@@ -31,6 +33,16 @@ class SmartAlert extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function cityRelation()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
     }
 
     public function attributes()

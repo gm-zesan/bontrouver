@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('keyword')->nullable();
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
+            $table->foreignId('province_id')->nullable()->constrained('provinces')->nullOnDelete();
             $table->string('city')->nullable();
             $table->decimal('min_price', 10, 2)->nullable();
             $table->decimal('max_price', 10, 2)->nullable();

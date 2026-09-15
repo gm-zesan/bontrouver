@@ -21,8 +21,8 @@
         $provinceCode = $codeMap[$province] ?? strtoupper(substr($province, 0, 2));
     }
     $listingsCount = $location['listings_count'] ?? $location['count'] ?? 0;
-    $formattedCount = is_numeric($listingsCount) ? number_format($listingsCount) : $listingsCount;
-    $url = $location['url'] ?? ($slug ? url('/location/' . $slug) : '#location-' . ($location['id'] ?? ''));
+    $formattedCount = is_numeric($listingsCount) ? number_format((int)$listingsCount) : ($listingsCount ?: '0');
+    $url = $location['url'] ?? url('/listings?city=' . urlencode($city) . ($province ? '&province=' . urlencode($province) : ''));
 @endphp
 
 <a href="{{ $url }}" class="location-card" id="loc-{{ $slug }}" aria-label="{{ $city }}, {{ $province }} ({{ $provinceCode }}) - {{ $formattedCount }} listings">

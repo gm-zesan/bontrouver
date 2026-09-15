@@ -222,6 +222,8 @@ app/
 ├── Models/
 │   ├── User.php
 │   ├── MemberTier.php
+│   ├── Province.php
+│   ├── City.php
 │   ├── Listing.php
 │   ├── ListingImage.php
 │   ├── ListingAttribute.php
@@ -253,6 +255,7 @@ app/
 │
 └── Services/
     ├── CategoryService.php
+    ├── LocationService.php
     ├── ListingService.php
     ├── ReputationService.php
     ├── MemberTierService.php

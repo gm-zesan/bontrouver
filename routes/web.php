@@ -9,11 +9,20 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Category and Search Results Page
+// Category, Location and Search Results Page
 Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
 Route::get('/category/{categorySlug}', [ListingController::class, 'index'])->name('listings.category');
+Route::get('/location/{cityOrSlug}', [ListingController::class, 'locationRedirect'])->name('listings.location');
 Route::get('/listing/{idOrSlug}', [ListingController::class, 'show'])->name('listings.show');
 Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->name('search.suggestions');
+
+// Community Hub & Meetups
+Route::get('/community', [\App\Http\Controllers\StaticPageController::class, 'communityConnect'])->name('pages.community');
+
+// Location Switcher & Auto-Detect API
+Route::post('/api/location/set', [HomeController::class, 'setLocation'])->name('location.set');
+Route::post('/api/location/detect', [HomeController::class, 'detectLocation'])->name('location.detect');
+Route::get('/api/location/cities', [HomeController::class, 'getCities'])->name('location.cities');
 
 // Post an Ad / Create Listing Flow (Login Required)
 Route::middleware(['auth'])->group(function () {

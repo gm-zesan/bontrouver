@@ -12,6 +12,7 @@ class CompanionshipRequest extends Model
         'title',
         'description',
         'meetup_date_time',
+        'city_id',
         'location_name',
         'city',
         'province',
@@ -27,6 +28,11 @@ class CompanionshipRequest extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function cityRelation()
+    {
+        return $this->belongsTo(City::class, 'city_id');
     }
 
     public function attendees()

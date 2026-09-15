@@ -77,6 +77,14 @@ class SmartAlertSeeder extends Seeder
         ];
 
         foreach ($alerts as $alertData) {
+            $cityModel = \App\Models\City::where('slug', \Illuminate\Support\Str::slug($alertData['city']))
+                ->orWhere('name', 'like', '%' . $alertData['city'] . '%')
+                ->first();
+
+            $alertData['city_id'] = $cityModel?->id;
+            $alertData['province_id'] = $cityModel?->province_id;
+            $alertData['city'] = $cityModel?->name ?? $alertData['city'];
+
             SmartAlert::create($alertData);
         }
 

@@ -18,9 +18,10 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->timestamp('meetup_date_time');
+            $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->string('location_name');
-            $table->string('city');
-            $table->string('province');
+            $table->string('city')->nullable();
+            $table->string('province')->nullable();
             $table->integer('headcount_limit')->nullable();
             $table->string('status', 50)->default('open'); // open, full, cancelled, completed
             $table->timestamps();
