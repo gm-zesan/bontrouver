@@ -31,8 +31,10 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
             
-            // Status and Meta
+            // Status, Promotion and Meta
             $table->string('status', 50)->default('draft'); // draft, pending_review, active, paused, sold, expired, rejected
+            $table->boolean('is_featured')->default(false);
+            $table->boolean('is_sponsored')->default(false);
             $table->integer('views_count')->default(0);
             
             $table->timestamp('published_at')->nullable();
@@ -41,6 +43,8 @@ return new class extends Migration
             $table->softDeletes();
             
             $table->index('status');
+            $table->index('is_featured');
+            $table->index('is_sponsored');
             $table->index('city');
             $table->index('province');
             $table->index(['latitude', 'longitude']);

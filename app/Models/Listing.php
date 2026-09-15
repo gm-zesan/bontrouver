@@ -26,6 +26,8 @@ class Listing extends Model
         'latitude',
         'longitude',
         'status',
+        'is_featured',
+        'is_sponsored',
         'views_count',
         'published_at',
         'expires_at',
@@ -33,6 +35,8 @@ class Listing extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'is_featured' => 'boolean',
+        'is_sponsored' => 'boolean',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'published_at' => 'datetime',

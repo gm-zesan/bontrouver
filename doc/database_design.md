@@ -126,13 +126,15 @@ Core marketplace advertisements.
 - `latitude` (DECIMAL 10,8, NULLABLE)
 - `longitude` (DECIMAL 11,8, NULLABLE)
 - `status` (VARCHAR 50) - 'draft', 'pending_review', 'active', 'paused', 'sold', 'expired', 'rejected'
+- `is_featured` (BOOLEAN) - Default: false (Promoted in Featured Listings)
+- `is_sponsored` (BOOLEAN) - Default: false (Hero Carousel placement)
 - `views_count` (INT) - Default: 0
 - `published_at` (TIMESTAMP, NULLABLE)
 - `expires_at` (TIMESTAMP, NULLABLE)
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE)
-*Indexes: `status`, `city`, `province`, `[latitude, longitude]`*
+*Indexes: `status`, `is_featured`, `is_sponsored`, `city`, `province`, `[latitude, longitude]`*
 
 ### `listing_images`
 Images for listings.

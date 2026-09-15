@@ -64,6 +64,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->favorites()` → `hasMany(Favorite::class)`
 - `$listing->conversations()` → `hasMany(Conversation::class)`
 - `$listing->transactions()` → `hasMany(Transaction::class)`
+- Flags: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel)
 
 ### ListingImage (`App\Models\ListingImage`)
 - `$image->listing()` → `belongsTo(Listing::class)`

@@ -304,13 +304,6 @@
     {{-- =========================================================================
          Part 7: Category Spotlight Section (Asymmetric Feature Showcase)
          ========================================================================= --}}
-                    'label' => 'Sports & Bikes',
-                    'alt' => 'Bicycles and outdoor equipment'
-                ]
-            ]
-        ];
-    @endphp
-
     <section class="spotlight-section" aria-labelledby="spotlight-heading">
         <div class="container-xl">
             <!-- Section Header -->
