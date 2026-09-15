@@ -2,73 +2,105 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable([
-    'name',
-    'email',
-    'password',
-    'role',
-    'phone',
-    'avatar',
-    'location',
-    'member_since',
-    'bio',
-    'rating',
-    'reviews_count',
-    'active_ads_count',
-    'response_rate',
-    'response_time',
-    'is_verified',
-    'is_dealer'
-])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * Check if user is an administrator.
-     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'is_dealer',
+        'phone',
+        'avatar',
+        'bio',
+        'community_points',
+        'is_verified'
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_dealer' => 'boolean',
+        'is_verified' => 'boolean',
+    ];
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
-    /**
-     * Check if user is a seller or dealer.
-     */
-    public function isSeller(): bool
+    public function isModerator(): bool
     {
-        return in_array($this->role, ['seller', 'dealer', 'admin']);
+        return $this->role === 'moderator' || $this->role === 'admin';
     }
 
-    /**
-     * Check if user is a verified dealer.
-     */
-    public function isDealer(): bool
+    // Relationships
+    public function listings()
     {
-        return $this->is_dealer || $this->role === 'dealer';
+        return $this->hasMany(Listing::class);
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function pointTransactions()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(PointTransaction::class);
+    }
+
+    public function purchases()
+    {
+        return $this->hasMany(Transaction::class, 'buyer_id');
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Transaction::class, 'seller_id');
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function reviewsReceived()
+    {
+        return $this->hasMany(Review::class, 'reviewee_id');
+    }
+
+    public function reviewsGiven()
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
+    public function smartAlerts()
+    {
+        return $this->hasMany(SmartAlert::class);
+    }
+
+    public function companionshipRequests()
+    {
+        return $this->hasMany(CompanionshipRequest::class);
+    }
+
+    // Computed attributes (Accessors)
+    public function getRatingAttribute()
+    {
+        return $this->reviewsReceived()->avg('rating') ?? 0;
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviewsReceived()->count();
     }
 }

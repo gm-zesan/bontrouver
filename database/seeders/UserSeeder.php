@@ -22,14 +22,8 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
                 'phone' => '+1 (800) 555-0100',
                 'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-                'location' => 'Toronto, ON • Financial District',
-                'member_since' => 'Founder since 2024',
                 'bio' => 'Head of Marketplace Operations at Bontrouver Canada.',
-                'rating' => 5.00,
-                'reviews_count' => 120,
-                'active_ads_count' => 0,
-                'response_rate' => '100%',
-                'response_time' => 'Instant',
+                'community_points' => 500,
                 'is_verified' => true,
                 'is_dealer' => false,
             ],
@@ -42,16 +36,10 @@ class UserSeeder extends Seeder
                 'role' => 'seller',
                 'phone' => '+1 (416) 555-0192',
                 'avatar' => 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&q=80',
-                'location' => 'Toronto, ON • North York',
-                'member_since' => 'Member since 2019',
                 'bio' => 'Certified pre-owned automotive specialist in Greater Toronto Area. Clean CARFAX guarantee.',
-                'rating' => 4.95,
-                'reviews_count' => 84,
-                'active_ads_count' => 18,
-                'response_rate' => '99%',
-                'response_time' => 'Replies in ~15 mins',
+                'community_points' => 350,
                 'is_verified' => true,
-                'is_dealer' => false,
+                'is_dealer' => true,
             ],
 
             // 3. Pro Electronics & Tech Seller
@@ -62,14 +50,8 @@ class UserSeeder extends Seeder
                 'role' => 'seller',
                 'phone' => '+1 (514) 555-0177',
                 'avatar' => 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-                'location' => 'Montréal, QC • Plateau-Mont-Royal',
-                'member_since' => 'Member since 2021',
                 'bio' => 'Electronics enthusiast and verified Apple reseller. Fast public meetups and guaranteed tested gadgets.',
-                'rating' => 4.90,
-                'reviews_count' => 52,
-                'active_ads_count' => 7,
-                'response_rate' => '98%',
-                'response_time' => 'Replies in ~10 mins',
+                'community_points' => 220,
                 'is_verified' => true,
                 'is_dealer' => false,
             ],
@@ -82,14 +64,8 @@ class UserSeeder extends Seeder
                 'role' => 'seller',
                 'phone' => '+1 (604) 555-0133',
                 'avatar' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-                'location' => 'Vancouver, BC • Kitsilano',
-                'member_since' => 'Member since 2022',
                 'bio' => 'Moving sale! High quality mid-century furniture, cycling gear, and home goods.',
-                'rating' => 4.88,
-                'reviews_count' => 29,
-                'active_ads_count' => 4,
-                'response_rate' => '95%',
-                'response_time' => 'Replies in ~30 mins',
+                'community_points' => 150,
                 'is_verified' => true,
                 'is_dealer' => false,
             ],
@@ -102,28 +78,18 @@ class UserSeeder extends Seeder
                 'role' => 'buyer',
                 'phone' => '+1 (403) 555-0188',
                 'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-                'location' => 'Calgary, AB • Downtown',
-                'member_since' => 'Member since 2025',
                 'bio' => 'Verified buyer searching for vehicles, tech gear, and outdoor sports equipment in Alberta.',
-                'rating' => 5.00,
-                'reviews_count' => 8,
-                'active_ads_count' => 0,
-                'response_rate' => '100%',
-                'response_time' => 'Replies in ~5 mins',
+                'community_points' => 80,
                 'is_verified' => true,
                 'is_dealer' => false,
             ],
         ];
 
         foreach ($users as $userData) {
-            try {
-                User::updateOrCreate(
-                    ['email' => $userData['email']],
-                    $userData
-                );
-            } catch (\Throwable $e) {
-                // Ignore if DB connection is unavailable during build
-            }
+            User::updateOrCreate(
+                ['email' => $userData['email']],
+                $userData
+            );
         }
     }
 }

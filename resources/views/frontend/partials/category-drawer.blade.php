@@ -34,7 +34,7 @@
                             </span>
                             <div class="drawer-cat-info">
                                 <div class="drawer-cat-name">{{ $cat['name'] }}</div>
-                                <div class="drawer-cat-desc">{{ $cat['description'] }}</div>
+                                <div class="drawer-cat-desc">{{ $cat['description'] ?? '' }}</div>
                             </div>
                         </div>
                         <i class="bi bi-chevron-right drawer-chevron"></i>
