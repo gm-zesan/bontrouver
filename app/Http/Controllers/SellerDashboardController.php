@@ -24,7 +24,9 @@ class SellerDashboardController extends Controller
         $user = Auth::user();
         $categories = CategoryService::getAll();
 
+
         // Sample comprehensive listings dataset for My Listings dashboard
+
         $allListings = [
             [
                 'id' => 101,
@@ -326,7 +328,7 @@ class SellerDashboardController extends Controller
                 'views' => 64,
                 'seller_name' => 'Alexandre Dubois',
                 'seller_verified' => true,
-                'image' => 'https://images.unsplash.com/photo-1580481077197-2a4c14830174?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('images/hero/herman-miller-embody.jpg'),
                 'status' => 'active',
                 'is_featured' => false,
             ],
@@ -759,18 +761,10 @@ class SellerDashboardController extends Controller
                 'posted_at' => '3 hours ago',
                 'views' => 64,
                 'saves' => 9,
-                'image' => 'https://images.unsplash.com/photo-1580481077197-2a4c14830174?auto=format&fit=crop&w=600&q=80',
+                'image' => asset('images/hero/herman-miller-embody.jpg'),
                 'status' => 'active',
                 'featured' => false,
             ],
-        ];
-
-        $badges = [
-            ['label' => 'Verified Canadian User', 'icon' => 'bi-shield-fill-check', 'color' => 'text-success'],
-            ['label' => 'Email Confirmed', 'icon' => 'bi-check-circle-fill', 'color' => 'text-success'],
-            ['label' => 'Phone Verified', 'icon' => 'bi-phone-fill', 'color' => 'text-success'],
-            ['label' => 'Top Rated Seller (4.9★)', 'icon' => 'bi-star-fill', 'color' => 'text-warning'],
-            ['label' => 'Fast Responder (~15m)', 'icon' => 'bi-lightning-charge-fill', 'color' => 'text-info'],
         ];
 
         $reviews = [
@@ -797,7 +791,6 @@ class SellerDashboardController extends Controller
             'categories' => $categories,
             'stats' => $stats,
             'userListings' => $userListings,
-            'badges' => $badges,
             'reviews' => $reviews,
         ]);
     }

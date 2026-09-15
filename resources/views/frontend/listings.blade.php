@@ -36,8 +36,11 @@
                     <!-- Location Selector -->
                     <div class="search-col search-location-col">
                         <i class="bi bi-geo-alt search-icon"></i>
-                        <select id="filterLocation" class="search-field search-select" aria-label="Location">
-                            <option value="Toronto, ON" {{ ($location ?? '') === 'Toronto, ON' ? 'selected' : '' }}>Toronto, ON (GTA)</option>
+                        <select id="filterLocation" class="search-field search-select" aria-label="Location" onchange="triggerLiveFilter()">
+                            <option value="Toronto, ON (GTA)" {{ in_array(($location ?? ''), ['Toronto, ON (GTA)', 'Toronto, ON', '']) ? 'selected' : '' }}>Toronto, ON (GTA)</option>
+                            <option value="Toronto, ON" {{ ($location ?? '') === 'Toronto, ON' ? 'selected' : '' }}>Toronto, ON</option>
+                            <option value="Mississauga, ON" {{ ($location ?? '') === 'Mississauga, ON' ? 'selected' : '' }}>Mississauga, ON</option>
+                            <option value="North York, ON" {{ ($location ?? '') === 'North York, ON' ? 'selected' : '' }}>North York, ON</option>
                             <option value="Vancouver, BC" {{ ($location ?? '') === 'Vancouver, BC' ? 'selected' : '' }}>Vancouver, BC</option>
                             <option value="Montréal, QC" {{ ($location ?? '') === 'Montréal, QC' ? 'selected' : '' }}>Montréal, QC</option>
                             <option value="Calgary, AB" {{ ($location ?? '') === 'Calgary, AB' ? 'selected' : '' }}>Calgary, AB</option>
@@ -50,12 +53,12 @@
                     <!-- Radius Distance Selector -->
                     <div class="search-col search-radius-col d-none d-md-flex">
                         <i class="bi bi-compass search-icon"></i>
-                        <select id="filterRadius" class="search-field search-select" aria-label="Distance Radius">
+                        <select id="filterRadius" class="search-field search-select" aria-label="Distance Radius" onchange="syncRadius(this.value)">
                             <option value="5">Within 5 km</option>
                             <option value="10">Within 10 km</option>
                             <option value="25" selected>Within 25 km</option>
                             <option value="50">Within 50 km</option>
-                            <option value="all">All Distance</option>
+                            <option value="all">Any distance</option>
                         </select>
                     </div>
 
@@ -150,8 +153,240 @@
                             </div>
                         </div>
 
-                        {{-- 3. CONDITION FILTER --}}
-                        <div class="filter-section" id="conditionFilterSection">
+                        {{-- 3. DYNAMIC HOUSING SPECIFIC FACET --}}
+                        <div class="filter-section category-facet" id="facetHousing" style="display: {{ in_array($categorySlug, ['housing', 'real-estate']) ? 'block' : 'none' }};">
+                            <div class="mb-3">
+                                <div class="filter-section-title">Property Type</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="apartment" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Apartment / Condo</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="house" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">House</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="townhouse" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Townhouse</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="room" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Room / Roommate</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="basement" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Basement Suite</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="commercial" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Commercial / Office</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_prop_type" value="land" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Land / Plot</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="filter-section-title">Bedrooms</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_bedrooms" value="1" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">1 Bedroom / Studio</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_bedrooms" value="2" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">2 Bedrooms</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_bedrooms" value="3" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">3+ Bedrooms</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="filter-section-title">Bathrooms</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_bathrooms" value="1" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">1 Bathroom</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_bathrooms" value="2" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">2+ Bathrooms</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="filter-section-title">Furnishing</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_furnished" value="furnished" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Furnished</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_furnished" value="unfurnished" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Unfurnished</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="filter-section-title">Amenities & Features</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="parking" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Parking Included</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="pet_friendly" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Pet Friendly</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="utilities" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Utilities Included</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="laundry" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">In-Suite Laundry</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="balcony" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Balcony / Terrace</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_amenity" value="ac" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Air Conditioning</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <div class="filter-section-title">Lease Term</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_lease" value="1 Year" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">1 Year / Long-term</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="h_lease" value="Short-term" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Short-term / Month-to-Month</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 4. DYNAMIC CARS & VEHICLES FACET --}}
+                        <div class="filter-section category-facet" id="facetCarsVehicles" style="display: {{ ($categorySlug === 'cars-vehicles') ? 'block' : 'none' }};">
+                            <div class="mb-3">
+                                <div class="filter-section-title">Fuel Type</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="fuel" value="hybrid" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Hybrid / EV</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="fuel" value="gas" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Gasoline</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="fuel" value="diesel" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Diesel</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="filter-section-title">Transmission</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="transmission" value="automatic" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Automatic</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="transmission" value="manual" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Manual</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 5. DYNAMIC JOBS FACET --}}
+                        <div class="filter-section category-facet" id="facetJobs" style="display: {{ ($categorySlug === 'jobs') ? 'block' : 'none' }};">
+                            <div class="mb-3">
+                                <div class="filter-section-title">Job Type</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="job_type" value="full-time" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Full-time</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="job_type" value="part-time" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Part-time</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="job_type" value="contract" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Contract / Temp</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <div class="filter-section-title">Work Setup</div>
+                                <div class="filter-options-list">
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="work_setup" value="remote" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Remote</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="work_setup" value="hybrid" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">Hybrid</span>
+                                    </label>
+                                    <label class="custom-filter-checkbox">
+                                        <input type="checkbox" name="work_setup" value="onsite" onchange="triggerLiveFilter()">
+                                        <span class="checkbox-box"></span>
+                                        <span class="checkbox-label">On-site</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 6. GENERIC CONDITION FILTER (Hidden for Housing & Jobs) --}}
+                        <div class="filter-section generic-facet" id="genericConditionSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
                             <div class="filter-section-title">Condition</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
@@ -172,8 +407,8 @@
                             </div>
                         </div>
 
-                        {{-- 4. DELIVERY & FULFILLMENT --}}
-                        <div class="filter-section">
+                        {{-- 7. GENERIC FULFILLMENT & DELIVERY (Hidden for Housing & Jobs) --}}
+                        <div class="filter-section generic-facet" id="genericFulfillmentSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
                             <div class="filter-section-title">Fulfillment</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
@@ -189,73 +424,19 @@
                             </div>
                         </div>
 
-                        {{-- 5. SELLER TYPE --}}
-                        <div class="filter-section">
-                            <div class="filter-section-title">Seller Type</div>
+                        {{-- 8. SELLER TYPE FILTER --}}
+                        <div class="filter-section" id="sellerTypeSection">
+                            <div class="filter-section-title" id="sellerTypeTitle">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Advertiser / Seller' : 'Seller Type' }}</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="seller" value="private" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Private Seller</span>
+                                    <span class="checkbox-label" id="sellerLabelPrivate">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Private Landlord' : 'Private Seller' }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="seller" value="dealer" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Business / Dealer</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- 6. DYNAMIC CATEGORY-SPECIFIC FACET: CARS & VEHICLES --}}
-                        <div class="filter-section category-facet" id="facetCarsVehicles" style="display: {{ ($categorySlug === 'cars-vehicles') ? 'block' : 'none' }};">
-                            <div class="filter-section-title">Vehicle Details</div>
-                            <div class="mb-2">
-                                <label class="filter-sublabel">Fuel Type</label>
-                                <div class="filter-options-list">
-                                    <label class="custom-filter-checkbox">
-                                        <input type="checkbox" name="fuel" value="hybrid" onchange="triggerLiveFilter()">
-                                        <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Hybrid / EV</span>
-                                    </label>
-                                    <label class="custom-filter-checkbox">
-                                        <input type="checkbox" name="fuel" value="gas" onchange="triggerLiveFilter()">
-                                        <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Gasoline</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- 7. DYNAMIC CATEGORY-SPECIFIC FACET: HOUSING & RENTALS --}}
-                        <div class="filter-section category-facet" id="facetHousing" style="display: {{ ($categorySlug === 'housing') ? 'block' : 'none' }};">
-                            <div class="filter-section-title">Bedrooms & Bathrooms</div>
-                            <div class="filter-options-list">
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="bedrooms" value="1" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">1 Bedroom / Studio</span>
-                                </label>
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="bedrooms" value="2" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">2+ Bedrooms</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- 8. DYNAMIC CATEGORY-SPECIFIC FACET: JOBS --}}
-                        <div class="filter-section category-facet" id="facetJobs" style="display: {{ ($categorySlug === 'jobs') ? 'block' : 'none' }};">
-                            <div class="filter-section-title">Job Type</div>
-                            <div class="filter-options-list">
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="job_type" value="full-time" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Full-time</span>
-                                </label>
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="job_type" value="remote" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Remote / Hybrid</span>
+                                    <span class="checkbox-label" id="sellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
                                 </label>
                             </div>
                         </div>
@@ -305,7 +486,7 @@
                                 @endif
                             </h1>
                             <p class="results-count-text">
-                                Showing <span id="resultsCountTotal">{{ count($listings) }}</span> results
+                                Showing <span id="resultsCountTotal">{{ count($listings) }}</span> <span id="resultsCountNoun">{{ count($listings) === 1 ? 'result' : 'results' }}</span>
                             </p>
                         </div>
 
@@ -353,10 +534,10 @@
                 <!-- Listing Cards Stream Container -->
                 <div class="listings-stream" id="listingsStreamContainer">
                     @foreach($listings as $item)
-                        <article class="listing-row-card {{ !empty($item['badge']) ? 'has-badge' : '' }}" id="listing-card-{{ $item['id'] }}">
+                        <article class="listing-row-card {{ !empty($item['badge']) ? 'has-badge' : '' }}" id="listing-card-{{ $item['id'] }}" onclick="handleCardClick(event, '{{ $item['url'] }}')">
                             <!-- Left: Listing Image & Quick Action -->
                             <div class="listing-row-media">
-                                <a href="{{ $item['url'] }}" class="listing-media-link" aria-label="{{ $item['title'] }}">
+                                <a href="{{ $item['url'] }}" class="listing-media-link" aria-label="{{ $item['title'] }}" onclick="event.stopPropagation()">
                                     <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="listing-media-img" loading="lazy">
                                 </a>
 
@@ -378,7 +559,7 @@
                                 <div class="listing-row-header">
                                     <div class="listing-category-tag">{{ $item['subcategory_name'] ?? $item['category_name'] }}</div>
                                     <h2 class="listing-row-title">
-                                        <a href="{{ $item['url'] }}">{{ $item['title'] }}</a>
+                                        <a href="{{ $item['url'] }}" onclick="event.stopPropagation()">{{ $item['title'] }}</a>
                                     </h2>
                                 </div>
 
@@ -402,6 +583,13 @@
                                         <span class="listing-dot">•</span>
                                         <span class="listing-distance">{{ $item['distance_km'] }} km away</span>
                                     @endif
+                                    @if(!empty($item['seller_type_label']) || !empty($item['seller']['type']))
+                                        <span class="listing-dot">•</span>
+                                        <span class="listing-seller-pill">
+                                            <i class="bi bi-patch-check-fill"></i>
+                                            <span>{{ $item['seller_type_label'] ?? $item['seller']['type'] }}</span>
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -417,7 +605,7 @@
                                         <i class="bi bi-heart heart-outline"></i>
                                         <i class="bi bi-heart-fill heart-filled"></i>
                                     </button>
-                                    <a href="{{ $item['url'] }}" class="btn-view-details">
+                                    <a href="{{ $item['url'] }}" class="btn-view-details" onclick="event.stopPropagation()">
                                         <span>View</span>
                                         <i class="bi bi-arrow-right"></i>
                                     </a>
@@ -522,7 +710,7 @@
                     <option value="10">Within 10 km</option>
                     <option value="25" selected>Within 25 km</option>
                     <option value="50">Within 50 km</option>
-                    <option value="all">All Distance</option>
+                    <option value="all">Any distance</option>
                 </select>
                 <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
             </div>
@@ -543,7 +731,94 @@
             </div>
         </div>
 
-        <div class="mobile-filter-group">
+        {{-- Mobile Housing Facet --}}
+        <div id="mobileFacetHousing" class="mobile-category-facet" style="display: {{ in_array($categorySlug, ['housing', 'real-estate']) ? 'block' : 'none' }};">
+            <div class="mobile-filter-group">
+                <label class="mobile-group-label">Property Type</label>
+                <div class="filter-options-list">
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="apartment" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Apartment / Condo</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="house" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">House</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="townhouse" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Townhouse</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="room" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Room / Roommate</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="basement" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Basement Suite</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_prop_type" value="commercial" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Commercial / Office</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mobile-filter-group">
+                <label class="mobile-group-label">Bedrooms</label>
+                <div class="filter-options-list">
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_bedrooms" value="1" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">1 Bedroom / Studio</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_bedrooms" value="2" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">2 Bedrooms</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_bedrooms" value="3" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">3+ Bedrooms</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mobile-filter-group">
+                <label class="mobile-group-label">Amenities & Features</label>
+                <div class="filter-options-list">
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_amenity" value="parking" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Parking Included</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_amenity" value="pet_friendly" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Pet Friendly</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_amenity" value="utilities" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">Utilities Included</span>
+                    </label>
+                    <label class="custom-filter-checkbox">
+                        <input type="checkbox" name="m_h_amenity" value="laundry" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
+                        <span class="checkbox-box"></span>
+                        <span class="checkbox-label">In-Suite Laundry</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        {{-- Mobile Generic Condition --}}
+        <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericConditionGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
             <label class="mobile-group-label">Condition</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
@@ -564,8 +839,9 @@
             </div>
         </div>
 
-        <div class="mobile-filter-group">
-            <label class="mobile-group-label">Fulfillment & Seller</label>
+        {{-- Mobile Generic Fulfillment --}}
+        <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericFulfillmentGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
+            <label class="mobile-group-label">Fulfillment & Delivery</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_delivery" value="both" onchange="syncMobileDelivery()">
@@ -573,9 +849,26 @@
                     <span class="checkbox-label">Delivery available</span>
                 </label>
                 <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_delivery" value="pickup" onchange="syncMobileDelivery()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label">Local pickup only</span>
+                </label>
+            </div>
+        </div>
+
+        {{-- Mobile Seller Type --}}
+        <div class="mobile-filter-group" id="mobileSellerTypeGroup">
+            <label class="mobile-group-label" id="mobileSellerTypeLabel">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Advertiser / Seller' : 'Seller Type' }}</label>
+            <div class="filter-options-list">
+                <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_seller" value="private" onchange="syncMobileSeller()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Private Sellers only</span>
+                    <span class="checkbox-label" id="mobileSellerLabelPrivate">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Private Landlord' : 'Private Seller' }}</span>
+                </label>
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_seller" value="dealer" onchange="syncMobileSeller()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label" id="mobileSellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
                 </label>
             </div>
         </div>
@@ -614,8 +907,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('q')) {
             const val = urlParams.get('q');
-            document.getElementById('filterKeyword').value = val;
-            document.getElementById('clearKeywordBtn').style.display = val ? 'block' : 'none';
+            const kwInput = document.getElementById('filterKeyword');
+            if (kwInput) kwInput.value = val;
+            const clrBtn = document.getElementById('clearKeywordBtn');
+            if (clrBtn) clrBtn.style.display = val ? 'block' : 'none';
         }
         if (urlParams.has('category')) {
             currentCategory = urlParams.get('category');
@@ -631,20 +926,31 @@
             const locSelect = document.getElementById('filterLocation');
             if (locSelect) locSelect.value = loc;
         }
+        if (urlParams.has('radius')) {
+            const rad = urlParams.get('radius');
+            const radSelect = document.getElementById('filterRadiusSelect');
+            const mRadSelect = document.getElementById('mobileFilterRadiusSelect');
+            if (radSelect) radSelect.value = rad;
+            if (mRadSelect) mRadSelect.value = rad;
+        }
         if (urlParams.has('min_price')) {
-            document.getElementById('filterPriceMin').value = urlParams.get('min_price');
-            const m = document.getElementById('mobilePriceMin');
-            if (m) m.value = urlParams.get('min_price');
+            const dMin = document.getElementById('filterPriceMin');
+            const mMin = document.getElementById('mobilePriceMin');
+            if (dMin) dMin.value = urlParams.get('min_price');
+            if (mMin) mMin.value = urlParams.get('min_price');
         }
         if (urlParams.has('max_price')) {
-            document.getElementById('filterPriceMax').value = urlParams.get('max_price');
-            const m = document.getElementById('mobilePriceMax');
-            if (m) m.value = urlParams.get('max_price');
+            const dMax = document.getElementById('filterPriceMax');
+            const mMax = document.getElementById('mobilePriceMax');
+            if (dMax) dMax.value = urlParams.get('max_price');
+            if (mMax) mMax.value = urlParams.get('max_price');
         }
         if (urlParams.has('sort')) {
             const s = urlParams.get('sort');
-            document.getElementById('desktopSortSelect').value = s;
-            document.getElementById('mobileSortSelect').value = s;
+            const dSort = document.getElementById('desktopSortSelect');
+            const mSort = document.getElementById('mobileSortSelect');
+            if (dSort) dSort.value = s;
+            if (mSort) mSort.value = s;
         }
 
         // Sync category UI states
@@ -665,7 +971,6 @@
         // Show subtle skeleton loader
         const stream = document.getElementById('listingsStreamContainer');
         const skeleton = document.getElementById('resultsSkeletonLoader');
-        const emptyCard = document.getElementById('emptyResultsCard');
 
         if (skeleton && stream) {
             skeleton.style.display = 'block';
@@ -678,7 +983,7 @@
                 skeleton.style.display = 'none';
                 stream.style.opacity = '1';
             }
-        }, 120);
+        }, 100);
     }
 
     function renderFilteredResults() {
@@ -686,11 +991,32 @@
         const minPrice = parseFloat(document.getElementById('filterPriceMin')?.value) || 0;
         const maxPrice = parseFloat(document.getElementById('filterPriceMax')?.value) || Infinity;
         const sortOption = document.getElementById('desktopSortSelect')?.value || 'recent';
+        const radiusVal = document.getElementById('filterRadiusSelect')?.value || '25';
 
-        // Selected condition checkboxes
+        // Selected checkboxes for generic filters
         const selectedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked')).map(c => c.value);
         const selectedDeliveries = Array.from(document.querySelectorAll('input[name="delivery"]:checked')).map(d => d.value);
         const selectedSellers = Array.from(document.querySelectorAll('input[name="seller"]:checked')).map(s => s.value);
+
+        // Selected Housing facets
+        const selectedPropTypes = Array.from(document.querySelectorAll('input[name="h_prop_type"]:checked')).map(c => c.value);
+        const selectedBedrooms = Array.from(document.querySelectorAll('input[name="h_bedrooms"]:checked')).map(c => c.value);
+        const selectedBathrooms = Array.from(document.querySelectorAll('input[name="h_bathrooms"]:checked')).map(c => c.value);
+        const selectedFurnished = Array.from(document.querySelectorAll('input[name="h_furnished"]:checked')).map(c => c.value);
+        const selectedAmenities = Array.from(document.querySelectorAll('input[name="h_amenity"]:checked')).map(c => c.value);
+        const selectedLeases = Array.from(document.querySelectorAll('input[name="h_lease"]:checked')).map(c => c.value);
+
+        // Selected Cars facets
+        const selectedFuels = Array.from(document.querySelectorAll('input[name="fuel"]:checked')).map(c => c.value);
+        const selectedTransmissions = Array.from(document.querySelectorAll('input[name="transmission"]:checked')).map(c => c.value);
+
+        // Selected Jobs facets
+        const selectedJobTypes = Array.from(document.querySelectorAll('input[name="job_type"]:checked')).map(c => c.value);
+        const selectedWorkSetups = Array.from(document.querySelectorAll('input[name="work_setup"]:checked')).map(c => c.value);
+
+        const isHousingCategory = (currentCategory === 'housing' || currentCategory === 'real-estate');
+        const isCarsCategory = (currentCategory === 'cars-vehicles');
+        const isJobsCategory = (currentCategory === 'jobs');
 
         // Filter calculation
         let filtered = allListingsData.filter(item => {
@@ -709,23 +1035,82 @@
 
             // Keyword check
             if (keyword) {
-                const matchTitle = item.title.toLowerCase().includes(keyword);
-                const matchDesc = item.description.toLowerCase().includes(keyword);
+                const matchTitle = (item.title || '').toLowerCase().includes(keyword);
+                const matchDesc = (item.description || '').toLowerCase().includes(keyword);
                 const matchCategory = (item.category_name || '').toLowerCase().includes(keyword);
-                if (!matchTitle && !matchDesc && !matchCategory) return false;
+                const matchLocation = (item.location || '').toLowerCase().includes(keyword);
+                if (!matchTitle && !matchDesc && !matchCategory && !matchLocation) return false;
             }
 
             // Price range check
             if (item.price < minPrice || item.price > maxPrice) return false;
 
-            // Condition check
-            if (selectedConditions.length > 0 && !selectedConditions.includes(item.condition)) {
-                return false;
+            // Radius distance check (if radius is not 'all')
+            if (radiusVal !== 'all' && item.distance_km) {
+                const maxRadius = parseFloat(radiusVal);
+                if (item.distance_km > maxRadius) return false;
             }
 
-            // Delivery check
-            if (selectedDeliveries.length > 0 && !selectedDeliveries.includes(item.delivery) && item.delivery !== 'both') {
-                return false;
+            // Category-specific Housing filters
+            if (isHousingCategory) {
+                if (selectedPropTypes.length > 0 && (!item.property_type || !selectedPropTypes.includes(item.property_type))) {
+                    return false;
+                }
+                if (selectedBedrooms.length > 0) {
+                    const bedCount = parseInt(item.bedrooms || 0, 10);
+                    const matchBed = selectedBedrooms.some(b => {
+                        if (b === '3') return bedCount >= 3;
+                        return bedCount === parseInt(b, 10);
+                    });
+                    if (!matchBed) return false;
+                }
+                if (selectedBathrooms.length > 0) {
+                    const bathCount = parseInt(item.bathrooms || 0, 10);
+                    const matchBath = selectedBathrooms.some(b => {
+                        if (b === '2') return bathCount >= 2;
+                        return bathCount === parseInt(b, 10);
+                    });
+                    if (!matchBath) return false;
+                }
+                if (selectedFurnished.length > 0) {
+                    const isFurnished = item.furnished === true || item.furnished === 'furnished';
+                    const isUnfurnished = item.furnished === false || item.furnished === 'unfurnished';
+                    if (selectedFurnished.includes('furnished') && !isFurnished) return false;
+                    if (selectedFurnished.includes('unfurnished') && !isUnfurnished) return false;
+                }
+                if (selectedAmenities.length > 0) {
+                    for (const a of selectedAmenities) {
+                        if (a === 'parking' && !item.parking) return false;
+                        if (a === 'pet_friendly' && !item.pet_friendly) return false;
+                        if (a === 'utilities' && !item.utilities_included) return false;
+                        if (a === 'laundry' && !(item.specs_pills || []).some(s => s.toLowerCase().includes('laundry'))) return false;
+                    }
+                }
+                if (selectedLeases.length > 0 && (!item.lease_term || !selectedLeases.includes(item.lease_term))) {
+                    return false;
+                }
+            }
+
+            // Category-specific Cars filters
+            if (isCarsCategory) {
+                if (selectedFuels.length > 0 && (!item.fuel || !selectedFuels.includes(item.fuel))) return false;
+                if (selectedTransmissions.length > 0 && (!item.transmission || !selectedTransmissions.includes(item.transmission))) return false;
+            }
+
+            // Category-specific Jobs filters
+            if (isJobsCategory) {
+                if (selectedJobTypes.length > 0 && (!item.job_type || !selectedJobTypes.includes(item.job_type))) return false;
+                if (selectedWorkSetups.length > 0 && (!item.work_setup || !selectedWorkSetups.includes(item.work_setup))) return false;
+            }
+
+            // Generic Condition & Delivery (applied only for non-housing / non-jobs)
+            if (!isHousingCategory && !isJobsCategory) {
+                if (selectedConditions.length > 0 && !selectedConditions.includes(item.condition)) {
+                    return false;
+                }
+                if (selectedDeliveries.length > 0 && !selectedDeliveries.includes(item.delivery) && item.delivery !== 'both') {
+                    return false;
+                }
             }
 
             // Seller type check
@@ -745,17 +1130,20 @@
             filtered.sort((a, b) => (a.distance_km || 0) - (b.distance_km || 0));
         }
 
-        // Update DOM stream
+        // Update DOM stream & Count
         const stream = document.getElementById('listingsStreamContainer');
         const emptyCard = document.getElementById('emptyResultsCard');
         const countTotal = document.getElementById('resultsCountTotal');
+        const countNoun = document.getElementById('resultsCountNoun');
         const mobileLiveCount = document.getElementById('mobileLiveCountLabel');
         const paginationWrap = document.getElementById('paginationWrap');
 
-        if (countTotal) countTotal.textContent = filtered.length;
-        if (mobileLiveCount) mobileLiveCount.textContent = `${filtered.length} results live updated`;
+        const totalCount = filtered.length;
+        if (countTotal) countTotal.textContent = totalCount;
+        if (countNoun) countNoun.textContent = (totalCount === 1) ? 'result' : 'results';
+        if (mobileLiveCount) mobileLiveCount.textContent = `${totalCount} ${totalCount === 1 ? 'result' : 'results'} live updated`;
 
-        if (filtered.length === 0) {
+        if (totalCount === 0) {
             if (stream) stream.style.display = 'none';
             if (emptyCard) emptyCard.style.display = 'block';
             if (paginationWrap) paginationWrap.style.display = 'none';
@@ -765,7 +1153,10 @@
                 stream.style.display = 'flex';
                 stream.innerHTML = filtered.map(item => createListingRowHTML(item)).join('');
             }
-            if (paginationWrap) paginationWrap.style.display = 'flex';
+            // Conditional pagination: only show pagination if there are > 10 listings (i.e. more than 1 page)
+            if (paginationWrap) {
+                paginationWrap.style.display = (totalCount > 10) ? 'flex' : 'none';
+            }
         }
 
         // Render Active Filter Chips
@@ -773,9 +1164,20 @@
             keyword,
             minPrice,
             maxPrice,
+            radiusVal,
             selectedConditions,
             selectedDeliveries,
-            selectedSellers
+            selectedSellers,
+            selectedPropTypes,
+            selectedBedrooms,
+            selectedBathrooms,
+            selectedFurnished,
+            selectedAmenities,
+            selectedLeases,
+            selectedFuels,
+            selectedTransmissions,
+            selectedJobTypes,
+            selectedWorkSetups
         });
 
         // Update Browser URL without page refresh
@@ -784,7 +1186,7 @@
             minPrice,
             maxPrice,
             sortOption,
-            selectedConditions
+            radiusVal
         });
     }
 
@@ -792,11 +1194,19 @@
         const specsHTML = (item.specs_pills || []).map(s => `<span class="spec-tag">${s}</span>`).join('');
         const badgeHTML = item.badge ? `<span class="listing-status-badge badge-${item.badge_type || 'featured'}">${item.badge}</span>` : '';
         const distanceHTML = item.distance_km ? `<span class="listing-dot">•</span><span class="listing-distance">${item.distance_km} km away</span>` : '';
+        const sellerLabel = item.seller_type_label || (item.seller && item.seller.type ? item.seller.type : null);
+        const sellerHTML = sellerLabel ? `
+            <span class="listing-dot">•</span>
+            <span class="listing-seller-pill">
+                <i class="bi bi-patch-check-fill"></i>
+                <span>${sellerLabel}</span>
+            </span>
+        ` : '';
 
         return `
-            <article class="listing-row-card ${item.badge ? 'has-badge' : ''}" id="listing-card-${item.id}">
+            <article class="listing-row-card ${item.badge ? 'has-badge' : ''}" id="listing-card-${item.id}" onclick="handleCardClick(event, '${item.url}')">
                 <div class="listing-row-media">
-                    <a href="${item.url}" class="listing-media-link" aria-label="${item.title}">
+                    <a href="${item.url}" class="listing-media-link" aria-label="${item.title}" onclick="event.stopPropagation()">
                         <img src="${item.image}" alt="${item.title}" class="listing-media-img" loading="lazy">
                     </a>
                     ${item.photos_count ? `<span class="listing-photo-badge"><i class="bi bi-camera-fill me-1"></i>${item.photos_count}</span>` : ''}
@@ -807,7 +1217,7 @@
                     <div class="listing-row-header">
                         <div class="listing-category-tag">${item.subcategory_name || item.category_name}</div>
                         <h2 class="listing-row-title">
-                            <a href="${item.url}">${item.title}</a>
+                            <a href="${item.url}" onclick="event.stopPropagation()">${item.title}</a>
                         </h2>
                     </div>
 
@@ -822,6 +1232,7 @@
                         <span class="listing-dot">•</span>
                         <span class="listing-row-time">${item.posted_at}</span>
                         ${distanceHTML}
+                        ${sellerHTML}
                     </div>
                 </div>
 
@@ -836,7 +1247,7 @@
                             <i class="bi bi-heart heart-outline"></i>
                             <i class="bi bi-heart-fill heart-filled"></i>
                         </button>
-                        <a href="${item.url}" class="btn-view-details">
+                        <a href="${item.url}" class="btn-view-details" onclick="event.stopPropagation()">
                             <span>View</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -846,7 +1257,17 @@
         `;
     }
 
-    function renderActiveChips(filters) {
+    function handleCardClick(event, url) {
+        if (!url) return;
+        // Don't navigate if user clicked an interactive child (a, button, input)
+        const target = event.target;
+        if (target.closest('button') || target.closest('a') || target.closest('input') || target.closest('select')) {
+            return;
+        }
+        window.location.href = url;
+    }
+
+    function renderActiveChips(f) {
         const chipsContainer = document.getElementById('activeFilterChipsContainer');
         const chipsList = document.getElementById('activeChipsList');
         const mobileBadge = document.getElementById('mobileFilterBadge');
@@ -854,27 +1275,71 @@
 
         let chips = [];
 
-        if (filters.keyword) {
-            chips.push({ label: `"${filters.keyword}"`, clear: () => clearKeywordInput() });
+        if (f.keyword) {
+            chips.push({ label: `"${f.keyword}"`, clear: () => clearKeywordInput() });
         }
         if (currentCategory) {
             const catName = allCategoriesData[currentCategory]?.name || currentCategory;
             const subName = currentSubcategory ? ` > ${allCategoriesData[currentCategory]?.children?.find(s => s.slug === currentSubcategory)?.name || currentSubcategory}` : '';
             chips.push({ label: `Category: ${catName}${subName}`, clear: () => selectCategoryFilter('') });
         }
-        if (filters.minPrice > 0 || (filters.maxPrice && filters.maxPrice !== Infinity)) {
-            const minText = filters.minPrice > 0 ? `$${filters.minPrice}` : '$0';
-            const maxText = filters.maxPrice !== Infinity ? `$${filters.maxPrice}` : 'Any';
-            chips.push({ label: `${minText} – ${maxText}`, clear: () => setQuickPrice(null, null) });
+        if (f.minPrice > 0 || (f.maxPrice && f.maxPrice !== Infinity)) {
+            const minText = f.minPrice > 0 ? `$${f.minPrice}` : '$0';
+            const maxText = f.maxPrice !== Infinity ? `$${f.maxPrice}` : 'Any';
+            chips.push({ label: `Price: ${minText} – ${maxText}`, clear: () => setQuickPrice(null, null) });
         }
-        filters.selectedConditions.forEach(c => {
-            chips.push({ label: `Condition: ${c}`, clear: () => uncheckFilter('condition', c) });
+        if (f.radiusVal && f.radiusVal !== '25' && f.radiusVal !== 'all') {
+            chips.push({ label: `Within ${f.radiusVal} km`, clear: () => syncRadius('25') });
+        }
+
+        // Housing chips
+        (f.selectedPropTypes || []).forEach(p => {
+            const propLabels = { apartment: 'Apartment / Condo', house: 'House', townhouse: 'Townhouse', room: 'Room', basement: 'Basement', commercial: 'Commercial', land: 'Land' };
+            chips.push({ label: `Type: ${propLabels[p] || p}`, clear: () => uncheckBothFilters('h_prop_type', 'm_h_prop_type', p) });
         });
-        filters.selectedDeliveries.forEach(d => {
-            chips.push({ label: `Delivery: ${d}`, clear: () => uncheckFilter('delivery', d) });
+        (f.selectedBedrooms || []).forEach(b => {
+            chips.push({ label: `${b}+ Bedrooms`, clear: () => uncheckBothFilters('h_bedrooms', 'm_h_bedrooms', b) });
         });
-        filters.selectedSellers.forEach(s => {
-            chips.push({ label: `Seller: ${s}`, clear: () => uncheckFilter('seller', s) });
+        (f.selectedBathrooms || []).forEach(b => {
+            chips.push({ label: `${b}+ Bathrooms`, clear: () => uncheckFilter('h_bathrooms', b) });
+        });
+        (f.selectedFurnished || []).forEach(furn => {
+            chips.push({ label: furn === 'furnished' ? 'Furnished' : 'Unfurnished', clear: () => uncheckFilter('h_furnished', furn) });
+        });
+        (f.selectedAmenities || []).forEach(a => {
+            const amenityLabels = { parking: 'Parking Included', pet_friendly: 'Pet Friendly', utilities: 'Utilities Included', laundry: 'In-Suite Laundry', balcony: 'Balcony', ac: 'A/C' };
+            chips.push({ label: amenityLabels[a] || a, clear: () => uncheckBothFilters('h_amenity', 'm_h_amenity', a) });
+        });
+        (f.selectedLeases || []).forEach(l => {
+            chips.push({ label: `Lease: ${l}`, clear: () => uncheckFilter('h_lease', l) });
+        });
+
+        // Cars & Jobs chips
+        (f.selectedFuels || []).forEach(fuel => {
+            chips.push({ label: `Fuel: ${fuel}`, clear: () => uncheckFilter('fuel', fuel) });
+        });
+        (f.selectedTransmissions || []).forEach(t => {
+            chips.push({ label: `Trans: ${t}`, clear: () => uncheckFilter('transmission', t) });
+        });
+        (f.selectedJobTypes || []).forEach(j => {
+            chips.push({ label: `Job: ${j}`, clear: () => uncheckFilter('job_type', j) });
+        });
+        (f.selectedWorkSetups || []).forEach(ws => {
+            chips.push({ label: `Work: ${ws}`, clear: () => uncheckFilter('work_setup', ws) });
+        });
+
+        // Generic chips
+        (f.selectedConditions || []).forEach(c => {
+            chips.push({ label: `Condition: ${c}`, clear: () => uncheckBothFilters('condition', 'm_condition', c) });
+        });
+        (f.selectedDeliveries || []).forEach(d => {
+            chips.push({ label: `Delivery: ${d === 'both' ? 'Available' : 'Pickup'}`, clear: () => uncheckBothFilters('delivery', 'm_delivery', d) });
+        });
+        (f.selectedSellers || []).forEach(s => {
+            const sText = (currentCategory === 'housing' || currentCategory === 'real-estate')
+                ? (s === 'private' ? 'Private Landlord' : 'Property Manager')
+                : (s === 'private' ? 'Private Seller' : 'Business / Dealer');
+            chips.push({ label: sText, clear: () => uncheckBothFilters('seller', 'm_seller', s) });
         });
 
         if (mobileBadge) {
@@ -907,6 +1372,30 @@
     function uncheckFilter(name, value) {
         const checkbox = document.querySelector(`input[name="${name}"][value="${value}"]`);
         if (checkbox) checkbox.checked = false;
+        triggerLiveFilter();
+    }
+
+    function uncheckBothFilters(desktopName, mobileName, value) {
+        const d = document.querySelector(`input[name="${desktopName}"][value="${value}"]`);
+        const m = document.querySelector(`input[name="${mobileName}"][value="${value}"]`);
+        if (d) d.checked = false;
+        if (m) m.checked = false;
+        triggerLiveFilter();
+    }
+
+    function syncMobileCheckboxes(mobileName, desktopName) {
+        const checkedValues = Array.from(document.querySelectorAll(`input[name="${mobileName}"]:checked`)).map(c => c.value);
+        document.querySelectorAll(`input[name="${desktopName}"]`).forEach(cb => {
+            cb.checked = checkedValues.includes(cb.value);
+        });
+        triggerLiveFilter();
+    }
+
+    function syncRadius(val) {
+        const d = document.getElementById('filterRadiusSelect');
+        const m = document.getElementById('mobileFilterRadiusSelect');
+        if (d) d.value = val;
+        if (m) m.value = val;
         triggerLiveFilter();
     }
 
@@ -943,6 +1432,10 @@
     }
 
     function syncCategoryUI(catSlug, subSlug = '') {
+        const isHousing = (catSlug === 'housing' || catSlug === 'real-estate');
+        const isCars = (catSlug === 'cars-vehicles');
+        const isJobs = (catSlug === 'jobs');
+
         // 1. Mobile Drawer Category Select
         const mobCatSel = document.getElementById('mobileCategorySelect');
         if (mobCatSel) mobCatSel.value = catSlug || '';
@@ -980,17 +1473,55 @@
             }
         });
 
-        // 5. Dynamic Category Facets
+        // 5. Dynamic Category Facets (Desktop)
         document.querySelectorAll('.category-facet').forEach(f => f.style.display = 'none');
-        if (catSlug === 'cars-vehicles') {
+        if (isCars) {
             const f = document.getElementById('facetCarsVehicles');
             if (f) f.style.display = 'block';
-        } else if (catSlug === 'housing' || catSlug === 'real-estate') {
+        } else if (isHousing) {
             const f = document.getElementById('facetHousing');
             if (f) f.style.display = 'block';
-        } else if (catSlug === 'jobs') {
+        } else if (isJobs) {
             const f = document.getElementById('facetJobs');
             if (f) f.style.display = 'block';
+        }
+
+        // 6. Generic Condition & Fulfillment (Desktop)
+        const condSec = document.getElementById('genericConditionSection');
+        const fulSec = document.getElementById('genericFulfillmentSection');
+        if (condSec) condSec.style.display = (isHousing || isJobs) ? 'none' : 'block';
+        if (fulSec) fulSec.style.display = (isHousing || isJobs) ? 'none' : 'block';
+
+        // 7. Mobile Facet Display
+        const mobHousing = document.getElementById('mobileFacetHousing');
+        const mobCond = document.getElementById('mobileGenericConditionGroup');
+        const mobFul = document.getElementById('mobileGenericFulfillmentGroup');
+        if (mobHousing) mobHousing.style.display = isHousing ? 'block' : 'none';
+        if (mobCond) mobCond.style.display = (isHousing || isJobs) ? 'none' : 'block';
+        if (mobFul) mobFul.style.display = (isHousing || isJobs) ? 'none' : 'block';
+
+        // 8. Seller labels update for Housing vs General
+        const sTitle = document.getElementById('sellerTypeTitle');
+        const sPriv = document.getElementById('sellerLabelPrivate');
+        const sDeal = document.getElementById('sellerLabelDealer');
+        const mTitle = document.getElementById('mobileSellerTypeLabel');
+        const mPriv = document.getElementById('mobileSellerLabelPrivate');
+        const mDeal = document.getElementById('mobileSellerLabelDealer');
+
+        if (isHousing) {
+            if (sTitle) sTitle.textContent = 'Advertiser / Landlord';
+            if (sPriv) sPriv.textContent = 'Private Landlord';
+            if (sDeal) sDeal.textContent = 'Property Manager / Broker';
+            if (mTitle) mTitle.textContent = 'Advertiser / Landlord';
+            if (mPriv) mPriv.textContent = 'Private Landlord';
+            if (mDeal) mDeal.textContent = 'Property Manager / Broker';
+        } else {
+            if (sTitle) sTitle.textContent = 'Seller Type';
+            if (sPriv) sPriv.textContent = 'Private Seller';
+            if (sDeal) sDeal.textContent = 'Business / Dealer';
+            if (mTitle) mTitle.textContent = 'Seller Type';
+            if (mPriv) mPriv.textContent = 'Private Seller';
+            if (mDeal) mDeal.textContent = 'Business / Dealer';
         }
     }
 
@@ -1081,6 +1612,9 @@
 
         if (params.sortOption && params.sortOption !== 'recent') url.searchParams.set('sort', params.sortOption);
         else url.searchParams.delete('sort');
+
+        if (params.radiusVal && params.radiusVal !== '25') url.searchParams.set('radius', params.radiusVal);
+        else url.searchParams.delete('radius');
 
         window.history.pushState({}, '', url);
     }
