@@ -260,6 +260,8 @@ class HomeController extends Controller
         $housingCat = $allCategories['housing'] ?? $allCategories['real-estate'] ?? null;
         $housingCount = $housingCat ? Listing::where('category_id', $housingCat['id'])->where('status', 'active')->count() : 0;
         $housingMinPrice = $housingCat ? Listing::where('category_id', $housingCat['id'])->where('status', 'active')->min('price') : 950;
+        $housingLatest = $housingCat ? Listing::with('primaryImage')->where('category_id', $housingCat['id'])->where('status', 'active')->latest()->first() : null;
+        $housingImage = $housingLatest?->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85';
 
         $housingTags = [];
         if ($housingCat) {
@@ -278,8 +280,8 @@ class HomeController extends Controller
             'tags' => !empty($housingTags) ? $housingTags : [['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/category/housing')]],
             'cta_text' => 'Explore Housing',
             'url' => url('/category/' . ($housingCat['slug'] ?? 'housing')),
-            'image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
-            'alt' => 'Modern Canadian home and rental properties',
+            'image' => $housingImage,
+            'alt' => 'Canadian home and rental properties',
             'badge' => ($housingCount > 0 ? "{$housingCount}+ Available" : "Verified Listings") . ($housingMinPrice ? " • From $" . number_format($housingMinPrice, 0) : "")
         ];
 
@@ -311,19 +313,37 @@ class HomeController extends Controller
         $buySellCount = $buySellCat ? Listing::where('category_id', $buySellCat['id'])->where('status', 'active')->count() : 0;
         $buySellItems = [];
         if ($buySellCat) {
-            foreach (array_slice($buySellCat['children'] ?? [], 0, 4) as $index => $child) {
-                $images = [
-                    'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
-                    'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=320&q=80',
-                    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=320&q=80',
-                    'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=320&q=80'
-                ];
-                $buySellItems[] = [
-                    'image' => $images[$index] ?? $images[0],
-                    'label' => $child['name'],
-                    'alt' => $child['name'],
-                    'url' => url('/category/' . $buySellCat['slug'] . '?sub=' . $child['slug'])
-                ];
+            $buySellSubIds = array_column($buySellCat['children'] ?? [], 'id');
+            $dynamicBuySellListings = Listing::with('primaryImage')
+                ->where(function ($q) use ($buySellCat, $buySellSubIds) {
+                    $q->where('category_id', $buySellCat['id']);
+                    if (!empty($buySellSubIds)) {
+                        $q->orWhereIn('category_id', $buySellSubIds);
+                    }
+                })
+                ->where('status', 'active')
+                ->latest()
+                ->limit(4)
+                ->get();
+
+            if ($dynamicBuySellListings->isNotEmpty()) {
+                foreach ($dynamicBuySellListings as $dbl) {
+                    $buySellItems[] = [
+                        'image' => $dbl->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
+                        'label' => Str::limit($dbl->title, 18),
+                        'alt' => $dbl->title,
+                        'url' => url('/listing/' . $dbl->slug)
+                    ];
+                }
+            } else {
+                foreach (array_slice($buySellCat['children'] ?? [], 0, 4) as $child) {
+                    $buySellItems[] = [
+                        'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
+                        'label' => $child['name'],
+                        'alt' => $child['name'],
+                        'url' => url('/category/' . $buySellCat['slug'] . '?sub=' . $child['slug'])
+                    ];
+                }
             }
         }
         $classifieds = [
@@ -334,6 +354,23 @@ class HomeController extends Controller
             'url' => url('/category/' . ($buySellCat['slug'] ?? 'buy-sell')),
             'items' => !empty($buySellItems) ? $buySellItems : [['image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80', 'label' => 'Gear', 'alt' => 'Gear', 'url' => url('/category/buy-sell')]],
             'badge' => ($buySellCount > 0 ? "{$buySellCount}+ Local Items" : "Pre-loved Finds")
+        ];
+
+        // 8. Dynamic Preview Listings for Interactive Sections (Why Us & Seller CTA)
+        $whyUsListing = $trendingListings->first() ?? $featuredAds->first() ?? [
+            'title' => 'iPhone 16 Pro (256GB)',
+            'price' => '$1,299.00',
+            'location' => 'Toronto, ON • 2.4 km away',
+            'image' => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80',
+            'url' => url('/listings')
+        ];
+
+        $sellerCtaListing = $featuredListings->first() ?? $trendingListings->last() ?? [
+            'title' => 'Solid Oak Dining Table with 4 Chairs',
+            'price' => '$450.00 CAD',
+            'location' => 'Montreal, QC • Le Plateau',
+            'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80',
+            'url' => url('/post-ad')
         ];
 
         // 9. Available Canadian Cities for Location Filter & Smart Alert Widget
@@ -355,6 +392,8 @@ class HomeController extends Controller
             'housing',
             'jobs',
             'classifieds',
+            'whyUsListing',
+            'sellerCtaListing',
             'locationName',
             'selectedCity',
             'availableCities'

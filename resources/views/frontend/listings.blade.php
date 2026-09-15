@@ -53,13 +53,13 @@
                     <div class="search-col search-radius-col d-none d-md-flex">
                         <i class="bi bi-compass search-icon"></i>
                         <select id="filterRadiusSelect" class="search-field search-select" aria-label="Distance Radius" onchange="syncRadius(this.value)">
-                            <option value="5" {{ ($radius ?? '25') == '5' ? 'selected' : '' }}>Within 5 km</option>
-                            <option value="10" {{ ($radius ?? '25') == '10' ? 'selected' : '' }}>Within 10 km</option>
-                            <option value="25" {{ ($radius ?? '25') == '25' ? 'selected' : '' }}>Within 25 km</option>
-                            <option value="50" {{ ($radius ?? '25') == '50' ? 'selected' : '' }}>Within 50 km</option>
-                            <option value="100" {{ ($radius ?? '25') == '100' ? 'selected' : '' }}>Within 100 km</option>
-                            <option value="250" {{ ($radius ?? '25') == '250' ? 'selected' : '' }}>Within 250 km</option>
-                            <option value="all" {{ ($radius ?? '25') == 'all' ? 'selected' : '' }}>Any distance</option>
+                            <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
+                            <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
+                            <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
+                            <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
+                            <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
+                            <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
+                            <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
                         </select>
                     </div>
 
@@ -707,11 +707,13 @@
             <label class="mobile-group-label" for="mobileFilterRadiusSelect">Distance</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileFilterRadiusSelect" class="mobile-drawer-select" onchange="syncRadius(this.value)">
-                    <option value="5">Within 5 km</option>
-                    <option value="10">Within 10 km</option>
-                    <option value="25" selected>Within 25 km</option>
-                    <option value="50">Within 50 km</option>
-                    <option value="all">Any distance</option>
+                    <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
+                    <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
+                    <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
+                    <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
+                    <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
+                    <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
+                    <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
                 </select>
                 <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
             </div>
@@ -1184,6 +1186,7 @@
             keyword,
             minPrice,
             maxPrice,
+            locationVal,
             radiusVal,
             selectedConditions,
             selectedDeliveries,
@@ -1205,6 +1208,7 @@
             keyword,
             minPrice,
             maxPrice,
+            locationVal,
             sortOption,
             radiusVal
         });
@@ -1431,7 +1435,10 @@
     function resetLocationFilter() {
         const locSelect = document.getElementById('filterLocation');
         if (locSelect) locSelect.value = 'All Canada';
-        syncRadius('all');
+        const dRad = document.getElementById('filterRadiusSelect');
+        const mRad = document.getElementById('mobileFilterRadiusSelect');
+        if (dRad) dRad.value = 'all';
+        if (mRad) mRad.value = 'all';
         triggerLiveFilter();
     }
 
@@ -1609,6 +1616,19 @@
         syncCategoryUI('', '');
         setQuickPrice(null, null);
 
+        const dRad = document.getElementById('filterRadiusSelect');
+        const mRad = document.getElementById('mobileFilterRadiusSelect');
+        if (dRad) dRad.value = 'all';
+        if (mRad) mRad.value = 'all';
+
+        const loc = document.getElementById('filterLocation');
+        if (loc) loc.value = 'All Canada';
+
+        const dSort = document.getElementById('desktopSortSelect');
+        const mSort = document.getElementById('mobileSortSelect');
+        if (dSort) dSort.value = 'recent';
+        if (mSort) mSort.value = 'recent';
+
         document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
         triggerLiveFilter();
     }
@@ -1646,13 +1666,20 @@
         if (params.maxPrice !== Infinity) url.searchParams.set('max_price', params.maxPrice);
         else url.searchParams.delete('max_price');
 
+        if (params.locationVal && params.locationVal !== 'all canada' && params.locationVal !== '') {
+            url.searchParams.set('city', params.locationVal);
+        } else {
+            url.searchParams.delete('city');
+            url.searchParams.delete('location');
+        }
+
         if (params.sortOption && params.sortOption !== 'recent') url.searchParams.set('sort', params.sortOption);
         else url.searchParams.delete('sort');
 
-        if (params.radiusVal && params.radiusVal !== '25') url.searchParams.set('radius', params.radiusVal);
+        if (params.radiusVal && params.radiusVal !== 'all') url.searchParams.set('radius', params.radiusVal);
         else url.searchParams.delete('radius');
 
-        window.history.pushState({}, '', url);
+        window.history.replaceState({}, '', url);
     }
 
     // Favorite toggle interaction

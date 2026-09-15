@@ -651,15 +651,15 @@
                         <!-- 1. Floating Listing Preview (Top Left) -->
                         <div class="visual-node visual-node-listing">
                             <div class="visual-listing-thumb">
-                                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80"
-                                    alt="iPhone Preview" class="listing-thumb-img" loading="lazy">
+                                <img src="{{ $whyUsListing['image'] ?? 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80' }}"
+                                    alt="{{ $whyUsListing['title'] ?? 'Listing Preview' }}" class="listing-thumb-img" loading="lazy">
                             </div>
                             <div class="visual-listing-info">
-                                <div class="visual-listing-price">$1,299</div>
-                                <div class="visual-listing-title">iPhone 16 Pro (256GB)</div>
+                                <div class="visual-listing-price">{{ $whyUsListing['price'] ?? '$1,299' }}</div>
+                                <div class="visual-listing-title">{{ Str::limit($whyUsListing['title'] ?? 'Trending Item', 24) }}</div>
                                 <div class="visual-listing-loc">
                                     <i class="bi bi-geo-alt-fill"></i>
-                                    <span>Toronto, ON • 2.4 km away</span>
+                                    <span>{{ $whyUsListing['location'] ?? ($locationName . ' • Local') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -671,7 +671,7 @@
                             </div>
                             <div class="location-label-box">
                                 <span class="loc-sub">Active Area</span>
-                                <span class="loc-main">Greater Toronto Area</span>
+                                <span class="loc-main">{{ $locationName ?: 'All Canada' }}</span>
                             </div>
                         </div>
 
@@ -679,7 +679,7 @@
                         <div class="visual-node visual-node-message">
                             <div class="visual-msg-header">
                                 <div class="visual-user-avatar">
-                                    <span class="avatar-initials">MK</span>
+                                    <span class="avatar-initials">BT</span>
                                     <span class="user-active-dot"></span>
                                 </div>
                                 <div class="visual-user-meta">
@@ -716,7 +716,6 @@
     @php
         $postAdUrl = url('/post-ad');
         $howItWorksUrl = url('/how-it-works');
-        $listingUrl = url('/buy-sell');
     @endphp
 
     <section class="seller-cta-section" aria-labelledby="seller-cta-heading">
@@ -756,7 +755,7 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Visual Mockup Card -->
+                <!-- Right Column: Dynamic Visual Mockup Card -->
                 <div class="seller-visual-stage" aria-hidden="true">
                     <a href="{{ $postAdUrl }}" class="seller-mockup-card">
                         <div class="seller-mockup-top">
@@ -772,15 +771,15 @@
 
                         <div class="seller-mockup-body">
                             <div class="seller-mockup-img-wrap">
-                                <img src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80"
-                                    alt="Listing preview" class="seller-mockup-img" loading="lazy">
+                                <img src="{{ $sellerCtaListing['image'] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80' }}"
+                                    alt="{{ $sellerCtaListing['title'] ?? 'Listing preview' }}" class="seller-mockup-img" loading="lazy">
                             </div>
                             <div class="seller-mockup-info">
-                                <div class="seller-mockup-price">$450 CAD</div>
-                                <div class="seller-mockup-title">Solid Oak Dining Table with 4 Chairs</div>
+                                <div class="seller-mockup-price">{{ $sellerCtaListing['price'] ?? '$450.00 CAD' }}</div>
+                                <div class="seller-mockup-title">{{ Str::limit($sellerCtaListing['title'] ?? 'Verified Ad', 36) }}</div>
                                 <div class="seller-mockup-location">
                                     <i class="bi bi-geo-alt-fill"></i>
-                                    <span>Montreal, QC • Le Plateau</span>
+                                    <span>{{ $sellerCtaListing['location'] ?? ($locationName . ' • Local') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -788,7 +787,7 @@
                         <div class="seller-mockup-footer">
                             <span class="seller-inquiry-tag">
                                 <i class="bi bi-chat-dots-fill"></i>
-                                <span>3 active inquiries</span>
+                                <span>Active buyer inquiries</span>
                             </span>
                             <span class="seller-reach-note">
                                 <span>Post yours now</span>

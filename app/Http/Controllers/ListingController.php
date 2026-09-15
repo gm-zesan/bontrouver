@@ -28,7 +28,7 @@ class ListingController extends Controller
         $selectedCity = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
         $citiesMap = HomeController::getCitiesMap();
         $location = $request->query('location') ?? ($selectedCity ? ($citiesMap[$selectedCity]['label'] ?? $selectedCity) : 'All Canada');
-        $radius = $request->query('radius', '25');
+        $radius = $request->query('radius', 'all');
 
         $categories = CategoryService::getAll();
         $activeCategory = null;
@@ -118,6 +118,7 @@ class ListingController extends Controller
 
         return view('frontend.listings', [
             'categories' => $categories,
+            'canadianCities' => $citiesMap,
             'activeCategory' => $activeCategory,
             'activeSubcategory' => $activeSubcategory,
             'activeChild' => $activeChild,
@@ -581,7 +582,7 @@ class ListingController extends Controller
      */
     protected function getDatabaseListings(?string $selectedCity = null): array
     {
-        $listings = Listing::with(['category', 'primaryImage', 'user', 'city.province'])
+        $listings = Listing::with(['category.parent', 'primaryImage', 'images', 'user', 'city.province', 'attributes.categoryAttribute'])
             ->where('status', 'active')
             ->orderByDesc('created_at')
             ->get();
@@ -604,16 +605,120 @@ class ListingController extends Controller
                 $dist = 2.5; // within same city
             }
 
+            // Category & Subcategory resolution
+            $cat = $listing->category;
+            $rootCategorySlug = $cat?->parent ? $cat->parent->slug : ($cat?->slug ?? 'category');
+            $rootCategoryName = $cat?->parent ? $cat->parent->name : ($cat?->name ?? 'Category');
+            $subCategorySlug = $cat?->slug ?? 'subcategory';
+            $subCategoryName = $cat?->name ?? 'Subcategory';
+
+            // Extract dynamic attributes from EAV relation
+            $rawAttrs = [];
+            if ($listing->relationLoaded('attributes')) {
+                foreach ($listing->attributes as $attr) {
+                    $attrSlug = $attr->categoryAttribute?->slug;
+                    if ($attrSlug) {
+                        $rawAttrs[$attrSlug] = $attr->value;
+                    }
+                }
+            }
+
+            // 1. Bedrooms
+            $bedVal = $rawAttrs['bedrooms'] ?? null;
+            $bedrooms = $bedVal ? (preg_match('/\d+/', $bedVal, $m) ? (int) $m[0] : null) : null;
+
+            // 2. Bathrooms
+            $bathVal = $rawAttrs['bathrooms'] ?? null;
+            $bathrooms = $bathVal ? (preg_match('/\d+/', $bathVal, $m) ? (int) $m[0] : null) : null;
+
+            // 3. Furnished
+            $furnVal = strtolower($rawAttrs['furnished'] ?? '');
+            $furnished = str_contains($furnVal, 'unfurnished') ? 'unfurnished' : (str_contains($furnVal, 'furnished') ? 'furnished' : null);
+
+            // 4. Pet friendly
+            $petVal = strtolower($rawAttrs['pet-friendly'] ?? $rawAttrs['pet_friendly'] ?? '');
+            $petFriendly = str_contains($petVal, 'yes') || str_contains($petVal, 'true') || str_contains($petVal, '1') || str_contains($petVal, 'allowed');
+
+            // 5. Parking
+            $parkVal = strtolower($rawAttrs['parking-included'] ?? $rawAttrs['parking'] ?? '');
+            $parking = !empty($parkVal) && !str_contains($parkVal, 'no') && !str_contains($parkVal, 'none') && !str_contains($parkVal, '0');
+
+            // 6. Utilities included
+            $utilVal = strtolower($rawAttrs['utilities-included'] ?? $rawAttrs['utilities'] ?? '');
+            $utilitiesIncluded = str_contains($utilVal, 'yes') || str_contains($utilVal, 'true') || str_contains($utilVal, '1') || str_contains($utilVal, 'included') || str_contains(strtolower($listing->title . ' ' . $listing->description), 'inclusive');
+
+            // 7. Lease term
+            $leaseVal = $rawAttrs['lease-term'] ?? $rawAttrs['lease_term'] ?? null;
+            $leaseTerm = $leaseVal ? (str_contains(strtolower($leaseVal), 'short') || str_contains(strtolower($leaseVal), 'month') ? 'Short-term' : '1 Year') : '1 Year';
+
+            // 8. Property type
+            $subLower = strtolower($subCategorySlug . ' ' . $subCategoryName);
+            $propType = 'apartment';
+            if (str_contains($subLower, 'house')) {
+                $propType = 'house';
+            } elseif (str_contains($subLower, 'townhouse')) {
+                $propType = 'townhouse';
+            } elseif (str_contains($subLower, 'room') || str_contains($subLower, 'roommate')) {
+                $propType = 'room';
+            } elseif (str_contains($subLower, 'basement')) {
+                $propType = 'basement';
+            } elseif (str_contains($subLower, 'commercial') || str_contains($subLower, 'office')) {
+                $propType = 'commercial';
+            } elseif (str_contains($subLower, 'land') || str_contains($subLower, 'plot')) {
+                $propType = 'land';
+            }
+
+            // 9. Fuel & Transmission
+            $fuelVal = strtolower($rawAttrs['fuel-type'] ?? $rawAttrs['fuel'] ?? '');
+            $fuel = (str_contains($fuelVal, 'hybrid') || str_contains($fuelVal, 'ev') || str_contains($fuelVal, 'electric')) ? 'hybrid' : (str_contains($fuelVal, 'diesel') ? 'diesel' : (str_contains($fuelVal, 'gas') ? 'gas' : null));
+
+            $transVal = strtolower($rawAttrs['transmission'] ?? '');
+            $transmission = str_contains($transVal, 'manual') ? 'manual' : (str_contains($transVal, 'auto') ? 'automatic' : null);
+
+            // 10. Job Type & Work Setup
+            $jobTypeVal = strtolower($rawAttrs['job-type'] ?? $rawAttrs['job_type'] ?? '');
+            $jobType = str_contains($jobTypeVal, 'full') ? 'full-time' : (str_contains($jobTypeVal, 'part') ? 'part-time' : (str_contains($jobTypeVal, 'contract') ? 'contract' : null));
+
+            $setupVal = strtolower($rawAttrs['work-setup'] ?? $rawAttrs['work_setup'] ?? '');
+            $workSetup = str_contains($setupVal, 'remote') ? 'remote' : (str_contains($setupVal, 'hybrid') ? 'hybrid' : (str_contains($setupVal, 'site') || str_contains($setupVal, 'office') ? 'onsite' : null));
+
+            // 11. Seller Type
+            $isDealer = (bool) ($listing->user?->is_dealer ?? false);
+            $sellerType = $isDealer ? 'dealer' : 'private';
+            $sellerTypeLabel = $isDealer ? 'Verified Dealer / Business' : 'Private Seller';
+
+            // 12. Specs pills
+            $specsPills = [];
+            if ($bedrooms) $specsPills[] = $bedrooms . ' Bed' . ($bedrooms > 1 ? 's' : '');
+            if ($bathrooms) $specsPills[] = $bathrooms . ' Bath' . ($bathrooms > 1 ? 's' : '');
+            if ($fuel) $specsPills[] = ucfirst($fuel);
+            if ($transmission) $specsPills[] = ucfirst($transmission);
+            if ($jobType) $specsPills[] = ucfirst($jobType);
+            if ($workSetup) $specsPills[] = ucfirst($workSetup);
+            if (empty($specsPills) && $listing->condition) {
+                $specsPills[] = ucwords(str_replace('_', ' ', $listing->condition));
+            }
+            if (empty($specsPills)) {
+                $specsPills[] = $subCategoryName;
+            }
+
+            // Gallery images
+            $gallery = $listing->images->pluck('image_path')->filter()->values()->toArray();
+            if (empty($gallery) && $listing->primaryImage?->image_path) {
+                $gallery = [$listing->primaryImage->image_path];
+            }
+            $primaryImg = $listing->primaryImage->image_path ?? ($gallery[0] ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80');
+
             return [
                 'id' => $listing->id,
                 'title' => $listing->title,
                 'slug' => $listing->slug,
                 'city' => $listing->city,
                 'province' => $listing->province,
-                'category' => $listing->category->slug ?? 'category',
-                'category_name' => $listing->category->name ?? 'Category',
-                'subcategory' => $listing->category->slug ?? 'subcategory',
-                'subcategory_name' => $listing->category->name ?? 'Subcategory',
+                'category' => $rootCategorySlug,
+                'category_name' => $rootCategoryName,
+                'subcategory' => $subCategorySlug,
+                'subcategory_name' => $subCategoryName,
                 'price' => (float) $listing->price,
                 'price_formatted' => '$' . number_format($listing->price, 2),
                 'price_type' => $listing->price_type,
@@ -627,26 +732,34 @@ class ListingController extends Controller
                 'posted_date' => $listing->created_at->format('F j, Y'),
                 'condition' => $listing->condition,
                 'condition_label' => $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : '',
-                'delivery' => 'pickup',
-                'seller_type' => 'private',
-                'seller_type_label' => 'Private Seller',
+                'delivery' => $listing->condition ? 'both' : 'pickup',
+                'seller_type' => $sellerType,
+                'seller_type_label' => $sellerTypeLabel,
                 'badge' => $listing->is_sponsored ? 'SPONSORED' : ($listing->is_featured ? 'FEATURED' : ($listing->views_count > 400 ? 'TRENDING' : null)),
                 'badge_type' => $listing->is_sponsored ? 'sponsored' : ($listing->is_featured ? 'featured' : ($listing->views_count > 400 ? 'trending' : null)),
                 'can_buy_now' => false,
                 'views_count' => $listing->views_count,
-                'photos_count' => $listing->images()->count() ?: 1,
-                'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
-                'gallery' => [
-                    $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80'
-                ],
+                'photos_count' => count($gallery) ?: 1,
+                'image' => $primaryImg,
+                'gallery' => $gallery,
                 'description' => $listing->description,
-                'attributes' => [
-                    'Condition' => $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : 'N/A',
-                ],
-                'specs_pills' => [$listing->category->name ?? ''],
+                'attributes' => $rawAttrs,
+                'specs_pills' => $specsPills,
+                'bedrooms' => $bedrooms,
+                'bathrooms' => $bathrooms,
+                'furnished' => $furnished,
+                'parking' => $parking,
+                'pet_friendly' => $petFriendly,
+                'utilities_included' => $utilitiesIncluded,
+                'lease_term' => $leaseTerm,
+                'property_type' => $propType,
+                'fuel' => $fuel,
+                'transmission' => $transmission,
+                'job_type' => $jobType,
+                'work_setup' => $workSetup,
                 'seller' => [
                     'name' => $listing->user->name ?? 'User',
-                    'type' => 'Private Seller',
+                    'type' => $sellerTypeLabel,
                     'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($listing->user->name ?? 'U'),
                     'rating' => 5.0,
                     'reviews_count' => rand(0, 10),
