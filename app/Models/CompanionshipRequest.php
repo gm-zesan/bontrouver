@@ -16,13 +16,18 @@ class CompanionshipRequest extends Model
         'location_name',
         'city',
         'province',
+        'latitude',
+        'longitude',
         'headcount_limit',
+        'expense_type',
         'status',
     ];
 
     protected $casts = [
         'meetup_date_time' => 'datetime',
         'headcount_limit' => 'integer',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function user()

@@ -1,10 +1,19 @@
-@extends('frontend.account.layout', [
-    'title' => 'My Profile & Public Identity | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'View your verified member status, marketplace activity, buyer reviews and active listings.',
+@php
+    $isOwnProfile = Auth::check() && Auth::id() === $user->id;
+    $layout = $isOwnProfile ? 'frontend.account.layout' : 'frontend.layouts.app';
+    $sectionName = $isOwnProfile ? 'account_content' : 'content';
+@endphp
+
+@extends($layout, [
+    'title' => ($user->name ?? 'User Profile') . ' | Bontrouver Canadian Classifieds',
+    'metaDescription' => 'View verified member status, marketplace activity, buyer reviews and active listings.',
     'activeNav' => 'profile'
 ])
 
-@section('account_content')
+@section($sectionName)
+    @if(!$isOwnProfile)
+        <div class="container py-4 py-lg-5">
+    @endif
     <!-- 1. Profile Header Hero Banner Card -->
     <div class="dark-surface-card p-4 p-md-4 mb-4 position-relative overflow-hidden"
         style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
@@ -13,14 +22,14 @@
             <div class="d-flex align-items-center gap-3 gap-md-4 min-w-0">
                 <!-- Large Avatar -->
                 <div class="position-relative flex-shrink-0">
-                    @if(Auth::user()->avatar ?? false)
-                        <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}"
+                    @if($user->avatar ?? false)
+                        <img src="{{ $user->avatar }}" alt="{{ $user->name }}"
                             class="rounded-circle object-fit-cover shadow"
                             style="width: 88px; height: 88px; border: 3px solid #49D17D;">
                     @else
                         <div class="rounded-circle shadow d-flex align-items-center justify-content-center text-dark fw-bold fs-3"
                             style="width: 88px; height: 88px; background: #49D17D;">
-                            {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                            {{ substr($user->name ?? 'U', 0, 1) }}
                         </div>
                     @endif
                     <span
@@ -33,12 +42,12 @@
                 <!-- Name, Meta & Ratings -->
                 <div class="min-w-0">
                     <h1 class="h4 fw-bold text-white mb-1 text-truncate">
-                        {{ Auth::user()->name ?? 'Sarah Tremblay (TechVault)' }}
+                        {{ $user->name ?? 'Sarah Tremblay (TechVault)' }}
                     </h1>
                     <div class="d-flex align-items-center gap-2 text-secondary small mb-2 flex-wrap"
                         style="font-size: 0.82rem;">
                         <span><i
-                                class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?? 'Montreal, QC • Plateau-Mont-Royal' }}</span>
+                                class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $user->location ?? 'Montreal, QC • Plateau-Mont-Royal' }}</span>
                         <span>•</span>
                         <span><i class="bi bi-calendar-check me-1"></i>Member since 2024</span>
                     </div>
@@ -54,6 +63,7 @@
             </div>
 
             <!-- Action Buttons -->
+            @if(Auth::id() == $user->id)
             <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <a href="{{ url('/settings') }}" class="btn-theme-outline-primary">
                     <i class="bi bi-pencil-square"></i>
@@ -64,6 +74,7 @@
                     <span>Post an Ad</span>
                 </a>
             </div>
+            @endif
         </div>
 
         <!-- Short Bio / About Section -->
@@ -71,7 +82,7 @@
             <h6 class="text-white fw-bold small text-uppercase mb-2" style="letter-spacing: 0.05em; font-size: 0.78rem;">
                 About Me</h6>
             <p class="text-secondary small mb-0" style="line-height: 1.6; font-size: 0.88rem;">
-                {{ Auth::user()->bio ?? 'Verified seller and active buyer based in Montreal and Toronto. Specializing in certified pre-owned tech, electronics, and quality home items. Always open to reasonable offers and safe local meetups.' }}
+                {{ $user->bio ?? 'Verified seller and active buyer based in Montreal and Toronto. Specializing in certified pre-owned tech, electronics, and quality home items. Always open to reasonable offers and safe local meetups.' }}
             </p>
         </div>
 
@@ -175,4 +186,37 @@
             @endforeach
         </div>
     </div>
+    
+    <!-- 5. Hosted Community Meetups -->
+    @if(isset($hostedMeetups) && $hostedMeetups->count() > 0)
+    <div class="mt-4 dark-surface-card p-4 rounded-3" style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h2 class="h5 fw-bold text-white mb-0">Community Meetups Hosted</h2>
+        </div>
+        <div class="row g-3">
+            @foreach($hostedMeetups as $meetup)
+            <div class="col-12 col-md-6 col-lg-4">
+                <a href="{{ route('community.show', $meetup->id) }}" class="text-decoration-none">
+                    <div class="card h-100 text-white hover-lift" style="background: #081D33; border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.2s;">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-success bg-opacity-25 text-success">{{ $meetup->category }}</span>
+                                <span class="small text-secondary"><i class="bi bi-geo-alt-fill me-1"></i>{{ $meetup->cityRelation->name ?? 'Local' }}</span>
+                            </div>
+                            <h6 class="fw-bold mb-1">{{ $meetup->title }}</h6>
+                            <p class="small text-secondary mb-2"><i class="bi bi-calendar-event me-1"></i>{{ \Carbon\Carbon::parse($meetup->meetup_date_time)->format('M d, Y - h:i A') }}</p>
+                            <div class="d-flex align-items-center mt-3 pt-2 border-top border-secondary border-opacity-25">
+                                <span class="small text-secondary">{{ $meetup->attendees->where('status', 'approved')->count() }}/{{ $meetup->max_attendees }} Attendees</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+    @if(!$isOwnProfile)
+        </div>
+    @endif
 @endsection

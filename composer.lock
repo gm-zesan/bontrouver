@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba89a8fff7eba08e0343bb81e9b69f28",
+    "content-hash": "ffbba8d58f8b8d737e36514f9f92814f",
     "packages": [
         {
             "name": "brick/math",
@@ -1058,6 +1058,80 @@
                 }
             ],
             "time": "2026-08-24T17:13:02+00:00"
+        },
+        {
+            "name": "jeremykenedy/laravel-toast",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jeremykenedy/laravel-toast.git",
+                "reference": "122baa6ab80824c2000473264999d68ba6c110bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jeremykenedy/laravel-toast/zipball/122baa6ab80824c2000473264999d68ba6c110bc",
+                "reference": "122baa6ab80824c2000473264999d68ba6c110bc",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/view": "^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "livewire/livewire": "^3.0|^4.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+                "pestphp/pest": "^2.0|^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0|^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Toast": "Jeremykenedy\\LaravelToast\\Facades\\Toast"
+                    },
+                    "providers": [
+                        "Jeremykenedy\\LaravelToast\\Providers\\ToastServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Jeremykenedy\\LaravelToast\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeremy Kenedy",
+                    "email": "jeremykenedy@gmail.com"
+                }
+            ],
+            "description": "Multi-framework toast notifications for Laravel with Tailwind, Bootstrap 5, Bootstrap 4, Blade, Livewire, Vue, React, and Svelte support.",
+            "keywords": [
+                "bootstrap",
+                "flash",
+                "laravel",
+                "livewire",
+                "notifications",
+                "react",
+                "svelte",
+                "tailwind",
+                "toast",
+                "vue"
+            ],
+            "support": {
+                "issues": "https://github.com/jeremykenedy/laravel-toast/issues",
+                "source": "https://github.com/jeremykenedy/laravel-toast/tree/v2.0.0"
+            },
+            "time": "2026-09-11T09:38:26+00:00"
         },
         {
             "name": "laravel/framework",

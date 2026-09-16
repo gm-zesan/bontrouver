@@ -341,12 +341,13 @@
                 <div class="row g-3 g-xl-4">
                     @foreach($companionshipRequests as $req)
                         <div class="col-xl-3 col-lg-3 col-md-6 col-12">
-                            <div class="companionship-card">
-                                <div>
-                                    <span class="companionship-type-badge">{{ $req['type'] }}</span>
-                                    <h3 class="companionship-title">{{ $req['title'] }}</h3>
-                                    <p class="companionship-desc">{{ $req['description'] }}</p>
-                                </div>
+                            <a href="{{ route('community.show', $req['id']) }}" class="text-decoration-none text-reset">
+                                <div class="companionship-card h-100">
+                                    <div>
+                                        <span class="companionship-type-badge">{{ $req['type'] }}</span>
+                                        <h3 class="companionship-title">{{ $req['title'] }}</h3>
+                                        <p class="companionship-desc">{{ $req['description'] }}</p>
+                                    </div>
 
                                 <div>
                                     <div class="companionship-meta-item">
@@ -374,6 +375,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </a>
                         </div>
                     @endforeach
                 </div>

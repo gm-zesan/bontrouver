@@ -90,6 +90,12 @@
                 @endif
             </a>
 
+            <a href="{{ route('meetups.my') }}"
+                class="account-dark-nav-item {{ $currentRoute === 'meetups' ? 'active' : '' }}">
+                <i class="bi bi-people-fill"></i>
+                <span class="flex-grow-1">Community Meetups</span>
+            </a>
+
             <a href="{{ url('/settings') }}"
                 class="account-dark-nav-item {{ $currentRoute === 'settings' ? 'active' : '' }}">
                 <i class="bi bi-gear-fill"></i>

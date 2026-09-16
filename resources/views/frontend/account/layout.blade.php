@@ -10,7 +10,8 @@
         request()->routeIs('favorites*') ? 'favorites' : (
         request()->routeIs('messages*') ? 'messages' : (
         request()->routeIs('notifications*') ? 'notifications' : (
-        request()->routeIs('settings*') ? 'settings' : 'profile')))))
+        request()->routeIs('settings*') ? 'settings' : (
+        request()->routeIs('meetups*') ? 'meetups' : 'profile'))))))
     );
     $stats = $stats ?? [];
 @endphp
@@ -63,6 +64,11 @@
                     <li class="nav-item">
                         <a href="{{ url('/settings') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'settings' ? 'active' : '' }}">
                             <i class="bi bi-gear-fill me-1"></i> Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('meetups.my') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'meetups' ? 'active' : '' }}">
+                            <i class="bi bi-people-fill me-1"></i> Community Meetups
                         </a>
                     </li>
                 </ul>

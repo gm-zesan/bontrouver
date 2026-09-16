@@ -22,7 +22,10 @@ return new class extends Migration
             $table->string('location_name');
             $table->string('city')->nullable();
             $table->string('province')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
             $table->integer('headcount_limit')->nullable();
+            $table->string('expense_type', 50)->default('free'); // free, split, host_pays
             $table->string('status', 50)->default('open'); // open, full, cancelled, completed
             $table->timestamps();
         });

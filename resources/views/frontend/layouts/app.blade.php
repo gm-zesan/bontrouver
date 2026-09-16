@@ -24,13 +24,13 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : time() }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ file_exists(public_path('css/responsive.css')) ? filemtime(public_path('css/responsive.css')) : time() }}">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <!-- Header Partial -->
     @include('frontend.partials.header')
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-grow-1">
         @yield('content')
     </main>
 
@@ -50,5 +50,13 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     @stack('scripts')
+    @if ($errors->any())
+        @php
+            foreach ($errors->all() as $error) {
+                toast($error, 'error');
+            }
+        @endphp
+    @endif
+    @toasts
 </body>
 </html>

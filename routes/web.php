@@ -6,6 +6,8 @@ use App\Http\Controllers\SellerDashboardController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\StaticPageController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -17,8 +19,14 @@ Route::get('/listing/{idOrSlug}', [ListingController::class, 'show'])->name('lis
 Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->name('search.suggestions');
 
 // Community Hub & Meetups
-Route::get('/community', [\App\Http\Controllers\StaticPageController::class, 'communityConnect'])->name('pages.community');
+Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+Route::get('/community/meetup/{id}', [CommunityController::class, 'show'])->name('community.show');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
+    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+    Route::post('/community/meetup/{id}/join', [CommunityController::class, 'requestToJoin'])->name('community.join');
+});
 // Location Switcher & Auto-Detect API
 Route::post('/api/location/set', [HomeController::class, 'setLocation'])->name('location.set');
 Route::post('/api/location/detect', [HomeController::class, 'detectLocation'])->name('location.detect');
@@ -60,6 +68,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [SellerDashboardController::class, 'settings'])->name('settings.index');
     Route::post('/settings', [SellerDashboardController::class, 'updateSettings'])->name('settings.update');
 
+    // 6. Community Meetups Management
+    Route::get('/my-meetups', [SellerDashboardController::class, 'myMeetups'])->name('meetups.my');
+    Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [SellerDashboardController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
+
     // Breeze Profile edit routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -67,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Static Marketplace Info & Footer Pages
-Route::controller(\App\Http\Controllers\StaticPageController::class)->group(function () {
+Route::controller(StaticPageController::class)->group(function () {
     Route::get('/about', 'about')->name('pages.about');
     Route::get('/member-benefits', 'memberBenefits')->name('pages.member-benefits');
     Route::get('/terms', 'terms')->name('pages.terms');

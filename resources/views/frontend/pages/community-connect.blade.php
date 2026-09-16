@@ -12,12 +12,11 @@
             Empowering Canadian neighborhoods through designated safe meetup zones, circular economy giving, local community programs, and mutual aid.
         </p>
         <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap mt-3">
-            <a href="{{ url('/security') }}" class="hero-btn-primary">
-                <span>View Safety Tips</span>
-                <i class="bi bi-shield-check"></i>
+            <a href="{{ route('community.index') }}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm" style="background-color: var(--theme-color); border: none;">
+                <i class="bi bi-calendar-event me-2"></i> Join a Meetup
             </a>
-            <a href="{{ url('/about') }}" class="btn-theme-outline-secondary">
-                <span>About Bontrouver</span>
+            <a href="{{ url('/security') }}" class="btn btn-outline-dark btn-lg rounded-pill px-4">
+                <span>View Safety Tips</span>
             </a>
         </div>
     </div>
