@@ -13,6 +13,7 @@ enum CompanionshipType: string
     case GAMING = '🎮 Board Games & Gaming';
     case OUTING = '🌆 Outings & Nightlife';
     case MEET_PEOPLE = '🗣️ Meet New People';
+    case ENTREPRENEUR = '💼 Business & Entrepreneurs';
 
     public static function values(): array
     {

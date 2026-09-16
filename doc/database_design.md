@@ -282,7 +282,7 @@ Dynamic filters for Smart Alerts (e.g., Alert me when 'Make' = 'Honda').
 Social meetups.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `user_id` (FK -> users.id, CASCADE DELETE)
-- `type` (VARCHAR 50) - e.g., 'coffee', 'walking', 'dining', 'cinema', 'match', 'sports', 'gaming', 'outing', 'meet_people'
+- `type` (VARCHAR 50) - e.g., 'coffee', 'walking', 'dining', 'cinema', 'match', 'sports', 'gaming', 'outing', 'meet_people', 'entrepreneur'
 - `title` (VARCHAR 255)
 - `description` (TEXT)
 - `meetup_date_time` (TIMESTAMP)
@@ -291,6 +291,9 @@ Social meetups.
 - `city` (VARCHAR 255, NULLABLE)
 - `province` (VARCHAR 255, NULLABLE)
 - `headcount_limit` (INT, NULLABLE)
+- `expense_type` (VARCHAR 50) - e.g., 'aa', 'host_pays', 'guest_pays'
+- `latitude` (DECIMAL 10,8, NULLABLE)
+- `longitude` (DECIMAL 11,8, NULLABLE)
 - `status` (VARCHAR 50) - 'open', 'full', 'cancelled', 'completed'
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)

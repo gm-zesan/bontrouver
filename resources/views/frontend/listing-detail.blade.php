@@ -253,15 +253,16 @@
                                 </div>
 
                                 <!-- Stylized Map Canvas Container -->
-                                <div class="map-visual-placeholder">
-                                    <div class="map-grid-lines"></div>
-                                    <div class="map-radius-circle">
-                                        <div class="map-pin-center">
-                                            <i class="bi bi-geo-alt-fill"></i>
+                                <div class="rounded-4 overflow-hidden position-relative mt-3" style="height: 240px; background: #081D33; border: 1px solid rgba(255,255,255,0.1);">
+                                    <iframe src="https://maps.google.com/maps?q={{ urlencode($listing['city'] . ', ' . $listing['province'] . ', Canada') }}&t=&z=13&ie=UTF8&iwloc=&output=embed" class="w-100 h-100 opacity-75" style="border:0; pointer-events: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    <div class="position-absolute top-50 start-50 translate-middle">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 48px; height: 48px; border: 3px solid white;">
+                                            <i class="bi bi-geo-alt-fill fs-5"></i>
                                         </div>
-                                        <span class="map-radius-label">Approx. Location Area</span>
                                     </div>
-                                    <div class="map-watermark">Bontrouver Local Map</div>
+                                    <div class="position-absolute bottom-0 end-0 p-2 text-white-50 small" style="background: rgba(0,0,0,0.5); border-top-left-radius: 8px;">
+                                        Bontrouver Local Map
+                                    </div>
                                 </div>
                                 <div class="location-disclaimer mt-2 text-secondary small">
                                     <i class="bi bi-info-circle me-1"></i> To protect seller privacy, exact street addresses are
