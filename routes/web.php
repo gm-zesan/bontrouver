@@ -51,9 +51,11 @@ Route::middleware(['auth'])->group(function () {
     // 1. Favorites / Saved Ads
     Route::get('/favorites', [SellerDashboardController::class, 'favorites'])->name('favorites.index');
     Route::delete('/favorites/{id}', [SellerDashboardController::class, 'removeFavorite'])->name('favorites.destroy');
+    Route::post('/favorites/toggle', [SellerDashboardController::class, 'toggleFavorite'])->name('favorites.toggle');
 
     // 2. Messages / Inbox Conversations
     Route::get('/messages', [SellerDashboardController::class, 'messages'])->name('messages.index');
+    Route::post('/messages/initiate', [SellerDashboardController::class, 'initiateMessage'])->name('messages.initiate');
     Route::post('/messages/{conversationId}/reply', [SellerDashboardController::class, 'sendMessage'])->name('messages.send');
 
     // 3. Notifications Center

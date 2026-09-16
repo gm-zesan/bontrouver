@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Services\CategoryService;
+use App\Services\MessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CompanionshipRequest;
 use App\Models\CompanionshipAttendee;
+use App\Models\Favorite;
 
 class SellerDashboardController extends Controller
 {
@@ -146,7 +148,8 @@ class SellerDashboardController extends Controller
 
         $allFavorites = $dbFavorites->map(function ($fav) {
             $listing = $fav->listing;
-            if (!$listing) return null;
+            if (!$listing)
+                return null;
             return [
                 'id' => $listing->id,
                 'title' => $listing->title,
@@ -184,10 +187,51 @@ class SellerDashboardController extends Controller
      */
     public function removeFavorite(Request $request, $id)
     {
+        $user = Auth::user();
+        Favorite::where('user_id', $user->id)
+            ->where('listing_id', $id)
+            ->delete();
+
         return response()->json([
             'success' => true,
             'id' => (int) $id,
             'message' => 'Listing removed from your favorites.'
+        ]);
+    }
+
+    /**
+     * Toggle item in Favorites.
+     */
+    public function toggleFavorite(Request $request)
+    {
+        $request->validate([
+            'listing_id' => 'required|integer|exists:listings,id'
+        ]);
+
+        $user = Auth::user();
+        $listingId = $request->input('listing_id');
+
+        $favorite = Favorite::where('user_id', $user->id)
+            ->where('listing_id', $listingId)
+            ->first();
+
+        if ($favorite) {
+            $favorite->delete();
+            $status = 'removed';
+            $message = 'Listing removed from saved items.';
+        } else {
+            Favorite::create([
+                'user_id' => $user->id,
+                'listing_id' => $listingId
+            ]);
+            $status = 'added';
+            $message = 'Listing saved to your favorites!';
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $status,
+            'message' => $message
         ]);
     }
 
@@ -197,19 +241,26 @@ class SellerDashboardController extends Controller
     public function messages(Request $request)
     {
         $user = Auth::user();
-        $categories = CategoryService::getAll();
 
+        // Handle starting a new conversation
+        if ($request->query('c') === 'new' && $request->has('user')) {
+            $sellerId = (int) $request->query('user');
+            if ($sellerId !== $user->id) {
+                $listingId = $request->query('listing') ? (int) $request->query('listing') : null;
+                $newConv = MessageService::getOrCreateConversation($user->id, $sellerId, $listingId);
+                return redirect()->route('messages.index', ['c' => $newConv->id]);
+            }
+        }
+
+        $categories = CategoryService::getAll();
         $stats = $this->getDashboardStats($user);
 
-        $dbConversations = \App\Models\Conversation::with(['buyer', 'seller', 'listing.primaryImage', 'messages'])
-            ->where('buyer_id', $user->id)
-            ->orWhere('seller_id', $user->id)
-            ->get();
+        $dbConversations = MessageService::getUserConversations($user->id);
 
         $conversations = $dbConversations->map(function ($conv) use ($user) {
             $otherUser = $conv->buyer_id == $user->id ? $conv->seller : $conv->buyer;
             $listing = $conv->listing;
-            
+
             $lastMessage = $conv->messages->last();
             $unreadCount = $conv->messages->where('sender_id', '!=', $user->id)->whereNull('read_at')->count();
 
@@ -248,6 +299,19 @@ class SellerDashboardController extends Controller
         $activeConversationId = (int) $request->query('c', $conversations[0]['id'] ?? 0);
         $activeConversation = collect($conversations)->firstWhere('id', $activeConversationId) ?? ($conversations[0] ?? null);
 
+        if ($activeConversation) {
+            MessageService::markAsRead($activeConversation['id'], $user->id);
+            // reset unread in UI data since we just read it
+            $activeConversation['unread'] = false;
+            $activeConversation['unread_count'] = 0;
+            // modify original collection item so it reflects in the sidebar list too
+            $key = collect($conversations)->search(fn($c) => $c['id'] == $activeConversation['id']);
+            if ($key !== false) {
+                $conversations[$key]['unread'] = false;
+                $conversations[$key]['unread_count'] = 0;
+            }
+        }
+
         return view('frontend.account.messages', [
             'user' => $user,
             'categories' => $categories,
@@ -267,14 +331,47 @@ class SellerDashboardController extends Controller
             return response()->json(['success' => false, 'message' => 'Message cannot be empty.'], 422);
         }
 
+        $user = Auth::user();
+
+        $msg = MessageService::sendMessage($conversationId, $user->id, $text);
+
         return response()->json([
             'success' => true,
             'message' => [
-                'id' => time(),
+                'id' => $msg->id,
                 'sender' => 'me',
-                'text' => e($text),
-                'time' => 'Just now',
+                'text' => e($msg->body),
+                'time' => $msg->created_at->format('M d, g:i A'),
             ]
+        ]);
+    }
+
+    /**
+     * Initiate a new conversation and send the first message.
+     */
+    public function initiateMessage(Request $request)
+    {
+        $request->validate([
+            'seller_id' => 'required|integer',
+            'listing_id' => 'nullable|integer',
+            'message' => 'required|string|max:1000'
+        ]);
+
+        $user = Auth::user();
+        $sellerId = $request->input('seller_id');
+        $listingId = $request->input('listing_id');
+        $text = $request->input('message');
+
+        if ($sellerId === $user->id) {
+            return response()->json(['success' => false, 'message' => 'You cannot message yourself.'], 422);
+        }
+
+        $conv = MessageService::getOrCreateConversation($user->id, $sellerId, $listingId);
+        MessageService::sendMessage($conv->id, $user->id, $text);
+
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('messages.index', ['c' => $conv->id])
         ]);
     }
 
@@ -436,7 +533,7 @@ class SellerDashboardController extends Controller
             ->get();
 
         $joinedMeetups = CompanionshipRequest::with(['cityRelation', 'user'])
-            ->whereHas('attendees', function($query) use ($user) {
+            ->whereHas('attendees', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
             ->orderBy('meetup_date_time', 'desc')
@@ -453,7 +550,7 @@ class SellerDashboardController extends Controller
         try {
             $meetup = CompanionshipRequest::where('user_id', auth()->id())->findOrFail($meetupId);
             $attendee = CompanionshipAttendee::where('companionship_request_id', $meetupId)->findOrFail($attendeeId);
-            
+
             $status = $request->input('status');
             $service->updateAttendeeStatus($meetup, $attendee, $status);
 

@@ -37,7 +37,7 @@
     <!-- Site Footer Partial -->
     @include('frontend.partials.footer')
 
-    <!-- Kijiji-style Category & Subcategory Drawer -->
+    <!-- Category & Subcategory Drawer -->
     @include('frontend.partials.category-drawer')
 
     <!-- Auth Login Modal for Guest Users -->
@@ -46,8 +46,60 @@
     <!-- Bootstrap 5.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     
+    @vite(['resources/js/app.js'])
+
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- Global Favorites Toggle (used by x-listing-card component on all pages) -->
+    <script>
+    function toggleListingFavorite(btn, event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        const listingId = btn ? btn.getAttribute('data-listing-id') : null;
+        if (!listingId) return;
+
+        @auth
+        if (btn) btn.disabled = true;
+
+        fetch('{{ route('favorites.toggle') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ listing_id: parseInt(listingId) })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const outline = btn.querySelector('.heart-outline');
+                const filled  = btn.querySelector('.heart-filled');
+                if (data.status === 'added') {
+                    btn.classList.add('active');
+                    if (outline) outline.style.display = 'none';
+                    if (filled)  filled.style.display  = 'inline-block';
+                } else {
+                    btn.classList.remove('active');
+                    if (outline) outline.style.display = 'inline-block';
+                    if (filled)  filled.style.display  = 'none';
+                }
+            }
+        })
+        .catch(() => {})
+        .finally(() => { if (btn) btn.disabled = false; });
+        @else
+        // Guest — open auth modal
+        const modal = document.getElementById('authRequiredModal');
+        if (modal && typeof bootstrap !== 'undefined') {
+            new bootstrap.Modal(modal).show();
+        }
+        @endauth
+    }
+    </script>
 
     @stack('scripts')
     @if ($errors->any())

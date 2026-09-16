@@ -20,384 +20,317 @@ class HomeController extends Controller
         return City::getCitiesMap();
     }
 
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\View\View
     {
-        // 1. Location Personalization (Query > Cookie > Session)
-        $selectedCity = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
-        $locationName = $selectedCity ? ucfirst(strtolower($selectedCity)) : 'Canada';
+        $selectedCity  = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
+        $locationName  = $selectedCity ? ucfirst(strtolower($selectedCity)) : 'Canada';
 
-        // 2. Sponsored Hero Carousel Ads (Filtered by city if selected, otherwise nationwide sponsored)
-        $heroQuery = Listing::with(['category', 'primaryImage'])
-            ->where('status', 'active');
+        $trendingListings      = $this->getTrendingListings($selectedCity);
+        $featuredListings      = $this->getFeaturedListings($selectedCity);
+        $featuredAds           = $this->getHeroAds($selectedCity);
+        $locations             = $this->getBrowseLocations($selectedCity);
+        $companionshipRequests = $this->getCompanionshipRequests($selectedCity);
+        $spotlights            = $this->getCategorySpotlights($trendingListings, $featuredAds, $featuredListings);
+        $availableCities       = $this->getAvailableCities();
+        $userFavoriteIds       = $this->getUserFavoriteIds();
 
-        if ($selectedCity) {
-            $heroQuery->where('city', 'like', "%{$selectedCity}%");
+        return view('frontend.index', array_merge($spotlights, compact(
+            'featuredAds',
+            'trendingListings',
+            'featuredListings',
+            'locations',
+            'companionshipRequests',
+            'locationName',
+            'selectedCity',
+            'availableCities',
+            'userFavoriteIds'
+        )));
+    }
+
+    // ─── Private Helpers ───────────────────────────────────────────────────────
+
+    private function getHeroAds(?string $city): \Illuminate\Support\Collection
+    {
+        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active');
+        if ($city) {
+            $base->where('city', 'like', "%{$city}%");
         }
 
-        $heroModels = (clone $heroQuery)
-            ->where('is_sponsored', true)
-            ->orderByDesc('views_count')
-            ->limit(4)
-            ->get();
+        $models = (clone $base)->where('is_sponsored', true)->orderByDesc('views_count')->limit(4)->get();
 
-        if ($heroModels->isEmpty()) {
-            $heroModels = (clone $heroQuery)
-                ->orderByDesc('views_count')
-                ->limit(4)
-                ->get();
+        if ($models->isEmpty()) {
+            $models = (clone $base)->orderByDesc('views_count')->limit(4)->get();
+        }
+        if ($models->isEmpty()) {
+            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByDesc('views_count')->limit(4)->get();
         }
 
-        // Fallback to nationwide if city has 0 listings
-        if ($heroModels->isEmpty()) {
-            $heroModels = Listing::with(['category', 'primaryImage'])
-                ->where('status', 'active')
-                ->orderByDesc('views_count')
-                ->limit(4)
-                ->get();
+        return $models->map(fn ($l) => [
+            'id'          => $l->id,
+            'title'       => $l->title,
+            'slug'        => $l->slug,
+            'specs'       => [$l->category->name ?? '', $l->condition ? ucwords(str_replace('_', ' ', $l->condition)) : '', $l->city],
+            'price'       => '$' . number_format($l->price, 2),
+            'currency'    => 'CAD',
+            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+            'description' => Str::limit($l->description, 150),
+            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+            'alt'         => $l->title,
+            'url'         => url('/listing/' . $l->slug),
+        ]);
+    }
+
+    private function getTrendingListings(?string $city): \Illuminate\Support\Collection
+    {
+        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active');
+        if ($city) {
+            $base->where('city', 'like', "%{$city}%");
         }
 
-        $featuredAds = $heroModels->map(function ($listing) {
-            return [
-                'id' => $listing->id,
-                'title' => $listing->title,
-                'slug' => $listing->slug,
-                'specs' => [
-                    $listing->category->name ?? '',
-                    $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : '',
-                    $listing->city
-                ],
-                'price' => '$' . number_format($listing->price, 2),
-                'currency' => 'CAD',
-                'location' => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
-                'description' => Str::limit($listing->description, 150),
-                'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
-                'alt' => $listing->title,
-                'url' => url('/listing/' . $listing->slug)
-            ];
-        });
+        $models = (clone $base)->orderByDesc('views_count')->limit(8)->get();
 
-        // 3. Trending Near You Section (Filtered by city if specified, ordered by views/engagement)
-        $trendingQuery = Listing::with(['category', 'primaryImage'])
-            ->where('status', 'active');
-
-        if ($selectedCity) {
-            $trendingQuery->where('city', 'like', "%{$selectedCity}%");
+        if ($models->isEmpty() && $city) {
+            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByDesc('views_count')->limit(8)->get();
         }
 
-        $trendingModels = (clone $trendingQuery)
-            ->orderByDesc('views_count')
-            ->limit(8)
-            ->get();
+        return $models->map(fn ($l) => [
+            'id'          => $l->id,
+            'slug'        => $l->slug,
+            'title'       => $l->title,
+            'price'       => '$' . number_format($l->price, 2),
+            'photos_count'=> $l->images()->count(),
+            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+            'posted_at'   => $l->created_at->diffForHumans(),
+            'category'    => $l->category->name ?? '',
+            'badge'       => $l->is_sponsored ? 'SPONSORED' : ($l->is_featured ? 'FEATURED' : ($l->views_count > 400 ? 'TRENDING' : null)),
+            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+            'alt'         => $l->title,
+            'url'         => url('/listing/' . $l->slug),
+        ]);
+    }
 
-        if ($trendingModels->isEmpty() && $selectedCity) {
-            $trendingModels = Listing::with(['category', 'primaryImage'])
-                ->where('status', 'active')
-                ->orderByDesc('views_count')
-                ->limit(8)
-                ->get();
+    private function getFeaturedListings(?string $city): \Illuminate\Support\Collection
+    {
+        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active')->where('is_featured', true);
+        if ($city) {
+            $base->where('city', 'like', "%{$city}%");
         }
 
-        $trendingListings = $trendingModels->map(function ($listing) {
-            return [
-                'id' => $listing->id,
-                'slug' => $listing->slug,
-                'title' => $listing->title,
-                'price' => '$' . number_format($listing->price, 2),
-                'photos_count' => $listing->images()->count(),
-                'location' => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
-                'posted_at' => $listing->created_at->diffForHumans(),
-                'category' => $listing->category->name ?? '',
-                'badge' => $listing->is_sponsored ? 'SPONSORED' : ($listing->is_featured ? 'FEATURED' : ($listing->views_count > 400 ? 'TRENDING' : null)),
-                'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
-                'alt' => $listing->title,
-                'url' => url('/listing/' . $listing->slug)
-            ];
-        });
+        $models = (clone $base)->orderByDesc('created_at')->limit(8)->get();
 
-        // 4. Featured Listings Section (Promoted Marketplace Inventory with is_featured = true)
-        $featuredQuery = Listing::with(['category', 'primaryImage'])
-            ->where('status', 'active')
-            ->where('is_featured', true);
-
-        if ($selectedCity) {
-            $featuredQuery->where('city', 'like', "%{$selectedCity}%");
+        if ($models->count() < 6) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->where('is_featured', true)->whereNotIn('id', $existingIds)->orderByDesc('created_at')->limit(8 - count($existingIds))->get();
+            $models      = $models->merge($supplement);
+        }
+        if ($models->count() < 4) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->whereNotIn('id', $existingIds)->orderByDesc('views_count')->limit(8 - count($existingIds))->get();
+            $models      = $models->merge($supplement);
         }
 
-        $featuredModels = (clone $featuredQuery)
-            ->orderByDesc('created_at')
-            ->limit(8)
-            ->get();
+        return $models->map(fn ($l) => [
+            'id'          => $l->id,
+            'slug'        => $l->slug,
+            'title'       => $l->title,
+            'price'       => '$' . number_format($l->price, 2),
+            'photos_count'=> $l->images()->count(),
+            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+            'posted_at'   => $l->created_at->diffForHumans(),
+            'category'    => $l->category->name ?? '',
+            'badge'       => 'FEATURED',
+            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+            'alt'         => $l->title,
+            'url'         => url('/listing/' . $l->slug),
+        ]);
+    }
 
-        // If local city has fewer than 6 featured listings, supplement with top nationwide featured listings
-        if ($featuredModels->count() < 6) {
-            $existingIds = $featuredModels->pluck('id')->toArray();
-            $nationwideFeatured = Listing::with(['category', 'primaryImage'])
-                ->where('status', 'active')
-                ->where('is_featured', true)
-                ->whereNotIn('id', $existingIds)
-                ->orderByDesc('created_at')
-                ->limit(8 - count($existingIds))
-                ->get();
-
-            $featuredModels = $featuredModels->merge($nationwideFeatured);
-        }
-
-        // If still fewer than 4, supplement with top active listings
-        if ($featuredModels->count() < 4) {
-            $existingIds = $featuredModels->pluck('id')->toArray();
-            $popularListings = Listing::with(['category', 'primaryImage'])
-                ->where('status', 'active')
-                ->whereNotIn('id', $existingIds)
-                ->orderByDesc('views_count')
-                ->limit(8 - count($existingIds))
-                ->get();
-
-            $featuredModels = $featuredModels->merge($popularListings);
-        }
-
-        $featuredListings = $featuredModels->map(function ($listing) {
-            return [
-                'id' => $listing->id,
-                'slug' => $listing->slug,
-                'title' => $listing->title,
-                'price' => '$' . number_format($listing->price, 2),
-                'photos_count' => $listing->images()->count(),
-                'location' => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
-                'posted_at' => $listing->created_at->diffForHumans(),
-                'category' => $listing->category->name ?? '',
-                'badge' => 'FEATURED',
-                'image' => $listing->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
-                'alt' => $listing->title,
-                'url' => url('/listing/' . $listing->slug)
-            ];
-        });
-
-        // 5. Browse Locations (Dynamic city listing counts from City model with active indicator)
-        $featuredCities = \App\Models\City::with('province')
-            ->withCount([
-                'listings' => function ($q) {
-                    $q->where('status', 'active');
-                }
-            ])
+    private function getBrowseLocations(?string $selectedCity): \Illuminate\Support\Collection
+    {
+        $cities = City::with('province')
+            ->withCount(['listings' => fn ($q) => $q->where('status', 'active')])
             ->where('is_featured', true)
             ->where('is_active', true)
             ->orderBy('sort_order')
             ->limit(8)
             ->get();
 
-        if ($featuredCities->isEmpty()) {
-            $featuredCities = \App\Models\City::with('province')
-                ->withCount([
-                    'listings' => function ($q) {
-                        $q->where('status', 'active');
-                    }
-                ])
+        if ($cities->isEmpty()) {
+            $cities = City::with('province')
+                ->withCount(['listings' => fn ($q) => $q->where('status', 'active')])
                 ->where('is_active', true)
                 ->orderByDesc('listings_count')
                 ->limit(8)
                 ->get();
         }
 
-        $locations = $featuredCities->map(function ($cityModel, $index) use ($selectedCity) {
-            return [
-                'id' => $cityModel->id,
-                'city' => $cityModel->name,
-                'province' => $cityModel->province?->name ?? 'Canada',
-                'province_code' => $cityModel->province?->code ?? 'CA',
-                'listings_count' => $cityModel->listings_count,
-                'slug' => $cityModel->slug,
-                'url' => url('/listings?city=' . urlencode($cityModel->name) . ($cityModel->province ? '&province=' . urlencode($cityModel->province->name) : '')),
-                'is_selected' => strtolower($cityModel->name) === strtolower($selectedCity ?? ''),
-            ];
-        });
+        return $cities->map(fn ($c) => [
+            'id'             => $c->id,
+            'city'           => $c->name,
+            'province'       => $c->province?->name ?? 'Canada',
+            'province_code'  => $c->province?->code ?? 'CA',
+            'listings_count' => $c->listings_count,
+            'slug'           => $c->slug,
+            'url'            => url('/listings?city=' . urlencode($c->name) . ($c->province ? '&province=' . urlencode($c->province->name) : '')),
+            'is_selected'    => strtolower($c->name) === strtolower($selectedCity ?? ''),
+        ]);
+    }
 
-        // 6. Community: Live 'Need Companionship' Meetups
-        $companionshipQuery = CompanionshipRequest::with(['user', 'attendees.user'])
-            ->where('status', 'open');
-
-        if ($selectedCity) {
-            $companionshipQuery->where('city', 'like', "%{$selectedCity}%");
+    private function getCompanionshipRequests(?string $city): \Illuminate\Support\Collection
+    {
+        $query = CompanionshipRequest::with(['user', 'attendees.user'])->where('status', 'open');
+        if ($city) {
+            $query->where('city', 'like', "%{$city}%");
         }
 
-        $companionshipModels = (clone $companionshipQuery)
-            ->orderBy('meetup_date_time')
-            ->limit(4)
-            ->get();
+        $models = (clone $query)->orderBy('meetup_date_time')->limit(4)->get();
 
-        if ($companionshipModels->isEmpty() && $selectedCity) {
-            $companionshipModels = CompanionshipRequest::with(['user', 'attendees.user'])
-                ->where('status', 'open')
-                ->orderBy('meetup_date_time')
-                ->limit(4)
-                ->get();
+        if ($models->isEmpty() && $city) {
+            $models = CompanionshipRequest::with(['user', 'attendees.user'])->where('status', 'open')->orderBy('meetup_date_time')->limit(4)->get();
         }
 
-        $companionshipRequests = $companionshipModels->map(function ($req) {
+        return $models->map(function ($req) {
             $approvedCount = $req->attendees->where('status', 'approved')->count();
-            $spotsLeft = $req->headcount_limit ? max(0, $req->headcount_limit - $approvedCount) : null;
-
+            $spotsLeft     = $req->headcount_limit ? max(0, $req->headcount_limit - $approvedCount) : null;
             return [
-                'id' => $req->id,
-                'type' => $req->type,
-                'title' => $req->title,
-                'description' => Str::limit($req->description, 120),
-                'meetup_time' => $req->meetup_date_time->format('M d, g:i A'),
-                'is_upcoming' => $req->meetup_date_time->isFuture(),
-                'location' => $req->city . ', ' . $req->province . ' • ' . $req->location_name,
+                'id'              => $req->id,
+                'type'            => $req->type,
+                'title'           => $req->title,
+                'description'     => Str::limit($req->description, 120),
+                'meetup_time'     => $req->meetup_date_time->format('M d, g:i A'),
+                'is_upcoming'     => $req->meetup_date_time->isFuture(),
+                'location'        => $req->city . ', ' . $req->province . ' • ' . $req->location_name,
                 'headcount_limit' => $req->headcount_limit,
-                'spots_left' => $spotsLeft,
-                'host_name' => $req->user->name ?? 'Community Member',
-                'host_avatar' => $req->user->avatar ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-                'host_points' => $req->user->community_points ?? 0,
-                'host_is_verified' => $req->user->is_verified ?? false,
+                'spots_left'      => $spotsLeft,
+                'host_name'       => $req->user->name ?? 'Community Member',
+                'host_avatar'     => $req->user->avatar ?? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+                'host_points'     => $req->user->community_points ?? 0,
+                'host_is_verified'=> $req->user->is_verified ?? false,
             ];
         });
+    }
 
-        // 7. Dynamic Category Spotlights (with live counts and price ranges)
+    private function getCategorySpotlights(\Illuminate\Support\Collection $trending, \Illuminate\Support\Collection $heroAds, \Illuminate\Support\Collection $featured): array
+    {
         $allCategories = CategoryService::getAll();
 
-        // Housing Spotlight
-        $housingCat = $allCategories['housing'] ?? $allCategories['real-estate'] ?? null;
-        $housingCount = $housingCat ? Listing::where('category_id', $housingCat['id'])->where('status', 'active')->count() : 0;
-        $housingMinPrice = $housingCat ? Listing::where('category_id', $housingCat['id'])->where('status', 'active')->min('price') : 950;
-        $housingLatest = $housingCat ? Listing::with('primaryImage')->where('category_id', $housingCat['id'])->where('status', 'active')->latest()->first() : null;
-        $housingImage = $housingLatest?->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85';
+        $housing    = $this->buildCategorySpotlight($allCategories, ['housing', 'real-estate'], [
+            'heading'     => 'Find a place that feels like home.',
+            'description' => 'Explore apartments, condos, detached homes & room rentals across top Canadian cities.',
+            'cta_text'    => 'Explore Housing',
+            'default_tag' => ['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/category/housing')],
+            'icon'        => 'bi-house',
+            'default_image' => 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',
+        ]);
 
-        $housingTags = [];
-        if ($housingCat) {
-            foreach (array_slice($housingCat['children'] ?? [], 0, 4) as $child) {
-                $housingTags[] = [
-                    'label' => $child['name'],
-                    'icon' => $child['icon'] ?? 'bi-house',
-                    'url' => url('/category/' . $housingCat['slug'] . '?sub=' . $child['slug'])
-                ];
-            }
+        $jobs = $this->buildCategorySpotlight($allCategories, ['jobs'], [
+            'heading'     => 'Find your next opportunity.',
+            'description' => 'Connect directly with verified Canadian employers hiring across high-demand industries.',
+            'cta_text'    => 'Explore Jobs',
+            'default_tag' => ['label' => 'Remote Roles', 'icon' => 'bi-laptop', 'url' => url('/category/jobs')],
+            'icon'        => 'bi-briefcase',
+            'badge_suffix'=> '+ Openings',
+            'badge_fallback' => 'Verified Employers',
+        ]);
+
+        $classifieds = $this->buildClassifiedsSpotlight($allCategories);
+
+        $whyUsListing   = $trending->first() ?? $heroAds->first() ?? ['title' => 'iPhone 16 Pro (256GB)', 'price' => '$1,299.00', 'location' => 'Toronto, ON • 2.4 km away', 'image' => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80', 'url' => url('/listings')];
+        $sellerCtaListing = $featured->first() ?? $trending->last() ?? ['title' => 'Solid Oak Dining Table with 4 Chairs', 'price' => '$450.00 CAD', 'location' => 'Montreal, QC • Le Plateau', 'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80', 'url' => url('/post-ad')];
+
+        return compact('housing', 'jobs', 'classifieds', 'whyUsListing', 'sellerCtaListing');
+    }
+
+    private function buildCategorySpotlight(array $allCategories, array $slugKeys, array $opts): array
+    {
+        $cat = null;
+        foreach ($slugKeys as $key) {
+            $cat = $allCategories[$key] ?? null;
+            if ($cat) break;
         }
-        $housing = [
-            'category' => mb_strtoupper($housingCat['name'] ?? 'HOUSING & RENTALS'),
-            'heading' => 'Find a place that feels like home.',
-            'description' => $housingCat['description'] ?? 'Explore apartments, condos, detached homes & room rentals across top Canadian cities.',
-            'tags' => !empty($housingTags) ? $housingTags : [['label' => 'Apartments', 'icon' => 'bi-building', 'url' => url('/category/housing')]],
-            'cta_text' => 'Explore Housing',
-            'url' => url('/category/' . ($housingCat['slug'] ?? 'housing')),
-            'image' => $housingImage,
-            'alt' => 'Canadian home and rental properties',
-            'badge' => ($housingCount > 0 ? "{$housingCount}+ Available" : "Verified Listings") . ($housingMinPrice ? " • From $" . number_format($housingMinPrice, 0) : "")
-        ];
 
-        // Jobs Spotlight
-        $jobsCat = $allCategories['jobs'] ?? null;
-        $jobsCount = $jobsCat ? Listing::where('category_id', $jobsCat['id'])->where('status', 'active')->count() : 0;
-        $jobsTags = [];
-        if ($jobsCat) {
-            foreach (array_slice($jobsCat['children'] ?? [], 0, 4) as $child) {
-                $jobsTags[] = [
-                    'label' => $child['name'],
-                    'icon' => $child['icon'] ?? 'bi-briefcase',
-                    'url' => url('/category/' . $jobsCat['slug'] . '?sub=' . $child['slug'])
-                ];
-            }
+        $count    = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->count() : 0;
+        $minPrice = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->min('price') : null;
+        $latest   = $cat ? Listing::with('primaryImage')->where('category_id', $cat['id'])->where('status', 'active')->latest()->first() : null;
+        $image    = $latest?->primaryImage?->image_path ?? ($opts['default_image'] ?? null);
+
+        $tags = [];
+        foreach (array_slice($cat['children'] ?? [], 0, 4) as $child) {
+            $tags[] = ['label' => $child['name'], 'icon' => $child['icon'] ?? ($opts['icon'] ?? 'bi-tag'), 'url' => url('/category/' . $cat['slug'] . '?sub=' . $child['slug'])];
         }
-        $jobs = [
-            'category' => mb_strtoupper($jobsCat['name'] ?? 'JOBS & CAREERS'),
-            'heading' => 'Find your next opportunity.',
-            'description' => $jobsCat['description'] ?? 'Connect directly with verified Canadian employers hiring across high-demand industries.',
-            'tags' => !empty($jobsTags) ? $jobsTags : [['label' => 'Remote Roles', 'icon' => 'bi-laptop', 'url' => url('/category/jobs')]],
-            'cta_text' => 'Explore Jobs',
-            'url' => url('/category/' . ($jobsCat['slug'] ?? 'jobs')),
-            'badge' => ($jobsCount > 0 ? "{$jobsCount}+ Openings" : "Verified Employers")
-        ];
 
-        // Buy & Sell Spotlight
-        $buySellCat = $allCategories['buy-sell'] ?? null;
-        $buySellCount = $buySellCat ? Listing::where('category_id', $buySellCat['id'])->where('status', 'active')->count() : 0;
-        $buySellItems = [];
-        if ($buySellCat) {
-            $buySellSubIds = array_column($buySellCat['children'] ?? [], 'id');
-            $dynamicBuySellListings = Listing::with('primaryImage')
-                ->where(function ($q) use ($buySellCat, $buySellSubIds) {
-                    $q->where('category_id', $buySellCat['id']);
-                    if (!empty($buySellSubIds)) {
-                        $q->orWhereIn('category_id', $buySellSubIds);
-                    }
+        $badgeSuffix  = $opts['badge_suffix'] ?? '+ Available';
+        $badgeFallback = $opts['badge_fallback'] ?? 'Verified Listings';
+        $badge = ($count > 0 ? "{$count}{$badgeSuffix}" : $badgeFallback) . ($minPrice ? ' • From $' . number_format($minPrice, 0) : '');
+
+        return [
+            'category'    => mb_strtoupper($cat['name'] ?? strtoupper($slugKeys[0])),
+            'heading'     => $opts['heading'],
+            'description' => $cat['description'] ?? $opts['description'],
+            'tags'        => !empty($tags) ? $tags : [$opts['default_tag']],
+            'cta_text'    => $opts['cta_text'],
+            'url'         => url('/category/' . ($cat['slug'] ?? $slugKeys[0])),
+            'image'       => $image,
+            'alt'         => $cat['name'] ?? $slugKeys[0],
+            'badge'       => $badge,
+        ];
+    }
+
+    private function buildClassifiedsSpotlight(array $allCategories): array
+    {
+        $cat   = $allCategories['buy-sell'] ?? null;
+        $count = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->count() : 0;
+        $items = [];
+
+        if ($cat) {
+            $subIds   = array_column($cat['children'] ?? [], 'id');
+            $listings = Listing::with('primaryImage')
+                ->where(function ($q) use ($cat, $subIds) {
+                    $q->where('category_id', $cat['id']);
+                    if (!empty($subIds)) $q->orWhereIn('category_id', $subIds);
                 })
-                ->where('status', 'active')
-                ->latest()
-                ->limit(4)
-                ->get();
+                ->where('status', 'active')->latest()->limit(4)->get();
 
-            if ($dynamicBuySellListings->isNotEmpty()) {
-                foreach ($dynamicBuySellListings as $dbl) {
-                    $buySellItems[] = [
-                        'image' => $dbl->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
-                        'label' => Str::limit($dbl->title, 18),
-                        'alt' => $dbl->title,
-                        'url' => url('/listing/' . $dbl->slug)
-                    ];
-                }
-            } else {
-                foreach (array_slice($buySellCat['children'] ?? [], 0, 4) as $child) {
-                    $buySellItems[] = [
-                        'image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
-                        'label' => $child['name'],
-                        'alt' => $child['name'],
-                        'url' => url('/category/' . $buySellCat['slug'] . '?sub=' . $child['slug'])
-                    ];
-                }
+            foreach ($listings->isNotEmpty() ? $listings : collect($cat['children'] ?? []) as $entry) {
+                $isModel = $entry instanceof Listing;
+                $items[] = [
+                    'image' => $isModel ? ($entry->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80') : 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
+                    'label' => $isModel ? Str::limit($entry->title, 18) : $entry['name'],
+                    'alt'   => $isModel ? $entry->title : $entry['name'],
+                    'url'   => $isModel ? url('/listing/' . $entry->slug) : url('/category/' . $cat['slug'] . '?sub=' . $entry['slug']),
+                ];
             }
         }
-        $classifieds = [
-            'category' => mb_strtoupper($buySellCat['name'] ?? 'BUY & SELL'),
-            'heading' => 'Everyday finds, local deals & more.',
-            'description' => $buySellCat['description'] ?? 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
-            'cta_text' => 'Browse Classifieds',
-            'url' => url('/category/' . ($buySellCat['slug'] ?? 'buy-sell')),
-            'items' => !empty($buySellItems) ? $buySellItems : [['image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80', 'label' => 'Gear', 'alt' => 'Gear', 'url' => url('/category/buy-sell')]],
-            'badge' => ($buySellCount > 0 ? "{$buySellCount}+ Local Items" : "Pre-loved Finds")
-        ];
 
-        // 8. Dynamic Preview Listings for Interactive Sections (Why Us & Seller CTA)
-        $whyUsListing = $trendingListings->first() ?? $featuredAds->first() ?? [
-            'title' => 'iPhone 16 Pro (256GB)',
-            'price' => '$1,299.00',
-            'location' => 'Toronto, ON • 2.4 km away',
-            'image' => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80',
-            'url' => url('/listings')
+        return [
+            'category'    => mb_strtoupper($cat['name'] ?? 'BUY & SELL'),
+            'heading'     => 'Everyday finds, local deals & more.',
+            'description' => $cat['description'] ?? 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
+            'cta_text'    => 'Browse Classifieds',
+            'url'         => url('/category/' . ($cat['slug'] ?? 'buy-sell')),
+            'items'       => !empty($items) ? $items : [['image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80', 'label' => 'Gear', 'alt' => 'Gear', 'url' => url('/category/buy-sell')]],
+            'badge'       => $count > 0 ? "{$count}+ Local Items" : 'Pre-loved Finds',
         ];
+    }
 
-        $sellerCtaListing = $featuredListings->first() ?? $trendingListings->last() ?? [
-            'title' => 'Solid Oak Dining Table with 4 Chairs',
-            'price' => '$450.00 CAD',
-            'location' => 'Montreal, QC • Le Plateau',
-            'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80',
-            'url' => url('/post-ad')
-        ];
-
-        // 9. Available Canadian Cities for Location Filter & Smart Alert Widget
-        $availableCities = City::where('is_featured', true)
+    private function getAvailableCities(): array
+    {
+        return City::where('is_featured', true)
             ->with('province')
             ->orderBy('sort_order')
             ->get()
-            ->mapWithKeys(function ($city) {
-                return [$city->name => $city->name . ', ' . ($city->province?->code ?? 'CA')];
-            })
+            ->mapWithKeys(fn ($c) => [$c->name => $c->name . ', ' . ($c->province?->code ?? 'CA')])
             ->toArray();
+    }
 
-        return view('frontend.index', compact(
-            'featuredAds',
-            'trendingListings',
-            'featuredListings',
-            'locations',
-            'companionshipRequests',
-            'housing',
-            'jobs',
-            'classifieds',
-            'whyUsListing',
-            'sellerCtaListing',
-            'locationName',
-            'selectedCity',
-            'availableCities'
-        ));
+    private function getUserFavoriteIds(): array
+    {
+        if (!\Illuminate\Support\Facades\Auth::check()) {
+            return [];
+        }
+        return \App\Models\Favorite::where('user_id', \Illuminate\Support\Facades\Auth::id())
+            ->pluck('listing_id')
+            ->toArray();
     }
 
     /**

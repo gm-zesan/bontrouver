@@ -602,9 +602,9 @@
                                 </div>
 
                                 <div class="listing-action-btns">
-                                    <button type="button" class="btn-favorite-icon" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="Save listing">
-                                        <i class="bi bi-heart heart-outline"></i>
-                                        <i class="bi bi-heart-fill heart-filled"></i>
+                                		<button type="button" class="btn-favorite-icon {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'active' : '' }}" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="Save listing">
+                                        <i class="bi bi-heart heart-outline" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'none' : 'inline-block' }};"></i>
+                                        <i class="bi bi-heart-fill heart-filled" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'inline-block' : 'none' }};"></i>
                                     </button>
                                     <a href="{{ $item['url'] }}" class="btn-view-details" onclick="event.stopPropagation()">
                                         <span>View</span>
@@ -900,6 +900,7 @@
     // Master dataset
     const allListingsData = @json($listings);
     const allCategoriesData = @json($categories);
+    const userFavoriteIds = @json($userFavoriteIds ?? []);
 
     document.addEventListener('DOMContentLoaded', function () {
         // Parse initial URL query params and populate UI
@@ -1267,9 +1268,9 @@
                     </div>
 
                     <div class="listing-action-btns">
-                        <button type="button" class="btn-favorite-icon" onclick="toggleFavoriteListing(${item.id}, this, event)" aria-label="Save listing">
-                            <i class="bi bi-heart heart-outline"></i>
-                            <i class="bi bi-heart-fill heart-filled"></i>
+                        <button type="button" class="btn-favorite-icon ${userFavoriteIds.includes(item.id) ? 'active' : ''}" onclick="toggleFavoriteListing(${item.id}, this, event)" aria-label="Save listing">
+                            <i class="bi bi-heart heart-outline" style="display: ${userFavoriteIds.includes(item.id) ? 'none' : 'inline-block'};"></i>
+                            <i class="bi bi-heart-fill heart-filled" style="display: ${userFavoriteIds.includes(item.id) ? 'inline-block' : 'none'};"></i>
                         </button>
                         <a href="${item.url}" class="btn-view-details" onclick="event.stopPropagation()">
                             <span>View</span>
@@ -1688,7 +1689,46 @@
             event.preventDefault();
             event.stopPropagation();
         }
-        btn.classList.toggle('active');
+
+        @auth
+        if (btn) btn.disabled = true;
+
+        fetch(`{{ route('favorites.toggle') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ listing_id: id })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                if (data.status === 'added') {
+                    btn.classList.add('active');
+                    btn.querySelector('.heart-outline').style.display = 'none';
+                    btn.querySelector('.heart-filled').style.display = 'inline-block';
+                    // Keep in-memory array in sync so re-renders reflect state
+                    if (!userFavoriteIds.includes(id)) userFavoriteIds.push(id);
+                } else {
+                    btn.classList.remove('active');
+                    btn.querySelector('.heart-outline').style.display = 'inline-block';
+                    btn.querySelector('.heart-filled').style.display = 'none';
+                    // Remove from in-memory array
+                    const idx = userFavoriteIds.indexOf(id);
+                    if (idx > -1) userFavoriteIds.splice(idx, 1);
+                }
+            }
+        })
+        .catch(() => {})
+        .finally(() => { if (btn) btn.disabled = false; });
+        @else
+        // Guest: show auth modal
+        const modal = document.getElementById('authRequiredModal');
+        if (modal && typeof bootstrap !== 'undefined') {
+            new bootstrap.Modal(modal).show();
+        }
+        @endauth
     }
 
     // Mobile Drawer Controls

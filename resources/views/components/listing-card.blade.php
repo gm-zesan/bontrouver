@@ -1,4 +1,4 @@
-@props(['listing', 'featured' => false])
+@props(['listing', 'featured' => false, 'isSaved' => false])
 
 @php
     $slug = $listing['slug'] ?? '';
@@ -44,13 +44,14 @@
             </div>
         @endif
 
-        <!-- Top-Right Floating Favorite Button (Self-contained, non-bubbling) -->
+        <!-- Top-Right Floating Favorite Button -->
         <button type="button" 
-                class="btn-listing-favorite" 
+                class="btn-listing-favorite {{ $isSaved ? 'active' : '' }}" 
                 aria-label="Save {{ $title }} to favorites"
+                data-listing-id="{{ $id }}"
                 onclick="toggleListingFavorite(this, event)">
-            <i class="bi bi-heart heart-outline" aria-hidden="true"></i>
-            <i class="bi bi-heart-fill heart-filled" aria-hidden="true"></i>
+            <i class="bi bi-heart heart-outline" aria-hidden="true" style="display: {{ $isSaved ? 'none' : 'inline-block' }};"></i>
+            <i class="bi bi-heart-fill heart-filled" aria-hidden="true" style="display: {{ $isSaved ? 'inline-block' : 'none' }};"></i>
         </button>
 
         <!-- Bottom-Right Photo Count Indicator -->

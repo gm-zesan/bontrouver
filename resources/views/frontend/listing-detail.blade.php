@@ -24,8 +24,8 @@
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" class="btn-detail-action"
                             onclick="toggleSaveListing(this, '{{ $listing['id'] }}')" id="topSaveBtn">
-                            <i class="bi bi-heart heart-outline"></i>
-                            <i class="bi bi-heart-fill heart-filled text-danger" style="display: none;"></i>
+                            <i class="bi bi-heart heart-outline" style="display: {{ ($isSaved ?? false) ? 'none' : 'inline-block' }};"></i>
+                            <i class="bi bi-heart-fill heart-filled text-danger" style="display: {{ ($isSaved ?? false) ? 'inline-block' : 'none' }};"></i>
                             <span>Save</span>
                         </button>
                         <button type="button" class="btn-detail-action" onclick="openShareModal()" id="topShareBtn">
@@ -364,8 +364,8 @@
                                     <div class="sidebar-secondary-btns">
                                         <button type="button" class="btn-sidebar-sec"
                                             onclick="toggleSaveListing(this, '{{ $listing['id'] }}')" id="sidebarSaveBtn">
-                                            <i class="bi bi-heart heart-outline"></i>
-                                            <i class="bi bi-heart-fill heart-filled text-danger" style="display: none;"></i>
+                                            <i class="bi bi-heart heart-outline" style="display: {{ $isSaved ? 'none' : 'inline-block' }};"></i>
+                                            <i class="bi bi-heart-fill heart-filled text-danger" style="display: {{ $isSaved ? 'inline-block' : 'none' }};"></i>
                                             <span>Save</span>
                                         </button>
                                         <button type="button" class="btn-sidebar-sec" onclick="openShareModal()"
@@ -514,8 +514,8 @@
                 <div class="d-flex align-items-center gap-2 flex-shrink-0">
                     <button type="button" class="btn-mobile-sticky-save"
                         onclick="toggleSaveListing(this, '{{ $listing['id'] }}')">
-                        <i class="bi bi-heart heart-outline"></i>
-                        <i class="bi bi-heart-fill heart-filled text-danger" style="display: none;"></i>
+                        <i class="bi bi-heart heart-outline" style="display: {{ ($isSaved ?? false) ? 'none' : 'inline-block' }};"></i>
+                        <i class="bi bi-heart-fill heart-filled text-danger" style="display: {{ ($isSaved ?? false) ? 'inline-block' : 'none' }};"></i>
                     </button>
                     <button type="button" class="btn-mobile-sticky-message" onclick="openMessageModal()">
                         <i class="bi bi-chat-dots-fill me-1"></i>
@@ -987,9 +987,35 @@
                     showToast('Please type a message before sending.', 'warning');
                     return;
                 }
-                closeMessageModal();
-                showToast('Message sent to seller successfully!', 'success');
-                document.getElementById('modalMessageText').value = '';
+                
+                const btn = document.getElementById('submitModalMsgBtn');
+                if (btn) btn.disabled = true;
+
+                fetch(`{{ route('messages.initiate') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ 
+                        message: text,
+                        seller_id: {{ $listing['user_id'] ?? 0 }},
+                        listing_id: {{ $listing['id'] ?? 'null' }}
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        showToast(data.message || 'Error sending message', 'danger');
+                        if (btn) btn.disabled = false;
+                    }
+                })
+                .catch(() => {
+                    showToast('Network error, please try again.', 'danger');
+                    if (btn) btn.disabled = false;
+                });
             }
 
             function initiateBuyNow() {
@@ -1060,19 +1086,44 @@
 
             // 7. Save / Favorite Toggle
             function toggleSaveListing(btn, listingId) {
+                if (!isUserLoggedIn) {
+                    openAuthModal();
+                    return;
+                }
+
                 const outlines = document.querySelectorAll('.heart-outline');
                 const filleds = document.querySelectorAll('.heart-filled');
-                const isSaved = filleds[0]?.style.display === 'inline-block';
+                
+                // Disable button temporarily
+                if (btn) btn.disabled = true;
 
-                if (isSaved) {
-                    outlines.forEach(el => el.style.display = 'inline-block');
-                    filleds.forEach(el => el.style.display = 'none');
-                    showToast('Listing removed from saved items.', 'info');
-                } else {
-                    outlines.forEach(el => el.style.display = 'none');
-                    filleds.forEach(el => el.style.display = 'inline-block');
-                    showToast('Listing saved to your favorites!', 'success');
-                }
+                fetch(`{{ route('favorites.toggle') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ listing_id: listingId })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.status === 'added') {
+                            outlines.forEach(el => el.style.display = 'none');
+                            filleds.forEach(el => el.style.display = 'inline-block');
+                        } else {
+                            outlines.forEach(el => el.style.display = 'inline-block');
+                            filleds.forEach(el => el.style.display = 'none');
+                        }
+                        showToast(data.message, data.status === 'added' ? 'success' : 'info');
+                    } else {
+                        showToast(data.message || 'Error updating favorites', 'danger');
+                    }
+                })
+                .catch(() => showToast('Network error, please try again.', 'danger'))
+                .finally(() => {
+                    if (btn) btn.disabled = false;
+                });
             }
 
             // 8. Toast Feedback Utility

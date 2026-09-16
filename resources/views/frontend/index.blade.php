@@ -172,7 +172,7 @@
                 <div class="row g-3 g-xl-4 trending-grid">
                     @foreach($trendingListings as $listing)
                         <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 col-6">
-                            <x-listing-card :listing="$listing" />
+                            <x-listing-card :listing="$listing" :is-saved="in_array($listing['id'], $userFavoriteIds ?? [])" />
                         </div>
                     @endforeach
                 </div>
@@ -243,7 +243,7 @@
                     <div class="swiper-wrapper">
                         @foreach($featuredListings as $listing)
                             <div class="swiper-slide">
-                                <x-listing-card :listing="$listing" :featured="true" />
+                                <x-listing-card :listing="$listing" :featured="true" :is-saved="in_array($listing['id'], $userFavoriteIds ?? [])" />
                             </div>
                         @endforeach
                     </div>

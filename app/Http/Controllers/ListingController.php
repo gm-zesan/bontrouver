@@ -7,10 +7,12 @@ use App\Models\CategoryAttribute;
 use App\Models\City;
 use App\Models\Listing;
 use App\Models\Province;
+use App\Models\Favorite;
 use App\Services\CategoryService;
 use App\Services\LocationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ListingController extends Controller
 {
@@ -116,6 +118,13 @@ class ListingController extends Controller
             ]);
         }
 
+        $userFavoriteIds = [];
+        if (Auth::check()) {
+            $userFavoriteIds = Favorite::where('user_id', Auth::id())
+                ->pluck('listing_id')
+                ->toArray();
+        }
+
         return view('frontend.listings', [
             'categories' => $categories,
             'canadianCities' => $citiesMap,
@@ -131,6 +140,7 @@ class ListingController extends Controller
             'radius' => $radius,
             'breadcrumbs' => $breadcrumbs,
             'listings' => $sampleListings,
+            'userFavoriteIds' => $userFavoriteIds,
         ]);
     }
 
@@ -325,6 +335,7 @@ class ListingController extends Controller
                 'categories' => $categories,
                 'breadcrumbs' => $breadcrumbs,
                 'similarListings' => array_slice($sampleListings, 0, 4),
+                'isSaved' => false,
             ]);
         }
 
@@ -382,6 +393,13 @@ class ListingController extends Controller
             return $item['id'] !== $listing['id'] && ($item['seller']['name'] ?? '') === ($listing['seller']['name'] ?? '');
         }));
 
+        $isSaved = false;
+        if (Auth::check() && $listing) {
+            $isSaved = Favorite::where('user_id', Auth::id())
+                ->where('listing_id', $listing['id'])
+                ->exists();
+        }
+
         return view('frontend.listing-detail', [
             'listing' => $listing,
             'categories' => $categories,
@@ -390,6 +408,7 @@ class ListingController extends Controller
             'breadcrumbs' => $breadcrumbs,
             'similarListings' => array_slice($similarListings, 0, 4),
             'sellerListings' => $sellerListings,
+            'isSaved' => $isSaved,
         ]);
     }
 
@@ -689,12 +708,18 @@ class ListingController extends Controller
 
             // 12. Specs pills
             $specsPills = [];
-            if ($bedrooms) $specsPills[] = $bedrooms . ' Bed' . ($bedrooms > 1 ? 's' : '');
-            if ($bathrooms) $specsPills[] = $bathrooms . ' Bath' . ($bathrooms > 1 ? 's' : '');
-            if ($fuel) $specsPills[] = ucfirst($fuel);
-            if ($transmission) $specsPills[] = ucfirst($transmission);
-            if ($jobType) $specsPills[] = ucfirst($jobType);
-            if ($workSetup) $specsPills[] = ucfirst($workSetup);
+            if ($bedrooms)
+                $specsPills[] = $bedrooms . ' Bed' . ($bedrooms > 1 ? 's' : '');
+            if ($bathrooms)
+                $specsPills[] = $bathrooms . ' Bath' . ($bathrooms > 1 ? 's' : '');
+            if ($fuel)
+                $specsPills[] = ucfirst($fuel);
+            if ($transmission)
+                $specsPills[] = ucfirst($transmission);
+            if ($jobType)
+                $specsPills[] = ucfirst($jobType);
+            if ($workSetup)
+                $specsPills[] = ucfirst($workSetup);
             if (empty($specsPills) && $listing->condition) {
                 $specsPills[] = ucwords(str_replace('_', ' ', $listing->condition));
             }

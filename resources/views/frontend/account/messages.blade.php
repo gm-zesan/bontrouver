@@ -236,5 +236,63 @@ if (chatSearchInput) {
         });
     });
 }
+
+// Laravel Echo Integration for Real-time Messages
+document.addEventListener('DOMContentLoaded', function () {
+    @if($activeConversation)
+        const currentUserId = {{ auth()->id() }};
+        const conversationId = {{ $activeConversation['id'] }};
+        const stream = document.getElementById('messagesStream');
+        
+        // Scroll to the bottom on load
+        if (stream) {
+            stream.scrollTop = stream.scrollHeight;
+        }
+
+        if (window.Echo) {
+            // 1. Listen to the active conversation to append messages
+            window.Echo.private('conversation.' + conversationId)
+                .listen('MessageSent', (e) => {
+                    if (e.sender_id !== currentUserId && stream) {
+                        const timeNow = e.time;
+                        const bubble = document.createElement('div');
+                        bubble.className = 'd-flex gap-2 mb-3';
+                        bubble.innerHTML = `
+                            <img src="${e.sender_avatar || '{{ asset('images/avatar-placeholder.png') }}'}" 
+                                 class="rounded-circle object-fit-cover mt-auto" 
+                                 style="width: 28px; height: 28px;" alt="User">
+                            <div class="d-flex flex-column align-items-start">
+                                <div class="p-3 rounded-4 message-bubble" 
+                                     style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #081D33; color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;">
+                                    ${escapeHtml(e.body)}
+                                </div>
+                                <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${timeNow}</span>
+                            </div>
+                        `;
+                        stream.appendChild(bubble);
+                        stream.scrollTop = stream.scrollHeight;
+                    }
+                });
+            
+            // 2. Listen to the user's global channel to refresh the sidebar if a new conversation/message arrives
+            window.Echo.private('App.Models.User.' + currentUserId)
+                .listen('MessageSent', (e) => {
+                    if (e.conversation_id !== conversationId) {
+                        // Refresh just the sidebar via AJAX
+                        fetch(window.location.href)
+                            .then(r => r.text())
+                            .then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newSidebar = doc.getElementById('threadsList');
+                                if (newSidebar) {
+                                    document.getElementById('threadsList').innerHTML = newSidebar.innerHTML;
+                                }
+                            });
+                    }
+                });
+        }
+    @endif
+});
 </script>
 @endpush
