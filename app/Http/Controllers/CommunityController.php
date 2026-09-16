@@ -2,63 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\CompanionshipService;
+use App\Enums\CompanionshipType;
+use App\Http\Requests\JoinCompanionshipRequest;
 use App\Http\Requests\StoreCompanionshipRequest;
 use App\Models\CompanionshipRequest;
-use Illuminate\Support\Facades\Log;
+use App\Services\CompanionshipService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CommunityController extends Controller
 {
-    protected CompanionshipService $companionshipService;
+    public function __construct(
+        private readonly CompanionshipService $companionshipService
+    ) {}
 
-    public function __construct(CompanionshipService $companionshipService)
-    {
-        $this->companionshipService = $companionshipService;
-    }
-
-    public function index(Request $request)
+    /**
+     * List all upcoming open meetups, with optional city/type filters.
+     */
+    public function index(Request $request): View
     {
         $filters = $request->only(['city', 'type']);
         $meetups = $this->companionshipService->getActiveRequests($filters);
-        
-        $types = \App\Enums\CompanionshipType::values();
+        $types   = CompanionshipType::values();
 
         return view('frontend.community.index', compact('meetups', 'types', 'filters'));
     }
 
-    public function show($id)
+    /**
+     * Show a single meetup detail page.
+     */
+    public function show(int $id): View
     {
-        $meetup = CompanionshipRequest::with(['user', 'cityRelation', 'attendees.user'])->findOrFail($id);
-        
+        $meetup = $this->companionshipService->findForShow($id);
+
         return view('frontend.community.show', compact('meetup'));
     }
 
-    public function create()
+    /**
+     * Show the form to create a new meetup.
+     */
+    public function create(): View
     {
+        $this->authorize('create', CompanionshipRequest::class);
+
         return view('frontend.account.meetup-create');
     }
 
-    public function store(StoreCompanionshipRequest $request)
+    /**
+     * Persist a new meetup request.
+     */
+    public function store(StoreCompanionshipRequest $request): RedirectResponse
     {
-        try {
-            $meetup = $this->companionshipService->createRequest($request->validated(), auth()->user());
-            return redirect()->route('community.show', $meetup->id)->with('success', 'Meetup request posted successfully!');
-        } catch (\Exception $e) {
-            Log::error('Failed to create meetup: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Failed to post meetup request. Please try again.');
-        }
+        $meetup = $this->companionshipService->createRequest(
+            $request->validated(),
+            $request->user()
+        );
+
+        return redirect()
+            ->route('community.show', $meetup->id)
+            ->with('success', 'Meetup request posted successfully!');
     }
 
-    public function requestToJoin(Request $request, $id)
+    /**
+     * Send a request to join an existing meetup.
+     */
+    public function requestToJoin(JoinCompanionshipRequest $request, int $id): RedirectResponse
     {
-        try {
-            $meetup = CompanionshipRequest::findOrFail($id);
-            $this->companionshipService->requestToJoin($meetup, auth()->user());
-            
-            return back()->with('success', 'Your request to join has been sent to the host.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        $meetup = $this->companionshipService->findForShow($id);
+
+        $this->authorize('join', $meetup);
+
+        $this->companionshipService->requestToJoin($meetup, $request->user());
+
+        return back()->with('success', 'Your request to join has been sent to the host.');
     }
 }

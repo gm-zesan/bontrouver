@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CompanionshipException;
 use App\Models\CompanionshipRequest;
 use App\Models\CompanionshipAttendee;
 use App\Models\User;
@@ -32,6 +33,15 @@ class CompanionshipService
     }
 
     /**
+     * Find a single meetup with all relationships needed for the detail view.
+     */
+    public function findForShow(int|string $id): CompanionshipRequest
+    {
+        return CompanionshipRequest::with(['user', 'cityRelation', 'attendees.user'])
+            ->findOrFail($id);
+    }
+
+    /**
      * Create a new companionship request.
      */
     public function createRequest(array $data, User $user): CompanionshipRequest
@@ -48,11 +58,11 @@ class CompanionshipService
     public function requestToJoin(CompanionshipRequest $request, User $user): CompanionshipAttendee
     {
         if ($request->user_id === $user->id) {
-            throw new \Exception('You cannot join your own meetup.');
+            throw CompanionshipException::cannotJoinOwn();
         }
 
         if ($request->status !== 'open') {
-            throw new \Exception('This meetup is no longer open.');
+            throw CompanionshipException::notOpen();
         }
 
         $existing = CompanionshipAttendee::where('companionship_request_id', $request->id)
@@ -60,7 +70,7 @@ class CompanionshipService
             ->first();
 
         if ($existing) {
-            throw new \Exception('You have already sent a request to join this meetup.');
+            throw CompanionshipException::alreadyRequested();
         }
 
         return CompanionshipAttendee::create([

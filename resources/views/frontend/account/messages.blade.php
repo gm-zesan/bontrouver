@@ -31,7 +31,7 @@
                             <!-- List of Threads -->
                             <div class="overflow-auto flex-grow-1 p-2" id="threadsList" style="overflow-x: hidden !important;">
                                 @forelse($conversations as $conv)
-                                    @php $isActive = ($activeConversation['id'] == $conv['id']); @endphp
+                                    @php $isActive = ($activeConversation && $activeConversation['id'] == $conv['id']); @endphp
                                     <a href="{{ url('/messages?c=' . $conv['id']) }}" 
                                        class="d-flex align-items-center gap-2 p-2 p-lg-3 rounded-3 text-decoration-none mb-1 conversation-item {{ $isActive ? 'active-thread' : '' }}"
                                        data-name="{{ strtolower($conv['user']['name']) }}"
@@ -84,7 +84,7 @@
 
                         <!-- Panel 2: Active Chat View -->
                         <div class="col-12 col-md-7 col-lg-8 d-flex flex-column h-100 {{ request()->has('c') ? 'd-flex' : 'd-none d-md-flex' }}" id="chatPanel" style="background: #081D33;">
-                            
+                            @if($activeConversation)
                             <!-- Chat Top Bar & Ad Context Banner -->
                             <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex align-items-center justify-content-between gap-2" style="background: #0D243C;">
                                 <div class="d-flex align-items-center gap-3 min-w-0">
@@ -171,7 +171,13 @@
                                     </div>
                                 </form>
                             </div>
-
+                            @else
+                                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-secondary">
+                                    <i class="bi bi-chat-square-text mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                                    <h5 class="text-white opacity-75">No Conversation Selected</h5>
+                                    <p class="small">Select a conversation from the left to start messaging.</p>
+                                </div>
+                            @endif
                         </div>
 
                     </div>
@@ -204,7 +210,7 @@ function sendChatMessage() {
 
     input.value = '';
 
-    fetch(`{{ url('/messages/' . $activeConversation['id'] . '/reply') }}`, {
+    fetch(`{{ $activeConversation ? url('/messages/' . $activeConversation['id'] . '/reply') : '#' }}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

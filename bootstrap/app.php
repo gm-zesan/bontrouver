@@ -20,4 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Redirect back with user-friendly message for domain rule violations
+        $exceptions->renderable(function (\App\Exceptions\CompanionshipException $e, Request $request) {
+            if (!$request->expectsJson()) {
+                return back()->with('error', $e->getMessage());
+            }
+        });
     })->create();

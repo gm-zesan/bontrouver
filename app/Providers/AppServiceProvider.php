@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Models\City;
+use App\Models\CompanionshipRequest;
+use App\Policies\CompanionshipPolicy;
 use App\Services\CategoryService;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Policy registrations
+        Gate::policy(CompanionshipRequest::class, CompanionshipPolicy::class);
+
         View::composer('*', function ($view) {
             $request = request();
             $city = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');

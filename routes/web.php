@@ -1,8 +1,13 @@
 <?php
 
 use App\Http\Controllers\ListingController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SellerDashboardController;
+use App\Http\Controllers\Seller\ListingController as SellerListingController;
+use App\Http\Controllers\Seller\ProfileController as SellerProfileController;
+use App\Http\Controllers\Seller\FavoriteController;
+use App\Http\Controllers\Seller\MessageController;
+use App\Http\Controllers\Seller\NotificationController;
+use App\Http\Controllers\Seller\SettingsController;
+use App\Http\Controllers\Seller\MeetupController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
@@ -41,43 +46,45 @@ Route::get('/api/category-attributes/{categorySlug}', [ListingController::class,
 
 // Seller & User Dashboard & Account Pages
 Route::middleware(['auth'])->group(function () {
-    // Redirect legacy dashboard routes to Profile
-    Route::get('/dashboard', fn() => redirect()->route('profile.edit'))->name('dashboard');
-    Route::get('/seller/panel', fn() => redirect()->route('profile.edit'))->name('seller.panel');
-    Route::get('/my-listings', [SellerDashboardController::class, 'myListings'])->name('listings.my');
-    Route::post('/my-listings/{id}/status', [SellerDashboardController::class, 'updateStatus'])->name('listings.my.status');
-    Route::delete('/my-listings/{id}', [SellerDashboardController::class, 'destroyListing'])->name('listings.my.destroy');
+    // Redirect legacy dashboard routes to Settings
+    Route::get('/dashboard', fn() => redirect()->route('settings.index'))->name('dashboard');
+    Route::get('/seller/panel', fn() => redirect()->route('settings.index'))->name('seller.panel');
+
+    // My Listings
+    Route::get('/my-listings', [SellerListingController::class, 'index'])->name('listings.my');
+    Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
+    Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
 
     // 1. Favorites / Saved Ads
-    Route::get('/favorites', [SellerDashboardController::class, 'favorites'])->name('favorites.index');
-    Route::delete('/favorites/{id}', [SellerDashboardController::class, 'removeFavorite'])->name('favorites.destroy');
-    Route::post('/favorites/toggle', [SellerDashboardController::class, 'toggleFavorite'])->name('favorites.toggle');
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+    Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
     // 2. Messages / Inbox Conversations
-    Route::get('/messages', [SellerDashboardController::class, 'messages'])->name('messages.index');
-    Route::post('/messages/initiate', [SellerDashboardController::class, 'initiateMessage'])->name('messages.initiate');
-    Route::post('/messages/{conversationId}/reply', [SellerDashboardController::class, 'sendMessage'])->name('messages.send');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages/initiate', [MessageController::class, 'initiate'])->name('messages.initiate');
+    Route::post('/messages/{conversationId}/reply', [MessageController::class, 'send'])->name('messages.send');
 
     // 3. Notifications Center
-    Route::get('/notifications', [SellerDashboardController::class, 'notifications'])->name('notifications.index');
-    Route::post('/notifications/read-all', [SellerDashboardController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
-    Route::post('/notifications/{id}/read', [SellerDashboardController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 
     // 4. User Public / Account Profile
-    Route::get('/profile/view', [SellerDashboardController::class, 'profileView'])->name('profile.view');
+    Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');
 
     // 5. Account Settings & Preferences
-    Route::get('/settings', [SellerDashboardController::class, 'settings'])->name('settings.index');
-    Route::post('/settings', [SellerDashboardController::class, 'updateSettings'])->name('settings.update');
-
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingsController::class, 'updateProfile'])->name('settings.update');
+    
     // 6. Community Meetups Management
-    Route::get('/my-meetups', [SellerDashboardController::class, 'myMeetups'])->name('meetups.my');
-    Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [SellerDashboardController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
+    Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
+    Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
 
-    // Breeze Profile edit routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Breeze Profile edit routes (Merged into Settings Controller)
+    Route::get('/profile', [SettingsController::class, 'index'])->name('profile.edit');
+    Route::patch('/profile', [SettingsController::class, 'updateAuth'])->name('profile.update');
+    Route::delete('/profile', [SettingsController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Static Marketplace Info & Footer Pages
