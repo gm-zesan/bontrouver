@@ -49,4 +49,22 @@ class MeetupController extends Controller
             return back()->with('error', 'Error updating status: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Attendee withdraws their join request or cancels their RSVP.
+     */
+    public function cancelRequest(Request $request, $meetupId, $attendeeId, CompanionshipService $service)
+    {
+        try {
+            $attendee = CompanionshipAttendee::where('companionship_request_id', $meetupId)
+                ->where('user_id', auth()->id())
+                ->findOrFail($attendeeId);
+
+            $service->withdrawAttendance($attendee);
+
+            return back()->with('success', 'You have successfully withdrawn your RSVP.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error withdrawing RSVP: ' . $e->getMessage());
+        }
+    }
 }

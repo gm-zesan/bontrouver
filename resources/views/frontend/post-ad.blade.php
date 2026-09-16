@@ -689,6 +689,15 @@
         </div>
     </div>
 </div>
+    <x-confirm-modal 
+        id="draftRestoreModal"
+        title="Restore Draft"
+        buttonText="Yes, Restore"
+        buttonClass="btn-theme-primary"
+        onClick="restoreDraft(JSON.parse(localStorage.getItem('bontrouver_ad_draft'))); bootstrap.Modal.getInstance(document.getElementById('draftRestoreModal')).hide();"
+    >
+        You have a previously saved draft. Would you like to restore it?
+    </x-confirm-modal>
 @endsection
 
 @push('scripts')
@@ -1321,9 +1330,8 @@ function initAutosave() {
     if (savedDraft) {
         try {
             const draft = JSON.parse(savedDraft);
-            if (confirm('You have a previously saved draft. Would you like to restore it?')) {
-                restoreDraft(draft);
-            }
+            let draftModal = new bootstrap.Modal(document.getElementById('draftRestoreModal'));
+            draftModal.show();
         } catch(e) {}
     }
 

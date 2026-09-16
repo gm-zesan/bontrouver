@@ -31,4 +31,28 @@ class CompanionshipPolicy
     {
         return $meetup->user_id === $user->id;
     }
+
+    /**
+     * Only the host can update the meetup.
+     */
+    public function update(User $user, CompanionshipRequest $meetup): bool
+    {
+        return $meetup->user_id === $user->id;
+    }
+
+    /**
+     * Only the host can delete/cancel the meetup.
+     */
+    public function delete(User $user, CompanionshipRequest $meetup): bool
+    {
+        return $meetup->user_id === $user->id;
+    }
+
+    /**
+     * Only the specific attendee can cancel their own RSVP.
+     */
+    public function cancelAttendance(User $user, \App\Models\CompanionshipAttendee $attendee): bool
+    {
+        return $attendee->user_id === $user->id;
+    }
 }

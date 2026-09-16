@@ -109,4 +109,58 @@ class CompanionshipService
             }
         });
     }
+
+    /**
+     * Update an existing companionship request.
+     */
+    public function updateRequest(CompanionshipRequest $meetup, array $data): void
+    {
+        $meetup->update($data);
+
+        // Check if expanding the headcount limit makes a full meetup open again
+        if ($meetup->status === 'full' && $meetup->headcount_limit) {
+            $approvedCount = CompanionshipAttendee::where('companionship_request_id', $meetup->id)
+                ->where('status', 'approved')
+                ->count();
+                
+            if ($approvedCount < $meetup->headcount_limit) {
+                $meetup->update(['status' => 'open']);
+            }
+        }
+    }
+
+    /**
+     * Host deletes/cancels a companionship request.
+     */
+    public function deleteRequest(CompanionshipRequest $meetup): void
+    {
+        DB::transaction(function () use ($meetup) {
+            // Cancel all attendees
+            CompanionshipAttendee::where('companionship_request_id', $meetup->id)
+                ->update(['status' => 'rejected']);
+                
+            $meetup->update(['status' => 'cancelled']);
+            // If soft deletes is used, delete it. Otherwise keep it as cancelled.
+            $meetup->delete();
+        });
+    }
+
+    /**
+     * Attendee withdraws their join request.
+     */
+    public function withdrawAttendance(CompanionshipAttendee $attendee): void
+    {
+        DB::transaction(function () use ($attendee) {
+            $meetup = $attendee->companionshipRequest;
+            $wasApproved = $attendee->status === 'approved';
+            
+            // Delete the attendance record entirely or mark it as withdrawn
+            $attendee->delete();
+            
+            // If the user was approved and the meetup was full, open it up again
+            if ($wasApproved && $meetup->status === 'full') {
+                $meetup->update(['status' => 'open']);
+            }
+        });
+    }
 }

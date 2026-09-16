@@ -77,4 +77,48 @@ class CommunityController extends Controller
 
         return back()->with('success', 'Your request to join has been sent to the host.');
     }
+
+    /**
+     * Show the form to edit an existing meetup.
+     */
+    public function edit(int $id): View
+    {
+        $meetup = $this->companionshipService->findForShow($id);
+        
+        $this->authorize('update', $meetup);
+
+        return view('frontend.account.meetup-edit', compact('meetup'));
+    }
+
+    /**
+     * Update an existing meetup request.
+     */
+    public function update(\App\Http\Requests\UpdateCompanionshipRequest $request, int $id): RedirectResponse
+    {
+        $meetup = $this->companionshipService->findForShow($id);
+        
+        $this->authorize('update', $meetup);
+
+        $this->companionshipService->updateRequest($meetup, $request->validated());
+
+        return redirect()
+            ->route('meetups.my')
+            ->with('success', 'Meetup request updated successfully!');
+    }
+
+    /**
+     * Cancel/Delete an existing meetup request.
+     */
+    public function destroy(int $id): RedirectResponse
+    {
+        $meetup = $this->companionshipService->findForShow($id);
+        
+        $this->authorize('delete', $meetup);
+
+        $this->companionshipService->deleteRequest($meetup);
+
+        return redirect()
+            ->route('meetups.my')
+            ->with('success', 'Meetup has been successfully cancelled.');
+    }
 }

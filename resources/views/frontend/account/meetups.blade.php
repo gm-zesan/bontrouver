@@ -214,10 +214,19 @@
                                             <div><i class="bi bi-geo-alt me-1 text-primary"></i> {{ $meetup->city }}</div>
                                         </div>
 
-                                        <a href="{{ route('community.show', $meetup->id) }}"
-                                            class="btn btn-sm btn-outline-light rounded-pill px-3">
-                                            <i class="bi bi-eye me-1"></i> View Event Page
-                                        </a>
+                                        <div class="d-flex flex-wrap gap-2 mt-3">
+                                            <a href="{{ route('community.show', $meetup->id) }}"
+                                                class="btn btn-sm btn-outline-light rounded-pill px-3">
+                                                <i class="bi bi-eye me-1"></i> View
+                                            </a>
+                                            <a href="{{ route('community.edit', $meetup->id) }}"
+                                                class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                <i class="bi bi-pencil me-1"></i> Edit
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#cancelMeetupModal{{ $meetup->id }}">
+                                                <i class="bi bi-x-circle me-1"></i> Cancel Meetup
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <!-- Attendee Requests -->
@@ -358,11 +367,14 @@
                                     </ul>
                                 </div>
 
-                                <div class="pt-3 mt-3 border-top border-secondary border-opacity-10">
+                                <div class="pt-3 mt-3 border-top border-secondary border-opacity-10 d-flex gap-2">
                                     <a href="{{ route('community.show', $meetup->id) }}"
-                                        class="btn btn-sm btn-outline-light rounded-pill w-100">
-                                        <i class="bi bi-eye me-1"></i> View Event Details
+                                        class="btn btn-sm btn-outline-light rounded-pill flex-grow-1">
+                                        <i class="bi bi-eye me-1"></i> View Event
                                     </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Withdraw Request" data-bs-toggle="modal" data-bs-target="#withdrawRsvpModal{{ $meetup->id }}">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -371,4 +383,40 @@
             @endif
         </div>
     </div>
+
+    <!-- Modals (Rendered outside complex DOM hierarchy to prevent z-index/flickering issues) -->
+    @if(!$hostedMeetups->isEmpty())
+        @foreach($hostedMeetups as $meetup)
+            <x-confirm-modal 
+                id="cancelMeetupModal{{ $meetup->id }}"
+                title="Cancel Meetup"
+                action="{{ route('community.destroy', $meetup->id) }}"
+                method="DELETE"
+                buttonText="Yes, Cancel Meetup"
+                buttonClass="btn-danger"
+            >
+                Are you sure you want to cancel the meetup <strong>"{{ $meetup->title }}"</strong>? This action cannot be undone and will notify all attendees.
+            </x-confirm-modal>
+        @endforeach
+    @endif
+
+    @if(!$joinedMeetups->isEmpty())
+        @foreach($joinedMeetups as $meetup)
+            @php
+                $myRequest = $meetup->attendees->where('user_id', auth()->id())->first();
+            @endphp
+            @if($myRequest)
+                <x-confirm-modal 
+                    id="withdrawRsvpModal{{ $meetup->id }}"
+                    title="Withdraw RSVP"
+                    action="{{ route('meetups.my.attendee.cancel', ['meetupId' => $meetup->id, 'attendeeId' => $myRequest->id]) }}"
+                    method="DELETE"
+                    buttonText="Yes, Withdraw"
+                    buttonClass="btn-danger"
+                >
+                    Are you sure you want to withdraw your RSVP for <strong>"{{ $meetup->title }}"</strong>?
+                </x-confirm-modal>
+            @endif
+        @endforeach
+    @endif
 @endsection

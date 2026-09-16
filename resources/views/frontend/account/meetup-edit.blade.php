@@ -1,4 +1,4 @@
-@extends('frontend.account.layout', ['pageTitle' => 'Host a Meetup', 'activeNav' => 'meetups'])
+@extends('frontend.account.layout', ['pageTitle' => 'Edit Meetup', 'activeNav' => 'meetups'])
 
 @section('account_content')
     <style>
@@ -78,8 +78,8 @@
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
         <div>
             <h1 class="h3 fw-bold mb-1 text-white d-flex align-items-center gap-2">
-                <i class="bi bi-plus-circle text-primary"></i>
-                Host a Meetup
+                <i class="bi bi-pencil-square text-primary"></i>
+                Edit Meetup
             </h1>
             <p class="text-white-50 small mb-0">Create a safe and friendly community event in your neighborhood.</p>
         </div>
@@ -91,8 +91,9 @@
 
     <!-- Main Form Card -->
     <div class="create-meetup-card shadow-lg">
-        <form action="{{ route('community.store') }}" method="POST">
+        <form action="{{ route('community.update', $meetup->id) }}" method="POST">
             @csrf
+            @method('PUT')
 
             <div class="row g-4">
                 <!-- Left Column: Details -->
@@ -107,7 +108,8 @@
                         <select name="type" class="form-select @error('type') is-invalid @enderror" required>
                             <option value="" disabled selected>Select an activity type...</option>
                             @foreach(\App\Enums\CompanionshipType::values() as $type)
-                                <option value="{{ $type }}" {{ old('type') == $type ? 'selected' : '' }}>{{ $type }}</option>
+                                <option value="{{ $type }}" {{ old('type', $meetup->type) == $type ? 'selected' : '' }}>
+                                    {{ $type }}</option>
                             @endforeach
                         </select>
                         @error('type')
@@ -118,7 +120,8 @@
                     <div class="mb-3">
                         <label class="form-label">Meetup Title <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control @error('title') is-invalid @enderror"
-                            value="{{ old('title') }}" placeholder="e.g. Saturday Morning Hike at Mount Royal" required>
+                            value="{{ old('title', $meetup->title) }}"
+                            placeholder="e.g. Saturday Morning Hike at Mount Royal" required>
                         @error('title')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -128,7 +131,7 @@
                         <label class="form-label">Date & Time <span class="text-danger">*</span></label>
                         <input type="datetime-local" name="meetup_date_time"
                             class="form-control @error('meetup_date_time') is-invalid @enderror"
-                            value="{{ old('meetup_date_time') }}" required>
+                            value="{{ old('meetup_date_time', $meetup->meetup_date_time->format('Y-m-d\TH:i')) }}" required>
                         @error('meetup_date_time')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -138,7 +141,7 @@
                         <label class="form-label">Description <span class="text-danger">*</span></label>
                         <textarea name="description" class="form-control @error('description') is-invalid @enderror"
                             rows="5" placeholder="Describe the meetup, what to expect, and who should join..."
-                            required>{{ old('description') }}</textarea>
+                            required>{{ old('description', $meetup->description) }}</textarea>
                         @error('description')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -156,7 +159,8 @@
                         <label class="form-label">Location / Venue Name <span class="text-danger">*</span></label>
                         <input type="text" name="location_name"
                             class="form-control @error('location_name') is-invalid @enderror"
-                            value="{{ old('location_name') }}" placeholder="e.g. Tim Hortons, High Park Entrance" required>
+                            value="{{ old('location_name', $meetup->location_name) }}"
+                            placeholder="e.g. Tim Hortons, High Park Entrance" required>
                         @error('location_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -166,7 +170,7 @@
                         <div class="col-sm-8">
                             <label class="form-label">City <span class="text-danger">*</span></label>
                             <input type="text" name="city" class="form-control @error('city') is-invalid @enderror"
-                                value="{{ old('city') }}" required>
+                                value="{{ old('city', $meetup->city) }}" required>
                             @error('city')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -174,19 +178,10 @@
                         <div class="col-sm-4">
                             <label class="form-label">Prov. <span class="text-danger">*</span></label>
                             <select name="province" class="form-select @error('province') is-invalid @enderror" required>
-                                <option value="AB">AB</option>
-                                <option value="BC">BC</option>
-                                <option value="MB">MB</option>
-                                <option value="NB">NB</option>
-                                <option value="NL">NL</option>
-                                <option value="NS">NS</option>
-                                <option value="NT">NT</option>
-                                <option value="NU">NU</option>
-                                <option value="ON" selected>ON</option>
-                                <option value="PE">PE</option>
-                                <option value="QC">QC</option>
-                                <option value="SK">SK</option>
-                                <option value="YT">YT</option>
+                                @foreach(['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'] as $prov)
+                                    <option value="{{ $prov }}" {{ old('province', $meetup->province) == $prov ? 'selected' : '' }}>
+                                        {{ $prov }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -195,7 +190,8 @@
                         <label class="form-label">Headcount Limit (Optional)</label>
                         <input type="number" name="headcount_limit"
                             class="form-control @error('headcount_limit') is-invalid @enderror"
-                            value="{{ old('headcount_limit') }}" placeholder="Leave blank for unlimited" min="2" max="100">
+                            value="{{ old('headcount_limit', $meetup->headcount_limit) }}"
+                            placeholder="Leave blank for unlimited" min="2" max="100">
                         <div class="form-text">Maximum number of people who can join.</div>
                         @error('headcount_limit')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -210,7 +206,7 @@
                             <div class="card-body py-2 px-3">
                                 <div class="form-check d-flex align-items-center mb-0">
                                     <input class="form-check-input flex-shrink-0 me-3" type="radio" name="expense_type"
-                                        id="expenseFree" value="free" {{ old('expense_type', 'free') == 'free' ? 'checked' : '' }}>
+                                        id="expenseFree" value="free" {{ old('expense_type', $meetup->expense_type) == 'free' ? 'checked' : '' }}>
                                     <label class="form-check-label flex-grow-1 cursor-pointer w-100 m-0 py-1"
                                         for="expenseFree">
                                         <div class="fw-bold text-success-custom"><i class="bi bi-balloon me-1"></i> Free
@@ -226,7 +222,7 @@
                             <div class="card-body py-2 px-3">
                                 <div class="form-check d-flex align-items-center mb-0">
                                     <input class="form-check-input flex-shrink-0 me-3" type="radio" name="expense_type"
-                                        id="expenseSplit" value="split" {{ old('expense_type') == 'split' ? 'checked' : '' }}>
+                                        id="expenseSplit" value="split" {{ old('expense_type', $meetup->expense_type) == 'split' ? 'checked' : '' }}>
                                     <label class="form-check-label flex-grow-1 cursor-pointer w-100 m-0 py-1"
                                         for="expenseSplit">
                                         <div class="fw-bold text-primary-custom"><i class="bi bi-pie-chart me-1"></i> Split
@@ -270,7 +266,7 @@
                 <button type="submit" class="hero-btn-primary"
                     style="min-width: auto; border: none; padding: 0.6rem 1.8rem;">
                     <i class="bi bi-check-lg me-1"></i>
-                    <span>Post Meetup Request</span>
+                    <span>Update Meetup</span>
                 </button>
             </div>
         </form>

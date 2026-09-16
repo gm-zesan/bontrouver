@@ -127,91 +127,55 @@
 <!-- ================= MODALS & DRAWERS (DARK THEME) ================= -->
 
 <!-- 1. Mark as Sold Confirmation Modal -->
-<div class="modal fade" id="soldConfirmModal" tabindex="-1" aria-labelledby="soldConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border border-secondary border-opacity-25 shadow-lg rounded-4 text-white" style="background: #0D243C;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-white" id="soldConfirmModalLabel">
-                    <i class="bi bi-bag-check-fill text-success me-2"></i> Mark Listing as Sold
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="text-secondary mb-3">
-                    Are you sure you want to mark <strong id="soldModalListingTitle" class="text-white">this listing</strong> as sold?
-                </p>
-                <div class="p-3 rounded-3 small mb-0" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
-                    <i class="bi bi-info-circle-fill text-success me-1"></i>
-                    This will remove the listing from active public search results while preserving its full chat history and stats in your "Sold" tab. You can relist it anytime.
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-dark border border-secondary border-opacity-25 px-3 text-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn-theme-primary px-4 py-2 rounded-pill" id="confirmSoldBtn">
-                    <i class="bi bi-check-lg me-1"></i> Mark as Sold
-                </button>
-            </div>
-        </div>
+<x-confirm-modal 
+    id="soldConfirmModal"
+    title="<i class='bi bi-bag-check-fill text-success me-2'></i> Mark Listing as Sold"
+    buttonText="<i class='bi bi-check-lg me-1'></i> Mark as Sold"
+    buttonClass="btn-theme-primary"
+    buttonId="confirmSoldBtn"
+>
+    <p class="text-secondary mb-3">
+        Are you sure you want to mark <strong id="soldModalListingTitle" class="text-white">this listing</strong> as sold?
+    </p>
+    <div class="p-3 rounded-3 small mb-0" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
+        <i class="bi bi-info-circle-fill text-success me-1"></i>
+        This will remove the listing from active public search results while preserving its full chat history and stats in your "Sold" tab. You can relist it anytime.
     </div>
-</div>
+</x-confirm-modal>
 
 <!-- 2. Pause / Resume Confirmation Modal -->
-<div class="modal fade" id="pauseConfirmModal" tabindex="-1" aria-labelledby="pauseConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border border-secondary border-opacity-25 shadow-lg rounded-4 text-white" style="background: #0D243C;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-warning" id="pauseConfirmModalLabel">
-                    <i class="bi bi-pause-circle me-2"></i> <span id="pauseModalActionWord">Pause Listing</span>
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="text-secondary mb-3" id="pauseModalDescription">
-                    Temporarily deactivate <strong id="pauseModalListingTitle" class="text-white">this listing</strong>?
-                </p>
-                <div class="p-3 rounded-3 small mb-0" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
-                    <i class="bi bi-info-circle-fill text-warning me-1"></i>
-                    Buyers won't see your listing in search results while it is paused. You can resume it anytime with one click.
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-dark border border-secondary border-opacity-25 px-3 text-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-warning px-4 fw-semibold text-dark rounded-pill" id="confirmPauseBtn">
-                    Confirm
-                </button>
-            </div>
-        </div>
+<x-confirm-modal 
+    id="pauseConfirmModal"
+    title="<i class='bi bi-pause-circle me-2 text-warning'></i> <span id='pauseModalActionWord' class='text-warning'>Pause Listing</span>"
+    buttonText="Confirm"
+    buttonClass="btn-warning text-dark fw-semibold"
+    buttonId="confirmPauseBtn"
+>
+    <p class="text-secondary mb-3" id="pauseModalDescription">
+        Temporarily deactivate <strong id="pauseModalListingTitle" class="text-white">this listing</strong>?
+    </p>
+    <div class="p-3 rounded-3 small mb-0" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
+        <i class="bi bi-info-circle-fill text-warning me-1"></i>
+        Buyers won't see your listing in search results while it is paused. You can resume it anytime with one click.
     </div>
-</div>
+</x-confirm-modal>
 
 <!-- 3. Delete Listing Modal (Destructive) -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border border-secondary border-opacity-25 shadow-lg rounded-4 text-white" style="background: #0D243C;">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-danger" id="deleteConfirmModalLabel">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Delete Listing?
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-4">
-                <p class="text-secondary mb-2">
-                    Are you sure you want to permanently delete <strong id="deleteModalListingTitle" class="text-white">this listing</strong>?
-                </p>
-                <div class="p-3 bg-danger-subtle text-danger border border-danger-subtle rounded-3 small mb-0">
-                    <i class="bi bi-x-circle-fill me-1"></i>
-                    <strong>This action cannot be undone.</strong> All ad photos, buyer inquiries, and analytics data will be permanently removed.
-                </div>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-dark border border-secondary border-opacity-25 px-3 text-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger px-4 fw-semibold rounded-pill" id="confirmDeleteBtn">
-                    <i class="bi bi-trash-fill me-1"></i> Delete Listing
-                </button>
-            </div>
-        </div>
+<x-confirm-modal 
+    id="deleteConfirmModal"
+    title="<i class='bi bi-exclamation-triangle-fill text-danger me-2'></i> <span class='text-danger'>Delete Listing?</span>"
+    buttonText="<i class='bi bi-trash-fill me-1'></i> Delete Listing"
+    buttonClass="btn-danger fw-semibold"
+    buttonId="confirmDeleteBtn"
+>
+    <p class="text-secondary mb-2">
+        Are you sure you want to permanently delete <strong id="deleteModalListingTitle" class="text-white">this listing</strong>?
+    </p>
+    <div class="p-3 bg-danger-subtle text-danger border border-danger-subtle rounded-3 small mb-0">
+        <i class="bi bi-x-circle-fill me-1"></i>
+        <strong>This action cannot be undone.</strong> All ad photos, buyer inquiries, and analytics data will be permanently removed.
     </div>
-</div>
+</x-confirm-modal>
 
 <!-- Toast Container for Real-time action feedback -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">

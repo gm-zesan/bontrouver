@@ -30,6 +30,9 @@ Route::get('/community/meetup/{id}', [CommunityController::class, 'show'])->name
 Route::middleware(['auth'])->group(function () {
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+    Route::get('/community/{id}/edit', [CommunityController::class, 'edit'])->name('community.edit');
+    Route::put('/community/{id}', [CommunityController::class, 'update'])->name('community.update');
+    Route::delete('/community/{id}', [CommunityController::class, 'destroy'])->name('community.destroy');
     Route::post('/community/meetup/{id}/join', [CommunityController::class, 'requestToJoin'])->name('community.join');
 });
 // Location Switcher & Auto-Detect API
@@ -80,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
     // 6. Community Meetups Management
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
     Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
+    Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
 
     // Breeze Profile edit routes (Merged into Settings Controller)
     Route::get('/profile', [SettingsController::class, 'index'])->name('profile.edit');

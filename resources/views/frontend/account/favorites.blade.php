@@ -72,7 +72,7 @@
                                         <!-- Quick Remove Favorite Button -->
                                         <button type="button"
                                             class="btn-remove-fav position-absolute top-0 end-0 m-2 rounded-circle border-0 d-flex align-items-center justify-content-center"
-                                            onclick="removeFavoriteItem({{ $fav['id'] }}, '{{ addslashes($fav['title']) }}')"
+                                            data-bs-toggle="modal" data-bs-target="#removeFavModal{{ $fav['id'] }}"
                                             title="Remove from favorites"
                                             style="width: 36px; height: 36px; background: rgba(13, 36, 60, 0.85); backdrop-filter: blur(4px); color: #F87171; transition: all 0.2s ease;">
                                             <i class="bi bi-heart-fill fs-6"></i>
@@ -173,12 +173,23 @@
                         </button>
                     </div>
 
+                    @foreach($favorites as $fav)
+                        <x-confirm-modal 
+                            id="removeFavModal{{ $fav['id'] }}"
+                            title="Remove Favorite"
+                            buttonText="Yes, Remove"
+                            buttonClass="btn-danger"
+                            onClick="removeFavoriteItem({{ $fav['id'] }}); bootstrap.Modal.getInstance(document.getElementById('removeFavModal{{ $fav['id'] }}')).hide();"
+                        >
+                            Are you sure you want to remove <strong>"{{ $fav['title'] }}"</strong> from your favorites?
+                        </x-confirm-modal>
+                    @endforeach
+
                 @endsection
 
     @push('scripts')
         <script>
-            function removeFavoriteItem(id, title) {
-                if (!confirm(`Remove "${title}" from your favorites?`)) return;
+            function removeFavoriteItem(id) {
 
                 fetch(`{{ url('/favorites') }}/${id}`, {
                     method: 'DELETE',
