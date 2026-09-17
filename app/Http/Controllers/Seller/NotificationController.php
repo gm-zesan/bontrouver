@@ -39,11 +39,33 @@ class NotificationController extends Controller
             $action_label = 'View';
 
             if ($type === 'SmartAlertMatched') {
-                $icon = 'bi-search-heart';
+                $icon = 'bi-search-heart text-success';
                 $title = 'Smart Alert Match: ' . ($dbNotif->data['alert_name'] ?? '');
                 $body = 'A new listing "' . ($dbNotif->data['listing_title'] ?? '') . '" matches your alert criteria.';
                 $action_url = isset($dbNotif->data['listing_slug']) ? url('/listing/' . $dbNotif->data['listing_slug']) : '#';
                 $action_label = 'View Listing';
+            } elseif ($type === 'MeetupJoinRequested') {
+                $icon = 'bi-person-plus-fill text-primary';
+                $title = 'New Meetup RSVP Request';
+                $body = ($dbNotif->data['requester_name'] ?? 'Someone') . ' requested to join your meetup "' . ($dbNotif->data['meetup_title'] ?? '') . '".';
+                $action_url = route('meetups.my');
+                $action_label = 'Manage Requests';
+            } elseif ($type === 'MeetupAttendeeStatusUpdated') {
+                $status = $dbNotif->data['status'] ?? 'updated';
+                $isApproved = $status === 'approved';
+                $icon = $isApproved ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-danger';
+                $title = $isApproved ? 'Meetup Request Approved! 🎉' : 'Meetup Request Update';
+                $body = $isApproved
+                    ? 'Your request to join "' . ($dbNotif->data['meetup_title'] ?? '') . '" was approved by ' . ($dbNotif->data['host_name'] ?? 'the host') . '!'
+                    : 'Your request to join "' . ($dbNotif->data['meetup_title'] ?? '') . '" was declined by the host.';
+                $action_url = isset($dbNotif->data['meetup_id']) ? route('community.show', $dbNotif->data['meetup_id']) : route('meetups.my');
+                $action_label = 'View Meetup';
+            } elseif ($type === 'MeetupCancelled') {
+                $icon = 'bi-calendar-x-fill text-warning';
+                $title = 'Meetup Cancelled';
+                $body = 'The meetup "' . ($dbNotif->data['meetup_title'] ?? '') . '" has been cancelled by the host.';
+                $action_url = route('meetups.my');
+                $action_label = 'View My Meetups';
             }
 
             $formatted = [

@@ -30,10 +30,12 @@ class SmartAlertService
             // Save dynamic attributes if any
             if (!empty($data['attributes']) && is_array($data['attributes'])) {
                 foreach ($data['attributes'] as $attrId => $value) {
-                    $alert->attributes()->create([
-                        'category_attribute_id' => $attrId,
-                        'value' => is_array($value) ? json_encode($value) : $value,
-                    ]);
+                    if ($value !== null && $value !== '') {
+                        $alert->attributes()->create([
+                            'category_attribute_id' => $attrId,
+                            'value' => is_array($value) ? json_encode($value) : (string)$value,
+                        ]);
+                    }
                 }
             }
 
@@ -47,6 +49,15 @@ class SmartAlertService
     public function delete(SmartAlert $alert): bool
     {
         return $alert->delete();
+    }
+
+    /**
+     * Toggle active/inactive status of an alert.
+     */
+    public function toggleActive(SmartAlert $alert): bool
+    {
+        $alert->is_active = !$alert->is_active;
+        return $alert->save();
     }
 
     /**
@@ -106,11 +117,29 @@ class SmartAlertService
                 }
             }
 
-            // Check dynamic attributes (e.g. bedrooms)
+            // Check dynamic category attributes (e.g. bedrooms, transmission, condition, etc.)
             $attributesMatch = true;
-            if ($alert->attributes->isNotEmpty() && $listing->relationLoaded('attributes')) {
-                // Not fully implemented attribute matching for MVP unless needed, 
-                // but this is where it would loop over alert->attributes and compare with listing->attributes
+            if ($alert->attributes->isNotEmpty()) {
+                $listing->loadMissing('attributes');
+                $listingAttributes = $listing->attributes->keyBy('category_attribute_id');
+
+                foreach ($alert->attributes as $alertAttr) {
+                    $listingAttr = $listingAttributes->get($alertAttr->category_attribute_id);
+
+                    // If listing doesn't have this attribute, it doesn't match
+                    if (!$listingAttr) {
+                        $attributesMatch = false;
+                        break;
+                    }
+
+                    $alertVal = trim((string)$alertAttr->value);
+                    $listingVal = trim((string)$listingAttr->value);
+
+                    if (strcasecmp($alertVal, $listingVal) !== 0) {
+                        $attributesMatch = false;
+                        break;
+                    }
+                }
             }
 
             if ($attributesMatch) {

@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'index'])->name('account.alerts.index');
     Route::get('/account/alerts/create', [\App\Http\Controllers\SmartAlertController::class, 'create'])->name('account.alerts.create');
     Route::post('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'store'])->name('account.alerts.store');
+    Route::patch('/account/alerts/{alert}/toggle', [\App\Http\Controllers\SmartAlertController::class, 'toggle'])->name('account.alerts.toggle');
     Route::delete('/account/alerts/{alert}', [\App\Http\Controllers\SmartAlertController::class, 'destroy'])->name('account.alerts.destroy');
 
     // 1. Favorites / Saved Ads

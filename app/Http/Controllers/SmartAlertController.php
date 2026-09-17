@@ -16,14 +16,15 @@ class SmartAlertController extends Controller
 
     public function index()
     {
-        $alerts = auth()->user()->smartAlerts()->with('category')->get();
+        $alerts = auth()->user()->smartAlerts()->with(['category', 'attributes.categoryAttribute'])->get();
         return view('frontend.account.alerts.index', compact('alerts'));
     }
 
     public function create()
     {
         $categories = Category::whereNull('parent_id')->with('children')->get();
-        return view('frontend.account.alerts.create', compact('categories'));
+        $citiesMap = \App\Models\City::getCitiesMap();
+        return view('frontend.account.alerts.create', compact('categories', 'citiesMap'));
     }
 
     public function store(StoreSmartAlertRequest $request)
@@ -39,5 +40,15 @@ class SmartAlertController extends Controller
         }
         $this->smartAlertService->delete($alert);
         return redirect()->route('account.alerts.index')->with('success', 'Smart Alert deleted successfully!');
+    }
+
+    public function toggle(SmartAlert $alert)
+    {
+        if ($alert->user_id !== auth()->id()) {
+            abort(403);
+        }
+        $this->smartAlertService->toggleActive($alert);
+        $statusMsg = $alert->is_active ? 'Smart Alert activated.' : 'Smart Alert paused.';
+        return redirect()->route('account.alerts.index')->with('success', $statusMsg);
     }
 }

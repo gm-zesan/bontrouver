@@ -29,6 +29,7 @@ class StoreSmartAlertRequest extends FormRequest
             'city' => ['nullable', 'string', 'max:255'],
             'min_price' => ['nullable', 'numeric', 'min:0'],
             'max_price' => ['nullable', 'numeric', 'min:0'],
+            'attributes' => ['nullable', 'array'],
         ];
     }
 }

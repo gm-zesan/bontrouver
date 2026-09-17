@@ -6,6 +6,9 @@ use App\Exceptions\CompanionshipException;
 use App\Models\CompanionshipRequest;
 use App\Models\CompanionshipAttendee;
 use App\Models\User;
+use App\Notifications\MeetupJoinRequested;
+use App\Notifications\MeetupAttendeeStatusUpdated;
+use App\Notifications\MeetupCancelled;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -73,11 +76,16 @@ class CompanionshipService
             throw CompanionshipException::alreadyRequested();
         }
 
-        return CompanionshipAttendee::create([
+        $attendee = CompanionshipAttendee::create([
             'companionship_request_id' => $request->id,
             'user_id' => $user->id,
             'status' => 'pending',
         ]);
+
+        // Notify meetup host of the new join request
+        $request->user->notify(new MeetupJoinRequested($request, $user));
+
+        return $attendee;
     }
 
     /**
@@ -107,6 +115,9 @@ class CompanionshipService
                         ->update(['status' => 'rejected']);
                 }
             }
+
+            // Notify attendee of the decision
+            $attendee->user->notify(new MeetupAttendeeStatusUpdated($request, $status));
         });
     }
 
@@ -135,6 +146,14 @@ class CompanionshipService
     public function deleteRequest(CompanionshipRequest $meetup): void
     {
         DB::transaction(function () use ($meetup) {
+            $attendees = CompanionshipAttendee::where('companionship_request_id', $meetup->id)
+                ->with('user')
+                ->get();
+
+            foreach ($attendees as $att) {
+                $att->user->notify(new MeetupCancelled($meetup));
+            }
+
             // Cancel all attendees
             CompanionshipAttendee::where('companionship_request_id', $meetup->id)
                 ->update(['status' => 'rejected']);

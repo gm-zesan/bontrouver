@@ -42,12 +42,12 @@
                 <div class="col-md-6">
                     <label for="category_id" class="form-label-custom">Category</label>
                     <select class="form-select form-control-custom @error('category_id') is-invalid @enderror" id="category_id" name="category_id">
-                        <option value="">All Categories</option>
+                        <option value="" data-slug="">All Categories</option>
                         @foreach($categories as $cat)
                             <optgroup label="{{ $cat->name }}">
-                                <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>All {{ $cat->name }}</option>
+                                <option value="{{ $cat->id }}" data-slug="{{ $cat->slug }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>All {{ $cat->name }}</option>
                                 @foreach($cat->children as $child)
-                                    <option value="{{ $child->id }}" {{ old('category_id') == $child->id ? 'selected' : '' }}>-- {{ $child->name }}</option>
+                                    <option value="{{ $child->id }}" data-slug="{{ $child->slug }}" data-parent-slug="{{ $cat->slug }}" {{ old('category_id') == $child->id ? 'selected' : '' }}>-- {{ $child->name }}</option>
                                 @endforeach
                             </optgroup>
                         @endforeach
@@ -60,10 +60,45 @@
                 <!-- City -->
                 <div class="col-md-6">
                     <label for="city" class="form-label-custom">City / Location</label>
-                    <input type="text" class="form-control form-control-custom @error('city') is-invalid @enderror" id="city" name="city" value="{{ old('city', request('city')) }}" placeholder="e.g., Montréal">
+                    <input type="text" list="canadianCitiesList" class="form-control form-control-custom @error('city') is-invalid @enderror" id="city" name="city" value="{{ old('city', request('city')) }}" placeholder="e.g., Montréal, Toronto, Vancouver..." autocomplete="off">
+                    <datalist id="canadianCitiesList">
+                        @if(!empty($citiesMap))
+                            @foreach($citiesMap as $c)
+                                <option value="{{ $c['name'] }}">{{ $c['name'] }}, {{ $c['province'] ?? '' }}</option>
+                            @endforeach
+                        @else
+                            <option value="Montréal">Montréal, QC</option>
+                            <option value="Toronto">Toronto, ON</option>
+                            <option value="Vancouver">Vancouver, BC</option>
+                            <option value="Calgary">Calgary, AB</option>
+                            <option value="Ottawa">Ottawa, ON</option>
+                            <option value="Edmonton">Edmonton, AB</option>
+                            <option value="Quebec City">Quebec City, QC</option>
+                            <option value="Winnipeg">Winnipeg, MB</option>
+                            <option value="Halifax">Halifax, NS</option>
+                            <option value="Victoria">Victoria, BC</option>
+                        @endif
+                    </datalist>
                     @error('city')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div>
+            </div>
+
+            <!-- Dynamic Category Attributes Section -->
+            <div id="dynamicAttributesContainer" class="p-4 rounded-3 mb-4" style="display: none; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.15);">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h6 class="text-white mb-1 fw-bold d-flex align-items-center gap-2">
+                            <i class="bi bi-sliders text-warning"></i>
+                            <span>Category Specific Filters</span>
+                        </h6>
+                        <p class="text-secondary small mb-0">Optional criteria tailored to this category.</p>
+                    </div>
+                    <span class="badge bg-dark border border-secondary border-opacity-25 text-white-50 px-2 py-1 small" id="attributesCategoryBadge"></span>
+                </div>
+                <div class="row g-3" id="dynamicAttributesFields">
+                    <!-- Dynamic inputs rendered via JavaScript -->
                 </div>
             </div>
 
@@ -101,4 +136,86 @@
             </div>
         </form>
     </div>
+
+    @push('scripts')
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category_id');
+        const container = document.getElementById('dynamicAttributesContainer');
+        const fields = document.getElementById('dynamicAttributesFields');
+        const badge = document.getElementById('attributesCategoryBadge');
+
+        function loadCategoryAttributes() {
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+            if (!selectedOption || !selectedOption.value) {
+                container.style.display = 'none';
+                fields.innerHTML = '';
+                return;
+            }
+
+            const slug = selectedOption.getAttribute('data-slug');
+            const parentSlug = selectedOption.getAttribute('data-parent-slug');
+            const catName = selectedOption.text.replace(/^--\s*/, '');
+
+            const targetSlug = parentSlug || slug;
+            const subParam = parentSlug ? `?sub=${slug}` : '';
+
+            badge.textContent = catName;
+            fields.innerHTML = '<div class="col-12 text-secondary small py-2"><i class="bi bi-hourglass-split me-1"></i> Loading category filters...</div>';
+            container.style.display = 'block';
+
+            fetch(`{{ url('/api/category-attributes') }}/${targetSlug}${subParam}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.attributes && data.attributes.length > 0) {
+                        fields.innerHTML = '';
+                        data.attributes.forEach(attr => {
+                            const col = document.createElement('div');
+                            col.className = attr.col === 12 ? 'col-12' : 'col-md-6';
+
+                            let inputHtml = '';
+                            if (attr.options && attr.options.length > 0) {
+                                inputHtml = `
+                                    <label class="form-label-custom">${attr.label}</label>
+                                    <select class="form-select form-control-custom" name="attributes[${attr.id}]">
+                                        <option value="">Any ${attr.label}</option>
+                                        ${attr.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                    </select>
+                                `;
+                            } else if (attr.type === 'number') {
+                                inputHtml = `
+                                    <label class="form-label-custom">${attr.label}</label>
+                                    <input type="number" class="form-control form-control-custom" name="attributes[${attr.id}]" placeholder="Any">
+                                `;
+                            } else {
+                                inputHtml = `
+                                    <label class="form-label-custom">${attr.label}</label>
+                                    <input type="text" class="form-control form-control-custom" name="attributes[${attr.id}]" placeholder="${attr.placeholder || 'Any'}">
+                                `;
+                            }
+
+                            col.innerHTML = inputHtml;
+                            fields.appendChild(col);
+                        });
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                        fields.innerHTML = '';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching attributes:', err);
+                    container.style.display = 'none';
+                });
+        }
+
+        categorySelect.addEventListener('change', loadCategoryAttributes);
+
+        // If category is already selected on page load
+        if (categorySelect.value) {
+            loadCategoryAttributes();
+        }
+    });
+    </script>
+    @endpush
 @endsection

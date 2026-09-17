@@ -18,13 +18,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success rounded-3 border-0 bg-success bg-opacity-10 text-success d-flex align-items-center mb-4">
-            <i class="bi bi-check-circle-fill fs-5 me-2"></i> 
-            <div>{{ session('success') }}</div>
-        </div>
-    @endif
-
     <div class="d-flex flex-column gap-3">
         @if($alerts->isEmpty())
             <div class="dark-surface-card p-5 text-center">
@@ -75,10 +68,30 @@
                                         <i class="bi bi-search text-info"></i> "{{ $alert->keyword }}"
                                     </span>
                                 @endif
+                                @if($alert->attributes && $alert->attributes->isNotEmpty())
+                                    @foreach($alert->attributes as $attr)
+                                        <span class="badge bg-dark-subtle text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-2 d-flex align-items-center gap-1">
+                                            <i class="bi bi-sliders text-warning"></i> {{ $attr->categoryAttribute->name ?? 'Attribute' }}: <strong class="text-white ms-1">{{ $attr->value }}</strong>
+                                        </span>
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
                         
-                        <div class="d-flex align-items-start gap-2 flex-shrink-0">
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <form action="{{ route('account.alerts.toggle', $alert) }}" method="POST">
+                                @csrf
+                                @method('PATCH')
+                                @if($alert->is_active)
+                                    <button type="submit" class="btn btn-sm btn-dark border border-secondary border-opacity-25 text-white-50 px-3 py-2 rounded-pill" title="Pause Alert">
+                                        <i class="bi bi-pause-circle me-1"></i> Pause
+                                    </button>
+                                @else
+                                    <button type="submit" class="btn btn-sm btn-dark border border-success border-opacity-25 text-success px-3 py-2 rounded-pill" title="Resume Alert">
+                                        <i class="bi bi-play-circle me-1"></i> Resume
+                                    </button>
+                                @endif
+                            </form>
                             <form action="{{ route('account.alerts.destroy', $alert) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this alert?');">
                                 @csrf
                                 @method('DELETE')
