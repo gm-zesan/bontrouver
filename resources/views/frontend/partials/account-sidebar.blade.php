@@ -96,6 +96,12 @@
                 <span class="flex-grow-1">Community Meetups</span>
             </a>
 
+            <a href="{{ route('account.alerts.index') }}"
+                class="account-dark-nav-item {{ $currentRoute === 'alerts' ? 'active' : '' }}">
+                <i class="bi bi-bell-fill"></i>
+                <span class="flex-grow-1">Smart Alerts</span>
+            </a>
+
             <a href="{{ url('/settings') }}"
                 class="account-dark-nav-item {{ $currentRoute === 'settings' ? 'active' : '' }}">
                 <i class="bi bi-gear-fill"></i>

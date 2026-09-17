@@ -11,7 +11,8 @@
         request()->routeIs('messages*') ? 'messages' : (
         request()->routeIs('notifications*') ? 'notifications' : (
         request()->routeIs('settings*') ? 'settings' : (
-        request()->routeIs('meetups*') ? 'meetups' : 'profile'))))))
+        request()->routeIs('meetups*') ? 'meetups' : (
+        request()->routeIs('account.alerts*') ? 'alerts' : 'profile')))))))
     );
     $stats = $stats ?? [];
 @endphp
@@ -69,6 +70,11 @@
                     <li class="nav-item">
                         <a href="{{ route('meetups.my') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'meetups' ? 'active' : '' }}">
                             <i class="bi bi-people-fill me-1"></i> Community Meetups
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('account.alerts.index') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'alerts' ? 'active' : '' }}">
+                            <i class="bi bi-bell-fill me-1"></i> Smart Alerts
                         </a>
                     </li>
                 </ul>

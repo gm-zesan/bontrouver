@@ -80,7 +80,7 @@ class SellerListingService
             'unread_messages_count' => Message::whereHas('conversation', function ($query) use ($user) {
                 $query->where('buyer_id', $user->id)->orWhere('seller_id', $user->id);
             })->where('sender_id', '!=', $user->id)->whereNull('read_at')->count(),
-            'unread_notifications_count' => 0, // Pending notifications DB
+            'unread_notifications_count' => $user->unreadNotifications()->count(),
         ];
     }
 }

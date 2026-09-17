@@ -125,6 +125,25 @@
             background: rgba(239, 68, 68, 0.15) !important;
             color: #EF4444 !important;
         }
+
+        .attendee-profile-link {
+            text-decoration: none !important;
+            transition: all 0.2s ease;
+        }
+
+        .attendee-profile-link:hover .attendee-name {
+            color: var(--theme-color, #49D17D) !important;
+        }
+
+        .attendee-profile-link:hover .attendee-icon {
+            color: var(--theme-color, #49D17D) !important;
+            transform: translateX(1px) translateY(-1px);
+        }
+
+        .attendee-profile-link:hover .meetup-avatar-circle {
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+            transform: scale(1.05);
+        }
     </style>
 
     <!-- Page Header -->
@@ -253,17 +272,35 @@
                                                             $attendeeBadgeClass = $attendee->status == 'approved' ? 'meetup-status-open' : 'meetup-status-full';
                                                         @endphp
                                                         <div class="attendee-item py-2 d-flex justify-content-between align-items-center">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div class="avatar avatar-sm meetup-avatar-circle rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                                                    style="width: 28px; height: 28px; font-size: 0.75rem;">
-                                                                    {{ strtoupper(substr($attendee->user->name, 0, 1)) }}
+                                                            <a href="{{ route('profile.view', ['id' => $attendee->user->id]) }}" 
+                                                                target="_blank"
+                                                                class="d-flex align-items-center gap-2 attendee-profile-link" 
+                                                                title="View {{ $attendee->user->name }}'s profile">
+                                                                @if($attendee->user->avatar ?? false)
+                                                                    <img src="{{ $attendee->user->avatar }}" alt="{{ $attendee->user->name }}"
+                                                                        class="rounded-circle object-fit-cover" style="width: 28px; height: 28px;">
+                                                                @else
+                                                                    <div class="avatar avatar-sm meetup-avatar-circle rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                                                        style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                                                        {{ strtoupper(substr($attendee->user->name, 0, 1)) }}
+                                                                    </div>
+                                                                @endif
+                                                                <div class="d-flex align-items-center gap-1">
+                                                                    <span class="small fw-medium attendee-name text-white">{{ $attendee->user->name }}</span>
+                                                                    <i class="bi bi-box-arrow-up-right attendee-icon text-white-50" style="font-size: 0.65rem;"></i>
                                                                 </div>
-                                                                <span class="small fw-medium text-white">{{ $attendee->user->name }}</span>
-                                                            </div>
+                                                            </a>
 
                                                             <div>
                                                                 @if($attendee->status == 'pending')
-                                                                    <div class="d-flex gap-1">
+                                                                    <div class="d-flex gap-1 align-items-center">
+                                                                        <a href="{{ route('profile.view', ['id' => $attendee->user->id]) }}" 
+                                                                            target="_blank"
+                                                                            class="btn btn-sm btn-outline-info rounded-pill px-2 py-1"
+                                                                            style="font-size: 0.75rem;" 
+                                                                            title="View {{ $attendee->user->name }}'s profile">
+                                                                            <i class="bi bi-person me-1"></i>Profile
+                                                                        </a>
                                                                         <form
                                                                             action="{{ route('meetups.my.attendee.status', [$meetup->id, $attendee->id]) }}"
                                                                             method="POST" class="d-inline">
@@ -288,10 +325,12 @@
                                                                         </form>
                                                                     </div>
                                                                 @else
-                                                                    <span class="badge {{ $attendeeBadgeClass }} rounded-pill px-2 py-1"
-                                                                        style="font-size: 0.7rem;">
-                                                                        {{ ucfirst($attendee->status) }}
-                                                                    </span>
+                                                                    <div class="d-flex align-items-center gap-1">
+                                                                        <span class="badge {{ $attendeeBadgeClass }} rounded-pill px-2 py-1"
+                                                                            style="font-size: 0.7rem;">
+                                                                            {{ ucfirst($attendee->status) }}
+                                                                        </span>
+                                                                    </div>
                                                                 @endif
                                                             </div>
                                                         </div>
@@ -362,8 +401,7 @@
                                             {{ $meetup->meetup_date_time->format('D, M j, Y g:i A') }}</li>
                                         <li><i class="bi bi-geo-alt me-2 text-primary"></i> {{ $meetup->location_name }}
                                             ({{ $meetup->city }})</li>
-                                        <li><i class="bi bi-person-circle me-2 text-primary"></i> Hosted by <span
-                                                class="fw-medium text-white">{{ $meetup->user->name }}</span></li>
+                                        <li><i class="bi bi-person-circle me-2 text-primary"></i> Hosted by <a href="{{ route('profile.view', ['id' => $meetup->user->id]) }}" class="fw-medium text-white text-decoration-none hover-primary" target="_blank">{{ $meetup->user->name }}</a></li>
                                     </ul>
                                 </div>
 

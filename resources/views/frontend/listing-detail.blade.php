@@ -79,7 +79,10 @@
 
                 {{-- 3. ACTIVE LISTING TWO-COLUMN LAYOUT --}}
                 @php
-                    $gallery = $listing['gallery'] ?? [$listing['image']];
+                    $gallery = !empty($listing['gallery']) ? $listing['gallery'] : (!empty($listing['image']) ? [$listing['image']] : []);
+                    if (empty($gallery)) {
+                        $gallery = ['https://via.placeholder.com/800x600?text=No+Image'];
+                    }
                     $totalPhotos = count($gallery);
                 @endphp
 

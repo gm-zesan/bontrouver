@@ -286,7 +286,7 @@
                         </p>
                     </div>
                     <div class="col-lg-6">
-                        <form action="{{ url('/alerts') }}" method="GET" class="smart-alert-form">
+                        <form action="{{ route('account.alerts.create') }}" method="GET" class="smart-alert-form">
                             <input type="text" name="keyword" class="smart-alert-input" placeholder="Keyword (e.g. 1-Bed Room, RAV4)" value="{{ request('keyword') }}">
                             <select name="city" class="smart-alert-input">
                                 <option value="">Select City</option>

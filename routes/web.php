@@ -58,6 +58,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
     Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
 
+    // Smart Alerts
+    Route::get('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'index'])->name('account.alerts.index');
+    Route::get('/account/alerts/create', [\App\Http\Controllers\SmartAlertController::class, 'create'])->name('account.alerts.create');
+    Route::post('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'store'])->name('account.alerts.store');
+    Route::delete('/account/alerts/{alert}', [\App\Http\Controllers\SmartAlertController::class, 'destroy'])->name('account.alerts.destroy');
+
     // 1. Favorites / Saved Ads
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
@@ -70,8 +76,8 @@ Route::middleware(['auth'])->group(function () {
 
     // 3. Notifications Center
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::delete('/notifications/delete', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // 4. User Public / Account Profile
     Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');

@@ -7,6 +7,11 @@
      style="background: {{ $isUnread ? '#0D243C' : '#091B2E' }}; border: 1px solid {{ $isUnread ? 'rgba(73, 209, 125, 0.2)' : 'rgba(255, 255, 255, 0.05)' }}; transition: all 0.2s ease;">
     
     <div class="d-flex align-items-start gap-3 min-w-0">
+        <!-- Selection Checkbox -->
+        <div class="form-check mt-2 me-2">
+            <input class="form-check-input notif-checkbox bg-transparent border-secondary" type="checkbox" value="{{ $notif['id'] }}" id="check-{{ $notif['id'] }}" style="cursor: pointer;">
+        </div>
+
         <!-- Notification Icon -->
         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1" 
              style="width: 42px; height: 42px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08);">
@@ -45,11 +50,19 @@
             <button type="button" 
                     class="btn btn-sm btn-dark border border-secondary border-opacity-25 text-secondary px-2 py-1" 
                     title="Mark as read"
-                    onclick="markSingleRead({{ $notif['id'] }}, this)"
+                    onclick="markSingleRead('{{ $notif['id'] }}', this)"
                     style="font-size: 0.75rem;">
                 <i class="bi bi-check2"></i>
             </button>
         @endif
+        
+        <button type="button" 
+                class="btn btn-sm btn-dark border border-secondary border-opacity-25 text-danger px-2 py-1" 
+                title="Delete"
+                onclick="deleteSingle('{{ $notif['id'] }}', this)"
+                style="font-size: 0.75rem;">
+            <i class="bi bi-trash"></i>
+        </button>
     </div>
 
 </div>

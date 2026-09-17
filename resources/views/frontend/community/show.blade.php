@@ -117,6 +117,37 @@
                             </div>
                         </div>
 
+                        @php
+                            $approvedAttendees = $meetup->attendees->where('status', 'approved');
+                        @endphp
+                        @if($approvedAttendees->isNotEmpty())
+                            <div class="mt-4 pt-4 border-top border-secondary border-opacity-10">
+                                <h4 class="section-heading fs-5 mb-3 d-flex align-items-center gap-2">
+                                    <i class="bi bi-people text-primary"></i>
+                                    <span>Joined Attendees ({{ $approvedAttendees->count() }})</span>
+                                </h4>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($approvedAttendees as $att)
+                                        <a href="{{ route('profile.view', ['id' => $att->user->id]) }}" 
+                                            class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-decoration-none border border-secondary border-opacity-25 text-white" 
+                                            style="background: rgba(255,255,255,0.04); transition: all 0.2s ease;"
+                                            target="_blank"
+                                            title="View {{ $att->user->name }}'s profile">
+                                            @if($att->user->avatar ?? false)
+                                                <img src="{{ $att->user->avatar }}" alt="{{ $att->user->name }}" class="rounded-circle object-fit-cover" style="width: 26px; height: 26px;">
+                                            @else
+                                                <div class="avatar avatar-sm rounded-circle d-flex align-items-center justify-content-center fw-bold bg-primary text-white" style="width: 26px; height: 26px; font-size: 0.75rem;">
+                                                    {{ strtoupper(substr($att->user->name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                            <span class="small fw-medium">{{ $att->user->name }}</span>
+                                            <i class="bi bi-box-arrow-up-right text-white-50 ms-1" style="font-size: 0.65rem;"></i>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mt-4 pt-4 border-top border-secondary border-opacity-10">
                             <h4 class="section-heading fs-5 mb-3">Location Map</h4>
                             <div class="rounded-4 overflow-hidden position-relative"

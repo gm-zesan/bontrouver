@@ -7,6 +7,7 @@ use App\Models\City;
 use App\Models\Favorite;
 use App\Models\Listing;
 use App\Http\Controllers\HomeController;
+use App\Events\ListingCreated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -281,7 +282,7 @@ class ListingService
         $userId = auth()->id() ?? \App\Models\User::first()?->id ?? 1;
         $slug   = Str::slug($validated['title']) . '-' . rand(1000, 9999);
 
-        return Listing::create([
+        $listing = Listing::create([
             'user_id'     => $userId,
             'category_id' => $category?->id ?? 1,
             'city_id'     => $cityModel?->id,
@@ -302,6 +303,10 @@ class ListingService
             'is_sponsored'=> false,
             'published_at'=> now(),
         ]);
+
+        ListingCreated::dispatch($listing);
+
+        return $listing;
     }
 
     // ─── Private ───────────────────────────────────────────────────────────────
