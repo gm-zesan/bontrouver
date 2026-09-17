@@ -5,7 +5,7 @@ namespace App\Policies;
 use App\Models\CompanionshipRequest;
 use App\Models\User;
 
-class CompanionshipPolicy
+class CompanionshipRequestPolicy
 {
     /**
      * Any authenticated user can create a meetup.

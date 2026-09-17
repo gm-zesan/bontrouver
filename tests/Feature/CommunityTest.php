@@ -114,8 +114,7 @@ class CommunityTest extends TestCase
 
         $response = $this->actingAs($host)->post(route('community.join', $meetup->id));
         
-        $response->assertRedirect();
-        $response->assertSessionHas('error');
+        $response->assertForbidden();
     }
 
     public function test_host_can_approve_attendee_and_meetup_becomes_full(): void

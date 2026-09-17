@@ -223,15 +223,14 @@
                                             accepting new requests.
                                         </div>
                                     @else
-                                        <form action="{{ route('community.join', $meetup->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="hero-btn-primary w-100 justify-content-center">
-                                                <span>Request to Join</span>
-                                            </button>
-                                            <div class="text-center mt-3">
-                                                <small class="text-white-50">The host will review your profile before approving.</small>
-                                            </div>
-                                        </form>
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#joinMeetupModal" class="hero-btn-primary w-100 justify-content-center">
+                                            <span>Request to Join</span>
+                                        </button>
+                                        <div class="text-center mt-3">
+                                            <small class="text-white-50">The host will review your profile before approving.</small>
+                                        </div>
+
+
                                     @endif
                                 @endif
                             @else
@@ -252,4 +251,18 @@
         </div>
     </div>
     </div>
+
+    {{-- Modals should be outside of positioned containers --}}
+    @auth
+    @if(auth()->id() != $meetup->user_id && $meetup->status == 'open' && !$meetup->attendees->where('user_id', auth()->id())->first())
+        <x-confirm-modal 
+            id="joinMeetupModal" 
+            title="Request to Join Meetup" 
+            action="{{ route('community.join', $meetup->id) }}"
+            buttonText="Yes, Send Request"
+            buttonClass="btn-primary">
+            Are you sure you want to request to join this meetup? The host will review your profile and be able to approve or reject your request.
+        </x-confirm-modal>
+    @endif
+    @endauth
 @endsection
