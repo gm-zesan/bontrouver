@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\UpdateUserProfileRequest;
 use App\Services\CategoryService;
 use App\Services\SellerListingService;
+use App\Services\UserProfileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,12 +17,12 @@ use Illuminate\View\View;
 class SettingsController extends Controller
 {
     public function __construct(
-        private readonly SellerListingService $listingService
+        private readonly SellerListingService $listingService,
+        private readonly UserProfileService $profileService
     ) {}
 
     /**
      * Display Account Settings & Preferences.
-     * (Merges Breeze's edit method and SellerDashboard's settings method)
      */
     public function index(Request $request): View
     {
@@ -30,32 +32,74 @@ class SettingsController extends Controller
             'user' => $user,
             'categories' => CategoryService::getAll(),
             'stats' => $this->listingService->getDashboardHeaderStats($user),
+            'latestVerification' => $user->latestVerification,
+            'verifications' => $user->verifications()->latest()->get(),
         ]);
     }
 
     /**
-     * Save basic profile settings (name, phone, location, bio).
+     * Save profile settings (name, phone, city, province, postal_code, location, bio, avatar).
      */
-    public function updateProfile(Request $request): RedirectResponse
+    public function updateProfile(UpdateUserProfileRequest $request): RedirectResponse
     {
         $user = Auth::user();
 
-        if ($request->has('name')) {
-            $user->name = $request->input('name');
-        }
-        if ($request->has('phone')) {
-            $user->phone = $request->input('phone');
-        }
-        if ($request->has('location')) {
-            $user->location = $request->input('location');
-        }
-        if ($request->has('bio')) {
-            $user->bio = $request->input('bio');
-        }
+        $avatarFile = $request->file('avatar') ?? $request->input('avatar_base64');
 
+        $this->profileService->updateProfile($user, $request->validated(), $avatarFile);
+
+        return redirect()->back()->with('status', 'Profile and settings updated successfully.');
+    }
+
+    /**
+     * Save all notification preferences.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $prefs = [
+            'messages' => $request->boolean('messages', false),
+            'alerts' => $request->boolean('alerts', false),
+            'meetups' => $request->boolean('meetups', false),
+        ];
+
+        $user->notification_preferences = $prefs;
         $user->save();
 
-        return redirect()->back()->with('status', 'Settings updated successfully.');
+        return redirect()->back()->with('status', 'Notification preferences updated successfully.');
+    }
+
+    /**
+     * AJAX instant toggle for a single notification preference.
+     */
+    public function toggleNotification(Request $request)
+    {
+        $request->validate([
+            'key' => 'required|string|in:messages,alerts,meetups',
+            'enabled' => 'required|boolean',
+        ]);
+
+        $user = Auth::user();
+        $key = $request->input('key');
+        $enabled = (bool) $request->input('enabled');
+
+        $prefs = $user->notification_preferences ?? [
+            'messages' => true,
+            'alerts' => true,
+            'meetups' => true,
+        ];
+
+        $prefs[$key] = $enabled;
+        $user->notification_preferences = $prefs;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'key' => $key,
+            'enabled' => $enabled,
+            'message' => ucfirst($key) . ' notifications ' . ($enabled ? 'enabled' : 'disabled') . '.',
+        ]);
     }
 
     /**
@@ -71,7 +115,7 @@ class SettingsController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('settings.index')->with('status', 'profile-updated');
+        return Redirect::route('settings.index')->with('status', 'Login email updated successfully.');
     }
 
     /**

@@ -22,6 +22,9 @@ Whenever building any functionality, modifying code, designing migrations, or re
    - **MVC-S Flow**: `Request → Route → Form Request (Validation) → Controller → Service Layer → Model / Query → View / Resource`.
    - **Thin Controllers**: Controllers only handle HTTP orchestration; all business logic lives in dedicated `app/Services/` classes.
 
+4. **[Project Status & Feature Implementation Report](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/project_status_report.md)**:
+   - Live tracker of implementation percentage, completed modules, and roadmap. Always maintain 100% sync.
+
 ---
 
 ## 2. Eloquent Models & Relationship Cheat-Sheet
@@ -38,8 +41,11 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$user->reviewsGiven()` → `hasMany(Review::class, 'reviewer_id')`
 - `$user->smartAlerts()` → `hasMany(SmartAlert::class)`
 - `$user->companionshipRequests()` → `hasMany(CompanionshipRequest::class)`
-- Accessors: `$user->rating` (avg rating), `$user->reviews_count` (total count)
-- Helpers: `$user->isAdmin()`, `$user->isModerator()`
+- `$user->verifications()` → `hasMany(UserVerification::class)`
+- `$user->latestVerification()` → `hasOne(UserVerification::class)->latestOfMany()`
+- Accessors: `$user->rating` (avg rating), `$user->reviews_count` (total count), `$user->member_tier` (array of tier name, icon, level, progress %), `$user->completed_transactions_count` (total completed deals), `$user->verification_status`
+- Helpers: `$user->isAdmin()`, `$user->isModerator()`, `$user->wantsNotification(string $type)`
+- Fields: `name`, `email`, `password`, `role`, `is_dealer`, `phone`, `city`, `province`, `postal_code`, `location`, `avatar`, `bio`, `community_points`, `is_verified`, `notification_preferences` (json)
 
 ### Category (`App\Models\Category`)
 - `$category->parent()` → `belongsTo(Category::class, 'parent_id')`
@@ -141,6 +147,11 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$report->reporter()` → `belongsTo(User::class, 'reporter_id')`
 - `$report->reportable()` → `morphTo()`
 
+### UserVerification (`App\Models\UserVerification`)
+- `$verif->user()` → `belongsTo(User::class)`
+- `$verif->reviewer()` → `belongsTo(User::class, 'reviewed_by')`
+- Fields: `user_id`, `document_type`, `document_path`, `id_number`, `phone_number`, `phone_verified_at`, `status`, `rejection_reason`, `reviewed_at`, `reviewed_by`
+
 ---
 
 ## 3. Code Standards & Development Rules
@@ -150,5 +161,5 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 3. **Location Consistency**: Always store `latitude`, `longitude`, `city`, and `province` for any location-based model.
 4. **Eager Loading**: Prevent N+1 query issues by eager-loading relationships (`with(['user', 'primaryImage', 'category'])`).
 5. **Aesthetics & UI**: Use rich, dynamic styles with responsive design, clear contrast, and zero layout overflow.
-6. **Mandatory Documentation & Schema Synchronization**: Whenever any model relationship, migration field, schema, or model property is added, modified, or deleted, **immediately update this `AGENTS.md` and all corresponding documents in `doc/` (`database_design.md`, `software_architecture.md`, `client_requirements.md`)** to maintain 100% sync.
+6. **Mandatory Documentation & Schema Synchronization**: Whenever any model relationship, migration field, schema, feature, or model property is added, modified, or deleted, **immediately update this `AGENTS.md` and all corresponding documents in `doc/` (`database_design.md`, `software_architecture.md`, `client_requirements.md`, `project_status_report.md`)** to maintain 100% sync.
 

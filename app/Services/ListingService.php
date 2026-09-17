@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\City;
 use App\Models\Favorite;
 use App\Models\Listing;
-use App\Http\Controllers\HomeController;
+use App\Models\CategoryAttribute;
 use App\Events\ListingCreated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -25,9 +25,9 @@ class ListingService
 
     /**
      * Fetch all active listings from the DB and transform into the
-     * canonical array shape used by views and JS.
+     * canonical array shape used by views and JS. Supports distance radius filtering.
      */
-    public function getDatabaseListings(?string $selectedCity = null): array
+    public function getDatabaseListings(?string $selectedCity = null, string|int $radius = 'all'): array
     {
         $listings = Listing::with([
             'category.parent',
@@ -40,9 +40,19 @@ class ListingService
 
         [$refLat, $refLng] = $this->resolveReferenceCoordinates($selectedCity);
 
-        return $listings->map(
+        $transformed = $listings->map(
             fn ($listing) => $this->transformListing($listing, $refLat, $refLng, $selectedCity)
         )->toArray();
+
+        // Apply radius filter if specified and reference location is resolved
+        if ($radius !== 'all' && is_numeric($radius) && $refLat !== null && $refLng !== null) {
+            $maxDistance = (float) $radius;
+            $transformed = array_values(array_filter($transformed, function ($item) use ($maxDistance) {
+                return $item['distance_km'] !== null && $item['distance_km'] <= $maxDistance;
+            }));
+        }
+
+        return $transformed;
     }
 
     /**
@@ -267,8 +277,8 @@ class ListingService
             ->orWhere('name', 'like', "%{$cityName}%")
             ->first();
 
-        $latitude  = $cityModel?->latitude  ?? 43.6532;
-        $longitude = $cityModel?->longitude ?? -79.3832;
+        $latitude  = !empty($validated['latitude']) ? (float)$validated['latitude'] : ($cityModel?->latitude ?? 43.6532);
+        $longitude = !empty($validated['longitude']) ? (float)$validated['longitude'] : ($cityModel?->longitude ?? -79.3832);
 
         $category = null;
         if (!empty($validated['subcategory_slug'])) {
@@ -283,45 +293,142 @@ class ListingService
         $slug   = Str::slug($validated['title']) . '-' . rand(1000, 9999);
 
         $listing = Listing::create([
-            'user_id'     => $userId,
-            'category_id' => $category?->id ?? 1,
-            'city_id'     => $cityModel?->id,
-            'title'       => $validated['title'],
-            'slug'        => $slug,
-            'description' => $validated['description'],
-            'price'       => $validated['price'] ?? 0,
-            'price_type'  => $validated['price_type'] ?? 'fixed',
-            'condition'   => $validated['condition'] ?? 'used',
-            'city'        => $cityModel?->name ?? $cityName,
-            'province'    => $provinceCode,
-            'postal_code' => $validated['postal_code'] ?? null,
-            'latitude'    => $latitude,
-            'longitude'   => $longitude,
-            'status'      => 'active',
-            'views_count' => 0,
-            'is_featured' => !empty($validated['promotions']['featured']),
-            'is_sponsored'=> false,
-            'published_at'=> now(),
+            'user_id'       => $userId,
+            'category_id'   => $category?->id ?? 1,
+            'city_id'       => $cityModel?->id,
+            'title'         => $validated['title'],
+            'slug'          => $slug,
+            'description'   => $validated['description'],
+            'price'         => $validated['price'] ?? 0,
+            'price_type'    => $validated['price_type'] ?? 'fixed',
+            'condition'     => $validated['condition'] ?? 'used',
+            'city'          => $cityModel?->name ?? $cityName,
+            'province'      => $provinceCode,
+            'postal_code'   => $validated['postal_code'] ?? null,
+            'location_name' => $validated['neighbourhood'] ?? null,
+            'latitude'      => $latitude,
+            'longitude'     => $longitude,
+            'status'        => 'active',
+            'views_count'   => 0,
+            'is_featured'   => !empty($validated['promotions']['featured']),
+            'is_sponsored'  => false,
+            'published_at'  => now(),
         ]);
+
+        // Save dynamic category attributes if provided
+        if (!empty($validated['attributes']) && is_array($validated['attributes'])) {
+            foreach ($validated['attributes'] as $attrKey => $attrVal) {
+                if ($attrVal !== null && $attrVal !== '') {
+                    $cleanKey = (string)$attrKey;
+                    $catAttr = is_numeric($cleanKey)
+                        ? CategoryAttribute::find((int)$cleanKey)
+                        : CategoryAttribute::where('slug', $cleanKey)
+                            ->orWhere('slug', str_replace('_', '-', $cleanKey))
+                            ->orWhere('slug', str_replace('-', '_', $cleanKey))
+                            ->first();
+
+                    if ($catAttr) {
+                        $listing->attributes()->updateOrCreate(
+                            ['category_attribute_id' => $catAttr->id],
+                            ['value' => is_array($attrVal) ? json_encode($attrVal) : (string)$attrVal]
+                        );
+                    }
+                }
+            }
+        }
+
+        // Save images if provided (handles UploadedFile instances, base64 dataUrls, and URL strings)
+        if (!empty($validated['images']) && is_array($validated['images'])) {
+            $savedCount = 0;
+            foreach ($validated['images'] as $idx => $img) {
+                $imgPath = null;
+
+                if ($img instanceof \Illuminate\Http\UploadedFile) {
+                    $saved = $img->store('listings', 'public');
+                    $imgPath = '/storage/' . $saved;
+                } elseif (is_string($img) && !empty(trim($img))) {
+                    if (str_starts_with($img, 'data:image')) {
+                        $imgPath = $this->storeBase64Image($img);
+                    } else {
+                        $imgPath = trim($img);
+                    }
+                }
+
+                if (!empty($imgPath)) {
+                    $listing->images()->create([
+                        'image_path' => $imgPath,
+                        'is_primary' => $savedCount === 0,
+                        'sort_order' => $savedCount,
+                    ]);
+                    $savedCount++;
+                }
+            }
+        }
 
         ListingCreated::dispatch($listing);
 
         return $listing;
     }
 
+    /**
+     * Store a base64 encoded image to public disk and return its public URL.
+     */
+    private function storeBase64Image(string $base64String): ?string
+    {
+        try {
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64String, $type)) {
+                $data = substr($base64String, strpos($base64String, ',') + 1);
+                $ext  = strtolower($type[1]);
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                    $ext = 'jpg';
+                }
+                $decoded = base64_decode($data);
+                if ($decoded === false) {
+                    return null;
+                }
+                $fileName = 'listings/' . Str::random(32) . '.' . $ext;
+                \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $decoded);
+                return '/storage/' . $fileName;
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed storing base64 image: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
     // ─── Private ───────────────────────────────────────────────────────────────
 
     private function resolveReferenceCoordinates(?string $selectedCity): array
     {
-        if (!$selectedCity) {
+        if (!$selectedCity || strcasecmp($selectedCity, 'All Canada') === 0) {
             return [null, null];
         }
 
         $citiesMap = LocationService::getCitiesMap();
-        return [
-            $citiesMap[$selectedCity]['latitude']  ?? null,
-            $citiesMap[$selectedCity]['longitude'] ?? null,
-        ];
+        if (isset($citiesMap[$selectedCity])) {
+            return [
+                isset($citiesMap[$selectedCity]['latitude']) ? (float)$citiesMap[$selectedCity]['latitude'] : null,
+                isset($citiesMap[$selectedCity]['longitude']) ? (float)$citiesMap[$selectedCity]['longitude'] : null,
+            ];
+        }
+
+        $cleanCity = strtolower(trim(explode(',', $selectedCity)[0]));
+        foreach ($citiesMap as $cityName => $info) {
+            if (
+                strtolower($cityName) === $cleanCity ||
+                strtolower($info['name'] ?? '') === $cleanCity ||
+                ($info['slug'] ?? '') === $cleanCity ||
+                str_contains(strtolower($info['label'] ?? ''), $cleanCity)
+            ) {
+                return [
+                    isset($info['latitude']) ? (float)$info['latitude'] : null,
+                    isset($info['longitude']) ? (float)$info['longitude'] : null,
+                ];
+            }
+        }
+
+        return [null, null];
     }
 
     private function transformListing(Listing $listing, ?float $refLat, ?float $refLng, ?string $selectedCity): array

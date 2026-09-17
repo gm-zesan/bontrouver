@@ -25,6 +25,8 @@ class StoreListingRequest extends FormRequest
             'province'                   => ['required', 'string', 'max:10'],
             'postal_code'                => ['nullable', 'string', 'max:10'],
             'neighbourhood'              => ['nullable', 'string', 'max:100'],
+            'latitude'                   => ['nullable', 'numeric'],
+            'longitude'                  => ['nullable', 'numeric'],
             'show_approximate_location'  => ['nullable', 'boolean'],
             'delivery_options'           => ['nullable', 'array'],
             'contact_preference'         => ['nullable', 'array'],

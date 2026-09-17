@@ -401,11 +401,6 @@
                                     <div class="seller-avatar-wrap">
                                         <img src="{{ $seller['avatar'] }}" alt="{{ $seller['name'] }}"
                                             class="seller-avatar-img">
-                                        @if(!empty($seller['badges']['identity_verified']))
-                                            <span class="seller-verified-badge-icon" title="Identity Verified">
-                                                <i class="bi bi-check-lg"></i>
-                                            </span>
-                                        @endif
                                     </div>
                                     <div class="seller-header-info min-w-0">
                                         <div class="seller-name text-truncate">{{ $seller['name'] }}</div>
@@ -427,10 +422,6 @@
                                     @if(!empty($seller['badges']['phone_verified']))
                                         <span class="trust-badge" title="Phone Number Verified"><i
                                                 class="bi bi-check-circle-fill text-success"></i> Phone</span>
-                                    @endif
-                                    @if(!empty($seller['badges']['identity_verified']))
-                                        <span class="trust-badge" title="Identity & Profile Verified"><i
-                                                class="bi bi-shield-fill-check text-primary-custom"></i> ID Verified</span>
                                     @endif
                                 </div>
 

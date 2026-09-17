@@ -20,10 +20,15 @@ return new class extends Migration
             $table->string('role', 50)->default('user'); // user, admin, moderator
             $table->boolean('is_dealer')->default(false);
             $table->string('phone', 50)->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('province', 50)->nullable();
+            $table->string('postal_code', 20)->nullable();
+            $table->string('location', 255)->nullable();
             $table->string('avatar')->nullable();
             $table->text('bio')->nullable();
             $table->integer('community_points')->default(0);
             $table->boolean('is_verified')->default(false);
+            $table->json('notification_preferences')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

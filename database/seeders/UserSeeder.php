@@ -70,7 +70,7 @@ class UserSeeder extends Seeder
                 'is_dealer' => false,
             ],
 
-            // 5. Active Canadian Buyer
+            // 5. Active Canadian Buyer (Unverified Member by default)
             [
                 'name' => 'Alex Chen',
                 'email' => 'buyer@bontrouver.ca',
@@ -78,9 +78,9 @@ class UserSeeder extends Seeder
                 'role' => 'buyer',
                 'phone' => '+1 (403) 555-0188',
                 'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-                'bio' => 'Verified buyer searching for vehicles, tech gear, and outdoor sports equipment in Alberta.',
-                'community_points' => 80,
-                'is_verified' => true,
+                'bio' => 'Active buyer searching for vehicles, tech gear, and outdoor sports equipment in Alberta.',
+                'community_points' => 30,
+                'is_verified' => false,
                 'is_dealer' => false,
             ],
         ];

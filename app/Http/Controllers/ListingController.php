@@ -46,7 +46,7 @@ class ListingController extends Controller
             $resolved['activeChild']
         );
 
-        $listings = $this->listingService->getDatabaseListings($selectedCity);
+        $listings = $this->listingService->getDatabaseListings($selectedCity, $radius);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

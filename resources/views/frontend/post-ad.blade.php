@@ -1,7 +1,4 @@
-@extends('frontend.layouts.app', [
-    'title' => 'Post an Ad | Create Listing - Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Create and publish your listing on Bontrouver. Sell cars, electronics, real estate, furniture, or offer jobs and local services across Canada.'
-])
+@extends('frontend.layouts.app', ['title' => 'Post an Ad | Create Listing - Bontrouver Canadian Classifieds', 'metaDescription' => 'Create and publish your listing on Bontrouver. Sell cars, electronics, real estate, furniture, or offer jobs and local services across Canada.'])
 
 @section('content')
 <div class="post-ad-page-wrapper">
@@ -1291,7 +1288,19 @@ function handleFormSubmit(e) {
         },
         body: formData
     })
-    .then(res => res.json())
+    .then(async res => {
+        const data = await res.json();
+        if (!res.ok) {
+            let errorMsg = 'Validation failed.';
+            if (data.errors) {
+                errorMsg = Object.values(data.errors).flat().join('\n');
+            } else if (data.message) {
+                errorMsg = data.message;
+            }
+            throw new Error(errorMsg);
+        }
+        return data;
+    })
     .then(data => {
         submitBtn.disabled = false;
         btnText.style.display = 'inline-flex';
@@ -1317,7 +1326,7 @@ function handleFormSubmit(e) {
         btnText.style.display = 'inline-flex';
         btnSpinner.style.display = 'none';
         console.error('Submission error:', err);
-        alert('An error occurred while publishing your ad. Please try again.');
+        alert(err.message || 'An error occurred while publishing your ad. Please try again.');
     });
 }
 

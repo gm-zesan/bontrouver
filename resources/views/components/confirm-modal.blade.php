@@ -8,7 +8,6 @@
     'buttonId' => null,
     'onClick' => null,
 ])
-])
 
 <style>
     .glass-modal {

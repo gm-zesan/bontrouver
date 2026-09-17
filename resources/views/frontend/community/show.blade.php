@@ -177,13 +177,6 @@
                                     style="width: 80px; height: 80px; font-size: 2rem;">
                                     {{ substr($meetup->user->name, 0, 1) }}
                                 </div>
-                                @if($meetup->user->is_verified)
-                                    <span
-                                        class="position-absolute bottom-0 end-0 bg-success text-white border border-2 border-white rounded-circle p-1 d-flex align-items-center justify-content-center"
-                                        style="width: 24px; height: 24px;" title="Verified User">
-                                        <i class="bi bi-check-lg" style="font-size: 0.8rem;"></i>
-                                    </span>
-                                @endif
                             </div>
                             <h3 class="h5 fw-bold mb-1">{{ $meetup->user->name }}</h3>
                             <p class="text-white-50 small mb-3">Host</p>

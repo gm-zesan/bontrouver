@@ -364,9 +364,6 @@
                                             <img src="{{ $req['host_avatar'] }}" alt="{{ $req['host_name'] }}" class="companionship-host-img">
                                             <div>
                                                 <div class="companionship-host-name">{{ $req['host_name'] }}</div>
-                                                @if($req['host_is_verified'])
-                                                    <span style="font-size: 0.68rem; color: #49D17D;"><i class="bi bi-patch-check-fill"></i> Verified</span>
-                                                @endif
                                             </div>
                                         </div>
                                         @if(!is_null($req['spots_left']))

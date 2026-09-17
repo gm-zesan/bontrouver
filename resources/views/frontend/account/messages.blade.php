@@ -1,8 +1,4 @@
-@extends('frontend.account.layout', [
-    'title' => 'Messages & Inbox | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Chat with buyers and sellers in real time, negotiate deals, and manage marketplace conversations.',
-    'activeNav' => 'messages'
-])
+@extends('frontend.account.layout', ['title' => 'Messages & Inbox | Bontrouver Canadian Classifieds', 'metaDescription' => 'Chat with buyers and sellers in real time, negotiate deals, and manage marketplace conversations.', 'activeNav' => 'messages'])
 
 @section('account_content')
                 <!-- Messaging Card Container -->
@@ -110,9 +106,6 @@
                                             <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.92rem;">
                                                 {{ $activeConversation['user']['name'] ?? 'User' }}
                                             </h6>
-                                            @if(!empty($activeConversation['user']['verified']))
-                                                <i class="bi bi-patch-check-fill text-success" title="Verified User" style="font-size: 0.85rem;"></i>
-                                            @endif
                                         </div>
                                         <span class="small text-secondary" style="font-size: 0.75rem;">
                                             <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}

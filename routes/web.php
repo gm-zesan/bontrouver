@@ -27,6 +27,11 @@ Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->na
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/meetup/{id}', [CommunityController::class, 'show'])->name('community.show');
 
+// Public User / Seller Profiles & Own Profile
+Route::get('/user/{user}', [SellerProfileController::class, 'show'])->name('user.profile');
+Route::get('/profile', [SellerProfileController::class, 'show'])->name('profile.index');
+Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
@@ -80,22 +85,30 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('/notifications/delete', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
-    // 4. User Public / Account Profile
-    Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');
-
-    // 5. Account Settings & Preferences
+    // 4. Account Settings & Preferences
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'updateProfile'])->name('settings.update');
+    Route::post('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
+    Route::post('/settings/notifications/toggle', [SettingsController::class, 'toggleNotification'])->name('settings.notifications.toggle');
+    Route::get('/settings/edit', [SettingsController::class, 'index'])->name('profile.edit');
+    Route::patch('/settings/auth', [SettingsController::class, 'updateAuth'])->name('profile.update');
+    Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
     
+    // 5. Canadian Identity Document Verification Center
+    Route::get('/account/verification', [\App\Http\Controllers\Seller\VerificationController::class, 'index'])->name('account.verification.index');
+    Route::post('/account/verification/document', [\App\Http\Controllers\Seller\VerificationController::class, 'store'])->name('verification.document.store');
+
     // 6. Community Meetups Management
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
     Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
     Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
+});
 
-    // Breeze Profile edit routes (Merged into Settings Controller)
-    Route::get('/profile', [SettingsController::class, 'index'])->name('profile.edit');
-    Route::patch('/profile', [SettingsController::class, 'updateAuth'])->name('profile.update');
-    Route::delete('/profile', [SettingsController::class, 'destroy'])->name('profile.destroy');
+// Admin & Moderator Verification Queue
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/verifications', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'index'])->name('verifications.index');
+    Route::post('/verifications/{verification}/approve', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'approve'])->name('verifications.approve');
+    Route::post('/verifications/{verification}/reject', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'reject'])->name('verifications.reject');
 });
 
 // Static Marketplace Info & Footer Pages

@@ -1,7 +1,9 @@
-@extends('frontend.layouts.app', [
-    'title' => $title ?? ($pageTitle ?? 'My Account') . ' | Bontrouver Canadian Classifieds',
-    'metaDescription' => $metaDescription ?? 'Manage your Bontrouver marketplace account, profile, listings, and messages.'
-])
+@extends('frontend.layouts.app')
+
+@php
+    $pageTitle = $title ?? ($pageTitle ?? 'My Account') . ' | Bontrouver Canadian Classifieds';
+    $metaDescription = $metaDescription ?? 'Manage your Bontrouver marketplace account, profile, listings, and messages.';
+@endphp
 
 @php
     $currentNav = $activeNav ?? (
@@ -26,7 +28,7 @@
             <div class="mobile-account-nav-wrap">
                 <ul class="nav nav-pills flex-nowrap overflow-auto gap-2 pb-2">
                     <li class="nav-item">
-                        <a href="{{ route('profile.edit') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'profile' ? 'active' : '' }}">
+                        <a href="{{ route('profile.view') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'profile' ? 'active' : '' }}">
                             <i class="bi bi-person-fill me-1"></i> Profile
                         </a>
                     </li>

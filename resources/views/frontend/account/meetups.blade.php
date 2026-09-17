@@ -82,6 +82,11 @@
             padding: 1.1rem;
         }
 
+        .attendee-item {
+            padding: 0.55rem 0;
+            min-width: 0;
+        }
+
         .attendee-item:not(:last-child) {
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -105,6 +110,7 @@
             font-weight: 700 !important;
             border: none !important;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .btn-approve-action:hover {
@@ -119,6 +125,7 @@
             border: 1px solid rgba(239, 68, 68, 0.5) !important;
             font-weight: 600 !important;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
         .btn-reject-action:hover {
@@ -128,6 +135,7 @@
 
         .attendee-profile-link {
             text-decoration: none !important;
+            min-width: 0;
             transition: all 0.2s ease;
         }
 
@@ -271,66 +279,55 @@
                                                         @php
                                                             $attendeeBadgeClass = $attendee->status == 'approved' ? 'meetup-status-open' : 'meetup-status-full';
                                                         @endphp
-                                                        <div class="attendee-item py-2 d-flex justify-content-between align-items-center">
+                                                        <div class="attendee-item d-flex justify-content-between align-items-center gap-2">
                                                             <a href="{{ route('profile.view', ['id' => $attendee->user->id]) }}" 
                                                                 target="_blank"
-                                                                class="d-flex align-items-center gap-2 attendee-profile-link" 
+                                                                class="d-flex align-items-center gap-2 attendee-profile-link text-truncate me-auto" 
                                                                 title="View {{ $attendee->user->name }}'s profile">
                                                                 @if($attendee->user->avatar ?? false)
                                                                     <img src="{{ $attendee->user->avatar }}" alt="{{ $attendee->user->name }}"
-                                                                        class="rounded-circle object-fit-cover" style="width: 28px; height: 28px;">
+                                                                        class="rounded-circle object-fit-cover flex-shrink-0" style="width: 32px; height: 32px;">
                                                                 @else
-                                                                    <div class="avatar avatar-sm meetup-avatar-circle rounded-circle d-flex align-items-center justify-content-center fw-bold"
-                                                                        style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                                                    <div class="avatar avatar-sm meetup-avatar-circle rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                                                                        style="width: 32px; height: 32px; font-size: 0.8rem;">
                                                                         {{ strtoupper(substr($attendee->user->name, 0, 1)) }}
                                                                     </div>
                                                                 @endif
-                                                                <div class="d-flex align-items-center gap-1">
-                                                                    <span class="small fw-medium attendee-name text-white">{{ $attendee->user->name }}</span>
-                                                                    <i class="bi bi-box-arrow-up-right attendee-icon text-white-50" style="font-size: 0.65rem;"></i>
+                                                                <div class="d-flex align-items-center gap-1 text-truncate">
+                                                                    <span class="small fw-semibold attendee-name text-white text-truncate">{{ $attendee->user->name }}</span>
+                                                                    <i class="bi bi-box-arrow-up-right attendee-icon text-white-50 flex-shrink-0" style="font-size: 0.65rem;"></i>
                                                                 </div>
                                                             </a>
 
-                                                            <div>
+                                                            <div class="flex-shrink-0">
                                                                 @if($attendee->status == 'pending')
-                                                                    <div class="d-flex gap-1 align-items-center">
-                                                                        <a href="{{ route('profile.view', ['id' => $attendee->user->id]) }}" 
-                                                                            target="_blank"
-                                                                            class="btn btn-sm btn-outline-info rounded-pill px-2 py-1"
-                                                                            style="font-size: 0.75rem;" 
-                                                                            title="View {{ $attendee->user->name }}'s profile">
-                                                                            <i class="bi bi-person me-1"></i>Profile
-                                                                        </a>
-                                                                        <form
-                                                                            action="{{ route('meetups.my.attendee.status', [$meetup->id, $attendee->id]) }}"
-                                                                            method="POST" class="d-inline">
+                                                                    <div class="d-flex gap-1.5 align-items-center">
+                                                                        <form action="{{ route('meetups.my.attendee.status', [$meetup->id, $attendee->id]) }}" method="POST" class="d-inline m-0">
                                                                             @csrf
                                                                             <input type="hidden" name="status" value="approved">
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-approve-action rounded-pill px-2 py-1"
-                                                                                style="font-size: 0.75rem;">
-                                                                                <i class="bi bi-check-lg me-1"></i>Approve
+                                                                                class="btn btn-sm btn-approve-action rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                                                                                style="width: 28px; height: 28px;"
+                                                                                title="Approve Request">
+                                                                                <i class="bi bi-check-lg" style="font-size: 0.9rem;"></i>
                                                                             </button>
                                                                         </form>
-                                                                        <form
-                                                                            action="{{ route('meetups.my.attendee.status', [$meetup->id, $attendee->id]) }}"
-                                                                            method="POST" class="d-inline">
+                                                                        <form action="{{ route('meetups.my.attendee.status', [$meetup->id, $attendee->id]) }}" method="POST" class="d-inline m-0">
                                                                             @csrf
                                                                             <input type="hidden" name="status" value="rejected">
                                                                             <button type="submit"
-                                                                                class="btn btn-sm btn-reject-action rounded-pill px-2 py-1"
-                                                                                style="font-size: 0.75rem;">
-                                                                                <i class="bi bi-x-lg me-1"></i>Reject
+                                                                                class="btn btn-sm btn-reject-action rounded-circle p-0 d-inline-flex align-items-center justify-content-center"
+                                                                                style="width: 28px; height: 28px;"
+                                                                                title="Reject Request">
+                                                                                <i class="bi bi-x-lg" style="font-size: 0.8rem;"></i>
                                                                             </button>
                                                                         </form>
                                                                     </div>
                                                                 @else
-                                                                    <div class="d-flex align-items-center gap-1">
-                                                                        <span class="badge {{ $attendeeBadgeClass }} rounded-pill px-2 py-1"
-                                                                            style="font-size: 0.7rem;">
-                                                                            {{ ucfirst($attendee->status) }}
-                                                                        </span>
-                                                                    </div>
+                                                                    <span class="badge {{ $attendeeBadgeClass }} rounded-pill px-2.5 py-1 text-capitalize"
+                                                                        style="font-size: 0.75rem;">
+                                                                        {{ ucfirst($attendee->status) }}
+                                                                    </span>
                                                                 @endif
                                                             </div>
                                                         </div>

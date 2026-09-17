@@ -1,8 +1,4 @@
-@extends('frontend.account.layout', [
-    'title' => 'My Favorites & Saved Ads | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'View, compare and organize all your saved marketplace ads and favorite listings.',
-    'activeNav' => 'favorites'
-])
+@extends('frontend.account.layout', ['title' => 'My Favorites & Saved Ads | Bontrouver Canadian Classifieds', 'metaDescription' => 'View, compare and organize all your saved marketplace ads and favorite listings.', 'activeNav' => 'favorites'])
 
 @section('account_content')
                     <!-- 2. Search & Category Filters Bar -->
@@ -120,10 +116,6 @@
                                                 <span class="small text-secondary text-truncate" style="font-size: 0.78rem;">
                                                     Seller: <strong class="text-white">{{ $fav['seller_name'] }}</strong>
                                                 </span>
-                                                @if($fav['seller_verified'])
-                                                    <i class="bi bi-check-circle-fill text-success" title="Verified Seller"
-                                                        style="font-size: 0.75rem;"></i>
-                                                @endif
                                             </div>
 
                                             <div class="d-flex align-items-center gap-2">

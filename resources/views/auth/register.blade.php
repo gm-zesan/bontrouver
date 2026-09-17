@@ -1,7 +1,4 @@
-@extends('frontend.layouts.auth', [
-    'title' => 'Create Account | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Join thousands of Canadians buying and selling locally. Create your free Bontrouver account in seconds.'
-])
+@extends('frontend.layouts.auth', ['title' => 'Create Account | Bontrouver Canadian Classifieds', 'metaDescription' => 'Join thousands of Canadians buying and selling locally. Create your free Bontrouver account in seconds.'])
 
 @section('content')
 <div class="auth-page-wrapper">

@@ -1,14 +1,4 @@
-@extends('frontend.account.layout', [
-    'title' => 'My Listings & Manage Ads | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Manage, track performance, renew, edit and organize all your active ads, drafts and sold items.',
-    'activeNav' => 'my-listings',
-    'stats' => [
-        'active_listings' => $counts['active'] ?? 3,
-        'saved_favorites_count' => 6,
-        'unread_messages_count' => 2,
-        'unread_notifications_count' => 3
-    ]
-])
+@extends('frontend.account.layout', ['title' => 'My Listings & Manage Ads | Bontrouver Canadian Classifieds', 'metaDescription' => 'Manage, track performance, renew, edit and organize all your active ads, drafts and sold items.', 'activeNav' => 'my-listings'])
 
 @section('account_content')
             <div class="my-listings-main-card">

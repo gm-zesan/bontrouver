@@ -130,7 +130,36 @@
                             </div>
                         </div>
 
-                        {{-- 2. PRICE RANGE FILTER --}}
+                        {{-- 2. LOCATION & DISTANCE FILTER --}}
+                        <div class="filter-section">
+                            <div class="filter-section-title">Location & Distance</div>
+                            <div class="mb-2">
+                                <select id="filterSidebarLocation" class="search-field search-select w-100" style="font-size: 0.85rem; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); background-color: var(--surface-card, #ffffff); color: var(--text-main, #1e293b);" aria-label="Sidebar Location" onchange="syncLocationFilter(this.value)">
+                                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
+                                    @if(!empty($canadianCities))
+                                        @foreach($canadianCities as $cName => $cInfo)
+                                            @php
+                                                $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
+                                            @endphp
+                                            <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div>
+                                <select id="filterSidebarRadiusSelect" class="search-field search-select w-100" style="font-size: 0.85rem; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); background-color: var(--surface-card, #ffffff); color: var(--text-main, #1e293b);" aria-label="Sidebar Distance Radius" onchange="syncRadius(this.value)">
+                                    <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
+                                    <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
+                                    <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
+                                    <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
+                                    <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
+                                    <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
+                                    <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- 3. PRICE RANGE FILTER --}}
                         <div class="filter-section">
                             <div class="filter-section-title">Price ($ CAD)</div>
                             <div class="price-inputs-row">
@@ -702,6 +731,25 @@
             </div>
         </div>
 
+        <!-- Location Selector for Mobile -->
+        <div class="mobile-filter-group">
+            <label class="mobile-group-label" for="mobileFilterLocation">Location</label>
+            <div class="mobile-drawer-select-wrap">
+                <select id="mobileFilterLocation" class="mobile-drawer-select" onchange="syncLocationFilter(this.value)">
+                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
+                    @if(!empty($canadianCities))
+                        @foreach($canadianCities as $cName => $cInfo)
+                            @php
+                                $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
+                            @endphp
+                            <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
+                        @endforeach
+                    @endif
+                </select>
+                <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
+            </div>
+        </div>
+
         <!-- Reusable Filter Blocks rendered directly for mobile with instantaneous live event listeners -->
         <div class="mobile-filter-group">
             <label class="mobile-group-label" for="mobileFilterRadiusSelect">Distance</label>
@@ -928,13 +976,19 @@
         if (urlParams.has('location')) {
             const loc = urlParams.get('location');
             const locSelect = document.getElementById('filterLocation');
+            const sideLoc = document.getElementById('filterSidebarLocation');
+            const mLoc = document.getElementById('mobileFilterLocation');
             if (locSelect) locSelect.value = loc;
+            if (sideLoc) sideLoc.value = loc;
+            if (mLoc) mLoc.value = loc;
         }
         if (urlParams.has('radius')) {
             const rad = urlParams.get('radius');
             const radSelect = document.getElementById('filterRadiusSelect');
+            const sideRad = document.getElementById('filterSidebarRadiusSelect');
             const mRadSelect = document.getElementById('mobileFilterRadiusSelect');
             if (radSelect) radSelect.value = rad;
+            if (sideRad) sideRad.value = rad;
             if (mRadSelect) mRadSelect.value = rad;
         }
         if (urlParams.has('min_price')) {
@@ -1423,24 +1477,27 @@
 
     function syncRadius(val) {
         const d = document.getElementById('filterRadiusSelect');
+        const sideRad = document.getElementById('filterSidebarRadiusSelect');
         const m = document.getElementById('mobileFilterRadiusSelect');
-        if (d) d.value = val;
-        if (m) m.value = val;
+        if (d && d.value !== val) d.value = val;
+        if (sideRad && sideRad.value !== val) sideRad.value = val;
+        if (m && m.value !== val) m.value = val;
         triggerLiveFilter();
     }
 
     function syncLocationFilter(val) {
+        const heroLoc = document.getElementById('filterLocation');
+        const sideLoc = document.getElementById('filterSidebarLocation');
+        const mobLoc = document.getElementById('mobileFilterLocation');
+        if (heroLoc && heroLoc.value !== val) heroLoc.value = val;
+        if (sideLoc && sideLoc.value !== val) sideLoc.value = val;
+        if (mobLoc && mobLoc.value !== val) mobLoc.value = val;
         triggerLiveFilter();
     }
 
     function resetLocationFilter() {
-        const locSelect = document.getElementById('filterLocation');
-        if (locSelect) locSelect.value = 'All Canada';
-        const dRad = document.getElementById('filterRadiusSelect');
-        const mRad = document.getElementById('mobileFilterRadiusSelect');
-        if (dRad) dRad.value = 'all';
-        if (mRad) mRad.value = 'all';
-        triggerLiveFilter();
+        syncLocationFilter('All Canada');
+        syncRadius('all');
     }
 
     function handleMobileCategoryChange(slug) {
@@ -1617,13 +1674,8 @@
         syncCategoryUI('', '');
         setQuickPrice(null, null);
 
-        const dRad = document.getElementById('filterRadiusSelect');
-        const mRad = document.getElementById('mobileFilterRadiusSelect');
-        if (dRad) dRad.value = 'all';
-        if (mRad) mRad.value = 'all';
-
-        const loc = document.getElementById('filterLocation');
-        if (loc) loc.value = 'All Canada';
+        syncRadius('all');
+        syncLocationFilter('All Canada');
 
         const dSort = document.getElementById('desktopSortSelect');
         const mSort = document.getElementById('mobileSortSelect');
@@ -1635,11 +1687,7 @@
     }
 
     function expandLocationFilter() {
-        const loc = document.getElementById('filterLocation');
-        if (loc) {
-            loc.value = 'All Canada';
-            triggerLiveFilter();
-        }
+        syncLocationFilter('All Canada');
     }
 
     function syncSort(val) {

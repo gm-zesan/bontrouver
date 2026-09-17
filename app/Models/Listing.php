@@ -88,4 +88,25 @@ class Listing extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Scope active listings.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope listings within a specified radius (km) from target coordinates using Haversine formula.
+     */
+    public function scopeWithinRadius($query, float $latitude, float $longitude, float $radiusKm)
+    {
+        $earthRadius = 6371; // km
+        return $query->selectRaw(
+            "listings.*, ( ? * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance_km",
+            [$earthRadius, $latitude, $longitude, $latitude]
+        )->having('distance_km', '<=', $radiusKm)
+        ->orderBy('distance_km', 'asc');
+    }
 }

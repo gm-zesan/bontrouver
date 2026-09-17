@@ -9,7 +9,7 @@
 <div class="account-sidebar-dark card border-0 rounded-4 mb-4">
     <!-- User Avatar & Identity Header -->
     <div class="card-body p-4 text-center border-bottom border-secondary border-opacity-25">
-        <a href="{{ route('profile.edit') }}" class="text-decoration-none d-inline-block position-relative mb-2">
+        <a href="{{ route('profile.view') }}" class="text-decoration-none d-inline-block position-relative mb-2">
             @if(Auth::user()->avatar ?? false)
                 <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}"
                     class="rounded-circle object-fit-cover shadow-sm account-avatar-img"
@@ -20,37 +20,32 @@
                     {{ $userInitials ?: 'U' }}
                 </div>
             @endif
-            @if(Auth::user()->is_verified ?? true)
-                <span
-                    class="position-absolute bottom-0 end-0 bg-success text-white rounded-circle p-1 d-flex align-items-center justify-content-center shadow"
-                    style="width: 22px; height: 22px; font-size: 0.7rem;" title="Verified Canadian User">
-                    <i class="bi bi-check-lg"></i>
-                </span>
-            @endif
         </a>
         <h6 class="fw-bold text-white mb-0 text-truncate">
-            <a href="{{ route('profile.edit') }}" class="text-decoration-none text-white hover-brand-green">
+            <a href="{{ route('profile.view') }}" class="text-decoration-none text-white hover-brand-green">
                 {{ Auth::user()->name ?? 'Marketplace User' }}
             </a>
         </h6>
         <div class="small text-secondary mb-2 mt-1">
             <span><i
-                    class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?? 'Toronto, ON' }}</span>
+                    class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?: (Auth::user()->city ? (Auth::user()->city . (Auth::user()->province ? ', ' . Auth::user()->province : '')) : 'Canada') }}</span>
         </div>
-        <div
-            class="d-inline-flex align-items-center gap-1 badge bg-dark-subtle text-success border border-success-subtle px-2 py-1 small">
-            <i class="bi bi-shield-check"></i>
-            <span>Verified Account</span>
-        </div>
+        @if(!Auth::user()->is_verified)
+            <div
+                class="d-inline-flex align-items-center gap-1 badge bg-dark-subtle text-secondary border border-secondary border-opacity-25 px-2 py-1 small">
+                <i class="bi bi-shield"></i>
+                <span>Unverified</span>
+            </div>
+        @endif
     </div>
 
     <!-- Navigation Menu List -->
     <div class="p-3">
         <nav class="nav flex-column account-nav-list gap-1">
-            <a href="{{ route('profile.edit') }}"
-                class="account-dark-nav-item {{ ($currentRoute === 'profile' || $currentRoute === 'profile.edit') ? 'active' : '' }}">
+            <a href="{{ route('profile.view') }}"
+                class="account-dark-nav-item {{ ($currentRoute === 'profile' || $currentRoute === 'profile.view' || $currentRoute === 'profile.index') ? 'active' : '' }}">
                 <i class="bi bi-person-fill"></i>
-                <span class="flex-grow-1">Profile</span>
+                <span class="flex-grow-1">Profile Overview</span>
             </a>
 
             <a href="{{ route('listings.my') }}"

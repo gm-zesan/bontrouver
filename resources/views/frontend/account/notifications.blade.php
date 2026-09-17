@@ -1,8 +1,4 @@
-@extends('frontend.account.layout', [
-    'title' => 'Notifications Center | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Review recent alerts, inquiries, price drops, and marketplace account notifications.',
-    'activeNav' => 'notifications'
-])
+@extends('frontend.account.layout', ['title' => 'Notifications Center | Bontrouver Canadian Classifieds', 'metaDescription' => 'Review recent alerts, inquiries, price drops, and marketplace account notifications.', 'activeNav' => 'notifications'])
 
 @section('account_content')
                 <!-- 1. Page Header with Mark All as Read Action -->

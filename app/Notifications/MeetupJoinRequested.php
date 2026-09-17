@@ -19,6 +19,10 @@ class MeetupJoinRequested extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
+        if (method_exists($notifiable, 'wantsNotification') && !$notifiable->wantsNotification('meetups')) {
+            return [];
+        }
+
         return ['database'];
     }
 

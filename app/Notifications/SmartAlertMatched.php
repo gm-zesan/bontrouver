@@ -28,6 +28,10 @@ class SmartAlertMatched extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
+        if (method_exists($notifiable, 'wantsNotification') && !$notifiable->wantsNotification('alerts')) {
+            return [];
+        }
+
         return ['database']; // For MVP, only database. Later can add 'mail'.
     }
 

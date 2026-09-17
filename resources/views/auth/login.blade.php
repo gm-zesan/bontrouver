@@ -1,7 +1,4 @@
-@extends('frontend.layouts.auth', [
-    'title' => 'Sign In | Bontrouver Canadian Classifieds',
-    'metaDescription' => 'Log in to your Bontrouver account to manage your listings, chat with buyers and sellers, and discover local deals.'
-])
+@extends('frontend.layouts.auth', ['title' => 'Sign In | Bontrouver Canadian Classifieds', 'metaDescription' => 'Log in to your Bontrouver account to manage your listings, chat with buyers and sellers, and discover local deals.'])
 
 @section('content')
 <div class="auth-page-wrapper">

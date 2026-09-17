@@ -15,10 +15,15 @@ Core authentication and profile table.
 - `role` (VARCHAR 50) - Default: 'user'. Enum: 'user', 'admin', 'moderator'
 - `is_dealer` (BOOLEAN) - Default: false. Represents if the user operates as a commercial entity.
 - `phone` (VARCHAR 50, NULLABLE)
+- `city` (VARCHAR 100, NULLABLE)
+- `province` (VARCHAR 50, NULLABLE)
+- `postal_code` (VARCHAR 20, NULLABLE)
+- `location` (VARCHAR 255, NULLABLE) - Formatted neighbourhood / district
 - `avatar` (VARCHAR 255, NULLABLE)
 - `bio` (TEXT, NULLABLE)
 - `community_points` (INT) - Default: 0. Calculated aggregate of points.
 - `is_verified` (BOOLEAN) - Default: false.
+- `notification_preferences` (JSON, NULLABLE) - Stores user preferences for messages, alerts, and meetups.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE) - Soft deletes.
@@ -57,6 +62,23 @@ Tracks completed deals between buyers and sellers to display "number of transact
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `buyer_id`, `seller_id`*
+
+### `user_verifications`
+Storage for Canadian identity documents (Driver's License, Passport, Photo Card, Dealer License) submitted for platform verification.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `user_id` (FK -> users.id, CASCADE DELETE)
+- `document_type` (VARCHAR 50) - 'government_id', 'drivers_license', 'passport', 'dealer_license'
+- `document_path` (VARCHAR 255) - Storage path to encrypted/safe image or PDF
+- `id_number` (VARCHAR 100, NULLABLE) - Masked identifier
+- `phone_number` (VARCHAR 50, NULLABLE)
+- `phone_verified_at` (TIMESTAMP, NULLABLE)
+- `status` (VARCHAR 30) - 'pending', 'approved', 'rejected'
+- `rejection_reason` (TEXT, NULLABLE)
+- `reviewed_at` (TIMESTAMP, NULLABLE)
+- `reviewed_by` (FK -> users.id, NULLABLE, SET NULL)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[user_id, status]`*
 
 ---
 
