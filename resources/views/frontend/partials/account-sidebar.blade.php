@@ -30,13 +30,7 @@
             <span><i
                     class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?: (Auth::user()->city ? (Auth::user()->city . (Auth::user()->province ? ', ' . Auth::user()->province : '')) : 'Canada') }}</span>
         </div>
-        @if(!Auth::user()->is_verified)
-            <div
-                class="d-inline-flex align-items-center gap-1 badge bg-dark-subtle text-secondary border border-secondary border-opacity-25 px-2 py-1 small">
-                <i class="bi bi-shield"></i>
-                <span>Unverified</span>
-            </div>
-        @endif
+
     </div>
 
     <!-- Navigation Menu List -->

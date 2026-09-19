@@ -227,19 +227,6 @@
                     <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill small">Optional</span>
                 </div>
 
-                @if(!$user->is_verified && $latestVerif && $latestVerif->isPending())
-                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 small">
-                        <i class="bi bi-hourglass-split me-1"></i> Unverified (Pending Review)
-                    </span>
-                @elseif(!$user->is_verified && $latestVerif && $latestVerif->isRejected())
-                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1 small">
-                        <i class="bi bi-x-octagon-fill me-1"></i> Unverified (Rejected)
-                    </span>
-                @elseif(!$user->is_verified)
-                    <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-3 py-1 small">
-                        <i class="bi bi-shield me-1"></i> Unverified
-                    </span>
-                @endif
             </div>
 
             @if(!$user->is_verified && $latestVerif && $latestVerif->isPending())
@@ -337,10 +324,10 @@
                                     </div>
                                     <h6 class="text-white fw-bold mb-1">Click to select or drag & drop document scan</h6>
                                     <p class="text-secondary small mb-3">Accepted: JPG, PNG, WEBP, or PDF (Max 10MB). Encrypted & safely stored.</p>
-                                    <label for="settingsIdDocFile" class="btn btn-sm btn-theme-outline-primary rounded-pill px-4 py-2"
-                                        style="cursor: pointer;" onclick="event.stopPropagation();">
+                                    <span class="btn btn-sm btn-theme-outline-primary rounded-pill px-4 py-2"
+                                        style="cursor: pointer;">
                                         <i class="bi bi-folder2-open me-1"></i> Choose Document File
-                                    </label>
+                                    </span>
                                 </div>
 
                                 <!-- Selected File Preview UI -->

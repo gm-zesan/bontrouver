@@ -348,12 +348,6 @@
                                         {{ $user->phone ? 'Connected' : 'Not Provided' }}
                                     </span>
                                 </li>
-                                <li class="d-flex align-items-center justify-content-between text-secondary">
-                                    <span><i class="bi bi-person-check-fill {{ $user->is_verified ? 'text-success' : 'text-secondary' }} me-2"></i>Government ID Verification</span>
-                                    <span class="badge {{ $user->is_verified ? 'bg-success bg-opacity-10 text-success' : (($user->latestVerification && $user->latestVerification->isPending()) ? 'bg-warning bg-opacity-10 text-warning' : 'bg-secondary bg-opacity-10 text-secondary') }}">
-                                        {{ $user->is_verified ? '100% Verified' : (($user->latestVerification && $user->latestVerification->isPending()) ? 'In Review' : 'Unverified') }}
-                                    </span>
-                                </li>
                             </ul>
                         </div>
                     </div>

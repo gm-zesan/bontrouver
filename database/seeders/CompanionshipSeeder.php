@@ -15,7 +15,7 @@ class CompanionshipSeeder extends Seeder
     /**
      * Run the database seeds.
      * Client Requirement: Social & Friendly Meetups under Community section
-     * Types: ☕ coffee_chat, 🚶 walk, 🍽️ dining, 🎬 cinema, ⚽ watch_match, 🏃 sports, 🎮 gaming, 🌆 outing, 🗣️ meet_new_people
+     * Types: coffee_chat, walk, dining, cinema, watch_match, sports, gaming, outing, meet_new_people
      */
     public function run(): void
     {
