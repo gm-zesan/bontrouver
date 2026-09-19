@@ -167,6 +167,32 @@
     </div>
 </x-confirm-modal>
 
+<!-- 4. Promote Listing Modal -->
+<x-confirm-modal 
+    id="promoteConfirmModal"
+    title="<i class='bi bi-rocket-takeoff text-info me-2'></i> <span class='text-info'>Promote Listing</span>"
+    buttonText="<i class='bi bi-arrow-up-circle-fill me-1'></i> Promote Now"
+    buttonClass="btn-info fw-semibold text-dark"
+    buttonId="confirmPromoteBtn"
+>
+    <p class="text-secondary mb-3">
+        Boost the visibility of <strong id="promoteModalListingTitle" class="text-white">this listing</strong> by using your Community Points!
+    </p>
+    
+    <div class="mb-3">
+        <label class="form-label text-secondary small fw-bold">Select Promotion Type</label>
+        <select id="promoteTypeSelect" class="form-select dark-filter-select">
+            <option value="featured">Featured Listing ({{ config('points.spend.featured_promotion') }} Points)</option>
+            <option value="sponsored">Sponsored Spotlight ({{ config('points.spend.sponsored_promotion') }} Points)</option>
+        </select>
+    </div>
+
+    <div class="p-3 rounded-3 small mb-0 mt-3" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
+        <i class="bi bi-info-circle-fill text-info me-1"></i>
+        Points will be deducted immediately. Make sure you have enough points!
+    </div>
+</x-confirm-modal>
+
 <!-- Toast Container for Real-time action feedback -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
     <div id="listingToast" class="toast align-items-center text-bg-dark border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
@@ -200,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const soldModal = new bootstrap.Modal(document.getElementById('soldConfirmModal'));
     const pauseModal = new bootstrap.Modal(document.getElementById('pauseConfirmModal'));
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const promoteModal = new bootstrap.Modal(document.getElementById('promoteConfirmModal'));
     const toastEl = document.getElementById('listingToast');
     const toast = new bootstrap.Toast(toastEl, { delay: 3500 });
 
@@ -392,6 +419,13 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteModal.show();
     };
 
+    window.openPromoteModal = function (id, title) {
+        activeActionListing = { id, title };
+        const el = document.getElementById('promoteModalListingTitle');
+        if (el) el.textContent = `"${title}"`;
+        promoteModal.show();
+    };
+
     window.renewListing = function (id, title) {
         fetch(`/my-listings/${id}/status`, {
             method: 'POST',
@@ -437,6 +471,47 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(() => {
             soldModal.hide();
             showToast('Unable to mark listing as sold. Please try again.', false);
+        });
+    });
+
+    document.getElementById('confirmPromoteBtn').addEventListener('click', function () {
+        if (!activeActionListing) return;
+        const { id, title } = activeActionListing;
+        const type = document.getElementById('promoteTypeSelect').value;
+        const btn = document.getElementById('confirmPromoteBtn');
+        const originalText = btn.innerHTML;
+
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+        btn.disabled = true;
+
+        fetch(`/my-listings/${id}/promote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ type: type })
+        })
+        .then(res => res.json().then(data => ({ status: res.status, body: data })))
+        .then(({ status, body }) => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            promoteModal.hide();
+
+            if (status === 200 && body.success) {
+                showToast(body.message);
+                // Hard refresh to show the badge, or we could DOM-manipulate the badge.
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                showToast(body.message || 'Promotion failed.', false);
+            }
+        })
+        .catch(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            promoteModal.hide();
+            showToast('An error occurred during promotion. Please try again.', false);
         });
     });
 

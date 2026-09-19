@@ -10,10 +10,14 @@ use App\Notifications\MeetupJoinRequested;
 use App\Notifications\MeetupAttendeeStatusUpdated;
 use App\Notifications\MeetupCancelled;
 use Illuminate\Support\Facades\DB;
+use App\Services\PointService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CompanionshipService
 {
+    public function __construct(
+        private readonly PointService $pointService
+    ) {}
     /**
      * Get paginated active companionship requests.
      */
@@ -101,18 +105,24 @@ class CompanionshipService
             $attendee->update(['status' => $status]);
 
             // If approved, check if headcount limit is reached
-            if ($status === 'approved' && $request->headcount_limit) {
-                $approvedCount = CompanionshipAttendee::where('companionship_request_id', $request->id)
-                    ->where('status', 'approved')
-                    ->count();
+            if ($status === 'approved') {
+                // Award points to host for successfully organizing
+                $this->pointService->awardForMeetupHost($request);
+                $this->pointService->checkTierProgression($request->user);
 
-                if ($approvedCount >= $request->headcount_limit) {
-                    $request->update(['status' => 'full']);
-                    
-                    // Optional: Reject all other pending requests
-                    CompanionshipAttendee::where('companionship_request_id', $request->id)
-                        ->where('status', 'pending')
-                        ->update(['status' => 'rejected']);
+                if ($request->headcount_limit) {
+                    $approvedCount = CompanionshipAttendee::where('companionship_request_id', $request->id)
+                        ->where('status', 'approved')
+                        ->count();
+
+                    if ($approvedCount >= $request->headcount_limit) {
+                        $request->update(['status' => 'full']);
+                        
+                        // Optional: Reject all other pending requests
+                        CompanionshipAttendee::where('companionship_request_id', $request->id)
+                            ->where('status', 'pending')
+                            ->update(['status' => 'rejected']);
+                    }
                 }
             }
 

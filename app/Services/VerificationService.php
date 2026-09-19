@@ -11,8 +11,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\PointService;
+
 class VerificationService
 {
+    public function __construct(
+        private readonly PointService $pointService
+    ) {}
     /**
      * Submit an ID verification document for moderation review.
      */
@@ -92,23 +97,15 @@ class VerificationService
 
                 $targetUser->save();
 
-                // Award 50 community points for identity verification if not previously awarded
-                $alreadyAwarded = PointTransaction::where('user_id', $targetUser->id)
-                    ->where('action_type', 'verified_identity')
-                    ->exists();
-
-                if (!$alreadyAwarded) {
-                    PointTransaction::create([
-                        'user_id' => $targetUser->id,
-                        'points' => 50,
-                        'action_type' => 'verified_identity',
-                        'reference_type' => UserVerification::class,
-                        'reference_id' => $verification->id,
-                        'description' => 'Bonus points for completing Canadian ID verification',
-                    ]);
-
-                    $targetUser->increment('community_points', 50);
-                }
+                // Award community points for identity verification if not previously awarded
+                $this->pointService->awardPoints(
+                    $targetUser,
+                    config('points.earn.identity_verification'),
+                    'verified_identity',
+                    'Bonus points for completing Canadian ID verification',
+                    $verification
+                );
+                $this->pointService->checkTierProgression($targetUser);
             } elseif ($status === 'rejected') {
                 // If user has no other approved verification, mark unverified
                 $hasOtherApproved = UserVerification::where('user_id', $targetUser->id)

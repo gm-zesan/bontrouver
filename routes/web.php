@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
     // My Listings
     Route::get('/my-listings', [SellerListingController::class, 'index'])->name('listings.my');
     Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
+    Route::post('/my-listings/{id}/promote', [SellerListingController::class, 'promote'])->name('listings.my.promote');
     Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
 
     // Smart Alerts

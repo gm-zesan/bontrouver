@@ -10,6 +10,7 @@ use App\Models\CategoryAttribute;
 use App\Events\ListingCreated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Services\PointService;
 
 /**
  * Owns all listing business logic: fetching, transformation,
@@ -18,7 +19,8 @@ use Illuminate\Support\Str;
 class ListingService
 {
     public function __construct(
-        private readonly LocationService $locationService
+        private readonly LocationService $locationService,
+        private readonly PointService $pointService
     ) {}
 
     // ─── Read ──────────────────────────────────────────────────────────────────
@@ -366,6 +368,9 @@ class ListingService
         }
 
         ListingCreated::dispatch($listing);
+
+        $this->pointService->awardForFreeListing($listing);
+        $this->pointService->checkTierProgression($listing->user);
 
         return $listing;
     }

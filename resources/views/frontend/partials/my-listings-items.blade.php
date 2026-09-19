@@ -22,7 +22,11 @@
                              class="w-100 h-100 object-fit-cover d-block"
                              style="width: 100%; height: 100%; object-fit: cover; display: block;"
                              onerror="this.src='https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=400&q=80'">
-                        @if(!empty($item['featured']))
+                        @if(!empty($item['sponsored']))
+                            <span class="listing-manage-featured-badge" style="background: var(--brand-purple, #6f42c1); color: white;">
+                                SPONSORED
+                            </span>
+                        @elseif(!empty($item['featured']))
                             <span class="listing-manage-featured-badge">
                                 FEATURED
                             </span>
@@ -149,6 +153,12 @@
                                 <i class="bi bi-pencil"></i>
                                 <span>Edit</span>
                             </a>
+                            <!-- Promote Button -->
+                            @if(empty($item['featured']) && empty($item['sponsored']))
+                                <button type="button" class="btn-manage-icon icon-promote" onclick="openPromoteModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}')" title="Promote Listing">
+                                    <i class="bi bi-rocket-takeoff text-info"></i>
+                                </button>
+                            @endif
                             <!-- Pause Button -->
                             <button type="button" class="btn-manage-icon icon-pause" onclick="openPauseModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}', 'active')" title="Pause Listing">
                                 <i class="bi bi-pause-circle text-warning"></i>

@@ -34,6 +34,7 @@ class SellerListingService
                 'messages' => $item->messages ?? 0,
                 'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
                 'featured' => $item->is_featured,
+                'sponsored' => $item->is_sponsored,
                 'draft_progress' => 100,
             ];
         })->toArray();
