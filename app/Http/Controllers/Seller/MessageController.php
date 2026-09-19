@@ -41,6 +41,17 @@ class MessageController extends Controller
             $lastMessage = $conv->messages->last();
             $unreadCount = $conv->messages->where('sender_id', '!=', $user->id)->whereNull('read_at')->count();
 
+            $lastMessagePreview = 'No messages yet.';
+            if ($lastMessage) {
+                if ($lastMessage->body) {
+                    $lastMessagePreview = $lastMessage->body;
+                } elseif ($lastMessage->attachment_type === 'image') {
+                    $lastMessagePreview = 'Sent an image';
+                } elseif ($lastMessage->attachment_type === 'file') {
+                    $lastMessagePreview = 'Sent a file';
+                }
+            }
+
             return [
                 'id' => $conv->id,
                 'user' => [
@@ -58,7 +69,7 @@ class MessageController extends Controller
                     'image' => $listing->primaryImage->image_path ?? asset('images/placeholder.jpg'),
                     'status' => $listing->status ?? 'Deleted',
                 ],
-                'last_message' => $lastMessage->body ?? 'No messages yet.',
+                'last_message' => $lastMessagePreview,
                 'last_time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',
                 'unread' => $unreadCount > 0,
                 'unread_count' => $unreadCount,
@@ -67,6 +78,8 @@ class MessageController extends Controller
                         'id' => $msg->id,
                         'sender' => $msg->sender_id == $user->id ? 'me' : 'them',
                         'text' => $msg->body,
+                        'attachment_url' => $msg->attachment_url,
+                        'attachment_type' => $msg->attachment_type,
                         'time' => $msg->created_at->format('M d, g:i A'),
                     ];
                 })->values()->toArray(),
@@ -102,13 +115,20 @@ class MessageController extends Controller
      */
     public function send(Request $request, $conversationId)
     {
+        $request->validate([
+            'message' => 'nullable|string',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,doc,docx|max:5120', // 5MB max
+        ]);
+
         $text = $request->input('message');
-        if (empty(trim($text))) {
+        $attachment = $request->file('attachment');
+
+        if (empty(trim($text)) && !$attachment) {
             return response()->json(['success' => false, 'message' => 'Message cannot be empty.'], 422);
         }
 
         $user = Auth::user();
-        $msg = MessageService::sendMessage($conversationId, $user->id, $text);
+        $msg = MessageService::sendMessage($conversationId, $user->id, $text, $attachment);
 
         return response()->json([
             'success' => true,
@@ -116,6 +136,8 @@ class MessageController extends Controller
                 'id' => $msg->id,
                 'sender' => 'me',
                 'text' => e($msg->body),
+                'attachment_url' => $msg->attachment_url,
+                'attachment_type' => $msg->attachment_type,
                 'time' => $msg->created_at->format('M d, g:i A'),
             ]
         ]);

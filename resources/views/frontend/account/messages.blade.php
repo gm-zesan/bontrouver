@@ -135,10 +135,24 @@
 
                                 @foreach($activeConversation['messages'] as $msg)
                                     @php $isMe = ($msg['sender'] === 'me'); @endphp
-                                    <div class="d-flex flex-column {{ $isMe ? 'align-items-end' : 'align-items-start' }}">
+                                    <div class="d-flex flex-column {{ $isMe ? 'align-items-end' : 'align-items-start' }} mb-2">
                                         <div class="p-3 rounded-4 message-bubble {{ $isMe ? 'my-bubble' : 'their-bubble' }}" 
                                              style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; {{ $isMe ? 'background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;' : 'background: #0D243C; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;' }}">
-                                            {{ $msg['text'] }}
+                                            @if(!empty($msg['attachment_url']))
+                                                @if($msg['attachment_type'] === 'image')
+                                                    <a href="{{ $msg['attachment_url'] }}" target="_blank">
+                                                        <img src="{{ $msg['attachment_url'] }}" class="img-fluid rounded mb-2" style="max-height: 200px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                                                    </a>
+                                                @else
+                                                    <div class="mb-2 p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2">
+                                                        <i class="bi bi-file-earmark-fill fs-4"></i>
+                                                        <a href="{{ $msg['attachment_url'] }}" target="_blank" class="text-decoration-none text-reset fw-bold">Download Attachment</a>
+                                                    </div>
+                                                @endif
+                                            @endif
+                                            @if(!empty($msg['text']))
+                                                {{ $msg['text'] }}
+                                            @endif
                                         </div>
                                         <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">{{ $msg['time'] }}</span>
                                     </div>
@@ -148,14 +162,26 @@
 
                             <!-- Bottom Input & Send Box -->
                             <div class="p-3 border-top border-secondary border-opacity-10" style="background: #0D243C;">
-                                <form id="chatSendForm" onsubmit="event.preventDefault(); sendChatMessage();">
-                                    <div class="input-group">
+                                <div id="attachmentPreview" class="d-none mb-2 p-2 bg-dark rounded border border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                        <i class="bi bi-paperclip text-success"></i>
+                                        <span id="attachmentFileName" class="text-white small text-truncate" style="max-width: 200px;"></span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-link text-danger p-0" onclick="removeAttachment()">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </button>
+                                </div>
+                                <form id="chatSendForm" onsubmit="event.preventDefault(); sendChatMessage();" enctype="multipart/form-data">
+                                    <div class="input-group align-items-center">
+                                        <button class="btn btn-dark text-secondary border-0 px-3" type="button" onclick="document.getElementById('chatAttachment').click();" style="background: #081D33;">
+                                            <i class="bi bi-image"></i>
+                                        </button>
+                                        <input type="file" id="chatAttachment" class="d-none" accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx" onchange="handleAttachmentSelect(this)">
                                         <input type="text" 
                                                class="form-control dark-filter-input border-0 py-2" 
                                                id="chatInput" 
                                                placeholder="Type your message to {{ $activeConversation['user']['name'] }}..." 
                                                autocomplete="off"
-                                               required
                                                style="background: #081D33 !important; font-size: 0.88rem;">
                                         <button class="btn btn-theme-primary px-4 d-inline-flex align-items-center gap-1 fw-semibold" type="submit" id="btnSendMessage">
                                             <span>Send</span>
@@ -180,37 +206,96 @@
 
 @push('scripts')
 <script>
+function handleAttachmentSelect(input) {
+    const preview = document.getElementById('attachmentPreview');
+    const fileNameSpan = document.getElementById('attachmentFileName');
+    if (input.files && input.files[0]) {
+        fileNameSpan.textContent = input.files[0].name;
+        preview.classList.remove('d-none');
+    } else {
+        preview.classList.add('d-none');
+    }
+}
+
+function removeAttachment() {
+    const input = document.getElementById('chatAttachment');
+    const preview = document.getElementById('attachmentPreview');
+    input.value = '';
+    preview.classList.add('d-none');
+}
+
 function sendChatMessage() {
     const input = document.getElementById('chatInput');
+    const fileInput = document.getElementById('chatAttachment');
     const text = input ? input.value.trim() : '';
-    if (!text) return;
+    const file = fileInput.files[0];
+    
+    if (!text && !file) return;
 
-    const stream = document.getElementById('messagesStream');
-    if (stream) {
-        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const bubble = document.createElement('div');
-        bubble.className = 'd-flex flex-column align-items-end';
-        bubble.innerHTML = `
-            <div class="p-3 rounded-4 message-bubble my-bubble" 
-                 style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;">
-                ${escapeHtml(text)}
-            </div>
-            <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${timeNow}</span>
-        `;
-        stream.appendChild(bubble);
-        stream.scrollTop = stream.scrollHeight;
+    // We rely on the server response to render our own message properly if there's a file
+    // so we don't optimistically render it unless it's just text
+    if (!file) {
+        const stream = document.getElementById('messagesStream');
+        if (stream) {
+            const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const bubble = document.createElement('div');
+            bubble.className = 'd-flex flex-column align-items-end mb-2';
+            bubble.innerHTML = `
+                <div class="p-3 rounded-4 message-bubble my-bubble" 
+                     style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;">
+                    ${escapeHtml(text)}
+                </div>
+                <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${timeNow}</span>
+            `;
+            stream.appendChild(bubble);
+            stream.scrollTop = stream.scrollHeight;
+        }
     }
 
     input.value = '';
+    removeAttachment();
+
+    const formData = new FormData();
+    if (text) formData.append('message', text);
+    if (file) formData.append('attachment', file);
 
     fetch(`{{ $activeConversation ? url('/messages/' . $activeConversation['id'] . '/reply') : '#' }}`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({ message: text })
-    }).catch(() => {});
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && file) {
+            // Append the message returned by the server because it has the attachment url
+            const stream = document.getElementById('messagesStream');
+            if (stream) {
+                let attachmentHtml = '';
+                if (data.message.attachment_url) {
+                    if (data.message.attachment_type === 'image') {
+                        attachmentHtml = `<a href="${data.message.attachment_url}" target="_blank"><img src="${data.message.attachment_url}" class="img-fluid rounded mb-2" style="max-height: 200px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);"></a>`;
+                    } else {
+                        attachmentHtml = `<div class="mb-2 p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2"><i class="bi bi-file-earmark-fill fs-4"></i><a href="${data.message.attachment_url}" target="_blank" class="text-decoration-none text-reset fw-bold">Download Attachment</a></div>`;
+                    }
+                }
+                const bubble = document.createElement('div');
+                bubble.className = 'd-flex flex-column align-items-end mb-2';
+                bubble.innerHTML = `
+                    <div class="p-3 rounded-4 message-bubble my-bubble" 
+                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;">
+                        ${attachmentHtml}
+                        ${data.message.text ? escapeHtml(data.message.text) : ''}
+                    </div>
+                    <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${data.message.time}</span>
+                `;
+                stream.appendChild(bubble);
+                stream.scrollTop = stream.scrollHeight;
+            }
+        }
+    })
+    .catch(() => {});
 }
 
 function escapeHtml(text) {
@@ -254,6 +339,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 .listen('MessageSent', (e) => {
                     if (e.sender_id !== currentUserId && stream) {
                         const timeNow = e.time;
+                        let attachmentHtml = '';
+                        if (e.attachment_url) {
+                            if (e.attachment_type === 'image') {
+                                attachmentHtml = `<a href="${e.attachment_url}" target="_blank"><img src="${e.attachment_url}" class="img-fluid rounded mb-2" style="max-height: 200px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);"></a>`;
+                            } else {
+                                attachmentHtml = `<div class="mb-2 p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2"><i class="bi bi-file-earmark-fill fs-4"></i><a href="${e.attachment_url}" target="_blank" class="text-decoration-none text-reset fw-bold">Download Attachment</a></div>`;
+                            }
+                        }
+
                         const bubble = document.createElement('div');
                         bubble.className = 'd-flex gap-2 mb-3';
                         bubble.innerHTML = `
@@ -263,7 +357,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="d-flex flex-column align-items-start">
                                 <div class="p-3 rounded-4 message-bubble" 
                                      style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #081D33; color: rgba(255,255,255,0.9); border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;">
-                                    ${escapeHtml(e.body)}
+                                    ${attachmentHtml}
+                                    ${e.body ? escapeHtml(e.body) : ''}
                                 </div>
                                 <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${timeNow}</span>
                             </div>

@@ -44,15 +44,33 @@ class MessageService
      *
      * @param int $conversationId
      * @param int $senderId
-     * @param string $body
+     * @param string|null $body
+     * @param \Illuminate\Http\UploadedFile|null $attachment
      * @return Message
      */
-    public static function sendMessage(int $conversationId, int $senderId, string $body)
+    public static function sendMessage(int $conversationId, int $senderId, ?string $body = null, ?\Illuminate\Http\UploadedFile $attachment = null)
     {
+        $attachmentPath = null;
+        $attachmentType = null;
+
+        if ($attachment) {
+            $attachmentPath = $attachment->store('messages', 'public');
+            
+            // Determine type
+            $mime = $attachment->getMimeType();
+            if (str_starts_with($mime, 'image/')) {
+                $attachmentType = 'image';
+            } else {
+                $attachmentType = 'file';
+            }
+        }
+
         $message = Message::create([
             'conversation_id' => $conversationId,
             'sender_id' => $senderId,
             'body' => $body,
+            'attachment_path' => $attachmentPath,
+            'attachment_type' => $attachmentType,
         ]);
 
         // Load relationships needed for broadcasting
