@@ -282,7 +282,8 @@ class HomeDataService
                 })
                 ->where('status', 'active')->latest()->limit(4)->get();
 
-            foreach ($listings->isNotEmpty() ? $listings : collect($cat['children'] ?? []) as $entry) {
+            $fallbackItems = array_slice($cat['children'] ?? [], 0, 4);
+            foreach ($listings->isNotEmpty() ? $listings : collect($fallbackItems) as $entry) {
                 $isModel = $entry instanceof Listing;
                 $items[] = [
                     'image' => $isModel ? ($entry->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80') : 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
