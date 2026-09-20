@@ -32,6 +32,10 @@ class AuthenticatedSessionController extends Controller
             return redirect($request->input('redirect_to'));
         }
 
+        if (Auth::user()->isAdmin() || Auth::user()->isModerator()) {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
         return redirect()->intended(route('profile.edit', absolute: false));
     }
 

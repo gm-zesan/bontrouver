@@ -11,8 +11,12 @@ use App\Http\Controllers\Seller\MeetupController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SmartAlertController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\StaticPageController;
+
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\VerificationReviewController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -65,11 +69,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
 
     // Smart Alerts
-    Route::get('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'index'])->name('account.alerts.index');
-    Route::get('/account/alerts/create', [\App\Http\Controllers\SmartAlertController::class, 'create'])->name('account.alerts.create');
-    Route::post('/account/alerts', [\App\Http\Controllers\SmartAlertController::class, 'store'])->name('account.alerts.store');
-    Route::patch('/account/alerts/{alert}/toggle', [\App\Http\Controllers\SmartAlertController::class, 'toggle'])->name('account.alerts.toggle');
-    Route::delete('/account/alerts/{alert}', [\App\Http\Controllers\SmartAlertController::class, 'destroy'])->name('account.alerts.destroy');
+    Route::get('/account/alerts', [SmartAlertController::class, 'index'])->name('account.alerts.index');
+    Route::get('/account/alerts/create', [SmartAlertController::class, 'create'])->name('account.alerts.create');
+    Route::post('/account/alerts', [SmartAlertController::class, 'store'])->name('account.alerts.store');
+    Route::patch('/account/alerts/{alert}/toggle', [SmartAlertController::class, 'toggle'])->name('account.alerts.toggle');
+    Route::delete('/account/alerts/{alert}', [SmartAlertController::class, 'destroy'])->name('account.alerts.destroy');
 
     // 1. Favorites / Saved Ads
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
@@ -94,7 +98,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/edit', [SettingsController::class, 'index'])->name('profile.edit');
     Route::patch('/settings/auth', [SettingsController::class, 'updateAuth'])->name('profile.update');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
-    
+
     // 5. Canadian Identity Document Verification Center
     Route::get('/account/verification', [\App\Http\Controllers\Seller\VerificationController::class, 'index'])->name('account.verification.index');
     Route::post('/account/verification/document', [\App\Http\Controllers\Seller\VerificationController::class, 'store'])->name('verification.document.store');
@@ -105,11 +109,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
 });
 
-// Admin & Moderator Verification Queue
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/verifications', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'index'])->name('verifications.index');
-    Route::post('/verifications/{verification}/approve', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'approve'])->name('verifications.approve');
-    Route::post('/verifications/{verification}/reject', [\App\Http\Controllers\Admin\VerificationReviewController::class, 'reject'])->name('verifications.reject');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
+    Route::post('/verifications/{verification}/approve', [VerificationReviewController::class, 'approve'])->name('verifications.approve');
+    Route::post('/verifications/{verification}/reject', [VerificationReviewController::class, 'reject'])->name('verifications.reject');
 });
 
 // Static Marketplace Info & Footer Pages

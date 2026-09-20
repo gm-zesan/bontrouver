@@ -1,7 +1,5 @@
-@extends('frontend.layouts.app', [
-    'title' => 'Verification Moderation Queue | Bontrouver Admin',
-    'metaDescription' => 'Review Canadian ID documents, verify user identity, and manage seller dealer credentials.'
-])
+@extends('admin.layouts.app')
+@section('title', 'Verification Moderation Queue')
 
 @section('content')
 <div class="container py-4 py-lg-5">
