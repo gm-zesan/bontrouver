@@ -5,8 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace' }}</title>
-    <meta name="description" content="{{ $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.' }}">
+    <title>@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')</title>
+    <meta name="description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="@yield('og_type', $ogType ?? 'website')">
+    <meta property="og:url" content="{{ request()->url() }}">
+    <meta property="og:title" content="@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')">
+    <meta property="og:description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
+    <meta property="og:image" content="@yield('og_image', $ogImage ?? asset('images/og-default.png'))">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request()->url() }}">
+    <meta property="twitter:title" content="@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')">
+    <meta property="twitter:description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
+    <meta property="twitter:image" content="@yield('og_image', $ogImage ?? asset('images/og-default.png'))">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

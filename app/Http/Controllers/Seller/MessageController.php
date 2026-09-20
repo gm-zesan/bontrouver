@@ -45,10 +45,9 @@ class MessageController extends Controller
             if ($lastMessage) {
                 if ($lastMessage->body) {
                     $lastMessagePreview = $lastMessage->body;
-                } elseif ($lastMessage->attachment_type === 'image') {
-                    $lastMessagePreview = 'Sent an image';
-                } elseif ($lastMessage->attachment_type === 'file') {
-                    $lastMessagePreview = 'Sent a file';
+                } elseif (!empty($lastMessage->attachments)) {
+                    $count = count($lastMessage->attachments);
+                    $lastMessagePreview = $count > 1 ? "Sent $count attachments" : 'Sent an attachment';
                 }
             }
 
@@ -78,8 +77,7 @@ class MessageController extends Controller
                         'id' => $msg->id,
                         'sender' => $msg->sender_id == $user->id ? 'me' : 'them',
                         'text' => $msg->body,
-                        'attachment_url' => $msg->attachment_url,
-                        'attachment_type' => $msg->attachment_type,
+                        'attachments' => $msg->attachments,
                         'time' => $msg->created_at->format('M d, g:i A'),
                     ];
                 })->values()->toArray(),
@@ -117,18 +115,19 @@ class MessageController extends Controller
     {
         $request->validate([
             'message' => 'nullable|string',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,webp,pdf,doc,docx|max:5120', // 5MB max
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,webp,pdf,doc,docx|max:5120', // 5MB max per file
         ]);
 
         $text = $request->input('message');
-        $attachment = $request->file('attachment');
+        $attachments = $request->file('attachments');
 
-        if (empty(trim($text)) && !$attachment) {
+        if (empty(trim($text)) && empty($attachments)) {
             return response()->json(['success' => false, 'message' => 'Message cannot be empty.'], 422);
         }
 
         $user = Auth::user();
-        $msg = MessageService::sendMessage($conversationId, $user->id, $text, $attachment);
+        $msg = MessageService::sendMessage($conversationId, $user->id, $text, $attachments);
 
         return response()->json([
             'success' => true,
@@ -136,8 +135,7 @@ class MessageController extends Controller
                 'id' => $msg->id,
                 'sender' => 'me',
                 'text' => e($msg->body),
-                'attachment_url' => $msg->attachment_url,
-                'attachment_type' => $msg->attachment_type,
+                'attachments' => $msg->attachments,
                 'time' => $msg->created_at->format('M d, g:i A'),
             ]
         ]);

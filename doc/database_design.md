@@ -251,7 +251,8 @@ Individual messages inside a conversation.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `conversation_id` (FK -> conversations.id, CASCADE DELETE)
 - `sender_id` (FK -> users.id, CASCADE DELETE)
-- `body` (TEXT)
+- `body` (TEXT, NULLABLE)
+- `attachments` (JSON, NULLABLE) - Stores array of file paths and metadata
 - `read_at` (TIMESTAMP, NULLABLE) - Replaces `is_read` boolean
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)

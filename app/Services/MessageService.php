@@ -45,23 +45,28 @@ class MessageService
      * @param int $conversationId
      * @param int $senderId
      * @param string|null $body
-     * @param \Illuminate\Http\UploadedFile|null $attachment
+     * @param array|null $attachments
      * @return Message
      */
-    public static function sendMessage(int $conversationId, int $senderId, ?string $body = null, ?\Illuminate\Http\UploadedFile $attachment = null)
+    public static function sendMessage(int $conversationId, int $senderId, ?string $body = null, ?array $attachments = null)
     {
-        $attachmentPath = null;
-        $attachmentType = null;
+        $attachmentData = [];
 
-        if ($attachment) {
-            $attachmentPath = $attachment->store('messages', 'public');
-            
-            // Determine type
-            $mime = $attachment->getMimeType();
-            if (str_starts_with($mime, 'image/')) {
-                $attachmentType = 'image';
-            } else {
-                $attachmentType = 'file';
+        if ($attachments && is_array($attachments)) {
+            foreach ($attachments as $attachment) {
+                if ($attachment instanceof \Illuminate\Http\UploadedFile) {
+                    $path = $attachment->store('messages', 'public');
+                    
+                    // Determine type
+                    $mime = $attachment->getMimeType();
+                    $type = str_starts_with($mime, 'image/') ? 'image' : 'file';
+                    
+                    $attachmentData[] = [
+                        'path' => $path,
+                        'type' => $type,
+                        'url' => \Illuminate\Support\Facades\Storage::url($path)
+                    ];
+                }
             }
         }
 
@@ -69,8 +74,7 @@ class MessageService
             'conversation_id' => $conversationId,
             'sender_id' => $senderId,
             'body' => $body,
-            'attachment_path' => $attachmentPath,
-            'attachment_type' => $attachmentType,
+            'attachments' => empty($attachmentData) ? null : $attachmentData,
         ]);
 
         // Load relationships needed for broadcasting

@@ -91,7 +91,7 @@
 
     <!-- Main Form Card -->
     <div class="create-meetup-card shadow-lg">
-        <form action="{{ route('community.store') }}" method="POST">
+        <form action="{{ route('community.store') }}" method="POST" id="meetupCreateForm" onsubmit="handleMeetupSubmit()">
             @csrf
 
             <div class="row g-4">
@@ -267,12 +267,26 @@
                 <a href="{{ route('meetups.my') }}" class="btn btn-outline-light rounded-pill px-4 py-2">
                     <span>Cancel</span>
                 </a>
-                <button type="submit" class="hero-btn-primary"
+                <button type="submit" class="hero-btn-primary" id="btnSubmitMeetup"
                     style="min-width: auto; border: none; padding: 0.6rem 1.8rem;">
-                    <i class="bi bi-check-lg me-1"></i>
-                    <span>Post Meetup Request</span>
+                    <span class="btn-text"><i class="bi bi-check-lg me-1"></i> Post Meetup Request</span>
+                    <span class="btn-spinner" style="display: none;"><span class="spinner-border spinner-border-sm me-1"></span> Processing...</span>
                 </button>
             </div>
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function handleMeetupSubmit() {
+        const btn = document.getElementById('btnSubmitMeetup');
+        if (btn) {
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = 'inline-flex';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+        }
+    }
+</script>
+@endpush

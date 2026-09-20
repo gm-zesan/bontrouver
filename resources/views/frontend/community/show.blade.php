@@ -1,5 +1,8 @@
 @extends('frontend.layouts.app')
 
+@section('title', $meetup->title . ' - Bontrouver Community')
+@section('meta_description', Str::limit(strip_tags($meetup->description ?? ''), 155))
+@section('og_type', 'article')
 @section('content')
     <div class="py-5" style="min-height: 80vh;">
         <div class="container-xl">
@@ -178,8 +181,15 @@
                                     {{ substr($meetup->user->name, 0, 1) }}
                                 </div>
                             </div>
-                            <h3 class="h5 fw-bold mb-1">{{ $meetup->user->name }}</h3>
-                            <p class="text-white-50 small mb-3">Host</p>
+                            <h3 class="h5 fw-bold mb-1 d-flex align-items-center justify-content-center">
+                                {{ $meetup->user->name }}
+                                @if($meetup->user->is_verified)
+                                    <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="Verified Host">
+                                        <i class="bi bi-shield-check me-1"></i> Verified
+                                    </span>
+                                @endif
+                            </h3>
+                            <p class="text-white-50 small mb-2">Host • Member since {{ $meetup->user->created_at ? $meetup->user->created_at->format('Y') : '2024' }}</p>
 
                             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
                                 <div class="px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.05);">
@@ -187,10 +197,11 @@
                                     <div class="small text-white-50" style="font-size: 0.7rem;">Points</div>
                                 </div>
                                 <div class="px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.05);">
-                                    <div class="fw-bold"><i
-                                            class="bi bi-star-fill text-warning me-1"></i>{{ number_format($meetup->user->rating ?? 0, 1) }}
+                                    <div class="fw-bold d-flex align-items-center gap-1">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        <span>{{ number_format($meetup->user->rating ?? 0, 1) }}</span>
                                     </div>
-                                    <div class="small text-white-50" style="font-size: 0.7rem;">Rating</div>
+                                    <div class="small text-white-50" style="font-size: 0.7rem;">{{ $meetup->user->reviews_count ?? 0 }} Reviews</div>
                                 </div>
                             </div>
 

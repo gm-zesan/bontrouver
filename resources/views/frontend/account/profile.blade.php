@@ -56,8 +56,13 @@
                 <!-- Name, Meta & Ratings -->
                 <div class="min-w-0">
                     <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                        <h1 class="h4 fw-bold text-white mb-0 text-truncate">
+                        <h1 class="h4 fw-bold text-white mb-0 text-truncate d-flex align-items-center">
                             {{ $user->name ?? 'Marketplace Member' }}
+                            @if($user->is_verified)
+                                <span class="ms-2 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.85rem;" title="Verified Profile">
+                                    <i class="bi bi-shield-check me-1"></i> Verified
+                                </span>
+                            @endif
                         </h1>
                         @if($user->is_dealer)
                             <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">

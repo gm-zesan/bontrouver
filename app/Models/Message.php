@@ -11,24 +11,14 @@ class Message extends Model
         'conversation_id',
         'sender_id',
         'body',
-        'attachment_path',
-        'attachment_type',
+        'attachments',
         'read_at',
     ];
 
     protected $casts = [
+        'attachments' => 'array',
         'read_at' => 'datetime',
     ];
-
-    protected $appends = ['attachment_url'];
-
-    public function getAttachmentUrlAttribute()
-    {
-        if ($this->attachment_path) {
-            return Storage::url($this->attachment_path);
-        }
-        return null;
-    }
 
     public function conversation()
     {

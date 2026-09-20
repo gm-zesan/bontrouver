@@ -56,7 +56,7 @@
                 <button type="button" class="btn btn-outline-light rounded-pill px-4"
                     style="border-color: rgba(255,255,255,0.2);" data-bs-dismiss="modal">Cancel</button>
                 @if($action)
-                    <form action="{{ $action }}" method="POST" class="d-inline">
+                    <form action="{{ $action }}" method="POST" class="d-inline" onsubmit="let b = this.querySelector('button[type=submit]'); b.style.pointerEvents = 'none'; b.style.opacity = '0.7'; b.innerHTML = '<span class=\'spinner-border spinner-border-sm me-1\'></span> Processing...';">
                         @csrf
                         @if(strtoupper($method) !== 'POST')
                             @method($method)

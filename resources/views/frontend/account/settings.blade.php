@@ -286,7 +286,7 @@
                     @endif
                 </p>
 
-                <form method="POST" action="{{ route('verification.document.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('verification.document.store') }}" enctype="multipart/form-data" onsubmit="handleDocSubmit()">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12 col-md-6">
@@ -363,8 +363,9 @@
                         </div>
 
                         <div class="col-12 text-end pt-2">
-                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-pill fw-semibold">
-                                <i class="bi bi-upload me-1"></i> {{ $user->is_verified ? 'Upload Updated Document' : 'Submit ID Document' }}
+                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-pill fw-semibold" id="btnSubmitDoc">
+                                <span class="btn-text"><i class="bi bi-upload me-1"></i> {{ $user->is_verified ? 'Upload Updated Document' : 'Submit ID Document' }}</span>
+                                <span class="btn-spinner" style="display: none;"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
                             </button>
                         </div>
                     </div>
@@ -717,6 +718,15 @@
             .catch(err => {
                 console.error('Failed to toggle notification preference:', err);
             });
+        }
+        function handleDocSubmit() {
+            const btn = document.getElementById('btnSubmitDoc');
+            if (btn) {
+                btn.querySelector('.btn-text').style.display = 'none';
+                btn.querySelector('.btn-spinner').style.display = 'inline-flex';
+                btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none';
+            }
         }
     </script>
 @endsection

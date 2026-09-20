@@ -1,6 +1,9 @@
 @extends('frontend.layouts.app')
 
 @section('title', ($listing ? $listing['title'] . ' - Bontrouver' : 'Listing Unavailable - Bontrouver'))
+@section('meta_description', Str::limit(strip_tags($listing['description'] ?? 'Check out this listing on Bontrouver'), 155))
+@section('og_type', 'product')
+@section('og_image', !empty($listing['images'][0]['url']) ? $listing['images'][0]['url'] : asset('images/og-default.png'))
 
 @section('content')
     <div class="listing-detail-page">
@@ -403,7 +406,14 @@
                                             class="seller-avatar-img">
                                     </div>
                                     <div class="seller-header-info min-w-0">
-                                        <div class="seller-name text-truncate">{{ $seller['name'] }}</div>
+                                        <div class="seller-name text-truncate d-flex align-items-center">
+                                            {{ $seller['name'] }}
+                                            @if(!empty($seller['is_verified']) || !empty($seller['badges']['identity_verified']))
+                                                <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="Verified Seller">
+                                                    <i class="bi bi-shield-check me-1"></i> Verified
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="seller-type-tag">{{ $seller['type'] }}</div>
                                         <div class="seller-rating-row d-flex align-items-center gap-1 mt-1">
                                             <span class="star-rating"><i class="bi bi-star-fill text-warning"></i>

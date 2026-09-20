@@ -73,7 +73,7 @@
   * ✅ Multi-user buyer-seller conversations attached to specific listings.
   * ✅ Real-time message broadcasting powered by Laravel Reverb WebSockets.
   * ✅ Sidebar conversation list with unread counters and message history.
-  * ✅ Attachment/image uploading directly inside chat messages with real-time UI rendering.
+  * ✅ Multiple attachment/image uploading directly inside chat messages with gallery preview and real-time UI rendering.
 * **Remaining / Next Improvements**:
   * 🎉 Fully Completed!
 
@@ -84,11 +84,11 @@
   * ✅ **Distinct Profile vs Settings Navigation**:
     * **Profile Overview (`/profile`, `/profile/view`, `/user/{user}`)**: Live public/seller view showing member tier badge, aggregate ratings, completed deals count, active classified ads, community reviews, hosted meetups, and trust checkpoints.
     * **Account Settings (`/settings`)**: Full account management portal for personal info, avatar upload, password changes, notification switches, and account deletion.
-  * ✅ **Canadian ID & Document Verification Engine**:
-    * Document upload pipeline supporting Provincial Driver's Licenses, Canadian Passports, Provincial Photo Cards, and Registered Dealer Licenses.
-    * Form Request validation (`SubmitVerificationRequest`) restricting files to PDF/PNG/JPG/WEBP up to 10MB.
-    * Real-time status badges (`🟡 Verification In Review`, `🟢 ID Verified`, `🔴 Verification Rejected`, `⚪ Unverified`).
-    * Moderator review workflow awarding **+50 Community Points** and Verified Member badge upon approval.
+  * ✅ **Canadian Identity Verification Engine (Optional Documents)**:
+    * Flexible verification pipeline where users can optionally upload Canadian ID documents or just verify email/phone.
+    * Form Request validation (`SubmitVerificationRequest`) allowing optional document uploads (PDF/PNG/JPG/WEBP up to 10MB).
+    * Real-time status badges (`🟡 Verification In Review`, `🔴 Verification Rejected`, `⚪ Unverified`). *(Note: "100% ID Verified" badges were intentionally removed from the public UI per client request).*
+    * Moderator review workflow awarding **+50 Community Points** upon approval.
     * Email address verification checkpoint.
   * ✅ **Dynamic Tabbed Profile Navigation**:
     * **Active Listings**: Grid with cover photo, category tag, price, and view counters.
