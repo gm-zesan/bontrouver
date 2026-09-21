@@ -138,16 +138,9 @@ function initAdmin() {
             });
         }
 
-        // 4. Initialize Select2 on any element with .single-select2 if available
-        if (window.jQuery.fn && window.jQuery.fn.select2) {
-            const selectElements = window.jQuery('.single-select2');
-            if (selectElements.length) {
-                selectElements.select2();
-            }
-        }
     }
 
-    // 5. Initialize Unified Admin Image Uploaders
+    // 4. Initialize Unified Admin Image Uploaders
     initAdminImageUploaders();
 }
 

@@ -22,7 +22,13 @@ class AdminListingService
         }
 
         if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+            $cat = \App\Models\Category::with('children')->find($filters['category_id']);
+            if ($cat && $cat->children->isNotEmpty()) {
+                $categoryIds = $cat->children->pluck('id')->push($cat->id)->toArray();
+                $query->whereIn('category_id', $categoryIds);
+            } else {
+                $query->where('category_id', $filters['category_id']);
+            }
         }
 
         if (isset($filters['featured']) && $filters['featured'] !== '') {

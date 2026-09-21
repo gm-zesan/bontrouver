@@ -23,7 +23,7 @@
                     <div class="d-flex align-items-center flex-wrap gap-3">
                         {{-- Filters --}}
                         <div class="d-flex align-items-center gap-2">
-                            <select id="filter_category" class="form-select table-filter-select" style="width: 150px;">
+                            <select id="filter_category" class="form-select table-filter-select" style="width: 155px;">
                                 <option value="">All Categories</option>
                                 @foreach($categories as $category)
                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -125,8 +125,12 @@
             }
         });
         
-        // Filter button trigger
+        // Filter triggers
         $('#btn_apply_filters').on('click', function() {
+            table.draw();
+        });
+
+        $('#filter_category, #filter_status, #filter_featured').on('change', function() {
             table.draw();
         });
 

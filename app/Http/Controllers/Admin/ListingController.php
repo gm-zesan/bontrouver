@@ -125,7 +125,11 @@ class ListingController extends Controller
                 ->make(true);
         }
 
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.listings.index', [
             'categories' => $categories,
