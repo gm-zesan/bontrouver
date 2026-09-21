@@ -31,6 +31,7 @@ class User extends Authenticatable
         'is_verified',
         'is_suspended',
         'notification_preferences',
+        'admin_notes',
     ];
 
     protected $hidden = [

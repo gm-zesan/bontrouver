@@ -1,151 +1,125 @@
 @extends('admin.layouts.app')
 
-@push('custom-style')
-    <style>
-        .service-meta-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 14px 16px;
-        }
-        .service-meta-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            margin-bottom: 3px;
-        }
-        .service-meta-value {
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .service-desc-box {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 24px;
-        }
-        .user-stat-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-            background-color: #ffffff;
-            transition: all 0.2s ease;
-        }
-        .user-stat-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transform: translateY(-2px);
-        }
-        .user-stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .user-stat-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #64748b;
-        }
-        .form-label-custom {
-            font-size: 13px;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-        .form-control-custom {
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 14px;
-            padding: 10px 14px;
-            background-color: #f8fafc;
-        }
-        .form-control-custom:focus {
-            background-color: #ffffff;
-            border-color: #94a3b8;
-            box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
-        }
-    </style>
-@endpush
+
 
 @section('content')
 <div class="container-fluid px-4 py-4">
 
     <div class="row gx-4">
-        {{-- Left Column: Profile & Meta --}}
+        {{-- Left Column: Profile Card & Admin Notes --}}
         <div class="col-lg-4 mb-4">
             
-            {{-- Profile Card --}}
-            <div class="service-desc-box mb-4 text-center">
-                <div class="mb-3 position-relative d-inline-block">
-                    @if(!empty($user->avatar) && file_exists(public_path($user->avatar)))
-                        <img src="{{ asset($user->avatar) }}" alt="{{ $user->name }}" class="rounded-circle object-fit-cover shadow-sm" style="width: 110px; height: 110px; border: 4px solid #fff;">
-                    @else
-                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm mx-auto" style="width: 110px; height: 110px; background-color: #49D17D; font-weight: 700; font-size: 36px; border: 4px solid #fff;">
-                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                        </div>
-                    @endif
+            {{-- Card 1: Unified Profile & Standing --}}
+            <div class="service-desc-box shadow-sm mb-4">
+                {{-- User Avatar & Header Info --}}
+                <div class="text-center pb-3 border-bottom">
+                    <div class="mb-3 position-relative d-inline-block">
+                        @if(!empty($user->avatar) && file_exists(public_path($user->avatar)))
+                            <img src="{{ asset($user->avatar) }}" alt="{{ $user->name }}" class="rounded-circle object-fit-cover shadow-sm" style="width: 110px; height: 110px; border: 4px solid #f8fafc;">
+                        @else
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm mx-auto" style="width: 110px; height: 110px; background-color: #49D17D; font-weight: 700; font-size: 36px; border: 4px solid #f8fafc;">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                        @endif
+                        
+                        @if($user->is_verified)
+                            <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm" style="transform: translate(-5%, -5%);">
+                                <i class="ri-verified-badge-fill text-primary fs-5"></i>
+                            </div>
+                        @endif
+                    </div>
                     
-                    @if($user->is_verified)
-                        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm" style="transform: translate(-5%, -5%);">
-                            <i class="ri-verified-badge-fill text-primary fs-5"></i>
+                    <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">{{ $user->name }}</h5>
+                    <p class="text-muted mb-2" style="font-size: 14px;">{{ $user->email }}</p>
+
+                    @php
+                        $roleBadgeStyle = match($user->role) {
+                            \App\Enums\UserRole::ADMIN => 'background-color: #fff3ee; color: #f95716; border: 1px solid rgba(249, 87, 22, 0.3);',
+                            default => 'background-color: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;',
+                        };
+                    @endphp
+                    <span class="badge rounded-pill mb-3" style="{{ $roleBadgeStyle }} font-size: 12px; padding: 6px 14px; font-weight: 600;">
+                        {{ $user->role->label() }}
+                    </span>
+
+                    <div class="d-flex gap-2 mt-1">
+                        <button type="button" class="btn btn-sm w-50 btn-confirm-modal {{ $user->is_suspended ? 'btn-success' : 'btn-warning' }}" 
+                            data-action="{{ route('admin.users.suspend', $user->id) }}"
+                            data-method="POST"
+                            data-title="Confirm {{ $user->is_suspended ? 'Unsuspension' : 'Suspension' }}"
+                            data-desc="Are you sure you want to {{ $user->is_suspended ? 'unsuspend' : 'suspend' }} this user? {{ $user->is_suspended ? 'They will regain access to their account.' : 'They will immediately lose access to their account and listings.' }}"
+                            data-btn-class="{{ $user->is_suspended ? 'btn-success' : 'btn-warning' }}"
+                            data-btn-text="{{ $user->is_suspended ? 'Unsuspend' : 'Suspend' }}"
+                            style="font-weight: 600; border-radius: 6px;">
+                            <i class="{{ $user->is_suspended ? 'ri-play-circle-line' : 'ri-pause-circle-line' }} me-1"></i>
+                            {{ $user->is_suspended ? 'Unsuspend' : 'Suspend' }}
+                        </button>
+                        <button type="button" class="btn btn-sm w-50 btn-danger btn-confirm-modal" 
+                            data-action="{{ route('admin.users.destroy', $user->id) }}"
+                            data-method="DELETE"
+                            data-title="Confirm Deletion"
+                            data-desc="Are you absolutely sure you want to permanently delete {{ addslashes($user->name) }}? This action cannot be undone and will remove all their data."
+                            data-btn-class="btn-danger"
+                            data-btn-text="Delete"
+                            style="font-weight: 600; border-radius: 6px;">
+                            <i class="ri-delete-bin-line me-1"></i> Delete
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Member Tier & Standing --}}
+                @php $tier = $user->member_tier; @endphp
+                <div class="py-3 border-bottom">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-uppercase fw-bold text-muted" style="font-size: 11px; letter-spacing: 0.5px;">Community Standing</span>
+                        <span class="badge {{ $tier['badge_class'] }}" style="font-size: 11.5px; padding: 4px 10px; font-weight: 600;">
+                            {{ $tier['icon'] }} Level {{ $tier['level'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <span class="fw-bold text-dark" style="font-size: 15px;">{{ $tier['name'] }}</span>
+                        <span class="fw-semibold text-muted" style="font-size: 13px;">{{ number_format($user->community_points) }} pts</span>
+                    </div>
+                    
+                    @if($tier['next_tier'])
+                        <div class="d-flex justify-content-between mb-1" style="font-size: 11.5px; font-weight: 600; color: #64748b;">
+                            <span>Next: {{ $tier['next_tier'] }}</span>
+                            <span>{{ $tier['progress_percentage'] }}%</span>
+                        </div>
+                        <div class="progress" style="height: 6px; background-color: #f1f5f9; border-radius: 10px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $tier['progress_percentage'] }}%; background-color: #49D17D; border-radius: 10px;" aria-valuenow="{{ $tier['progress_percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="mt-1 text-end text-muted" style="font-size: 10.5px;">
+                            Requires {{ $tier['points_needed'] }} more points
+                        </div>
+                    @else
+                        <div class="alert alert-success py-1 px-2 mb-0 text-center" style="font-size: 12px; border-radius: 6px;">
+                            <i class="ri-medal-fill me-1"></i> Highest tier achieved!
                         </div>
                     @endif
                 </div>
-                
-                <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">{{ $user->name }}</h5>
-                <p class="text-muted mb-3" style="font-size: 14px;">{{ $user->email }}</p>
 
-                @php
-                    $roleBadgeStyle = match($user->role) {
-                        \App\Enums\UserRole::ADMIN => 'background-color: #fff3ee; color: #f95716; border: 1px solid rgba(249, 87, 22, 0.3);',
-                        default => 'background-color: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;',
-                    };
-                @endphp
-                <span class="badge rounded-pill mb-3" style="{{ $roleBadgeStyle }} font-size: 12px; padding: 6px 14px; font-weight: 600;">
-                    {{ $user->role->label() }}
-                </span>
-
-                <div class="d-flex gap-2 mt-2">
-                    <button type="button" class="btn btn-sm w-50 btn-confirm-modal {{ $user->is_suspended ? 'btn-success' : 'btn-warning' }}" 
-                        data-action="{{ route('admin.users.suspend', $user->id) }}"
-                        data-method="POST"
-                        data-title="Confirm {{ $user->is_suspended ? 'Unsuspension' : 'Suspension' }}"
-                        data-desc="Are you sure you want to {{ $user->is_suspended ? 'unsuspend' : 'suspend' }} this user? {{ $user->is_suspended ? 'They will regain access to their account.' : 'They will immediately lose access to their account and listings.' }}"
-                        data-btn-class="{{ $user->is_suspended ? 'btn-success' : 'btn-warning' }}"
-                        data-btn-text="{{ $user->is_suspended ? 'Unsuspend' : 'Suspend' }}"
-                        style="font-weight: 600; border-radius: 6px;">
-                        <i class="{{ $user->is_suspended ? 'ri-play-circle-line' : 'ri-pause-circle-line' }} me-1"></i>
-                        {{ $user->is_suspended ? 'Unsuspend' : 'Suspend' }}
-                    </button>
-                    <button type="button" class="btn btn-sm w-50 btn-danger btn-confirm-modal" 
-                        data-action="{{ route('admin.users.destroy', $user->id) }}"
-                        data-method="DELETE"
-                        data-title="Confirm Deletion"
-                        data-desc="Are you absolutely sure you want to permanently delete {{ addslashes($user->name) }}? This action cannot be undone and will remove all their data."
-                        data-btn-class="btn-danger"
-                        data-btn-text="Delete"
-                        style="font-weight: 600; border-radius: 6px;">
-                        <i class="ri-delete-bin-line me-1"></i> Delete
-                    </button>
+                {{-- Member Since --}}
+                <div class="pt-3 d-flex justify-content-between align-items-center">
+                    <span class="text-uppercase fw-bold text-muted" style="font-size: 11px; letter-spacing: 0.5px;">Member Since</span>
+                    <span class="fw-semibold text-dark" style="font-size: 13px;">{{ $user->created_at->format('M d, Y') }}</span>
                 </div>
             </div>
 
-            {{-- Meta Information --}}
-            <div class="service-desc-box p-4">
-                <h6 class="fw-bold mb-3 pb-2 border-bottom" style="font-size: 14px; color: #1e293b;">Account Info</h6>
-                <div class="mb-3">
-                    <div class="service-meta-label">Account Type</div>
-                    <div class="service-meta-value">{{ $user->is_dealer ? 'Dealer / Business' : 'Private Member' }}</div>
+            {{-- Card 2: Dedicated Internal Admin Notes --}}
+            <div class="admin-notes-card shadow-sm">
+                <div class="admin-notes-header">
+                    <div class="admin-notes-title">
+                        <i class="ri-lock-line"></i> Internal Admin Notes
+                    </div>
+                    <span id="notes-status" class="admin-notes-status">
+                        <i class="ri-check-line"></i> Saved
+                    </span>
                 </div>
-                <div class="mb-0">
-                    <div class="service-meta-label">Member Since</div>
-                    <div class="service-meta-value">{{ $user->created_at->format('F d, Y') }}</div>
-                </div>
+                <p class="admin-notes-desc">These notes are private and only visible to administrators for moderation context.</p>
+                <textarea id="admin-notes-input" class="form-control form-control-sm admin-notes-textarea" rows="4" placeholder="Add moderation notes...">{{ $user->admin_notes }}</textarea>
+                <button type="button" id="save-notes-btn" class="btn btn-sm btn-warning w-100 mt-2 text-white shadow-sm" style="font-weight: 600; font-size: 12.5px;">Save Notes</button>
             </div>
 
         </div>
@@ -181,102 +155,18 @@
                             <i class="ri-star-line me-2 fs-6"></i> Reviews
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-2 px-4 py-2 d-flex align-items-center" id="verification-tab" data-bs-toggle="pill" data-bs-target="#verification" type="button" role="tab" aria-controls="verification" aria-selected="false">
+                            <i class="ri-shield-check-line me-2 fs-6"></i> Verification
+                            @if($user->verifications()->where('status', 'pending')->exists())
+                                <span class="badge bg-danger ms-2 rounded-pill">New</span>
+                            @endif
+                        </button>
+                    </li>
                 </ul>
             </div>
 
-            <style>
-                .custom-admin-tabs .nav-link {
-                    color: #64748b;
-                    font-weight: 600;
-                    font-size: 14.5px;
-                    transition: all 0.2s ease-in-out;
-                    border: none;
-                    white-space: nowrap;
-                }
-                .custom-admin-tabs .nav-link:hover {
-                    color: #1e293b;
-                    background-color: rgba(255,255,255,0.5);
-                }
-                .custom-admin-tabs .nav-link.active {
-                    background-color: #ffffff !important;
-                    color: #49D17D !important;
-                    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-                }
-                .custom-admin-tabs .nav-link.active .badge {
-                    background-color: #eafbf1 !important;
-                    color: #49D17D !important;
-                }
-                
-                /* Custom Table Styling */
-                .custom-admin-table {
-                    border-collapse: separate;
-                    border-spacing: 0;
-                    width: 100%;
-                }
-                .custom-admin-table th {
-                    background-color: #f8fafc;
-                    padding: 12px 16px;
-                    font-size: 11.5px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    color: #64748b;
-                    border-bottom: 1px solid #e2e8f0;
-                    font-weight: 600;
-                }
-                .custom-admin-table td {
-                    padding: 14px 16px;
-                    vertical-align: middle;
-                    border-bottom: 1px solid #f1f5f9;
-                    background-color: #fff;
-                    transition: background-color 0.2s;
-                }
-                .custom-admin-table tbody tr:hover td {
-                    background-color: #f8fafc;
-                }
-                .custom-admin-table tbody tr:last-child td {
-                    border-bottom: none;
-                }
 
-                /* Custom Pagination Styling */
-                .pagination {
-                    margin-bottom: 0;
-                    gap: 4px;
-                }
-                .pagination .page-item .page-link {
-                    color: #475569;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px !important;
-                    transition: all 0.2s ease-in-out;
-                    font-size: 13px;
-                    font-weight: 500;
-                    padding: 6px 12px;
-                    background-color: #fff;
-                    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-                }
-                .pagination .page-item.active .page-link {
-                    background-color: #49D17D;
-                    border-color: #49D17D;
-                    color: #fff;
-                    box-shadow: 0 2px 4px rgba(73, 209, 125, 0.25);
-                }
-                .pagination .page-item .page-link:hover {
-                    background-color: #f8fafc;
-                    border-color: #cbd5e1;
-                    color: #1e293b;
-                    z-index: 1;
-                }
-                .pagination .page-item.active .page-link:hover {
-                    background-color: #3fbb6f;
-                    border-color: #3fbb6f;
-                    color: #fff;
-                }
-                .pagination .page-item.disabled .page-link {
-                    background-color: #f1f5f9;
-                    color: #94a3b8;
-                    border-color: #e2e8f0;
-                    box-shadow: none;
-                }
-            </style>
 
             <div class="tab-content" id="userTabsContent">
                 
@@ -554,6 +444,64 @@
                     </div>
                 </div>
 
+                {{-- Verification Tab --}}
+                <div class="tab-pane fade" id="verification" role="tabpanel" aria-labelledby="verification-tab">
+                    <div class="service-desc-box p-4" style="background-color: #ffffff;">
+                        <h6 class="fw-bold mb-4" style="font-size: 15px; color: #1e293b;"><i class="ri-shield-check-line me-2"></i> Verification Documents</h6>
+                        
+                        @if($verifications->isEmpty())
+                            <div class="text-center py-5">
+                                <i class="ri-file-search-line text-muted mb-2" style="font-size: 32px;"></i>
+                                <p class="text-muted mb-0" style="font-size: 14px;">No verification requests found.</p>
+                            </div>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table custom-admin-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Document Type</th>
+                                            <th>ID Number</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($verifications as $verif)
+                                            <tr>
+                                                <td class="text-muted" style="font-size: 12.5px;">{{ $verif->created_at->format('M d, Y H:i') }}</td>
+                                                <td><span class="fw-semibold text-dark">{{ $verif->document_type }}</span></td>
+                                                <td class="text-muted">{{ $verif->id_number ?? 'N/A' }}</td>
+                                                <td>
+                                                    @if($verif->status == 'pending')
+                                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Pending</span>
+                                                    @elseif($verif->status == 'approved')
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Approved</span>
+                                                    @else
+                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Rejected</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="{{ asset('storage/' . $verif->document_path) }}" target="_blank" class="btn btn-sm btn-light border" title="View Document"><i class="ri-eye-line text-primary"></i></a>
+                                                        @if($verif->status == 'pending')
+                                                            <button class="btn btn-sm btn-light border text-success btn-confirm-modal" data-action="{{ route('admin.verifications.approve', $verif->id) }}" data-method="POST" data-title="Approve Verification" data-desc="Are you sure you want to approve this verification document? The user will receive the Verified badge." data-btn-class="btn-success" data-btn-text="Approve" title="Approve"><i class="ri-check-line"></i></button>
+                                                            <button class="btn btn-sm btn-light border text-danger btn-confirm-modal" data-action="{{ route('admin.verifications.reject', $verif->id) }}" data-method="POST" data-title="Reject Verification" data-desc="Are you sure you want to reject this verification document?" data-btn-class="btn-danger" data-btn-text="Reject" title="Reject"><i class="ri-close-line"></i></button>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4">
+                                {{ $verifications->appends(request()->except('verifications_page'))->links('pagination::bootstrap-5') }}
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -650,6 +598,42 @@
                     });
                 }
             }
+        });
+
+        // 5) Admin Notes AJAX Save
+        document.getElementById('save-notes-btn').addEventListener('click', function() {
+            let btn = this;
+            let status = document.getElementById('notes-status');
+            let notes = document.getElementById('admin-notes-input').value;
+            
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Saving...';
+            btn.disabled = true;
+
+            fetch("{{ route('admin.users.notes', $user->id) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ admin_notes: notes })
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.innerHTML = 'Save Notes';
+                btn.disabled = false;
+                
+                if(data.success) {
+                    status.style.display = 'inline-block';
+                    setTimeout(() => status.style.display = 'none', 3000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btn.innerHTML = 'Save Notes';
+                btn.disabled = false;
+                alert('An error occurred while saving notes.');
+            });
         });
     });
 </script>

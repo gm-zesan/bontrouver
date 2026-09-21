@@ -118,6 +118,18 @@
   * ✅ Polymorphic `Report` model (`reportable_type`, `reportable_id`) for reporting listings or users.
   * ✅ Report modal on listing detail pages.
 * **Remaining / Next Improvements**:
+  * **Admin Panel Foundation (80%)**:
+    - [x] Admin authentication and middleware.
+    - [x] Admin dashboard structure with sidebar/navigation.
+    - [x] Advanced Users list with DataTables (Filters, Status, Role, Points).
+    - [x] User Bulk Actions (Suspend, Unsuspend, Delete).
+    - [x] User details page (Profile, listings, reviews, points, verifications).
+    - [x] Internal Admin Notes system on user profiles.
+    - [x] Member Tier Progress tracking visualization.
+    - [x] Identity Verification Review system (Approve/Reject logic).
+    - [ ] Role management interface.
+    - [ ] Moderation Queue (Reported listings, users).
+    - [ ] Category Management interface.
   * ⏳ Admin moderation queue for reviewing and resolving flagged reports.
   * ⏳ Admin actions to suspend users or take down violating listings.
 

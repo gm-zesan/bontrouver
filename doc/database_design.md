@@ -19,11 +19,13 @@ Core authentication and profile table.
 - `province` (VARCHAR 50, NULLABLE)
 - `postal_code` (VARCHAR 20, NULLABLE)
 - `location` (VARCHAR 255, NULLABLE) - Formatted neighbourhood / district
-- `avatar` (VARCHAR 255, NULLABLE)
+- `avatar` (VARCHAR, NULLABLE)
 - `bio` (TEXT, NULLABLE)
-- `community_points` (INT) - Default: 0. Calculated aggregate of points.
-- `is_verified` (BOOLEAN) - Default: false.
-- `notification_preferences` (JSON, NULLABLE) - Stores user preferences for messages, alerts, and meetups.
+- `community_points` (INT, DEFAULT 0) - *Used for Member Tier progression*
+- `is_verified` (BOOLEAN, DEFAULT FALSE)
+- `is_suspended` (BOOLEAN, DEFAULT FALSE)
+- `admin_notes` (TEXT, NULLABLE) - *Internal notes by admins*
+- `notification_preferences` (JSON, NULLABLE)
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE) - Soft deletes.

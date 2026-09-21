@@ -1489,7 +1489,237 @@ header {
     width: 100% !important;
     height: auto !important;
     transition: color 0.15s ease-in-out;
+
     &:hover {
         color: #49D17D !important;
     }
+}
+
+// ==========================================
+// Admin Reusable UI Components
+// For Profile Views, Tabs, Data Tables, & Notes
+// ==========================================
+
+.service-meta-box {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+.service-meta-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.service-meta-value {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.service-desc-box {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.user-stat-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
+}
+
+.user-stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.user-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+.form-label-custom {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.form-control-custom {
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    padding: 6px 14px;
+    background-color: #f8fafc;
+
+    &:focus {
+        background-color: #ffffff;
+        border-color: #94a3b8;
+        box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+    }
+}
+
+// Reusable Custom Admin Navigation Tabs
+.custom-admin-tabs {
+    .nav-link {
+        color: #64748b;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+        border: none;
+        white-space: nowrap;
+
+        &:hover {
+            color: #1e293b;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        &.active {
+            background-color: #ffffff !important;
+            color: #49D17D !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+
+            .badge {
+                background-color: #eafbf1 !important;
+                color: #49D17D !important;
+            }
+        }
+    }
+}
+
+// Reusable Clean Data Table
+.custom-admin-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+
+    th {
+        background-color: #f8fafc;
+        padding: 12px 16px;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #64748b;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 14px 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+        background-color: #fff;
+        transition: background-color 0.2s;
+    }
+
+    tbody tr:hover td {
+        background-color: #f8fafc;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+}
+
+// Reusable Admin Notes Card Component
+.admin-notes-card {
+    background-color: #ffffff;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 20px;
+
+    .admin-notes-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ffedd5;
+
+        .admin-notes-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #c2410c;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-notes-status {
+            font-size: 11px;
+            font-weight: 600;
+            color: #16a34a;
+            display: none;
+        }
+    }
+
+    .admin-notes-desc {
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+
+    .admin-notes-textarea {
+        border-color: #fed7aa;
+        background-color: #fffbeb;
+        font-size: 13px;
+        resize: vertical;
+
+        &:focus {
+            background-color: #ffffff;
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+        }
+    }
+}
+
+// Reusable Modal Role Selection Component
+.role-wrapper {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+        border-color: #cbd5e1 !important;
+        background-color: #f8fafc !important;
+    }
+}
+
+.role-input:checked + label .role-wrapper {
+    border-color: #49D17D !important;
+    background-color: rgba(73, 209, 125, 0.05) !important;
+}
+
+.role-input:checked + label .check-icon {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
+.check-icon {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
 }

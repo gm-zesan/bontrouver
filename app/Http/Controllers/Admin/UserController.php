@@ -17,15 +17,47 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $users = User::select('users.*');
+            $query = User::select('users.*');
 
-            return DataTables::of($users)
+            if ($request->filled('status')) {
+                if ($request->status === 'active') {
+                    $query->where('is_suspended', false);
+                } elseif ($request->status === 'suspended') {
+                    $query->where('is_suspended', true);
+                }
+            }
+
+            if ($request->filled('verification')) {
+                if ($request->verification === 'verified') {
+                    $query->where('is_verified', true);
+                } elseif ($request->verification === 'unverified') {
+                    $query->where('is_verified', false);
+                }
+            }
+
+            return DataTables::of($query)
                 ->addIndexColumn()
+                ->addColumn('checkbox', function ($row) {
+                    return '<div class="form-check m-0"><input class="form-check-input user-checkbox border-secondary" type="checkbox" value="' . $row->id . '"></div>';
+                })
                 ->editColumn('name', function ($row) {
-                    $nameHtml = e($row->name);
-                    if ($row->is_suspended) {
-                        $nameHtml .= ' <span class="badge bg-danger ms-1" style="font-size: 10px; padding: 2px 5px;">Suspended</span>';
+                    $rawName = e($row->name);
+                    
+                    if ($row->avatar) {
+                        $avatarUrl = str_starts_with($row->avatar, 'http') ? $row->avatar : asset('storage/' . $row->avatar);
+                    } else {
+                        $avatarUrl = 'https://ui-avatars.com/api/?name='.urlencode($rawName).'&color=49D17D&background=eafbf1&bold=true';
                     }
+                    
+                    $nameHtml = '<div class="d-flex align-items-center">';
+                    $nameHtml .= '<img src="' . $avatarUrl . '" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">';
+                    $nameHtml .= '<span class="fw-medium text-dark">' . $rawName . '</span>';
+                    
+                    if ($row->is_suspended) {
+                        $nameHtml .= ' <span class="badge bg-danger ms-2" style="font-size: 10px; padding: 2px 5px;">Suspended</span>';
+                    }
+                    $nameHtml .= '</div>';
+                    
                     return $nameHtml;
                 })
                 ->addColumn('role', function ($row) {
@@ -35,7 +67,7 @@ class UserController extends Controller
                     };
                     return '<span class="badge" style="' . $badgeStyle . ' font-size: 11.5px; padding: 4px 10px; border-radius: 4px; font-weight: 600;">' . e($row->role->label()) . '</span>';
                 })
-                ->addColumn('action-btn', function ($row) {
+                ->addColumn('action', function ($row) {
                     $id = $row->id;
                     $name = htmlspecialchars($row->name ?? '', ENT_QUOTES);
                     $email = htmlspecialchars($row->email ?? '', ENT_QUOTES);
@@ -74,7 +106,7 @@ class UserController extends Controller
                 ->addColumn('community_points', function ($row) {
                     return '<span class="fw-semibold text-dark">' . number_format($row->community_points) . '</span>';
                 })
-                ->rawColumns(['name', 'role', 'community_points', 'action-btn'])
+                ->rawColumns(['checkbox', 'name', 'role', 'community_points', 'action'])
                 ->make(true);
         }
 
@@ -94,6 +126,7 @@ class UserController extends Controller
         $pointTransactions = $user->pointTransactions()->latest()->paginate(10, ['*'], 'points_page')->fragment('points');
         $reviewsReceived = $user->reviewsReceived()->with('reviewer')->latest()->paginate(5, ['*'], 'reviews_received_page')->fragment('reviews');
         $reviewsGiven = $user->reviewsGiven()->with('reviewee')->latest()->paginate(5, ['*'], 'reviews_given_page')->fragment('reviews');
+        $verifications = $user->verifications()->latest()->paginate(5, ['*'], 'verifications_page')->fragment('verification');
 
         return view('admin.users.show', compact(
             'user',
@@ -102,7 +135,8 @@ class UserController extends Controller
             'meetupsJoined',
             'pointTransactions',
             'reviewsReceived',
-            'reviewsGiven'
+            'reviewsGiven',
+            'verifications'
         ));
     }
 
@@ -152,6 +186,90 @@ class UserController extends Controller
 
         $action = $user->is_suspended ? 'suspended' : 'unsuspended';
         return back()->with('success', "User has been {$action} successfully.");
+    }
+
+    /**
+     * Update internal admin notes for the user.
+     */
+    public function updateNotes(Request $request, User $user)
+    {
+        $request->validate([
+            'admin_notes' => 'nullable|string'
+        ]);
+
+        $user->update(['admin_notes' => $request->admin_notes]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin notes saved successfully.'
+        ]);
+    }
+
+    public function approveVerification(\App\Models\UserVerification $verification)
+    {
+        $verification->update([
+            'status' => 'approved',
+            'reviewed_at' => now(),
+            'reviewed_by' => auth()->id()
+        ]);
+
+        $verification->user->update(['is_verified' => true]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification approved. User is now verified.'
+        ]);
+    }
+
+    public function rejectVerification(\App\Models\UserVerification $verification)
+    {
+        $verification->update([
+            'status' => 'rejected',
+            'reviewed_at' => now(),
+            'reviewed_by' => auth()->id()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification rejected.'
+        ]);
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|string|in:suspend,unsuspend,delete',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'integer|exists:users,id'
+        ]);
+
+        $action = $request->action;
+        $userIds = $request->user_ids;
+
+        // Prevent self-action for admins if needed
+        $userIds = array_diff($userIds, [auth()->id()]);
+
+        if (empty($userIds)) {
+            return response()->json(['success' => false, 'message' => 'No valid users selected.']);
+        }
+
+        switch ($action) {
+            case 'suspend':
+                User::whereIn('id', $userIds)->update(['is_suspended' => true]);
+                break;
+            case 'unsuspend':
+                User::whereIn('id', $userIds)->update(['is_suspended' => false]);
+                break;
+            case 'delete':
+                // Soft delete
+                User::whereIn('id', $userIds)->delete();
+                break;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bulk action completed successfully.'
+        ]);
     }
 
     /**

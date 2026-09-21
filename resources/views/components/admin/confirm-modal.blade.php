@@ -34,12 +34,15 @@
         $(document).on('click', '.btn-confirm-modal', function (e) {
             e.preventDefault();
             
+            $('#confirmModalForm').show().off('submit');
+            $('#confirmationModal .modal-footer button[data-bs-dismiss="modal"]').text('Cancel').addClass('btn-light').removeClass('btn-warning text-white');
+            
             var action = $(this).data('action');
             var method = $(this).data('method');
             var title = $(this).data('title');
             var desc = $(this).data('desc');
-            var btnClass = $(this).data('btn-class');
-            var btnText = $(this).data('btn-text');
+            var btnClass = $(this).data('btn-class') || 'btn-primary';
+            var btnText = $(this).data('btn-text') || 'Confirm';
 
             $('#confirmModalTitle').text(title);
             $('#confirmModalDesc').text(desc);
@@ -65,6 +68,23 @@
             
             $('#confirmationModal').modal('show');
         });
+
+        // Global Warning Modal Helper (no form, just notification modal)
+        window.showWarningModal = function(title, message) {
+            $('#confirmModalTitle').text(title || 'Warning').addClass('text-warning').removeClass('text-danger text-success text-primary');
+            $('#confirmModalDesc').text(message);
+            $('#confirmModalHeader').css({'background-color': '#fffbeb', 'border-bottom': '1px solid #fef3c7'});
+            $('#confirmModalIcon').attr('class', 'ri-alert-fill me-2 text-warning');
+            $('#confirmModalForm').hide();
+            $('#confirmationModal .modal-footer button[data-bs-dismiss="modal"]').text('Understood').removeClass('btn-light').addClass('btn-warning text-white');
+            
+            $('#confirmationModal').one('hidden.bs.modal', function () {
+                $('#confirmModalForm').show();
+                $('#confirmationModal .modal-footer button[data-bs-dismiss="modal"]').text('Cancel').addClass('btn-light').removeClass('btn-warning text-white');
+            });
+
+            $('#confirmationModal').modal('show');
+        };
     });
 </script>
 @endpush
