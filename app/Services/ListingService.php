@@ -29,16 +29,26 @@ class ListingService
      * Fetch all active listings from the DB and transform into the
      * canonical array shape used by views and JS. Supports distance radius filtering.
      */
-    public function getDatabaseListings(?string $selectedCity = null, string|int $radius = 'all'): array
+    public function getDatabaseListings(?string $selectedCity = null, string|int $radius = 'all', ?int $sellerId = null, ?string $sellerName = null): array
     {
-        $listings = Listing::with([
+        $query = Listing::with([
             'category.parent',
             'primaryImage',
             'images',
             'user',
             'city.province',
             'attributes.categoryAttribute',
-        ])->where('status', 'active')->orderByDesc('created_at')->get();
+        ])->where('status', 'active');
+
+        if ($sellerId) {
+            $query->where('user_id', $sellerId);
+        } elseif ($sellerName && !in_array(strtolower($sellerName), ['private', 'dealer'])) {
+            $query->whereHas('user', function ($q) use ($sellerName) {
+                $q->where('name', 'like', '%' . $sellerName . '%');
+            });
+        }
+
+        $listings = $query->orderByDesc('created_at')->get();
 
         [$refLat, $refLng] = $this->resolveReferenceCoordinates($selectedCity);
 
@@ -456,8 +466,30 @@ class ListingService
         $sellerType      = $isDealer ? 'dealer' : 'private';
         $sellerTypeLabel = $isDealer ? 'Verified Dealer / Business' : 'Private Seller';
 
+        $seller = $listing->user;
+        $sellerData = [
+            'id'             => $seller?->id,
+            'name'           => $seller?->name ?? 'Bontrouver Verified Seller',
+            'type'           => $sellerTypeLabel,
+            'avatar'         => $seller?->avatar ? (str_starts_with($seller->avatar, 'http') ? $seller->avatar : asset('storage/' . $seller->avatar)) : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+            'is_verified'    => (bool) ($seller?->is_verified ?? true),
+            'rating'         => round((float) ($seller?->rating ?? 4.9), 1),
+            'reviews_count'  => (int) ($seller?->reviews_count ?? 18),
+            'member_since'   => $seller?->created_at ? 'Member since ' . $seller->created_at->format('Y') : 'Member since 2022',
+            'active_ads_count' => $seller ? $seller->listings()->where('status', \App\Enums\ListingStatus::ACTIVE)->count() : 1,
+            'response_rate'  => '98%',
+            'response_time'  => 'Replies in ~20 mins',
+            'badges'         => [
+                'email_verified'    => !empty($seller?->email_verified_at),
+                'phone_verified'    => !empty($seller?->phone),
+                'identity_verified' => (bool) ($seller?->is_verified ?? false),
+            ],
+        ];
+
         return [
             'id'                  => $listing->id,
+            'user_id'             => $listing->user_id,
+            'seller'              => $sellerData,
             'title'               => $listing->title,
             'slug'                => $listing->slug,
             'city'                => $listing->city,

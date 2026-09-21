@@ -18,6 +18,7 @@ class Report extends Model
     ];
 
     protected $casts = [
+        'reason' => \App\Enums\ReportReason::class,
         'reviewed_at' => 'datetime',
     ];
 

@@ -54,9 +54,11 @@
                                                 <span class="text-secondary small flex-shrink-0" style="font-size: 0.7rem;">{{ $conv['last_time'] }}</span>
                                             </div>
 
-                                            <div class="small text-success text-truncate mb-1 d-block" style="font-size: 0.74rem;">
-                                                <i class="bi bi-tag-fill me-1 opacity-75"></i>{{ $conv['listing']['title'] }}
-                                            </div>
+                                            @if(!empty($conv['listing']['id']) && ($conv['listing']['title'] ?? '') !== 'Deleted Listing')
+                                                <div class="small text-secondary text-truncate mb-1 d-block" style="font-size: 0.74rem;">
+                                                    <i class="bi bi-tag-fill me-1 opacity-75"></i>{{ $conv['listing']['title'] }}
+                                                </div>
+                                            @endif
 
                                             <div class="d-flex align-items-center justify-content-between gap-1">
                                                 <p class="small text-secondary mb-0 text-truncate" style="font-size: 0.76rem;">
@@ -81,7 +83,7 @@
                         <!-- Panel 2: Active Chat View -->
                         <div class="col-12 col-md-7 col-lg-8 d-flex flex-column h-100 {{ request()->has('c') ? 'd-flex' : 'd-none d-md-flex' }}" id="chatPanel" style="background: #081D33;">
                             @if($activeConversation)
-                            <!-- Chat Top Bar & Ad Context Banner -->
+                            <!-- Chat Top Bar & Member Info -->
                             <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex align-items-center justify-content-between gap-2" style="background: #0D243C;">
                                 <div class="d-flex align-items-center gap-3 min-w-0">
                                     <!-- Mobile Back to threads list -->
@@ -106,21 +108,17 @@
                                             <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.92rem;">
                                                 {{ $activeConversation['user']['name'] ?? 'User' }}
                                             </h6>
+                                            @if(!empty($activeConversation['user']['verified']))
+                                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25" style="font-size: 0.68rem; padding: 2px 6px;">
+                                                    <i class="bi bi-shield-check me-1"></i> Verified
+                                                </span>
+                                            @endif
                                         </div>
                                         <span class="small text-secondary" style="font-size: 0.75rem;">
                                             <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}
                                         </span>
                                     </div>
                                 </div>
-
-                                <!-- Listing Quick Pill -->
-                                <a href="{{ url('/listing/' . $activeConversation['listing']['id']) }}" 
-                                   class="d-none d-sm-flex align-items-center gap-2 p-1 pe-3 rounded-pill text-decoration-none border border-secondary border-opacity-25"
-                                   style="background: #081D33; font-size: 0.78rem;">
-                                    <img src="{{ $activeConversation['listing']['image'] }}" class="rounded-circle object-fit-cover" style="width: 26px; height: 26px;">
-                                    <span class="text-white text-truncate" style="max-width: 140px;">{{ $activeConversation['listing']['title'] }}</span>
-                                    <strong class="text-success">{{ $activeConversation['listing']['price'] }}</strong>
-                                </a>
                             </div>
 
                             <!-- Messages Stream Box -->

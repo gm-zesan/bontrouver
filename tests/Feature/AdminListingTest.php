@@ -179,4 +179,55 @@ class AdminListingTest extends TestCase
         $this->assertEquals(\App\Enums\ListingStatus::PAUSED, $this->listing->status);
         $this->assertEquals(\App\Enums\ListingStatus::PAUSED, $listing2->status);
     }
+
+    public function test_admin_can_update_listing_status_via_enum_modal(): void
+    {
+        $response = $this->actingAs($this->admin)->post(route('admin.listings.updateStatus', $this->listing->id), [
+            'status' => \App\Enums\ListingStatus::SOLD->value,
+            'admin_notes' => 'Marked as sold per seller request.',
+        ]);
+
+        $response->assertRedirect();
+        $this->listing->refresh();
+        $this->assertEquals(\App\Enums\ListingStatus::SOLD, $this->listing->status);
+    }
+
+    public function test_admin_can_resolve_and_dismiss_listing_moderation_reports(): void
+    {
+        $report = \App\Models\Report::create([
+            'reporter_id' => $this->seller->id,
+            'reportable_type' => Listing::class,
+            'reportable_id' => $this->listing->id,
+            'reason' => \App\Enums\ReportReason::PROHIBITED,
+            'description' => 'Suspected prohibited item.',
+            'status' => 'pending',
+        ]);
+
+        $this->assertEquals('pending', $report->status);
+
+        // Resolve report
+        $response = $this->actingAs($this->admin)->post(route('admin.listings.reports.resolve', [$this->listing->id, $report->id]));
+        $response->assertRedirect();
+        $report->refresh();
+        $this->assertEquals('resolved', $report->status);
+        $this->assertEquals($this->admin->id, $report->reviewed_by);
+
+        // Dismiss report
+        $response2 = $this->actingAs($this->admin)->post(route('admin.listings.reports.dismiss', [$this->listing->id, $report->id]));
+        $response2->assertRedirect();
+        $report->refresh();
+        $this->assertEquals('dismissed', $report->status);
+    }
+
+    public function test_category_full_path_hierarchy_display(): void
+    {
+        $subCat = Category::create([
+            'parent_id' => $this->category->id,
+            'name' => 'Smartphones',
+            'slug' => 'smartphones',
+        ]);
+
+        $this->assertEquals('Electronics → Smartphones', $subCat->full_path);
+        $this->assertEquals('Electronics', $this->category->full_path);
+    }
 }

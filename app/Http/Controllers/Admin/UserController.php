@@ -17,7 +17,11 @@ class UserController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = User::select('users.*');
+            $query = User::select('users.*')->withCount([
+                'reportsReceived as pending_reports_count' => function ($q) {
+                    $q->where('status', 'pending');
+                }
+            ]);
 
             if ($request->filled('status')) {
                 if ($request->status === 'active') {
@@ -42,6 +46,7 @@ class UserController extends Controller
                 })
                 ->editColumn('name', function ($row) {
                     $rawName = e($row->name);
+                    $showUrl = route('admin.users.show', $row->id);
                     
                     if ($row->avatar) {
                         $avatarUrl = str_starts_with($row->avatar, 'http') ? $row->avatar : asset('storage/' . $row->avatar);
@@ -51,7 +56,7 @@ class UserController extends Controller
                     
                     $nameHtml = '<div class="d-flex align-items-center">';
                     $nameHtml .= '<img src="' . $avatarUrl . '" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">';
-                    $nameHtml .= '<span class="fw-medium text-dark">' . $rawName . '</span>';
+                    $nameHtml .= '<a href="' . $showUrl . '" class="fw-medium text-dark text-decoration-none hover-primary">' . $rawName . '</a>';
                     
                     if ($row->is_verified) {
                         $nameHtml .= ' <i class="ri-verified-badge-fill text-primary ms-1" style="font-size: 15px;" title="Verified User"></i>';
@@ -60,6 +65,11 @@ class UserController extends Controller
                     if ($row->is_suspended) {
                         $nameHtml .= ' <span class="badge bg-danger ms-2" style="font-size: 10px; padding: 2px 5px;">Suspended</span>';
                     }
+
+                    if (!empty($row->pending_reports_count) && $row->pending_reports_count > 0) {
+                        $nameHtml .= ' <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-2" style="font-size: 10px; padding: 2px 5px;" title="' . $row->pending_reports_count . ' pending report(s)"><i class="ri-flag-2-fill me-1"></i>' . $row->pending_reports_count . ' Flags</span>';
+                    }
+
                     $nameHtml .= '</div>';
                     
                     return $nameHtml;
@@ -122,7 +132,22 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->loadCount(['listings', 'reviewsReceived', 'purchases', 'sales', 'companionshipRequests', 'companionshipAttendees', 'pointTransactions', 'reviewsGiven']);
+        $user->loadCount([
+            'listings',
+            'reviewsReceived',
+            'purchases',
+            'sales',
+            'companionshipRequests',
+            'companionshipAttendees',
+            'pointTransactions',
+            'reviewsGiven',
+            'reportsReceived',
+            'reportsGiven',
+        ]);
+
+        $conversationsCount = \App\Models\Conversation::where('buyer_id', $user->id)
+            ->orWhere('seller_id', $user->id)
+            ->count();
 
         $listings = $user->listings()->with(['category', 'city'])->latest()->paginate(5, ['*'], 'listings_page')->fragment('listings');
         $meetupsHosted = $user->companionshipRequests()->with('cityRelation')->latest()->paginate(5, ['*'], 'meetups_hosted_page')->fragment('meetups');
@@ -131,6 +156,14 @@ class UserController extends Controller
         $reviewsReceived = $user->reviewsReceived()->with('reviewer')->latest()->paginate(5, ['*'], 'reviews_received_page')->fragment('reviews');
         $reviewsGiven = $user->reviewsGiven()->with('reviewee')->latest()->paginate(5, ['*'], 'reviews_given_page')->fragment('reviews');
         $verifications = $user->verifications()->latest()->paginate(5, ['*'], 'verifications_page')->fragment('verification');
+        $conversations = \App\Models\Conversation::where('buyer_id', $user->id)
+            ->orWhere('seller_id', $user->id)
+            ->with(['buyer', 'seller', 'messages.sender', 'listing'])
+            ->latest('updated_at')
+            ->paginate(5, ['*'], 'conversations_page')
+            ->fragment('conversations');
+        $reportsReceived = $user->reportsReceived()->with(['reporter', 'reviewer'])->latest()->paginate(5, ['*'], 'reports_received_page')->fragment('reports');
+        $reportsGiven = $user->reportsGiven()->with(['reportable', 'reviewer'])->latest()->paginate(5, ['*'], 'reports_given_page')->fragment('reports');
 
         return view('admin.users.show', compact(
             'user',
@@ -140,7 +173,11 @@ class UserController extends Controller
             'pointTransactions',
             'reviewsReceived',
             'reviewsGiven',
-            'verifications'
+            'verifications',
+            'conversations',
+            'conversationsCount',
+            'reportsReceived',
+            'reportsGiven'
         ));
     }
 
@@ -312,5 +349,33 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Role assigned successfully.');
+    }
+
+    /**
+     * Resolve a moderation report filed against a user.
+     */
+    public function resolveReport(Request $request, User $user, \App\Models\Report $report)
+    {
+        $report->update([
+            'status' => 'resolved',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'User moderation report marked as resolved.');
+    }
+
+    /**
+     * Dismiss a moderation report filed against a user.
+     */
+    public function dismissReport(Request $request, User $user, \App\Models\Report $report)
+    {
+        $report->update([
+            'status' => 'dismissed',
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'User moderation report dismissed.');
     }
 }

@@ -124,5 +124,31 @@ class AdminListingService
             ];
         });
     }
+
+    /**
+     * Resolve a moderation report on a listing.
+     */
+    public function resolveReport(\App\Models\Report $report, ?int $reviewerId = null): \App\Models\Report
+    {
+        $report->update([
+            'status' => 'resolved',
+            'reviewed_by' => $reviewerId ?? auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+        return $report->fresh();
+    }
+
+    /**
+     * Dismiss a moderation report on a listing.
+     */
+    public function dismissReport(\App\Models\Report $report, ?int $reviewerId = null): \App\Models\Report
+    {
+        $report->update([
+            'status' => 'dismissed',
+            'reviewed_by' => $reviewerId ?? auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+        return $report->fresh();
+    }
 }
 

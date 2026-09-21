@@ -1594,22 +1594,25 @@ header {
 // Reusable Custom Admin Navigation Tabs
 .custom-admin-tabs {
     .nav-link {
-        color: #64748b;
+        color: #475569;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 13px;
         transition: all 0.2s ease-in-out;
-        border: none;
+        border: 1px solid #cbd5e1 !important;
+        background-color: #ffffff;
         white-space: nowrap;
 
         &:hover {
-            color: #1e293b;
-            background-color: rgba(255, 255, 255, 0.5);
+            color: #0f172a;
+            background-color: #f8fafc;
+            border-color: #94a3b8 !important;
         }
 
         &.active {
             background-color: #ffffff !important;
             color: #49D17D !important;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-color: #49D17D !important;
+            box-shadow: 0 2px 8px rgba(73, 209, 125, 0.2) !important;
 
             .badge {
                 background-color: #eafbf1 !important;
@@ -1797,4 +1800,14 @@ header {
         align-items: center;
         justify-content: center;
     }
+}
+
+// User Avatars Global Rule: object-fit cover
+img.rounded-circle,
+.avatar img,
+.account-avatar-img,
+.user-avatar-img,
+.meetup-avatar-circle img,
+td img.rounded-circle {
+    object-fit: cover !important;
 }

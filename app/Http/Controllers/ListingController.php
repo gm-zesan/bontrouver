@@ -46,7 +46,10 @@ class ListingController extends Controller
             $resolved['activeChild']
         );
 
-        $listings = $this->listingService->getDatabaseListings($selectedCity, $radius);
+        $sellerId     = $request->query('seller_id') ? (int) $request->query('seller_id') : ($request->query('user_id') ? (int) $request->query('user_id') : null);
+        $sellerName   = $request->query('seller');
+
+        $listings = $this->listingService->getDatabaseListings($selectedCity, $radius, $sellerId, $sellerName);
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

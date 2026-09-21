@@ -44,4 +44,9 @@ class CompanionshipRequest extends Model
     {
         return $this->hasMany(CompanionshipAttendee::class);
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

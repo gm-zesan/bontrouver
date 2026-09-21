@@ -44,6 +44,20 @@ class Category extends Model
     }
 
     /**
+     * Get the full breadcrumb path (e.g. Vehicles → Cars & Trucks).
+     */
+    public function getFullPathAttribute(): string
+    {
+        if ($this->relationLoaded('parent') && $this->parent) {
+            return $this->parent->name . ' → ' . $this->name;
+        }
+        if ($this->parent_id && $this->parent) {
+            return $this->parent->name . ' → ' . $this->name;
+        }
+        return $this->name;
+    }
+
+    /**
      * Get the category tree hierarchically.
      */
     public static function getTree()

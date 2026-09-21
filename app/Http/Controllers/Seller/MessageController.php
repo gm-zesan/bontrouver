@@ -22,9 +22,10 @@ class MessageController extends Controller
     {
         $user = Auth::user();
 
-        // Handle starting a new conversation via query parameters
-        if ($request->query('c') === 'new' && $request->has('user')) {
-            $sellerId = (int) $request->query('user');
+        // Handle starting or opening a conversation with a specific member
+        $targetUserId = $request->query('user_id') ?? $request->query('user');
+        if ($targetUserId) {
+            $sellerId = (int) $targetUserId;
             if ($sellerId !== $user->id) {
                 $listingId = $request->query('listing') ? (int) $request->query('listing') : null;
                 $newConv = MessageService::getOrCreateConversation($user->id, $sellerId, $listingId);

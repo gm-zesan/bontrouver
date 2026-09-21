@@ -92,4 +92,28 @@ class ListingFilterTest extends TestCase
         $this->assertArrayHasKey('property_type', $firstItem);
     }
 
+    public function test_listings_can_be_filtered_by_seller_id(): void
+    {
+        $user = \App\Models\User::first();
+        $this->assertNotNull($user);
+
+        $response = $this->getJson('/listings?seller_id=' . $user->id);
+        $response->assertStatus(200);
+
+        $listings = $response->json('listings');
+        foreach ($listings as $item) {
+            $this->assertEquals($user->id, $item['user_id']);
+        }
+    }
+
+    public function test_listing_detail_contains_clickable_seller_profile_and_seller_ads_link(): void
+    {
+        $listing = Listing::first();
+        $this->assertNotNull($listing);
+
+        $response = $this->get('/listing/' . $listing->slug);
+        $response->assertStatus(200);
+        $response->assertSee(route('user.profile', $listing->user_id), false);
+        $response->assertSee(route('listings.index', ['seller_id' => $listing->user_id]), false);
+    }
 }

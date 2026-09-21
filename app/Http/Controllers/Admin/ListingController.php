@@ -63,7 +63,8 @@ class ListingController extends Controller
                     return '<a href="' . $profileUrl . '" class="text-decoration-none fw-medium text-dark" style="font-size: 13px;">' . $name . '</a>' . $verifiedBadge;
                 })
                 ->editColumn('category', function ($row) {
-                    return '<span class="badge bg-light text-secondary border fw-medium" style="font-size: 11.5px; padding: 4px 8px;">' . e($row->category->name ?? 'Uncategorized') . '</span>';
+                    $path = $row->category ? e($row->category->full_path) : 'Uncategorized';
+                    return '<span class="badge bg-light text-secondary border fw-medium" style="font-size: 11.5px; padding: 4px 8px;">' . $path . '</span>';
                 })
                 ->editColumn('price', function ($row) {
                     if ($row->price_type === 'free') {
@@ -154,14 +155,50 @@ class ListingController extends Controller
             'city.province',
             'images',
             'attributes.categoryAttribute',
-            'conversations.buyer',
-            'conversations.seller',
-            'conversations.messages.sender',
-        ]);
+            'reports.reporter',
+            'reports.reviewer',
+        ])->loadCount(['favorites', 'reports']);
 
         return view('admin.listings.show', [
             'listing' => $listing,
+            'statuses' => ListingStatus::cases(),
         ]);
+    }
+
+    /**
+     * Update the status of a listing directly with full ListingStatus enum and optional notes.
+     */
+    public function updateStatus(Request $request, Listing $listing)
+    {
+        $request->validate([
+            'status' => ['required', 'string', new \Illuminate\Validation\Rules\Enum(ListingStatus::class)],
+            'admin_notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $statusEnum = ListingStatus::from($request->status);
+        $this->listingService->updateStatus($listing, $statusEnum);
+
+        return redirect()->back()->with('status', "Listing status updated to {$statusEnum->label()}.");
+    }
+
+    /**
+     * Resolve a moderation report on a listing.
+     */
+    public function resolveReport(Listing $listing, \App\Models\Report $report)
+    {
+        $this->listingService->resolveReport($report, auth()->id());
+
+        return redirect()->back()->with('status', 'Moderation report marked as resolved.');
+    }
+
+    /**
+     * Dismiss a moderation report on a listing.
+     */
+    public function dismissReport(Listing $listing, \App\Models\Report $report)
+    {
+        $this->listingService->dismissReport($report, auth()->id());
+
+        return redirect()->back()->with('status', 'Moderation report dismissed.');
     }
 
     /**

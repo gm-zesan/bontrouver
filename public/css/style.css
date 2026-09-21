@@ -9807,3 +9807,17 @@ svg {
     padding: 0.125rem 0.5rem;
     border-radius: var(--radius-xs);
 }
+
+/* User Avatars & Profile Images: Enforce Object-Fit Cover Everywhere */
+img.rounded-circle,
+img.account-avatar-img,
+img.user-avatar-img,
+img.seller-avatar-img,
+img.profile-avatar-img,
+img.avatar-img,
+.avatar img,
+.account-initials-avatar img,
+.meetup-avatar-circle img,
+td img.rounded-circle {
+    object-fit: cover !important;
+}

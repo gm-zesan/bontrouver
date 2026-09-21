@@ -49,7 +49,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$user->companionshipRequests()` → `hasMany(CompanionshipRequest::class)`
 - `$user->verifications()` → `hasMany(UserVerification::class)`
 - `$user->latestVerification()` → `hasOne(UserVerification::class)->latestOfMany()`
-- Accessors: `$user->rating` (avg rating), `$user->reviews_count` (total count), `$user->member_tier` (array of tier name, icon, level, progress %), `$user->completed_transactions_count` (total completed deals), `$user->verification_status`
+- Accessors: `$user->avatar_url` (safe URL for remote & local avatars), `$user->rating` (avg rating), `$user->reviews_count` (total count), `$user->member_tier` (array of tier name, icon, level, progress %), `$user->completed_transactions_count` (total completed deals), `$user->verification_status`
 - Helpers: `$user->isAdmin()`, `$user->isModerator()`, `$user->wantsNotification(string $type)`
 - Fields: `name`, `email`, `password`, `role`, `is_dealer`, `phone`, `city`, `province`, `postal_code`, `location`, `avatar`, `bio`, `community_points`, `is_verified`, `notification_preferences` (json)
 
@@ -89,6 +89,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->favorites()` → `hasMany(Favorite::class)`
 - `$listing->conversations()` → `hasMany(Conversation::class)`
 - `$listing->transactions()` → `hasMany(Transaction::class)`
+- `$listing->reports()` → `morphMany(Report::class, 'reportable')`
 - Enums & Casts: `status` (`App\Enums\ListingStatus`: `DRAFT`, `PENDING_REVIEW`, `ACTIVE`, `PAUSED`, `SOLD`, `EXPIRED`, `REJECTED`)
 - Flags: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel)
 
@@ -152,7 +153,9 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 
 ### Report (`App\Models\Report`)
 - `$report->reporter()` → `belongsTo(User::class, 'reporter_id')`
+- `$report->reviewer()` → `belongsTo(User::class, 'reviewed_by')`
 - `$report->reportable()` → `morphTo()`
+- Casts: `reason` (`App\Enums\ReportReason`), `reviewed_at` (`datetime`)
 
 ### UserVerification (`App\Models\UserVerification`)
 - `$verif->user()` → `belongsTo(User::class)`

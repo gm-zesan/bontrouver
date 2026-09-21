@@ -138,6 +138,16 @@ class User extends Authenticatable
         return $this->hasOne(UserVerification::class)->latestOfMany();
     }
 
+    public function reportsReceived()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function reportsGiven()
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
+
     public function getVerificationStatusAttribute(): string
     {
         if ($this->is_verified) {
@@ -145,6 +155,27 @@ class User extends Authenticatable
         }
         $latest = $this->latestVerification;
         return $latest ? $latest->status : 'none';
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
+            return $this->avatar;
+        }
+
+        if (str_starts_with($this->avatar, 'storage/')) {
+            return asset($this->avatar);
+        }
+
+        if (file_exists(public_path($this->avatar))) {
+            return asset($this->avatar);
+        }
+
+        return asset('storage/' . $this->avatar);
     }
 
     // Computed attributes (Accessors)

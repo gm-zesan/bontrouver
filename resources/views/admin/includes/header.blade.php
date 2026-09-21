@@ -40,8 +40,8 @@
                     <a href="javascript:void(0)" class="dropdown-toggle text-decoration-none" id="profileDropdownBtn" role="button" aria-expanded="false" style="cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: all 0.2s ease; display: inline-flex; align-items: center; background-color: #f8fafc; border: 1px solid #e2e8f0;">
                         <div class="d-flex align-items-center"> 
                             <div class="me-2">
-                                @if(Auth::check() && !empty(Auth::user()->avatar) && file_exists(public_path(Auth::user()->avatar)))
-                                    <img src="{{ asset(Auth::user()->avatar) }}" alt="img" width="32" height="32" class="rounded-circle object-fit-cover" style="border: 2px solid #49D17D;"> 
+                                @if(Auth::check() && Auth::user()->avatar_url)
+                                    <img src="{{ Auth::user()->avatar_url }}" alt="img" width="32" height="32" class="rounded-circle object-fit-cover" style="border: 2px solid #49D17D; object-fit: cover;"> 
                                 @else
                                     <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background-color: #49D17D; font-weight: 700; font-size: 13px; box-shadow: 0 2px 6px rgba(73, 209, 125, 0.3);">
                                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
@@ -60,8 +60,8 @@
                         {{-- Centered User Profile Header Strip --}}
                         <div class="px-3 py-3 border-bottom text-center d-flex flex-column align-items-center" style="background-color: #f8fafc;">
                             <div class="mb-2">
-                                @if(Auth::check() && !empty(Auth::user()->avatar) && file_exists(public_path(Auth::user()->avatar)))
-                                    <img src="{{ asset(Auth::user()->avatar) }}" alt="img" width="48" height="48" class="rounded-circle object-fit-cover shadow-sm" style="border: 2px solid #49D17D;"> 
+                                @if(Auth::check() && Auth::user()->avatar_url)
+                                    <img src="{{ Auth::user()->avatar_url }}" alt="img" width="48" height="48" class="rounded-circle object-fit-cover shadow-sm" style="border: 2px solid #49D17D; object-fit: cover;"> 
                                 @else
                                     <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 48px; height: 48px; background-color: #49D17D; font-weight: 700; font-size: 18px;">
                                         {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}

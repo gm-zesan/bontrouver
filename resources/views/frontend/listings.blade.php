@@ -130,36 +130,7 @@
                             </div>
                         </div>
 
-                        {{-- 2. LOCATION & DISTANCE FILTER --}}
-                        <div class="filter-section">
-                            <div class="filter-section-title">Location & Distance</div>
-                            <div class="mb-2">
-                                <select id="filterSidebarLocation" class="search-field search-select w-100" style="font-size: 0.85rem; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); background-color: var(--surface-card, #ffffff); color: var(--text-main, #1e293b);" aria-label="Sidebar Location" onchange="syncLocationFilter(this.value)">
-                                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
-                                    @if(!empty($canadianCities))
-                                        @foreach($canadianCities as $cName => $cInfo)
-                                            @php
-                                                $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
-                                            @endphp
-                                            <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                            </div>
-                            <div>
-                                <select id="filterSidebarRadiusSelect" class="search-field search-select w-100" style="font-size: 0.85rem; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); background-color: var(--surface-card, #ffffff); color: var(--text-main, #1e293b);" aria-label="Sidebar Distance Radius" onchange="syncRadius(this.value)">
-                                    <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
-                                    <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
-                                    <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
-                                    <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
-                                    <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
-                                    <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
-                                    <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        {{-- 3. PRICE RANGE FILTER --}}
+                        {{-- 2. PRICE RANGE FILTER --}}
                         <div class="filter-section">
                             <div class="filter-section-title">Price ($ CAD)</div>
                             <div class="price-inputs-row">
@@ -1195,6 +1166,18 @@
                 return false;
             }
 
+            // Direct Seller ID or Name URL filter check
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlSellerId = urlParams.get('seller_id') || urlParams.get('user_id');
+            const urlSellerName = urlParams.get('seller');
+            if (urlSellerId) {
+                const itemUserId = item.user_id || (item.seller && item.seller.id);
+                if (String(itemUserId) !== String(urlSellerId)) return false;
+            } else if (urlSellerName && !['private', 'dealer'].includes(urlSellerName.toLowerCase())) {
+                const itemSellerName = (item.seller && item.seller.name ? item.seller.name : '').toLowerCase();
+                if (!itemSellerName.includes(urlSellerName.toLowerCase())) return false;
+            }
+
             return true;
         });
 
@@ -1425,6 +1408,30 @@
                 : (s === 'private' ? 'Private Seller' : 'Business / Dealer');
             chips.push({ label: sText, clear: () => uncheckBothFilters('seller', 'm_seller', s) });
         });
+
+        // Specific Seller Filter Chip
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSellerId = urlParams.get('seller_id') || urlParams.get('user_id');
+        const urlSellerName = urlParams.get('seller');
+        if (urlSellerId || (urlSellerName && !['private', 'dealer'].includes(urlSellerName.toLowerCase()))) {
+            let label = urlSellerName ? `Seller: ${urlSellerName}` : 'Seller: Filtered Ads';
+            if (urlSellerId && allListingsData.length > 0) {
+                const foundItem = allListingsData.find(i => (String(i.user_id) === String(urlSellerId) || (i.seller && String(i.seller.id) === String(urlSellerId))));
+                if (foundItem && foundItem.seller && foundItem.seller.name) {
+                    label = `Seller: ${foundItem.seller.name}`;
+                }
+            }
+            chips.push({
+                label: label,
+                clear: () => {
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.delete('seller_id');
+                    newUrl.searchParams.delete('user_id');
+                    newUrl.searchParams.delete('seller');
+                    window.location.href = newUrl.toString();
+                }
+            });
+        }
 
         if (mobileBadge) {
             mobileBadge.textContent = chips.length;

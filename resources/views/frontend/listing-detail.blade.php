@@ -386,6 +386,7 @@
                             <!-- 2. Prominent Seller Profile Card -->
                             @php
                                 $seller = $listing['seller'] ?? [
+                                    'id' => $listing['user_id'] ?? null,
                                     'name' => 'Bontrouver Verified Seller',
                                     'type' => 'Private Seller',
                                     'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
@@ -397,17 +398,24 @@
                                     'response_time' => 'Replies in ~20 mins',
                                     'badges' => ['email_verified' => true, 'phone_verified' => true, 'identity_verified' => true]
                                 ];
+
+                                $sellerProfileUrl = !empty($seller['id']) ? route('user.profile', $seller['id']) : url('/profile');
+                                $sellerAdsUrl = !empty($seller['id']) 
+                                    ? route('listings.index', ['seller_id' => $seller['id']]) 
+                                    : route('listings.index', ['seller' => $seller['name']]);
                             @endphp
 
                             <div class="sidebar-card sidebar-seller-card shadow-sm">
                                 <div class="seller-card-header d-flex align-items-center gap-3 mb-3">
-                                    <div class="seller-avatar-wrap">
+                                    <a href="{{ $sellerProfileUrl }}" class="seller-avatar-wrap text-decoration-none" title="View {{ $seller['name'] }}'s profile">
                                         <img src="{{ $seller['avatar'] }}" alt="{{ $seller['name'] }}"
                                             class="seller-avatar-img">
-                                    </div>
+                                    </a>
                                     <div class="seller-header-info min-w-0">
                                         <div class="seller-name text-truncate d-flex align-items-center">
-                                            {{ $seller['name'] }}
+                                            <a href="{{ $sellerProfileUrl }}" class="text-white text-decoration-none hover-underline fw-bold" title="View {{ $seller['name'] }}'s profile">
+                                                {{ $seller['name'] }}
+                                            </a>
                                             @if(!empty($seller['is_verified']) || !empty($seller['badges']['identity_verified']))
                                                 <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="Verified Seller">
                                                     <i class="bi bi-shield-check me-1"></i> Verified
@@ -435,11 +443,10 @@
                                     @endif
                                 </div>
 
-
                                 <!-- View Seller Profile Link -->
                                 <div
                                     class="seller-card-footer mt-3 pt-3 border-top border-secondary border-opacity-10 text-center">
-                                    <a href="{{ url('/listings?seller=' . urlencode($seller['name'])) }}"
+                                    <a href="{{ $sellerAdsUrl }}"
                                         class="seller-profile-link">
                                         <span>View all ads by {{ Str::words($seller['name'], 1, '') }}</span>
                                         <i class="bi bi-arrow-right ms-1"></i>
@@ -681,36 +688,13 @@
 
                             <form id="reportForm" onsubmit="event.preventDefault(); submitReport();">
                                 <div class="report-reasons-list mb-3">
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="scam" checked>
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Fraudulent / Scam / Fake Seller</span>
-                                    </label>
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="prohibited">
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Prohibited or Illegal Item</span>
-                                    </label>
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="misleading">
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Misleading description, price, or location</span>
-                                    </label>
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="duplicate">
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Duplicate or Spam listing</span>
-                                    </label>
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="offensive">
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Offensive or Inappropriate content</span>
-                                    </label>
-                                    <label class="custom-report-radio">
-                                        <input type="radio" name="report_reason" value="other">
-                                        <span class="radio-box"></span>
-                                        <span class="radio-text">Other policy violation</span>
-                                    </label>
+                                    @foreach(\App\Enums\ReportReason::listingReasons() as $idx => $rCase)
+                                        <label class="custom-report-radio">
+                                            <input type="radio" name="report_reason" value="{{ $rCase->value }}" {{ $idx === 0 ? 'checked' : '' }}>
+                                            <span class="radio-box"></span>
+                                            <span class="radio-text">{{ $rCase->label() }}</span>
+                                        </label>
+                                    @endforeach
                                 </div>
 
                                 <div class="mb-3">
@@ -1044,8 +1028,61 @@
             }
 
             function submitReport() {
-                closeReportModal();
-                showToast('Thank you. Your report has been submitted for review.', 'success');
+                @guest
+                    showToast('Please log in to submit a moderation report.', 'warning');
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                @endguest
+
+                const selectedReason = document.querySelector('input[name="report_reason"]:checked');
+                const comments = document.getElementById('reportComments');
+                const submitBtn = document.getElementById('submitReportBtn');
+
+                if (!selectedReason) {
+                    showToast('Please select a reason for reporting.', 'warning');
+                    return;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+                }
+
+                fetch("{{ route('reports.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        reportable_type: 'listing',
+                        reportable_id: {{ $listing['id'] ?? $listing->id }},
+                        reason: selectedReason.value,
+                        description: comments ? comments.value : ''
+                    })
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.message || (data.errors ? Object.values(data.errors).flat()[0] : 'Failed to submit report.'));
+                    }
+                    return data;
+                })
+                .then(data => {
+                    closeReportModal();
+                    if (comments) comments.value = '';
+                    showToast(data.message || 'Thank you. Your report has been submitted for review.', 'success');
+                })
+                .catch(error => {
+                    showToast(error.message, 'error');
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Submit Report';
+                    }
+                });
             }
 
             // 6. Share Modal & Copy Link

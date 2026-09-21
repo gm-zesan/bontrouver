@@ -91,6 +91,11 @@ class Listing extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+
     /**
      * Scope active listings.
      */

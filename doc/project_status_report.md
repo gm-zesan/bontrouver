@@ -131,12 +131,29 @@
   * ✅ **Admin Listings Management Module (100% Complete)**:
     - [x] Dedicated service layer [`AdminListingService`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Services/AdminListingService.php).
     - [x] Server-side DataTables with Category, Status, and Featured filters ([`Admin/ListingController`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Controllers/Admin/ListingController.php)).
+    - [x] Full Category Hierarchy Breadcrumb rendering (`Category::full_path`, e.g. *Vehicles → Cars & Trucks*).
     - [x] Reactive Bulk Actions (Bulk Activate, Bulk Suspend, Bulk Feature, Bulk Unfeature, Bulk Delete) with modal confirmation.
-    - [x] 2-Column Listing Inspection View ([`show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/listings/show.blade.php)) with dynamic category specification grid, full photo gallery inspector, buyer conversation history, and quick status/feature toggles.
-    - [x] 100% test coverage with 7 passing assertions in [`AdminListingTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminListingTest.php).
+    - [x] 2-Column Listing Inspection View ([`show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/listings/show.blade.php)) with dynamic category specification grid, full photo gallery with full-screen Lightbox & round zoom icon, buyer conversation history with messenger bubble UI, and quick status/feature toggles.
+    - [x] Exact Canadian Location Inspector (Postal Code, City, Province, Lat/Long Coordinates & Google Maps navigation link).
+    - [x] Engagement Metrics Card (Live Views count, Total Favorites count, Active Chats count, Published date).
+    - [x] Comprehensive Status Management Modal (`ListingStatus` enum transitions with optional admin notes).
+    - [x] Community Abuse & Reports Tab with inline report resolution and dismissal workflows (`$listing->reports()`).
+    - [x] 100% test coverage with 10 passing feature tests (96 total test suite assertions) in [`AdminListingTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminListingTest.php).
+  * ✅ **Community Abuse & Moderation Reporting Subsystem (100% Complete)**:
+    - [x] Dedicated service layer [`ReportService`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Services/ReportService.php) with anti-spam and self-report prevention logic.
+    - [x] Dedicated Form Request validation [`StoreReportRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/StoreReportRequest.php).
+    - [x] Authenticated endpoint `POST /reports` ([`ReportController`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Controllers/ReportController.php)).
+    - [x] Standardized `App\Enums\ReportReason` enum across models, form requests, services, and dynamic frontend modals.
+    - [x] Polymorphic reporting relationships on `Listing`, `User`, and `CompanionshipRequest`.
+    - [x] Interactive Report Listing Modal on [`frontend/listing-detail.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/frontend/listing-detail.blade.php) with AJAX submission and toast feedback.
+    - [x] Interactive Report User Modal on [`frontend/account/profile.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/frontend/account/profile.blade.php) with AJAX submission and toast feedback.
+    - [x] User Conversations Tab & Audit Chat Inspector on [`admin/users/show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/show.blade.php).
+    - [x] User Reports & Flags Moderation Tab (with resolve/dismiss actions) on [`admin/users/show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/show.blade.php).
+    - [x] Activity & Safety Metrics Overview box and index list moderation badge on [`admin/users/index.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/index.blade.php).
+    - [x] 100% test coverage with 106 passing feature tests (925 assertions across entire test suite).
 * **Remaining / Next Phase**:
   * ⏳ **Phase 1: Admin Reports & Moderation Queue**:
-    - Build moderation queue to inspect flagged content (Listings, Users), review reports, log resolution notes, and trigger disciplinary action with user notifications.
+    - Build global moderation queue to inspect flagged content across all entities (Listings, Users, Meetups), review reports, log resolution notes, and trigger disciplinary action with user notifications.
   * ⏳ **Phase 2: Category & Dynamic Attribute Schema Management**:
     - Category tree CRUD with dynamic custom attribute schema builder.
 

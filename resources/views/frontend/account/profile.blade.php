@@ -379,30 +379,107 @@
                         <p class="text-secondary small mb-3">
                             Help keep our Canadian marketplace safe. Please specify why you are reporting <strong>{{ $user->name }}</strong>:
                         </p>
-                        <form id="reportUserForm">
+                        <form id="reportUserForm" onsubmit="event.preventDefault(); submitUserReport();">
                             <div class="mb-3">
-                                <label class="form-label text-secondary small fw-semibold">Reason</label>
-                                <select class="form-select dark-filter-input" required>
+                                <label for="reportUserReason" class="form-label text-secondary small fw-semibold">Reason</label>
+                                <select id="reportUserReason" class="form-select dark-filter-input" required>
                                     <option value="">Select a reason...</option>
-                                    <option value="spam">Spam / Commercial advertising</option>
-                                    <option value="fraud">Suspected scam / Fraudulent behavior</option>
-                                    <option value="harassment">Harassment or inappropriate language</option>
-                                    <option value="impersonation">Impersonation / Fake identity</option>
-                                    <option value="other">Other safety violation</option>
+                                    @foreach(\App\Enums\ReportReason::userReasons() as $rCase)
+                                        <option value="{{ $rCase->value }}">{{ $rCase->label() }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-secondary small fw-semibold">Details / Comments</label>
-                                <textarea class="form-control dark-filter-input" rows="3" placeholder="Provide any additional context or transaction details..."></textarea>
+                                <label for="reportUserDetails" class="form-label text-secondary small fw-semibold">Details / Comments</label>
+                                <textarea id="reportUserDetails" class="form-control dark-filter-input" rows="3" placeholder="Provide any additional context or transaction details..."></textarea>
                             </div>
                             <div class="text-end">
                                 <button type="button" class="btn btn-sm btn-outline-secondary text-white rounded-pill px-3 me-2" data-bs-dismiss="modal">Cancel</button>
-                                <button type="button" class="btn btn-sm btn-danger rounded-pill px-4" data-bs-dismiss="modal" onclick="alert('Thank you for reporting. Our moderation team will investigate promptly.');">Submit Report</button>
+                                <button type="submit" class="btn btn-sm btn-danger rounded-pill px-4" id="submitUserReportBtn">Submit Report</button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            function submitUserReport() {
+                @guest
+                    if (typeof showToast === 'function') {
+                        showToast('Please log in to submit a moderation report.', 'warning');
+                    } else {
+                        alert('Please log in to submit a moderation report.');
+                    }
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                @endguest
+
+                const reasonEl = document.getElementById('reportUserReason');
+                const detailsEl = document.getElementById('reportUserDetails');
+                const submitBtn = document.getElementById('submitUserReportBtn');
+                const modalEl = document.getElementById('reportUserModal');
+
+                if (!reasonEl || !reasonEl.value) {
+                    if (typeof showToast === 'function') {
+                        showToast('Please select a reason for reporting.', 'warning');
+                    } else {
+                        alert('Please select a reason for reporting.');
+                    }
+                    return;
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+                }
+
+                fetch("{{ route('reports.store') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        reportable_type: 'user',
+                        reportable_id: {{ $user->id }},
+                        reason: reasonEl.value,
+                        description: detailsEl ? detailsEl.value : ''
+                    })
+                })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.message || (data.errors ? Object.values(data.errors).flat()[0] : 'Failed to submit report.'));
+                    }
+                    return data;
+                })
+                .then(data => {
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                    if (detailsEl) detailsEl.value = '';
+                    if (reasonEl) reasonEl.value = '';
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Thank you. Your report has been submitted for review.', 'success');
+                    } else {
+                        alert(data.message || 'Thank you. Your report has been submitted for review.');
+                    }
+                })
+                .catch(error => {
+                    if (typeof showToast === 'function') {
+                        showToast(error.message, 'error');
+                    } else {
+                        alert(error.message);
+                    }
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Submit Report';
+                    }
+                });
+            }
+        </script>
     @endif
 @endsection

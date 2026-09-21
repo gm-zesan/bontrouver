@@ -108,6 +108,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
     Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
     Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
+
+    // 7. Community Abuse & Moderation Reporting
+    Route::post('/reports', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -121,13 +124,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('users/{user}/suspend', [UserController::class, 'toggleSuspend'])->name('users.suspend');
     Route::post('users/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
     Route::post('users/{user}/notes', [UserController::class, 'updateNotes'])->name('users.notes');
+    Route::post('users/{user}/reports/{report}/resolve', [UserController::class, 'resolveReport'])->name('users.reports.resolve');
+    Route::post('users/{user}/reports/{report}/dismiss', [UserController::class, 'dismissReport'])->name('users.reports.dismiss');
     Route::post('users/bulk', [UserController::class, 'bulkAction'])->name('users.bulk');
 
     // Listing Management
     Route::resource('listings', \App\Http\Controllers\Admin\ListingController::class)->only(['index', 'show', 'destroy']);
     Route::post('listings/{listing}/toggle-status', [\App\Http\Controllers\Admin\ListingController::class, 'toggleStatus'])->name('listings.toggleStatus');
+    Route::post('listings/{listing}/update-status', [\App\Http\Controllers\Admin\ListingController::class, 'updateStatus'])->name('listings.updateStatus');
     Route::post('listings/{listing}/toggle-featured', [\App\Http\Controllers\Admin\ListingController::class, 'toggleFeatured'])->name('listings.toggleFeatured');
     Route::post('listings/{listing}/toggle-sponsored', [\App\Http\Controllers\Admin\ListingController::class, 'toggleSponsored'])->name('listings.toggleSponsored');
+    Route::post('listings/{listing}/reports/{report}/resolve', [\App\Http\Controllers\Admin\ListingController::class, 'resolveReport'])->name('listings.reports.resolve');
+    Route::post('listings/{listing}/reports/{report}/dismiss', [\App\Http\Controllers\Admin\ListingController::class, 'dismissReport'])->name('listings.reports.dismiss');
     Route::post('listings/bulk', [\App\Http\Controllers\Admin\ListingController::class, 'bulkAction'])->name('listings.bulk');
 });
 

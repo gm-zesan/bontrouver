@@ -370,4 +370,87 @@ class UserProfileTest extends TestCase
         $this->assertFalse($user->wantsNotification('alerts'));
         $this->assertTrue($user->wantsNotification('meetups'));
     }
+
+    public function test_admin_can_view_user_conversations_tab(): void
+    {
+        $admin = User::factory()->create([
+            'role' => \App\Enums\UserRole::ADMIN,
+        ]);
+
+        $user1 = User::factory()->create(['name' => 'Buyer Bob']);
+        $user2 = User::factory()->create(['name' => 'Seller Sam']);
+
+        $conv = \App\Models\Conversation::create([
+            'buyer_id' => $user1->id,
+            'seller_id' => $user2->id,
+            'subject' => 'Listing Inquiry',
+        ]);
+
+        \App\Models\Message::create([
+            'conversation_id' => $conv->id,
+            'sender_id' => $user1->id,
+            'body' => 'Hi, is this available?',
+            'attachments' => [
+                ['path' => 'messages/test.jpg', 'type' => 'image', 'url' => 'http://localhost/storage/messages/test.jpg'],
+                ['path' => 'messages/doc.pdf', 'type' => 'file', 'url' => 'http://localhost/storage/messages/doc.pdf'],
+            ],
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.users.show', $user1->id));
+
+        $response->assertOk();
+        $response->assertViewHas('conversations');
+        $response->assertSee('Conversations');
+        $response->assertSee('Hi, is this available?');
+        $response->assertSee('Seller Sam');
+    }
+
+    public function test_admin_can_view_and_moderate_user_reports_tab(): void
+    {
+        $admin = User::factory()->create([
+            'role' => \App\Enums\UserRole::ADMIN,
+        ]);
+
+        $badUser = User::factory()->create(['name' => 'Bad Actor']);
+        $reporter = User::factory()->create(['name' => 'Good Citizen']);
+
+        $report = \App\Models\Report::create([
+            'reporter_id' => $reporter->id,
+            'reportable_type' => User::class,
+            'reportable_id' => $badUser->id,
+            'reason' => \App\Enums\ReportReason::HARASSMENT,
+            'description' => 'User sent threatening messages.',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.users.show', $badUser->id));
+
+        $response->assertOk();
+        $response->assertViewHas('reportsReceived');
+        $response->assertSee('Community Reports Received');
+        $response->assertSee('Harassment / Abusive Language');
+        $response->assertSee('User sent threatening messages.');
+
+        // Resolve report
+        $resolveResponse = $this->actingAs($admin)->post(route('admin.users.reports.resolve', [$badUser->id, $report->id]));
+        $resolveResponse->assertRedirect();
+        $report->refresh();
+        $this->assertEquals('resolved', $report->status);
+        $this->assertEquals($admin->id, $report->reviewed_by);
+
+        // Dismiss report test
+        $dismissReport = \App\Models\Report::create([
+            'reporter_id' => $reporter->id,
+            'reportable_type' => User::class,
+            'reportable_id' => $badUser->id,
+            'reason' => \App\Enums\ReportReason::SPAM,
+            'description' => 'False alarm.',
+            'status' => 'pending',
+        ]);
+
+        $dismissResponse = $this->actingAs($admin)->post(route('admin.users.reports.dismiss', [$badUser->id, $dismissReport->id]));
+        $dismissResponse->assertRedirect();
+        $dismissReport->refresh();
+        $this->assertEquals('dismissed', $dismissReport->status);
+    }
 }

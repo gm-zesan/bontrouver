@@ -673,3 +673,10 @@ table.dataTable,
         }
     }
 }
+
+// User Image & Avatar Aspect Ratio Rule
+table.dataTable td img,
+.user-avatar-img,
+img.rounded-circle {
+    object-fit: cover !important;
+}
