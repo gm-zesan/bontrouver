@@ -28,6 +28,8 @@ class UserProfileTest extends TestCase
     {
         parent::setUp();
 
+        $this->seed(\Database\Seeders\MemberTierSeeder::class);
+
         $this->province = Province::create([
             'name' => 'Quebec',
             'code' => 'QC',

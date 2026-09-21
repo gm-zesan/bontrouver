@@ -168,72 +168,112 @@ class User extends Authenticatable
     {
         $pts = (int) ($this->community_points ?? 0);
 
-        if ($pts >= 700) {
+        try {
+            $tiersData = cache()->remember('member_tiers_all_v2', 3600, function () {
+                return MemberTier::orderBy('min_points', 'asc')->get()->toArray();
+            });
+            $tiers = collect($tiersData);
+        } catch (\Throwable $e) {
+            $tiers = collect();
+        }
+
+        if ($tiers->isEmpty()) {
             return [
-                'name' => 'Highly Appreciated Member',
-                'short_name' => 'Highly Appreciated',
-                'icon' => '⭐',
-                'level' => 4,
-                'badge_class' => 'bg-success-subtle text-success border border-success-subtle',
-                'min' => 700,
+                'name' => 'Member',
+                'full_name' => 'Member',
+                'short_name' => 'Member',
+                'icon' => '👤',
+                'level' => 1,
+                'badge_class' => 'tier-badge tier-bronze',
+                'min' => 0,
                 'max' => null,
                 'next_threshold' => null,
                 'next_tier' => null,
                 'points_needed' => 0,
                 'progress_percentage' => 100,
+                'model' => null,
             ];
         }
 
-        if ($pts >= 300) {
-            $needed = 700 - $pts;
-            $percent = min(100, max(0, round((($pts - 300) / 400) * 100)));
-            return [
-                'name' => 'Trusted Member',
-                'short_name' => 'Trusted',
-                'icon' => '🥇',
-                'level' => 3,
-                'badge_class' => 'bg-warning-subtle text-warning border border-warning-subtle',
-                'min' => 300,
-                'max' => 699,
-                'next_threshold' => 700,
-                'next_tier' => 'Highly Appreciated Member',
-                'points_needed' => $needed,
-                'progress_percentage' => $percent,
-            ];
+        $currentTier = null;
+        $currentLevel = 1;
+        $nextTier = null;
+        $totalTiers = $tiers->count();
+
+        foreach ($tiers as $index => $tier) {
+            $level = $index + 1;
+            $min = (int) (is_array($tier) ? $tier['min_points'] : $tier->min_points);
+            $maxRaw = is_array($tier) ? ($tier['max_points'] ?? null) : $tier->max_points;
+            $max = $maxRaw !== null ? (int) $maxRaw : null;
+
+            if ($pts >= $min && ($max === null || $pts <= $max)) {
+                $currentTier = $tier;
+                $currentLevel = $level;
+                $nextTier = $tiers->get($index + 1);
+                break;
+            }
         }
 
-        if ($pts >= 100) {
-            $needed = 300 - $pts;
-            $percent = min(100, max(0, round((($pts - 100) / 200) * 100)));
-            return [
-                'name' => 'Active Member',
-                'short_name' => 'Active',
-                'icon' => '🥈',
-                'level' => 2,
-                'badge_class' => 'bg-info-subtle text-info border border-info-subtle',
-                'min' => 100,
-                'max' => 299,
-                'next_threshold' => 300,
-                'next_tier' => 'Trusted Member',
-                'points_needed' => $needed,
-                'progress_percentage' => $percent,
-            ];
+        if (!$currentTier) {
+            $currentTier = $tiers->last();
+            $currentLevel = $totalTiers;
+            $nextTier = null;
         }
 
-        $needed = 100 - $pts;
-        $percent = min(100, max(0, round(($pts / 100) * 100)));
+        $tierName = is_array($currentTier) ? $currentTier['name'] : $currentTier->name;
+        $icon = '🥉';
+        if (preg_match('/^([\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉])\s*(.*)$/u', $tierName, $matches)) {
+            $icon = $matches[1];
+            $cleanName = trim($matches[2]);
+        } else {
+            $cleanName = $tierName;
+        }
+
+        $badgeClass = match ($currentLevel) {
+            4 => 'tier-badge tier-platinum',
+            3 => 'tier-badge tier-gold',
+            2 => 'tier-badge tier-silver',
+            default => 'tier-badge tier-bronze',
+        };
+        if ($currentLevel >= 4) {
+            $badgeClass = 'tier-badge tier-platinum';
+        }
+
+        $pointsNeeded = 0;
+        $progressPercentage = 100;
+        $nextTierName = null;
+        $nextThreshold = null;
+
+        $currentMin = (int) (is_array($currentTier) ? $currentTier['min_points'] : $currentTier->min_points);
+        $currentMax = (is_array($currentTier) ? ($currentTier['max_points'] ?? null) : $currentTier->max_points);
+
+        if ($nextTier) {
+            $nextThreshold = (int) (is_array($nextTier) ? $nextTier['min_points'] : $nextTier->min_points);
+            $pointsNeeded = max(0, $nextThreshold - $pts);
+            $tierRange = $nextThreshold - $currentMin;
+            if ($tierRange > 0) {
+                $progressPercentage = min(100, max(0, round((($pts - $currentMin) / $tierRange) * 100)));
+            } else {
+                $progressPercentage = 0;
+            }
+            $nextRawName = is_array($nextTier) ? $nextTier['name'] : $nextTier->name;
+            $nextTierName = preg_replace('/^[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉\s]+/u', '', $nextRawName);
+        }
+
         return [
-            'name' => 'New Member',
-            'short_name' => 'New',
-            'icon' => '🥉',
-            'level' => 1,
-            'badge_class' => 'bg-secondary-subtle text-light border border-secondary border-opacity-25',
-            'min' => 0,
-            'max' => 99,
-            'next_threshold' => 100,
-            'next_tier' => 'Active Member',
-            'points_needed' => $needed,
-            'progress_percentage' => $percent,
+            'name' => $cleanName,
+            'full_name' => $tierName,
+            'short_name' => str_replace(' Member', '', $cleanName),
+            'icon' => $icon,
+            'level' => $currentLevel,
+            'badge_class' => $badgeClass,
+            'min' => $currentMin,
+            'max' => $currentMax !== null ? (int) $currentMax : null,
+            'next_threshold' => $nextThreshold,
+            'next_tier' => $nextTierName,
+            'points_needed' => $pointsNeeded,
+            'progress_percentage' => $progressPercentage,
+            'model' => $currentTier,
         ];
     }
 }

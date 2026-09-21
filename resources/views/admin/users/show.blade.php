@@ -23,8 +23,8 @@
                         @endif
                         
                         @if($user->is_verified)
-                            <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm" style="transform: translate(-5%, -5%);">
-                                <i class="ri-verified-badge-fill text-primary fs-5"></i>
+                            <div class="user-avatar-verified-badge" title="Verified User">
+                                <i class="ri-verified-badge-fill"></i>
                             </div>
                         @endif
                     </div>
@@ -626,13 +626,24 @@
                 if(data.success) {
                     status.style.display = 'inline-block';
                     setTimeout(() => status.style.display = 'none', 3000);
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Internal admin notes saved successfully.', false, 'Saved');
+                    }
+                } else {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(data.message || 'Failed to save notes.', true, 'Error');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 btn.innerHTML = 'Save Notes';
                 btn.disabled = false;
-                alert('An error occurred while saving notes.');
+                if (typeof window.showToast === 'function') {
+                    window.showToast('An error occurred while saving notes.', true, 'Error');
+                } else {
+                    alert('An error occurred while saving notes.');
+                }
             });
         });
     });

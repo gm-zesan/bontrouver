@@ -22,7 +22,13 @@ Whenever building any functionality, modifying code, designing migrations, or re
    - **MVC-S Flow**: `Request → Route → Form Request (Validation) → Controller → Service Layer → Model / Query → View / Resource`.
    - **Thin Controllers**: Controllers only handle HTTP orchestration; all business logic lives in dedicated `app/Services/` classes.
 
-4. **[Project Status & Feature Implementation Report](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/project_status_report.md)**:
+4. **[Admin Panel UI & Design System Specification](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/admin_design_system.md)**:
+   - **Unified Heights**: 34px toolbar controls across all search fields, filters, bulk selects, and buttons.
+   - **Zero Inline Styles**: All layout and component styles strictly compiled from `table.scss` and `style.scss`.
+   - **Modal & Toast Standards**: `<x-admin.confirm-modal />` and `window.showWarningModal()` for all destructive actions; `window.showToast()` for AJAX feedback.
+   - **100% Dynamic**: Zero mock placeholders; live Eloquent data bindings and AJAX tab pagination.
+
+5. **[Project Status & Feature Implementation Report](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/project_status_report.md)**:
    - Live tracker of implementation percentage, completed modules, and roadmap. Always maintain 100% sync.
 
 ---

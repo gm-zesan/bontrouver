@@ -113,32 +113,39 @@
 
 ---
 
-### 7. Reports & Moderation / Admin Panel — `60% Complete`
+### 7. Reports & Moderation / Admin Panel — `75% Complete`
 * **Features Implemented**:
   * ✅ Polymorphic `Report` model (`reportable_type`, `reportable_id`) for reporting listings or users.
   * ✅ Report modal on listing detail pages.
-* **Remaining / Next Improvements**:
-  * **Admin Panel Foundation (80%)**:
+  * ✅ **Admin Panel Foundation & User Module (100% Complete)**:
     - [x] Admin authentication and middleware.
     - [x] Admin dashboard structure with sidebar/navigation.
-    - [x] Advanced Users list with DataTables (Filters, Status, Role, Points).
-    - [x] User Bulk Actions (Suspend, Unsuspend, Delete).
-    - [x] User details page (Profile, listings, reviews, points, verifications).
-    - [x] Internal Admin Notes system on user profiles.
-    - [x] Member Tier Progress tracking visualization.
-    - [x] Identity Verification Review system (Approve/Reject logic).
-    - [ ] Role management interface.
-    - [ ] Moderation Queue (Reported listings, users).
-    - [ ] Category Management interface.
-  * ⏳ Admin moderation queue for reviewing and resolving flagged reports.
-  * ⏳ Admin actions to suspend users or take down violating listings.
+    - [x] Advanced Users list with DataTables (Filters, Status, Role, Points, Verified Badge).
+    - [x] User Bulk Actions (Suspend, Unsuspend, Delete) with interactive Confirm & Warning Modals.
+    - [x] User details page (Profile, listings, reviews, points, verifications, meetups).
+    - [x] Internal Admin Notes system on user profiles with AJAX instant save.
+    - [x] 100% Dynamic Member Tier Progress tracking visualization (`MemberTier` database model).
+    - [x] Identity Verification Review system (Approve/Reject logic + Community points award).
+    - [x] Role management interface & Assign Role modal (`UserRole` enum).
+    - [x] Unified 34px toolbar controls & SCSS design system (`table.scss`, `style.scss`).
+* **Remaining / Next Phase**:
+  * ⏳ **Phase 1: Admin Listing Management & Moderation**:
+    - Build listings DataTables index page with category/status/price filters and bulk actions (Publish, Feature, Sponsor, Suspend, Delete) using the exact same design system.
+    - Build listing detail & moderation view with attribute spec inspectors and image gallery.
+  * ⏳ **Phase 2: Moderation Queue & Content Safety (Reports)**:
+    - Admin moderation queue for reviewing and resolving flagged reports (Listings and Users).
+    - Take-down actions with reason logs and reporter/violator notification triggers.
+  * ⏳ **Phase 3: Category & Category Attribute Management**:
+    - Category tree CRUD with dynamic attribute schema builder.
 
 ---
 
 ## 3. Recommended Next Implementation Steps
 
-1. **Step 1: Admin Moderation Queue & Content Safety**:
-   - Complete the administrative dashboard for resolving reported listings and users.
-   - Implement ability to suspend violating users and take down listings.
-2. **Step 2: PWA & Push Notifications (Optional/Future)**:
-   - Enhance the mobile web experience by implementing Service Workers and Push notifications.
+1. **Step 1: Admin Listings Module (`Admin/ListingController`)**:
+   - Implement Listings DataTable index following the newly documented design system (`doc/admin_design_system.md`).
+   - Implement listing show/edit page, approval actions, and bulk operations.
+2. **Step 2: Admin Reports & Moderation Queue (`Admin/ReportController`)**:
+   - Build moderation queue to inspect flagged content, resolve reports, and enforce platform safety.
+3. **Step 3: Category Management**:
+   - Build hierarchical category & custom attribute management in the admin dashboard.

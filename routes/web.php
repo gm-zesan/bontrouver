@@ -121,10 +121,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('users/{user}/suspend', [UserController::class, 'toggleSuspend'])->name('users.suspend');
     Route::post('users/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
     Route::post('users/{user}/notes', [UserController::class, 'updateNotes'])->name('users.notes');
-    
-    // Verifications
-    Route::post('verifications/{verification}/approve', [UserController::class, 'approveVerification'])->name('verifications.approve');
-    Route::post('verifications/{verification}/reject', [UserController::class, 'rejectVerification'])->name('verifications.reject');
 
     // Bulk Actions
     Route::post('users/bulk', [UserController::class, 'bulkAction'])->name('users.bulk');

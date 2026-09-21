@@ -307,19 +307,22 @@
                         $('#bulk_action_type').val('').prop('disabled', true);
                         $('#btn_apply_bulk').prop('disabled', true);
                         table.draw();
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(data.message || 'Bulk action executed successfully.', false, 'Success');
+                        }
                     } else {
-                        if (typeof window.showWarningModal === 'function') {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(data.message || 'An error occurred.', true, 'Action Failed');
+                        } else if (typeof window.showWarningModal === 'function') {
                             window.showWarningModal("Action Failed", data.message || 'An error occurred.');
-                        } else {
-                            alert(data.message || 'An error occurred.');
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     $('#confirmationModal').modal('hide');
-                    if (typeof window.showWarningModal === 'function') {
-                        window.showWarningModal("Error", 'An error occurred while processing bulk action.');
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('An error occurred while processing bulk action.', true, 'Error');
                     } else {
                         alert('An error occurred while processing bulk action.');
                     }

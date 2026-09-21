@@ -28,6 +28,8 @@ return new class extends Migration
             $table->text('bio')->nullable();
             $table->integer('community_points')->default(0);
             $table->boolean('is_verified')->default(false);
+            $table->boolean('is_suspended')->default(false);
+            $table->text('admin_notes')->nullable();
             $table->json('notification_preferences')->nullable();
             $table->rememberToken();
             $table->timestamps();

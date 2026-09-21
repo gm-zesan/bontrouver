@@ -53,6 +53,10 @@ class UserController extends Controller
                     $nameHtml .= '<img src="' . $avatarUrl . '" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">';
                     $nameHtml .= '<span class="fw-medium text-dark">' . $rawName . '</span>';
                     
+                    if ($row->is_verified) {
+                        $nameHtml .= ' <i class="ri-verified-badge-fill text-primary ms-1" style="font-size: 15px;" title="Verified User"></i>';
+                    }
+                    
                     if ($row->is_suspended) {
                         $nameHtml .= ' <span class="badge bg-danger ms-2" style="font-size: 10px; padding: 2px 5px;">Suspended</span>';
                     }
