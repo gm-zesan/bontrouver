@@ -12,10 +12,18 @@ body {
     position: relative;
     min-height: 100vh;
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     background-color: #f4f6fa;
     color: #0f172a;
     font-size: 14px;
     line-height: 1.5;
+}
+
+#main-wrapper {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 
 // Universal Focus Reset: remove outline and box-shadow on focus for buttons and inputs
@@ -434,8 +442,10 @@ select,
     left: 64px;
     top: 0;
     width: calc(100% - 64px);
+    max-width: calc(100% - 64px);
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -563,6 +573,9 @@ header {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
 
     /* =============================================
         ====== Table Card & Forms ===================

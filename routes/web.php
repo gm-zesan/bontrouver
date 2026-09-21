@@ -121,9 +121,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('users/{user}/suspend', [UserController::class, 'toggleSuspend'])->name('users.suspend');
     Route::post('users/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
     Route::post('users/{user}/notes', [UserController::class, 'updateNotes'])->name('users.notes');
-
-    // Bulk Actions
     Route::post('users/bulk', [UserController::class, 'bulkAction'])->name('users.bulk');
+
+    // Listing Management
+    Route::resource('listings', \App\Http\Controllers\Admin\ListingController::class)->only(['index', 'show', 'destroy']);
+    Route::post('listings/{listing}/toggle-status', [\App\Http\Controllers\Admin\ListingController::class, 'toggleStatus'])->name('listings.toggleStatus');
+    Route::post('listings/{listing}/toggle-featured', [\App\Http\Controllers\Admin\ListingController::class, 'toggleFeatured'])->name('listings.toggleFeatured');
+    Route::post('listings/{listing}/toggle-sponsored', [\App\Http\Controllers\Admin\ListingController::class, 'toggleSponsored'])->name('listings.toggleSponsored');
+    Route::post('listings/bulk', [\App\Http\Controllers\Admin\ListingController::class, 'bulkAction'])->name('listings.bulk');
 });
 
 // Static Marketplace Info & Footer Pages

@@ -36,7 +36,7 @@
             <span class="link_names">Marketplace Management</span>
         </li>
         <li>
-            <a href="#" class="">
+            <a href="{{ route('admin.listings.index') }}" class="{{ Route::is('admin.listings.*') ? ' active-focus' : '' }}">
                 <i class="ri-shopping-cart-line"></i>
                 <span class="link_names">Listings</span>
             </a>

@@ -55,17 +55,17 @@
                     <table class="table dataTable w-100 align-middle" id="data-table">
                         <thead>
                             <tr>
-                                <th scope="col" class="th-checkbox">
+                                <th scope="col" style="width: 40px; padding: 12px 16px;">
                                     <div class="form-check m-0">
                                         <input class="form-check-input border-secondary" type="checkbox" id="check_all_users">
                                     </div>
                                 </th>
-                                <th scope="col" class="th-index">#</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Email</th>
-                                <th scope="col" class="th-role">Role</th>
-                                <th scope="col" class="th-points">Points</th>
-                                <th scope="col" class="th-action">Action</th>
+                                <th scope="col" style="width: 50px;">#</th>
+                                <th scope="col" style="min-width: 220px;">Name</th>
+                                <th scope="col" style="min-width: 200px;">Email</th>
+                                <th scope="col" style="width: 140px;">Role</th>
+                                <th scope="col" style="width: 100px;">Points</th>
+                                <th scope="col" style="width: 140px; text-align: end; padding-right: 16px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -113,7 +113,7 @@
 
 ---
 
-### 7. Reports & Moderation / Admin Panel — `75% Complete`
+### 7. Reports & Moderation / Admin Panel — `85% Complete`
 * **Features Implemented**:
   * ✅ Polymorphic `Report` model (`reportable_type`, `reportable_id`) for reporting listings or users.
   * ✅ Report modal on listing detail pages.
@@ -128,24 +128,23 @@
     - [x] Identity Verification Review system (Approve/Reject logic + Community points award).
     - [x] Role management interface & Assign Role modal (`UserRole` enum).
     - [x] Unified 34px toolbar controls & SCSS design system (`table.scss`, `style.scss`).
+  * ✅ **Admin Listings Management Module (100% Complete)**:
+    - [x] Dedicated service layer [`AdminListingService`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Services/AdminListingService.php).
+    - [x] Server-side DataTables with Category, Status, and Featured filters ([`Admin/ListingController`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Controllers/Admin/ListingController.php)).
+    - [x] Reactive Bulk Actions (Bulk Activate, Bulk Suspend, Bulk Feature, Bulk Unfeature, Bulk Delete) with modal confirmation.
+    - [x] 2-Column Listing Inspection View ([`show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/listings/show.blade.php)) with dynamic category specification grid, full photo gallery inspector, buyer conversation history, and quick status/feature toggles.
+    - [x] 100% test coverage with 7 passing assertions in [`AdminListingTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminListingTest.php).
 * **Remaining / Next Phase**:
-  * ⏳ **Phase 1: Admin Listing Management & Moderation**:
-    - Build listings DataTables index page with category/status/price filters and bulk actions (Publish, Feature, Sponsor, Suspend, Delete) using the exact same design system.
-    - Build listing detail & moderation view with attribute spec inspectors and image gallery.
-  * ⏳ **Phase 2: Moderation Queue & Content Safety (Reports)**:
-    - Admin moderation queue for reviewing and resolving flagged reports (Listings and Users).
-    - Take-down actions with reason logs and reporter/violator notification triggers.
-  * ⏳ **Phase 3: Category & Category Attribute Management**:
-    - Category tree CRUD with dynamic attribute schema builder.
+  * ⏳ **Phase 1: Admin Reports & Moderation Queue**:
+    - Build moderation queue to inspect flagged content (Listings, Users), review reports, log resolution notes, and trigger disciplinary action with user notifications.
+  * ⏳ **Phase 2: Category & Dynamic Attribute Schema Management**:
+    - Category tree CRUD with dynamic custom attribute schema builder.
 
 ---
 
 ## 3. Recommended Next Implementation Steps
 
-1. **Step 1: Admin Listings Module (`Admin/ListingController`)**:
-   - Implement Listings DataTable index following the newly documented design system (`doc/admin_design_system.md`).
-   - Implement listing show/edit page, approval actions, and bulk operations.
-2. **Step 2: Admin Reports & Moderation Queue (`Admin/ReportController`)**:
-   - Build moderation queue to inspect flagged content, resolve reports, and enforce platform safety.
-3. **Step 3: Category Management**:
+1. **Step 1: Admin Reports & Moderation Queue (`Admin/ReportController`)**:
+   - Build moderation queue to inspect flagged content, resolve reports, take down violating ads, and notify reporters/violators.
+2. **Step 2: Category Management**:
    - Build hierarchical category & custom attribute management in the admin dashboard.

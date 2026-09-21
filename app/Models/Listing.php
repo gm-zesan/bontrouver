@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\ListingStatus;
 
 class Listing extends Model
 {
@@ -36,6 +37,7 @@ class Listing extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'status' => ListingStatus::class,
         'is_featured' => 'boolean',
         'is_sponsored' => 'boolean',
         'latitude' => 'decimal:8',
@@ -94,7 +96,7 @@ class Listing extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', \App\Enums\ListingStatus::ACTIVE);
     }
 
     /**
@@ -107,6 +109,6 @@ class Listing extends Model
             "listings.*, ( ? * acos( cos( radians(?) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(?) ) + sin( radians(?) ) * sin( radians( latitude ) ) ) ) AS distance_km",
             [$earthRadius, $latitude, $longitude, $latitude]
         )->having('distance_km', '<=', $radiusKm)
-        ->orderBy('distance_km', 'asc');
+            ->orderBy('distance_km', 'asc');
     }
 }
