@@ -137,6 +137,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('listings/{listing}/reports/{report}/resolve', [\App\Http\Controllers\Admin\ListingController::class, 'resolveReport'])->name('listings.reports.resolve');
     Route::post('listings/{listing}/reports/{report}/dismiss', [\App\Http\Controllers\Admin\ListingController::class, 'dismissReport'])->name('listings.reports.dismiss');
     Route::post('listings/bulk', [\App\Http\Controllers\Admin\ListingController::class, 'bulkAction'])->name('listings.bulk');
+
+    // Meetup Management
+    Route::resource('meetups', \App\Http\Controllers\Admin\MeetupController::class)->only(['index', 'show', 'destroy']);
+    Route::post('meetups/{meetup}/update-status', [\App\Http\Controllers\Admin\MeetupController::class, 'updateStatus'])->name('meetups.updateStatus');
+    Route::post('meetups/bulk', [\App\Http\Controllers\Admin\MeetupController::class, 'bulkAction'])->name('meetups.bulk');
+    Route::delete('meetups/{meetup}/attendees/{attendee}', [\App\Http\Controllers\Admin\MeetupController::class, 'removeAttendee'])->name('meetups.attendees.remove');
 });
 
 // Static Marketplace Info & Footer Pages

@@ -42,7 +42,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="">
+            <a href="{{ route('admin.meetups.index') }}" class="{{ Route::is('admin.meetups.*') ? ' active-focus' : '' }}">
                 <i class="ri-team-line"></i>
                 <span class="link_names">Community Meetups</span>
             </a>
