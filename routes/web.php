@@ -17,6 +17,7 @@ use App\Http\Controllers\StaticPageController;
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\VerificationReviewController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -114,6 +115,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
     Route::post('/verifications/{verification}/approve', [VerificationReviewController::class, 'approve'])->name('verifications.approve');
     Route::post('/verifications/{verification}/reject', [VerificationReviewController::class, 'reject'])->name('verifications.reject');
+
+    // User Management
+    Route::resource('users', UserController::class)->except(['create', 'store']);
+    Route::post('users/{user}/suspend', [UserController::class, 'toggleSuspend'])->name('users.suspend');
+    Route::post('users/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
 });
 
 // Static Marketplace Info & Footer Pages

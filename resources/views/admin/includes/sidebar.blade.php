@@ -53,7 +53,7 @@
             <span class="link_names">User & Trust</span>
         </li>
         <li>
-            <a href="#" class="">
+            <a href="{{ route('admin.users.index') }}" class="{{ Route::is('admin.users.*') ? ' active-focus' : '' }}">
                 <i class="ri-user-settings-line"></i>
                 <span class="link_names">Users</span>
             </a>

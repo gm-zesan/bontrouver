@@ -31,6 +31,8 @@
         </div>
     </div>
 
+    <x-admin.confirm-modal />
+
     @include('admin.includes.scripts')
     @stack('custom-script')
 </body>

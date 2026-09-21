@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
+use App\Enums\UserRole;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
@@ -27,6 +29,7 @@ class User extends Authenticatable
         'bio',
         'community_points',
         'is_verified',
+        'is_suspended',
         'notification_preferences',
     ];
 
@@ -38,7 +41,7 @@ class User extends Authenticatable
     protected $attributes = [
         'is_verified' => false,
         'is_dealer' => false,
-        'role' => 'user',
+        'role' => UserRole::USER,
         'community_points' => 0,
     ];
 
@@ -47,18 +50,20 @@ class User extends Authenticatable
         'password' => 'hashed',
         'is_dealer' => 'boolean',
         'is_verified' => 'boolean',
+        'is_suspended' => 'boolean',
         'community_points' => 'integer',
         'notification_preferences' => 'array',
+        'role' => UserRole::class,
     ];
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === UserRole::ADMIN;
     }
 
     public function isModerator(): bool
     {
-        return $this->role === 'moderator' || $this->role === 'admin';
+        return $this->role === UserRole::ADMIN;
     }
 
     public function wantsNotification(string $type): bool
@@ -115,6 +120,11 @@ class User extends Authenticatable
     public function companionshipRequests()
     {
         return $this->hasMany(CompanionshipRequest::class);
+    }
+
+    public function companionshipAttendees()
+    {
+        return $this->hasMany(CompanionshipAttendee::class);
     }
 
     public function verifications()

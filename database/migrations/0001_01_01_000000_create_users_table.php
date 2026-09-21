@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role', 50)->default('user'); // user, admin, moderator
+            $table->string('role', 50)->default('user'); // Changed to strictly 'user' or 'admin'
             $table->boolean('is_dealer')->default(false);
             $table->string('phone', 50)->nullable();
             $table->string('city', 100)->nullable();

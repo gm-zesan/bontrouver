@@ -132,12 +132,27 @@ div.dataTables_wrapper {
     }
 
     div.dataTables_processing {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
         background: rgba(255, 255, 255, 0.85) !important;
-        border: 1px solid #e2e8f0 !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        border: 1px solid rgba(226, 232, 240, 0.8) !important;
         border-radius: 8px !important;
-        box-shadow: 0 4px 12px rgba(11, 15, 23, 0.08) !important;
-        color: #49D17D !important;
+        color: #1e293b !important;
         font-weight: 600 !important;
+        padding: 12px 28px !important;
+        z-index: 1050 !important;
+        width: auto !important;
+        height: auto !important;
+        margin: 0 !important;
+    }
+
+    /* Hide DataTables 2.x Default Dots Animation */
+    div.dataTables_processing>div:not(.d-flex) {
+        display: none !important;
     }
 
     /* Responsive Scroll Container for DataTables (thead + tbody scroll together smoothly) */

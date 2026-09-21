@@ -29,7 +29,7 @@
                     <!-- Registration Form -->
                     <form method="POST" action="{{ route('register') }}" class="auth-form" novalidate>
                         @csrf
-                        <input type="hidden" name="role" value="seller">
+                        <input type="hidden" name="role" value="{{ \App\Enums\UserRole::USER->value }}">
 
                         <!-- Full Name -->
                         <div class="mb-3">
@@ -160,12 +160,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-function selectRole(roleVal, el) {
-    document.querySelectorAll('.account-type-box').forEach(box => box.classList.remove('active'));
-    el.classList.add('active');
-}
-</script>
-@endpush

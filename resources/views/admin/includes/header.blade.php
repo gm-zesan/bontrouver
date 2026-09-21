@@ -50,7 +50,7 @@
                             </div> 
                             <div class="d-none d-sm-block text-start me-1"> 
                                 <p class="fw-semibold mb-0 lh-1" style="font-size: 13px; color: #111a3a;">{{ Auth::user()->name ?? 'Admin User' }}</p>
-                                <span class="op-7 fw-normal d-block" style="font-size: 11px; color: #718096; margin-top: 2px;">{{ ucfirst(Auth::user()->role ?? 'Admin') }}</span>
+                                <span class="op-7 fw-normal d-block" style="font-size: 11px; color: #718096; margin-top: 2px;">{{ Auth::user()->role?->label() ?? 'Admin' }}</span>
                             </div>
                             <i class="ri-arrow-down-s-line text-muted ms-1" style="font-size: 14px;"></i>
                         </div>
@@ -74,16 +74,15 @@
                             </span>
 
                             @php
-                                $roleName = Auth::user()->role ?? 'admin';
-                                $roleBadgeStyle = match($roleName) {
-                                    'superadmin' => 'background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;',
-                                    'admin' => 'background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;',
+                                $roleEnum = Auth::user()->role ?? \App\Enums\UserRole::ADMIN;
+                                $roleBadgeStyle = match($roleEnum) {
+                                    \App\Enums\UserRole::ADMIN => 'background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc;',
                                     default => 'background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;',
                                 };
                             @endphp
                             <div class="d-flex align-items-center justify-content-center gap-2">
                                 <span class="badge" style="{{ $roleBadgeStyle }} font-size: 10.5px; padding: 3px 8px; border-radius: 4px; font-weight: 600;">
-                                    {{ ucwords(str_replace('-', ' ', $roleName)) }}
+                                    {{ $roleEnum->label() }}
                                 </span>
                                 <span class="text-muted" style="font-size: 11px;">
                                     <i class="ri-checkbox-circle-fill text-success me-1"></i>Online

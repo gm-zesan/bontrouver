@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
+use App\Enums\UserRole;
 
 class RegisteredUserController extends Controller
 {
@@ -34,7 +36,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['nullable', 'string', 'in:seller,dealer,buyer'],
+            'role' => ['nullable', Rule::enum(UserRole::class)],
             'phone' => ['nullable', 'string', 'max:30'],
             'location' => ['nullable', 'string', 'max:100'],
         ]);
@@ -43,11 +45,11 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->input('role', 'seller'),
+            'role' => $request->input('role', UserRole::USER->value),
             'phone' => $request->input('phone'),
             'location' => $request->input('location', 'Toronto, ON'),
             'member_since' => 'Member since ' . date('Y'),
-            'is_dealer' => ($request->input('role') === 'dealer'),
+            'is_dealer' => false,
             'is_verified' => false,
         ]);
 
