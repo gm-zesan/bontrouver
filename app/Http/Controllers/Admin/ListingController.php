@@ -155,7 +155,8 @@ class ListingController extends Controller
             'images',
             'attributes.categoryAttribute',
             'conversations.buyer',
-            'conversations.messages',
+            'conversations.seller',
+            'conversations.messages.sender',
         ]);
 
         return view('admin.listings.show', [

@@ -249,15 +249,14 @@
                                     <tbody>
                                         @foreach($listings as $listing)
                                             <tr>
-                                                <td style="font-size: 13.5px; font-weight: 500;"><a href="#" class="text-decoration-none" style="color: #000; font-weight: 600;">{{ $listing->title }}</a></td>
+                                                <td style="font-size: 13.5px; font-weight: 500;"><a href="{{ route('admin.listings.show', $listing->id) }}" class="text-decoration-none" style="color: #000; font-weight: 600;">{{ $listing->title }}</a></td>
                                                 <td style="font-size: 13px; color: #475569;">{{ $listing->category->name ?? 'N/A' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">${{ number_format($listing->price, 2) }}</td>
                                                 <td>
-                                                    @if($listing->status === 'active')
-                                                        <span class="badge bg-success-subtle text-success" style="font-size: 11px; padding: 4px 8px;">Active</span>
-                                                    @else
-                                                        <span class="badge bg-secondary-subtle text-secondary" style="font-size: 11px; padding: 4px 8px;">{{ ucfirst($listing->status) }}</span>
-                                                    @endif
+                                                    @php
+                                                        $statusEnum = $listing->status instanceof \App\Enums\ListingStatus ? $listing->status : (\App\Enums\ListingStatus::tryFrom((string)$listing->status) ?? \App\Enums\ListingStatus::ACTIVE);
+                                                    @endphp
+                                                    <span class="badge {{ $statusEnum->badgeClass() }}" style="font-size: 11px; padding: 4px 8px;">{{ $statusEnum->label() }}</span>
                                                 </td>
                                             </tr>
                                         @endforeach
