@@ -103,7 +103,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listingAttr->categoryAttribute()` → `belongsTo(CategoryAttribute::class, 'category_attribute_id')`
 
 ### MemberTier (`App\Models\MemberTier`)
-- Columns: `name`, `min_points`, `max_points`
+- Columns: `name`, `icon`, `badge_color`, `badge_class`, `min_points`, `max_points`, `description`, `perks` (json)
+- Accessor: `$tier->clean_name` (strips leading emoji for clean display)
 
 ### Review (`App\Models\Review`)
 - `$review->reviewer()` → `belongsTo(User::class, 'reviewer_id')`

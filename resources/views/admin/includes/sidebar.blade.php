@@ -78,6 +78,13 @@
                 <span class="link_names">Moderation & Reports</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.member-tiers.index') }}"
+                class="{{ request()->routeIs('admin.member-tiers.*') ? 'active-focus' : '' }}">
+                <i class="ri-medal-line"></i>
+                <span class="link_names">Member Tiers & Points</span>
+            </a>
+        </li>
 
         <!-- 4. Settings -->
         <li class="category-li">

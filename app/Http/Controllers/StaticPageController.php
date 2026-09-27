@@ -22,9 +22,14 @@ class StaticPageController extends Controller
      */
     public function memberBenefits()
     {
+        $tiers = \App\Models\MemberTier::orderBy('min_points', 'asc')->get();
+        $rules = app(\App\Services\AdminMemberTierService::class)->getPointRules();
+
         return view('frontend.pages.member-benefits', [
-            'title' => 'Member Benefits & Perks | Bontrouver Canada',
-            'metaDescription' => 'Explore the exclusive advantages of joining Bontrouver: verified seller badges, smart instant messaging, favorite alerts, priority support, and free local classifieds.',
+            'title'           => 'Member Benefits & Tiers | Bontrouver Canada',
+            'metaDescription' => 'Explore the exclusive advantages of joining Bontrouver: member tiers, mutual aid reputation points, verified badges, and free local classifieds.',
+            'tiers'           => $tiers,
+            'rules'           => $rules,
         ]);
     }
 

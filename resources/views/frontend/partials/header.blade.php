@@ -258,27 +258,52 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-lg"
                             aria-labelledby="userMenuBtn">
-                            <li class="px-3 py-2 border-bottom border-secondary border-opacity-10 mb-1">
-                                <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
-                                    {{ Auth::user()->name }}
+                            <li class="px-3 py-2.5 border-bottom border-secondary border-opacity-10 mb-1">
+                                <div class="d-flex align-items-center justify-content-between gap-2">
+                                    <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
+                                        {{ Auth::user()->name }}
+                                    </div>
+                                    @php $userTier = Auth::user()->member_tier; @endphp
+                                    <span class="badge {{ $userTier['badge_class'] ?? 'tier-badge tier-bronze' }}" style="font-size: 10px; padding: 2px 7px;">
+                                        {{ $userTier['icon'] ?? '🥉' }} {{ $userTier['short_name'] ?? 'Member' }}
+                                    </span>
                                 </div>
-                                <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">
-                                    {{ Auth::user()->email ?? 'Active Account' }}
+                                <div class="d-flex align-items-center justify-content-between gap-2 mt-1">
+                                    <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">
+                                        {{ Auth::user()->email ?? 'Active Account' }}
+                                    </div>
+                                    <span class="text-success fw-bold font-monospace" style="font-size: 0.78rem;">
+                                        <i class="bi bi-coin me-0.5"></i>{{ number_format(Auth::user()->community_points ?? 0) }} pts
+                                    </span>
                                 </div>
                             </li>
                             @if(Auth::user()->isAdmin() || Auth::user()->isModerator())
                                 <li>
                                     <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                                        <i class="bi bi-speedometer2 me-2 text-primary"></i> Dashboard
-                                    </a>
-                                </li>
-                            @else
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
-                                        <i class="bi bi-person me-2 text-warning"></i> Profile
+                                        <i class="bi bi-speedometer2 me-2 text-primary"></i> Admin Dashboard
                                     </a>
                                 </li>
                             @endif
+                            <li>
+                                <a class="dropdown-item" href="{{ route('settings.index') }}">
+                                    <i class="bi bi-person-gear me-2 text-warning"></i> Account Settings
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('listings.my') }}">
+                                    <i class="bi bi-card-list me-2 text-info"></i> My Listings
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('account.alerts.index') }}">
+                                    <i class="bi bi-bell me-2 text-danger"></i> Smart Alerts
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ route('pages.member-benefits') }}">
+                                    <i class="bi bi-award me-2 text-success"></i> Member Benefits & Points
+                                </a>
+                            </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>

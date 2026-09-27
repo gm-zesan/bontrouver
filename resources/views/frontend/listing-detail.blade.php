@@ -422,11 +422,24 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <div class="seller-type-tag">{{ $seller['type'] }}</div>
+                                        <div class="d-flex align-items-center gap-1.5 flex-wrap mt-1">
+                                            <div class="seller-type-tag">{{ $seller['type'] }}</div>
+                                            @if(!empty($seller['member_tier']))
+                                                @php $sTier = $seller['member_tier']; @endphp
+                                                <span class="badge {{ $sTier['badge_class'] ?? 'tier-badge tier-bronze' }}" style="font-size: 10px; padding: 2px 7px;" title="Community Tier: {{ $sTier['name'] }}">
+                                                    {{ $sTier['icon'] }} {{ $sTier['name'] }}
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="seller-rating-row d-flex align-items-center gap-1 mt-1">
                                             <span class="star-rating"><i class="bi bi-star-fill text-warning"></i>
                                                 <strong>{{ $seller['rating'] }}</strong></span>
                                             <span class="reviews-count">({{ $seller['reviews_count'] }} reviews)</span>
+                                            @if(!empty($seller['community_points']))
+                                                <span class="text-success small ms-1 font-monospace" style="font-size: 11px;">
+                                                    • {{ number_format($seller['community_points']) }} pts
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -440,6 +453,10 @@
                                     @if(!empty($seller['badges']['phone_verified']))
                                         <span class="trust-badge" title="Phone Number Verified"><i
                                                 class="bi bi-check-circle-fill text-success"></i> Phone</span>
+                                    @endif
+                                    @if(!empty($seller['badges']['identity_verified']))
+                                        <span class="trust-badge" title="Government ID Verified"><i
+                                                class="bi bi-patch-check-fill text-primary"></i> ID Verified</span>
                                     @endif
                                 </div>
 

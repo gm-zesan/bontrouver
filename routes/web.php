@@ -165,6 +165,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'destroy'])->name('destroy');
         Route::post('/{attribute}/toggle-status', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'toggleStatus'])->name('toggleStatus');
     });
+
+    // Member Tiers & Points Configuration
+    Route::prefix('member-tiers')->name('member-tiers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\MemberTierController::class, 'index'])->name('index');
+        Route::get('/{memberTier}', [\App\Http\Controllers\Admin\MemberTierController::class, 'show'])->name('show');
+        Route::put('/{memberTier}', [\App\Http\Controllers\Admin\MemberTierController::class, 'update'])->name('update');
+        Route::post('/adjust-points', [\App\Http\Controllers\Admin\MemberTierController::class, 'adjustPoints'])->name('adjustPoints');
+        Route::put('/rules/update', [\App\Http\Controllers\Admin\MemberTierController::class, 'updateRules'])->name('updateRules');
+    });
 });
 
 // Static Marketplace Info & Footer Pages
