@@ -101,8 +101,14 @@ class VerificationTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.verifications.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('ID Verification Queue');
-        $response->assertSee($user->name);
+        $response->assertSee('Canadian ID Verification Center');
+
+        // Test DataTables AJAX endpoint returns user data
+        $ajaxResponse = $this->actingAs($admin)->getJson(route('admin.verifications.index'), [
+            'HTTP_X-Requested-With' => 'XMLHttpRequest'
+        ]);
+        $ajaxResponse->assertStatus(200);
+        $ajaxResponse->assertJsonStructure(['data', 'recordsTotal', 'recordsFiltered']);
     }
 
     public function test_admin_can_approve_verification_and_points_are_awarded_with_notification(): void
@@ -190,4 +196,65 @@ class VerificationTest extends TestCase
         $this->assertTrue($user->is_verified);
         $this->assertTrue($user->is_dealer);
     }
+
+    public function test_admin_can_fetch_verification_inspector_details(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user = User::factory()->create(['name' => 'Jean-Luc Picard']);
+
+        $verification = UserVerification::create([
+            'user_id' => $user->id,
+            'document_type' => 'drivers_license',
+            'document_path' => '/storage/verifications/license.jpg',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin)->getJson(route('admin.verifications.show', $verification->id));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+        $response->assertJsonPath('verification.user.name', 'Jean-Luc Picard');
+        $response->assertJsonPath('verification.document_type', 'Drivers License');
+    }
+
+    public function test_admin_can_perform_bulk_actions(): void
+    {
+        Notification::fake();
+        $admin = User::factory()->create(['role' => 'admin']);
+        $user1 = User::factory()->create(['community_points' => 10]);
+        $user2 = User::factory()->create(['community_points' => 20]);
+
+        $v1 = UserVerification::create([
+            'user_id' => $user1->id,
+            'document_type' => 'passport',
+            'document_path' => '/storage/verifications/p1.jpg',
+            'status' => 'pending',
+        ]);
+
+        $v2 = UserVerification::create([
+            'user_id' => $user2->id,
+            'document_type' => 'government_id',
+            'document_path' => '/storage/verifications/p2.jpg',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin)->postJson(route('admin.verifications.bulk'), [
+            'action' => 'approve',
+            'ids' => [$v1->id, $v2->id],
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
+
+        $v1->refresh();
+        $v2->refresh();
+        $user1->refresh();
+        $user2->refresh();
+
+        $this->assertEquals('approved', $v1->status);
+        $this->assertEquals('approved', $v2->status);
+        $this->assertTrue($user1->is_verified);
+        $this->assertTrue($user2->is_verified);
+    }
 }
+

@@ -65,9 +65,13 @@
         "hideMethod": "fadeOut"
     };
 
-    window.showToast = function (message, isError = false, title = '') {
-        if (isError) {
+    window.showToast = function (message, isErrorOrType = false, title = '') {
+        if (isErrorOrType === true || isErrorOrType === 'error' || isErrorOrType === 'danger') {
             toastr.error(message, title || 'Error');
+        } else if (isErrorOrType === 'warning') {
+            toastr.warning(message, title || 'Warning');
+        } else if (isErrorOrType === 'info') {
+            toastr.info(message, title || 'Notice');
         } else {
             toastr.success(message, title || 'Success');
         }

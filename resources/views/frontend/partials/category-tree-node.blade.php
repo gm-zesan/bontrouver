@@ -8,14 +8,19 @@
     @php
         $name = $item['name'] ?? 'Category';
         $slug = $item['slug'] ?? 'item-' . $idx;
-        $url = $item['url'] ?? ($parentUrl ? $parentUrl . '&lvl' . $level . '=' . $slug : url('/' . $slug));
+        if ($level === 3) {
+            $url = $item['url'] ?? ($parentUrl ? $parentUrl . '&child=' . $slug : url('/category/' . $slug));
+        } else {
+            $url = $item['url'] ?? ($parentUrl ? $parentUrl . '&subchild=' . $slug : url('/category/' . $slug));
+        }
         $children = $item['children'] ?? $item['subcategories'] ?? [];
         $hasKids = !empty($children);
     @endphp
 
     @if($level === 3)
         <div class="mega-child-block {{ $hasKids ? 'has-subchildren' : '' }}">
-            <a href="{{ $url }}" class="mega-child-link">
+            <a href="{{ $url }}" class="mega-child-link" title="{{ $name }}">
+                <i class="bi bi-chevron-right mega-child-bullet"></i>
                 <span class="mega-child-text">{{ $name }}</span>
             </a>
 
@@ -31,7 +36,7 @@
         </div>
     @elseif($level === 4)
         <div class="mega-subchild-wrapper">
-            <a href="{{ $url }}" class="mega-subchild-tag {{ $hasKids ? 'has-kids' : '' }}">
+            <a href="{{ $url }}" class="mega-subchild-tag {{ $hasKids ? 'has-kids' : '' }}" title="{{ $name }}">
                 {{ $name }}
             </a>
             @if($hasKids)

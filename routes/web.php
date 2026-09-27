@@ -115,9 +115,12 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // ID Verifications Center
     Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
+    Route::get('/verifications/{verification}', [VerificationReviewController::class, 'show'])->name('verifications.show');
     Route::post('/verifications/{verification}/approve', [VerificationReviewController::class, 'approve'])->name('verifications.approve');
     Route::post('/verifications/{verification}/reject', [VerificationReviewController::class, 'reject'])->name('verifications.reject');
+    Route::post('/verifications/bulk', [VerificationReviewController::class, 'bulkAction'])->name('verifications.bulk');
 
     // User Management
     Route::resource('users', UserController::class)->except(['create', 'store']);
@@ -143,6 +146,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('meetups/{meetup}/update-status', [\App\Http\Controllers\Admin\MeetupController::class, 'updateStatus'])->name('meetups.updateStatus');
     Route::post('meetups/bulk', [\App\Http\Controllers\Admin\MeetupController::class, 'bulkAction'])->name('meetups.bulk');
     Route::delete('meetups/{meetup}/attendees/{attendee}', [\App\Http\Controllers\Admin\MeetupController::class, 'removeAttendee'])->name('meetups.attendees.remove');
+
+    // Safety & Abuse Reports Moderation Queue
+    Route::resource('reports', \App\Http\Controllers\Admin\ReportController::class)->only(['index', 'show']);
+    Route::post('reports/{report}/resolve', [\App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
+    Route::post('reports/{report}/dismiss', [\App\Http\Controllers\Admin\ReportController::class, 'dismiss'])->name('reports.dismiss');
+    Route::post('reports/bulk', [\App\Http\Controllers\Admin\ReportController::class, 'bulkAction'])->name('reports.bulk');
 });
 
 // Static Marketplace Info & Footer Pages

@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ConversationSeeder::class,
             CompanionshipSeeder::class,
             PointTransactionSeeder::class,
+            VerificationSeeder::class,
         ]);
     }
 }

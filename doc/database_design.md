@@ -82,6 +82,29 @@ Storage for Canadian identity documents (Driver's License, Passport, Photo Card,
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `[user_id, status]`*
 
+### `user_profiles`
+Extended profile information for all users (cover photo, about, operating hours, socials, website).
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `user_id` (FK -> users.id, CASCADE DELETE, UNIQUE)
+- `cover_image_path` (VARCHAR 255, NULLABLE)
+- `about_text` (TEXT, NULLABLE)
+- `website_url` (VARCHAR 255, NULLABLE)
+- `social_links` (JSON, NULLABLE) - Stores facebook, instagram, twitter/x links
+- `operating_hours` (JSON, NULLABLE) - Stores weekly operating hours schedule
+- `features` (JSON, NULLABLE) - Key highlights/tags
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+
+### `user_galleries`
+Showcase/ambiance photo gallery for public user profiles.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `user_id` (FK -> users.id, CASCADE DELETE)
+- `image_path` (VARCHAR 255)
+- `sort_order` (SMALLINT, UNSIGNED, DEFAULT 0)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[user_id, sort_order]`*
+
 ---
 
 ## 2. CATEGORIES & DYNAMIC ATTRIBUTES

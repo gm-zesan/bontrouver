@@ -70,6 +70,24 @@ class VerificationService
     }
 
     /**
+     * Get query builder for admin DataTables with filtering.
+     */
+    public function getVerificationsQuery(array $filters = []): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = UserVerification::with(['user', 'reviewer']);
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['document_type'])) {
+            $query->where('document_type', $filters['document_type']);
+        }
+
+        return $query->latest('created_at');
+    }
+
+    /**
      * Review and approve or reject a verification request (Moderator / Admin).
      */
     public function reviewVerification(
@@ -100,7 +118,7 @@ class VerificationService
                 // Award community points for identity verification if not previously awarded
                 $this->pointService->awardPoints(
                     $targetUser,
-                    config('points.earn.identity_verification'),
+                    config('points.earn.identity_verification') ?? 50,
                     'verified_identity',
                     'Bonus points for completing Canadian ID verification',
                     $verification
@@ -124,5 +142,48 @@ class VerificationService
 
             return $verification;
         });
+    }
+
+    /**
+     * Perform bulk operations on verifications.
+     */
+    public function bulkAction(string $action, array $ids, User $reviewer, ?string $reason = null): array
+    {
+        $verifications = UserVerification::whereIn('id', $ids)->get();
+        $count = $verifications->count();
+
+        DB::transaction(function () use ($verifications, $action, $reviewer, $reason) {
+            foreach ($verifications as $v) {
+                if ($action === 'approve') {
+                    $this->reviewVerification($v, 'approved', null, $reviewer);
+                } elseif ($action === 'reject') {
+                    $this->reviewVerification($v, 'rejected', $reason ?: 'Document rejected via bulk moderation.', $reviewer);
+                } elseif ($action === 'delete') {
+                    $v->delete();
+                }
+            }
+        });
+
+        return [
+            'success' => true,
+            'count' => $count,
+            'action' => $action,
+        ];
+    }
+
+    /**
+     * Get aggregate statistics for Canadian ID verification queue.
+     */
+    public function getStats(): array
+    {
+        return [
+            'total' => UserVerification::count(),
+            'pending' => UserVerification::where('status', 'pending')->count(),
+            'approved' => UserVerification::where('status', 'approved')->count(),
+            'rejected' => UserVerification::where('status', 'rejected')->count(),
+            'drivers_license' => UserVerification::where('document_type', 'drivers_license')->count(),
+            'passport' => UserVerification::where('document_type', 'passport')->count(),
+            'provincial_id' => UserVerification::where('document_type', 'provincial_id')->orWhere('document_type', 'government_id')->count(),
+        ];
     }
 }

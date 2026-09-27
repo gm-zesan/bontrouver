@@ -49,6 +49,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$user->companionshipRequests()` → `hasMany(CompanionshipRequest::class)`
 - `$user->verifications()` → `hasMany(UserVerification::class)`
 - `$user->latestVerification()` → `hasOne(UserVerification::class)->latestOfMany()`
+- `$user->profile()` → `hasOne(UserProfile::class)`
+- `$user->gallery()` → `hasMany(UserGallery::class)->orderBy('sort_order')`
 - Accessors: `$user->avatar_url` (safe URL for remote & local avatars), `$user->rating` (avg rating), `$user->reviews_count` (total count), `$user->member_tier` (array of tier name, icon, level, progress %), `$user->completed_transactions_count` (total completed deals), `$user->verification_status`
 - Helpers: `$user->isAdmin()`, `$user->isModerator()`, `$user->wantsNotification(string $type)`
 - Fields: `name`, `email`, `password`, `role`, `is_dealer`, `phone`, `city`, `province`, `postal_code`, `location`, `avatar`, `bio`, `community_points`, `is_verified`, `notification_preferences` (json)
@@ -161,6 +163,14 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$verif->user()` → `belongsTo(User::class)`
 - `$verif->reviewer()` → `belongsTo(User::class, 'reviewed_by')`
 - Fields: `user_id`, `document_type`, `document_path`, `id_number`, `phone_number`, `phone_verified_at`, `status`, `rejection_reason`, `reviewed_at`, `reviewed_by`
+
+### UserProfile (`App\Models\UserProfile`)
+- `$profile->user()` → `belongsTo(User::class)`
+- Fields: `user_id`, `cover_image_path`, `about_text`, `website_url`, `social_links` (json), `operating_hours` (json), `features` (json)
+
+### UserGallery (`App\Models\UserGallery`)
+- `$gallery->user()` → `belongsTo(User::class)`
+- Fields: `user_id`, `image_path`, `sort_order`
 
 ---
 

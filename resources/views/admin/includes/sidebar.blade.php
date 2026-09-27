@@ -65,6 +65,13 @@
                 <span class="link_names">ID Verifications</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.reports.index') }}"
+                class="{{ request()->routeIs('admin.reports.*') ? 'active-focus' : '' }}">
+                <i class="ri-flag-2-line"></i>
+                <span class="link_names">Moderation & Reports</span>
+            </a>
+        </li>
 
         <!-- 4. Settings -->
         <li class="category-li">

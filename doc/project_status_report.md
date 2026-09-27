@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary & Implementation Dashboard
 
-> **Overall Project Completion: ~88%**
+> **Overall Project Completion: ~92%**
 
 ### Core Platform Systems (Frontend & Backend)
 | Module / System | Status | Completion % | Primary Components |
@@ -29,8 +29,8 @@
 | :--- | :--- | :---: | :---: | :--- | :--- |
 | **1. User Management** | `/admin/users` | ✅ **Complete** | **100%** | DataTables, filters, suspend/unsuspend, role assignment, internal notes, 8-tab inspector, member tier progress bar, chat audit. | 🎉 Module Complete! |
 | **2. Listing Management** | `/admin/listings` | ✅ **Complete** | **100%** | DataTables, category hierarchy breadcrumbs, status enum transitions, promote/sponsor, lightbox gallery, dynamic specs, bulk actions. | 🎉 Module Complete! |
-| **3. ID Verification Center** | `/admin/verifications` | 🟡 **In Progress** | **60%** | Basic index table, approve/reject endpoints, +50 point award trigger. | 2-column Canadian document inspector with lightbox zoom, formal rejection notes modal & user notification. |
-| **4. Global Reports & Moderation** | `/admin/reports` | 🟡 **In Progress** | **40%** | Polymorphic `Report` model, listing/user modals, detail tab moderation. | Dedicated Central Moderation Queue table, filter by target type/reason, bulk dismiss/resolve, user penalty workflow. |
+| **3. ID Verification Center** | `/admin/verifications` | ✅ **Complete** | **100%** | Top KPI metric cards, DataTables AJAX pagination, 34px unified toolbar, 2-column Canadian document inspector modal with Lightbox fullscreen view, formal rejection workflow with preset reasons, +50 point reward trigger, and reactive bulk actions. | 🎉 Module Complete! |
+| **4. Global Reports & Moderation** | `/admin/reports` | ✅ **Complete** | **100%** | Dedicated Central Moderation Queue, live KPI cards, polymorphic target inspection (Listings, Users, Meetups), reason & status filters, contextual disciplinary resolution actions (takedown listing, suspend user, cancel meetup), bulk moderation, and DataTables AJAX pagination. | 🎉 Module Complete! |
 | **5. Community Meetups Management** | `/admin/meetups` | ✅ **Complete** | **100%** | DataTables with type/status filters, 2-column inspector, host summary, capacity progress, attendee moderation, cancel actions. | 🎉 Module Complete! |
 | **6. Category & Custom Attributes** | `/admin/categories` | 🔴 **Pending** | **0%** | `Category`, `CategoryAttribute` models exist. | Hierarchical category tree manager (CRUD, icons, parent/child nesting), dynamic custom attribute EAV schema builder. |
 | **7. Locations & Canadian Cities** | `/admin/locations` | 🔴 **Pending** | **0%** | `Province`, `City` models exist with 100+ Canadian cities. | Province & city active toggles, postal code indexing, coordinate center management. |
@@ -173,11 +173,15 @@
     - [x] User Conversations Tab & Audit Chat Inspector on [`admin/users/show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/show.blade.php).
     - [x] User Reports & Flags Moderation Tab (with resolve/dismiss actions) on [`admin/users/show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/show.blade.php).
     - [x] Activity & Safety Metrics Overview box and index list moderation badge on [`admin/users/index.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/index.blade.php).
-    - [x] 100% test coverage with 106 passing feature tests (925 assertions across entire test suite).
+    - [x] Dedicated Central Moderation Queue [`admin/reports/index.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/reports/index.blade.php) with top KPI cards, polymorphic entity previews, and filter dropdowns.
+    - [x] Dedicated service layer [`AdminReportService`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Services/AdminReportService.php) with contextual resolution actions (`takedown_listing`, `suspend_user`, `cancel_meetup`).
+    - [x] Form Request validation ([`ResolveReportRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/Admin/ResolveReportRequest.php), [`BulkReportActionRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/Admin/BulkReportActionRequest.php)).
+    - [x] Bulk moderation engine (Bulk Resolve, Bulk Dismiss, Bulk Delete) with modal confirmation.
+    - [x] 100% test coverage with 14 passing feature tests (120 total test suite tests / 963 assertions) in [`AdminReportTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminReportTest.php).
 * **Remaining / Next Phase**:
-  * ⏳ **Phase 1: Admin Reports & Moderation Queue**:
-    - Build global moderation queue to inspect flagged content across all entities (Listings, Users, Meetups), review reports, log resolution notes, and trigger disciplinary action with user notifications.
-  * ⏳ **Phase 2: Category & Dynamic Attribute Schema Management**:
+  * ⏳ **Phase 1: Canadian ID Verification Center Enhancement (`/admin/verifications`)**:
+    - 2-column Canadian document inspector with Lightbox zoom for driver's licenses/passports.
+  * ⏳ **Phase 2: Category & Dynamic Attribute Schema Management (`/admin/categories`)**:
     - Category tree CRUD with dynamic custom attribute schema builder.
 
 ---
@@ -194,11 +198,7 @@
 
 We will execute the remaining admin modules in the following prioritized sequence:
 
-1. **Step 1: Global Reports & Safety Moderation Queue (`/admin/reports`)**:
-   - Central moderation queue for all flagged items (**Listings**, **Users**, and **Meetups**).
-   - Filter by reason (*Spam*, *Fraud*, *Inappropriate*, *Harassment*), status (*Pending*, *Resolved*, *Dismissed*), and entity type.
-   - 1-Click moderation actions: resolve report, dismiss report, take down listing, suspend user, and dispatch notification.
-
+1. **Step 1: Global Reports & Safety Moderation Queue (`/admin/reports`)** — ✅ **Complete (100%)**
 2. **Step 2: Canadian ID Verification Center Enhancement (`/admin/verifications`)**:
    - Upgrade existing index into full 2-column Canadian document inspector with Lightbox zoom for driver's licenses/passports.
    - 1-Click approval (+50 community help points award + `is_verified` badge) and rejection with custom note reasons and user notifications.
