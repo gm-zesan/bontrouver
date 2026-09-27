@@ -29,6 +29,16 @@ class UpdateUserProfileRequest extends FormRequest
             'bio' => ['nullable', 'string', 'max:2000'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:5120'],
             'avatar_base64' => ['nullable', 'string'],
+            
+            // New Enhanced Profile Fields
+            'cover_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:8192'],
+            'about_text' => ['nullable', 'string', 'max:3000'],
+            'website_url' => ['nullable', 'url', 'max:255'],
+            'social_links' => ['nullable', 'array'],
+            'social_links.*' => ['nullable', 'url', 'max:255'],
+            'operating_hours' => ['nullable', 'array'],
+            'gallery_images' => ['nullable', 'array', 'max:10'],
+            'gallery_images.*' => ['image', 'mimes:jpeg,png,jpg,webp', 'max:8192'],
         ];
     }
 

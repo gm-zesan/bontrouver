@@ -95,8 +95,8 @@
                 @csrf
                 <div class="row g-4">
                     <!-- Avatar Upload & Live Preview -->
-                    <div class="col-12">
-                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Avatar / Photo</label>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Avatar / Logo</label>
                         <div class="d-flex align-items-center gap-3">
                             <div class="position-relative flex-shrink-0">
                                 @if($user->avatar)
@@ -116,9 +116,38 @@
                             <div>
                                 <input type="file" id="avatarFileInput" name="avatar" class="d-none" accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewAvatarImage(this)">
                                 <button type="button" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2" onclick="document.getElementById('avatarFileInput').click()">
-                                    <i class="bi bi-camera me-1"></i> Choose New Photo
+                                    <i class="bi bi-camera me-1"></i> Choose Photo
                                 </button>
-                                <span class="text-secondary small d-block mt-1">JPG, PNG or WEBP (Max 5MB)</span>
+                                <span class="text-secondary small d-block mt-1">JPG, PNG (Max 5MB)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cover Image Upload & Preview -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Cover Photo (Banner)</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative flex-shrink-0">
+                                @if(optional($user->profile)->cover_image_path)
+                                    <img id="coverPreview" src="{{ $user->profile->cover_image_path }}" alt="Cover"
+                                        class="rounded-3 object-fit-cover shadow"
+                                        style="width: 120px; height: 72px; border: 1px solid rgba(255,255,255,0.1);">
+                                @else
+                                    <div id="coverPlaceholder" class="rounded-3 shadow d-flex align-items-center justify-content-center text-secondary"
+                                        style="width: 120px; height: 72px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);">
+                                        <i class="bi bi-image fs-3"></i>
+                                    </div>
+                                    <img id="coverPreview" src="" alt="Cover Preview"
+                                        class="rounded-3 object-fit-cover shadow d-none"
+                                        style="width: 120px; height: 72px; border: 1px solid rgba(255,255,255,0.1);">
+                                @endif
+                            </div>
+                            <div>
+                                <input type="file" id="coverFileInput" name="cover_image" class="d-none" accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewCoverImage(this)">
+                                <button type="button" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2" onclick="document.getElementById('coverFileInput').click()">
+                                    <i class="bi bi-images me-1"></i> Choose Cover
+                                </button>
+                                <span class="text-secondary small d-block mt-1">Wide JPG, PNG (Max 8MB)</span>
                             </div>
                         </div>
                     </div>
@@ -200,9 +229,51 @@
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label text-secondary small fw-semibold">Public Bio & Seller Profile</label>
-                        <textarea name="bio" rows="4" class="form-control dark-filter-input"
-                            placeholder="Tell local buyers and community members about yourself, your items, response times, and local meetup preferences...">{{ old('bio', $user->bio) }}</textarea>
+                        <label class="form-label text-secondary small fw-semibold">Short Bio (Catchphrase)</label>
+                        <input type="text" name="bio" class="form-control dark-filter-input"
+                            value="{{ old('bio', $user->bio) }}" placeholder="e.g. Authentic Moroccan Cuisine or Freelance Web Developer">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label text-secondary small fw-semibold">Detailed About Section (Nos spécialités / Who we are)</label>
+                        <textarea name="about_text" rows="5" class="form-control dark-filter-input"
+                            placeholder="Tell visitors about your offerings, background, and what makes you unique...">{{ old('about_text', $user->profile->about_text ?? '') }}</textarea>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-secondary small fw-semibold">Website URL</label>
+                        <input type="url" name="website_url" class="form-control dark-filter-input"
+                            value="{{ old('website_url', $user->profile->website_url ?? '') }}" placeholder="https://example.com">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label text-secondary small fw-semibold">Facebook / Social Link</label>
+                        <input type="url" name="social_links[facebook]" class="form-control dark-filter-input"
+                            value="{{ old('social_links.facebook', $user->profile->social_links['facebook'] ?? '') }}" placeholder="https://facebook.com/yourpage">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label text-secondary small fw-semibold">Instagram Profile</label>
+                        <input type="url" name="social_links[instagram]" class="form-control dark-filter-input"
+                            value="{{ old('social_links.instagram', $user->profile->social_links['instagram'] ?? '') }}" placeholder="https://instagram.com/yourhandle">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label text-secondary small fw-semibold">X (Twitter) Profile</label>
+                        <input type="url" name="social_links[twitter]" class="form-control dark-filter-input"
+                            value="{{ old('social_links.twitter', $user->profile->social_links['twitter'] ?? '') }}" placeholder="https://x.com/yourhandle">
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <h6 class="text-white fw-bold border-bottom border-secondary border-opacity-10 pb-2 mb-3">Operating Hours (Optional)</h6>
+                        <div class="row g-3">
+                            @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                @php $dayKey = strtolower($day); @endphp
+                                <div class="col-12 col-md-6 col-lg-4 d-flex align-items-center gap-2">
+                                    <span class="text-secondary small fw-semibold" style="width: 85px;">{{ $day }}</span>
+                                    <input type="text" name="operating_hours[{{ $dayKey }}]" class="form-control form-control-sm dark-filter-input" 
+                                        placeholder="e.g. 9:00 - 17:00 or Closed" 
+                                        value="{{ old('operating_hours.'.$dayKey, $user->profile->operating_hours[$dayKey] ?? '') }}">
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
 
                     <div class="col-12 text-end pt-2">
@@ -214,7 +285,47 @@
             </form>
         </div>
 
-        <!-- 3. Canadian Identity Document Verification (Always Visible & Updatable) -->
+        <!-- 3. Ambiance Photo Gallery (Multiple Uploads) -->
+        <div class="dark-surface-card p-4 rounded-4"
+            style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+            <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom border-secondary border-opacity-10">
+                <i class="bi bi-images text-warning fs-5"></i>
+                <h2 class="h5 fw-bold text-white mb-0">Ambiance & Photo Gallery</h2>
+            </div>
+            
+            <p class="text-secondary small mb-3">Upload multiple photos to showcase your workspace, previous work, or store ambiance. These will appear in a beautiful carousel on your public profile.</p>
+
+            <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-4">
+                    <label class="form-label text-secondary small fw-semibold">Add New Photos to Gallery (Max 10)</label>
+                    <input type="file" name="gallery_images[]" class="form-control dark-filter-input" accept="image/png,image/jpeg,image/webp,image/jpg" multiple>
+                    <span class="text-secondary small d-block mt-1">Select multiple files (JPG, PNG, WEBP). Each file max 8MB.</span>
+                </div>
+                
+                <div class="text-end">
+                    <button type="submit" class="btn btn-sm btn-theme-outline-primary px-4 py-2 rounded-pill fw-semibold">
+                        <i class="bi bi-upload me-1"></i> Upload Gallery Photos
+                    </button>
+                </div>
+            </form>
+
+            @if(optional($user->gallery)->count() > 0)
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
+                <h6 class="text-white fw-bold mb-3 small">Current Gallery Photos ({{ $user->gallery->count() }})</h6>
+                <div class="row g-3">
+                    @foreach($user->gallery as $img)
+                        <div class="col-4 col-md-3 col-lg-2 position-relative">
+                            <img src="{{ $img->image_path }}" class="img-fluid rounded-3 object-fit-cover w-100 shadow-sm" style="height: 100px; border: 1px solid rgba(255,255,255,0.1);">
+                            <!-- Delete form would go here, maybe a small X button -->
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+
+        <!-- 4. Canadian Identity Document Verification (Always Visible & Updatable) -->
         @php
             $latestVerif = $user->latestVerification;
         @endphp
@@ -591,6 +702,22 @@
                 reader.onload = function(e) {
                     const preview = document.getElementById('avatarPreview');
                     const placeholder = document.getElementById('avatarPlaceholder');
+                    preview.src = e.target.result;
+                    preview.classList.remove('d-none');
+                    if (placeholder) {
+                        placeholder.classList.add('d-none');
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function previewCoverImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('coverPreview');
+                    const placeholder = document.getElementById('coverPlaceholder');
                     preview.src = e.target.result;
                     preview.classList.remove('d-none');
                     if (placeholder) {

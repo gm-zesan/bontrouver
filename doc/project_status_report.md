@@ -20,6 +20,7 @@
 | **5. User Account & Public Profiles** | ✅ **Complete** | **100%** | `ProfileController`, `SettingsController`, `UserProfileService`, `UpdateUserProfileRequest` |
 | **6. Favorites & Saved Ads** | ✅ **Complete** | **100%** | `FavoriteController`, `Favorite`, AJAX toggle & bulk actions |
 | **7. Reputation, Points & Member Tiers** | ✅ **Complete** | **100%** | `MemberTier`, `PointTransaction`, `Review`, `Transaction` |
+| **8. Enhanced Public User Profiles** | 🔴 **Pending** | **0%** | (Planned: `UserProfile`, `UserGallery`, UI Redesign) |
 
 ---
 
@@ -36,6 +37,7 @@
 | **8. Member Tiers & Points Config** | `/admin/member-tiers` | 🔴 **Pending** | **0%** | `MemberTier` model seeded (Bronze, Silver, Gold, Platinum). | Admin interface to configure tier point thresholds, adjust point awards/costs, and audit point ledger. |
 | **9. Dashboard & Live Analytics** | `/admin/dashboard` | 🟡 **In Progress** | **50%** | Dashboard base layout & stats cards. | Real-time dynamic KPI metrics (Revenue/Points, Pending Verifications, Open Flags, Active Listings), 30-day activity charts. |
 | **10. Platform & Site Settings** | `/admin/settings` | 🔴 **Pending** | **0%** | None. | Site identity (Name, logo, favicon), Canadian tax/currency formatting, support email, SEO meta tags, maintenance mode. |
+| **11. Enhanced User Profiles Mgmt** | `/admin/users` | 🔴 **Pending** | **0%** | (Extension of User Mgmt to handle new profile elements) |
 
 ---
 
@@ -177,6 +179,14 @@
     - Build global moderation queue to inspect flagged content across all entities (Listings, Users, Meetups), review reports, log resolution notes, and trigger disciplinary action with user notifications.
   * ⏳ **Phase 2: Category & Dynamic Attribute Schema Management**:
     - Category tree CRUD with dynamic custom attribute schema builder.
+
+---
+
+### 8. Enhanced Public User Profiles — `0% Complete (Planned)`
+* **Features Planned**:
+  * 🔴 **Universal Rich Profiles**: Upgrade the public user profile page for all users to a rich, tabbed interface with a cover photo, social links, operational hours, and ambiance gallery.
+  * 🔴 **Listings as Specialties**: Active listings will be showcased dynamically as "Nos spécialités" or "Offerings" within the new grid layout.
+  * 🔴 **Profile Extension Tables**: `user_profiles` and `user_galleries` to cleanly isolate these extended attributes without cluttering the main `users` table.
 
 ---
 

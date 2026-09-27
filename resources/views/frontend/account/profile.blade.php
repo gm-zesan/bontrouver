@@ -34,133 +34,207 @@
     @endif
 
     <!-- 1. Profile Header Hero Banner Card -->
-    <div class="dark-surface-card p-4 p-md-4 mb-4 position-relative overflow-hidden"
-        style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
+    <div class="dark-surface-card mb-4 position-relative overflow-hidden rounded-4"
+        style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+        
+        <!-- Cover Image -->
+        @if(optional($user->profile)->cover_image_path)
+            <div style="height: 250px; width: 100%; background: url('{{ $user->profile->cover_image_path }}') center/cover no-repeat;"></div>
+        @else
+            <div style="height: 150px; width: 100%; background: linear-gradient(135deg, #081D33 0%, #153A61 100%);"></div>
+        @endif
 
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
-            <div class="d-flex align-items-center gap-3 gap-md-4 min-w-0">
-                <!-- Large Avatar -->
-                <div class="position-relative flex-shrink-0">
-                    @if($user->avatar)
-                        <img src="{{ $user->avatar }}" alt="{{ $user->name }}"
-                            class="rounded-circle object-fit-cover shadow"
-                            style="width: 88px; height: 88px; border: 3px solid #49D17D;">
-                    @else
-                        <div class="rounded-circle shadow d-flex align-items-center justify-content-center text-dark fw-bold fs-2"
-                            style="width: 88px; height: 88px; background: #49D17D;">
-                            {{ substr($user->name ?? 'U', 0, 1) }}
-                        </div>
-                    @endif
-                </div>
+        <div class="p-4 p-md-4 position-relative" style="margin-top: -60px;">
+            <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
+                <div class="d-flex align-items-end gap-3 gap-md-4 min-w-0">
+                    <!-- Large Avatar -->
+                    <div class="position-relative flex-shrink-0 z-1">
+                        @if($user->avatar)
+                            <img src="{{ $user->avatar }}" alt="{{ $user->name }}"
+                                class="rounded-circle object-fit-cover shadow-lg bg-dark"
+                                style="width: 120px; height: 120px; border: 4px solid #0D243C;">
+                        @else
+                            <div class="rounded-circle shadow-lg d-flex align-items-center justify-content-center text-dark fw-bold"
+                                style="width: 120px; height: 120px; background: #49D17D; border: 4px solid #0D243C; font-size: 3rem;">
+                                {{ substr($user->name ?? 'U', 0, 1) }}
+                            </div>
+                        @endif
+                    </div>
 
-                <!-- Name, Meta & Ratings -->
-                <div class="min-w-0">
-                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                        <h1 class="h4 fw-bold text-white mb-0 text-truncate d-flex align-items-center">
-                            {{ $user->name ?? 'Marketplace Member' }}
-                            @if($user->is_verified)
-                                <span class="ms-2 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.85rem;" title="Verified Profile">
-                                    <i class="bi bi-shield-check me-1"></i> Verified
+                    <!-- Name, Meta & Ratings -->
+                    <div class="min-w-0 pb-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <h1 class="h3 fw-bold text-white mb-0 text-truncate d-flex align-items-center">
+                                {{ $user->name ?? 'Marketplace Member' }}
+                                @if($user->is_verified)
+                                    <span class="ms-2 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.85rem;" title="Verified Profile">
+                                        <i class="bi bi-shield-check fs-5"></i>
+                                    </span>
+                                @endif
+                            </h1>
+                            @if($user->is_dealer)
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">
+                                    <i class="bi bi-building me-1"></i> Certified Dealer
                                 </span>
                             @endif
-                        </h1>
-                        @if($user->is_dealer)
-                            <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">
-                                <i class="bi bi-building me-1"></i> Certified Dealer
-                            </span>
-                        @endif
-                    </div>
+                        </div>
 
-                    <div class="d-flex align-items-center gap-2 text-secondary small mb-2 flex-wrap" style="font-size: 0.82rem;">
-                        <span><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $userLocation }}</span>
-                        <span>•</span>
-                        <span><i class="bi bi-calendar-check me-1"></i>Member since {{ $user->created_at ? $user->created_at->format('M Y') : '2024' }}</span>
-                        @if($user->completed_transactions_count > 0)
+                        <div class="d-flex align-items-center gap-2 text-secondary small mb-3 flex-wrap" style="font-size: 0.85rem;">
+                            <span><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $userLocation }}</span>
                             <span>•</span>
-                            <span><i class="bi bi-bag-check-fill text-success me-1"></i>{{ $user->completed_transactions_count }} deals completed</span>
-                        @endif
-                    </div>
+                            <span><i class="bi bi-calendar-check me-1"></i>Member since {{ $user->created_at ? $user->created_at->format('M Y') : '2024' }}</span>
+                            @if($user->completed_transactions_count > 0)
+                                <span>•</span>
+                                <span><i class="bi bi-bag-check-fill text-success me-1"></i>{{ $user->completed_transactions_count }} deals completed</span>
+                            @endif
+                        </div>
 
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <!-- Member Tier Badge -->
-                        <span class="badge {{ $tier['badge_class'] }} px-2 py-1 small">
-                            <span class="me-1">{{ $tier['icon'] }}</span> {{ $tier['name'] }} ({{ $user->community_points ?? 0 }} pts)
-                        </span>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <!-- Member Tier Badge -->
+                            <span class="badge {{ $tier['badge_class'] }} px-2 py-1 small rounded-pill border border-secondary border-opacity-25">
+                                <span class="me-1">{{ $tier['icon'] }}</span> {{ $tier['name'] }} ({{ $user->community_points ?? 0 }} pts)
+                            </span>
 
-                        <!-- Review Rating Badge -->
-                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 small">
-                            <i class="bi bi-star-fill me-1"></i> 
-                            {{ $user->rating > 0 ? number_format($user->rating, 2) : '5.0' }} Rating ({{ $user->reviews_count }} {{ Str::plural('Review', $user->reviews_count) }})
-                        </span>
+                            <!-- Review Rating Badge -->
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 small rounded-pill">
+                                <i class="bi bi-star-fill me-1"></i> 
+                                {{ $user->rating > 0 ? number_format($user->rating, 2) : '5.0' }} Rating ({{ $user->reviews_count }} {{ Str::plural('Review', $user->reviews_count) }})
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                @if($isOwnProfile)
-                    <a href="{{ route('settings.index') }}" class="btn-theme-outline-primary">
-                        <i class="bi bi-pencil-square me-1"></i>
-                        <span>Edit Profile</span>
-                    </a>
-                    <a href="{{ route('listings.create') }}" class="btn-theme-primary">
-                        <i class="bi bi-plus-lg me-1"></i>
-                        <span>Post an Ad</span>
-                    </a>
-                @else
-                    <a href="{{ route('messages.index') }}?user_id={{ $user->id }}" class="btn-theme-primary">
-                        <i class="bi bi-chat-dots-fill me-1"></i>
-                        <span>Contact Member</span>
-                    </a>
-                    <button type="button" class="btn btn-sm btn-outline-secondary text-white rounded-pill px-3 py-2"
-                        data-bs-toggle="modal" data-bs-target="#reportUserModal">
-                        <i class="bi bi-flag me-1"></i> Report
-                    </button>
+                <!-- Action Buttons -->
+                <div class="d-flex align-items-center gap-2 flex-shrink-0 pb-2">
+                    @if($isOwnProfile)
+                        <a href="{{ route('settings.index') }}" class="btn btn-theme-outline-primary rounded-pill px-3 py-2 fw-semibold">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                        </a>
+                        <a href="{{ route('listings.create') }}" class="btn btn-theme-primary rounded-pill px-3 py-2 fw-semibold">
+                            <i class="bi bi-plus-lg me-1"></i> Post Ad
+                        </a>
+                    @else
+                        <a href="{{ route('messages.index') }}?user_id={{ $user->id }}" class="btn btn-theme-primary rounded-pill px-4 py-2 fw-semibold shadow">
+                            <i class="bi bi-chat-dots-fill me-1"></i> Message
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary text-white rounded-circle d-flex align-items-center justify-content-center p-2"
+                            data-bs-toggle="modal" data-bs-target="#reportUserModal" style="width: 40px; height: 40px;" title="Report User">
+                            <i class="bi bi-flag"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT COLUMN: About, Details, Hours -->
+        <div class="col-12 col-lg-4">
+            <div class="dark-surface-card p-4 rounded-4 mb-4 position-sticky" style="top: 20px; background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <h2 class="h5 fw-bold text-white mb-3">About Member</h2>
+                
+                <div class="text-secondary small mb-4" style="line-height: 1.6; font-size: 0.88rem;">
+                    {!! nl2br(e(optional($user->profile)->about_text ?: $user->bio ?: 'Verified Canadian community member and local marketplace participant. Committed to safe local meetups, reliable communication, and mutual aid.')) !!}
+                </div>
+
+                @if(optional($user->profile)->website_url)
+                    <div class="mb-3">
+                        <a href="{{ $user->profile->website_url }}" target="_blank" class="btn btn-sm btn-outline-secondary w-100 d-flex justify-content-center align-items-center gap-2 text-white">
+                            <i class="bi bi-globe"></i> Visit Website
+                        </a>
+                    </div>
                 @endif
+
+                @if(optional($user->profile)->social_links && count(array_filter($user->profile->social_links)) > 0)
+                    <div class="mb-4">
+                        <h6 class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Social Links</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach(array_filter($user->profile->social_links) as $platform => $url)
+                                @if($url)
+                                    <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-dark border border-secondary border-opacity-25 text-white px-3 rounded-pill" title="{{ ucfirst($platform) }}">
+                                        <i class="bi bi-{{ strtolower($platform) }}"></i>
+                                    </a>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if(optional($user->profile)->operating_hours && count(array_filter($user->profile->operating_hours)) > 0)
+                    <div class="mb-4 border-top border-secondary border-opacity-10 pt-3">
+                        <h6 class="text-white fw-bold mb-3 small text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Availability / Hours</h6>
+                        <ul class="list-unstyled mb-0 small text-secondary">
+                            @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                @if(!empty($user->profile->operating_hours[strtolower($day)]))
+                                    <li class="d-flex justify-content-between mb-2 pb-1 border-bottom border-secondary border-opacity-10">
+                                        <span class="fw-medium">{{ $day }}</span>
+                                        <span class="text-white">{{ $user->profile->operating_hours[strtolower($day)] }}</span>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="border-top border-secondary border-opacity-10 pt-3">
+                    <h6 class="text-white fw-bold mb-2 small text-uppercase" style="letter-spacing: 0.05em; font-size: 0.75rem;">Trust Checkpoints</h6>
+                    <ul class="list-unstyled mb-0 d-flex flex-column gap-2 small">
+                        <li class="d-flex align-items-center justify-content-between text-secondary">
+                            <span><i class="bi bi-envelope-check text-success me-2"></i>Email</span>
+                            <span class="badge bg-success bg-opacity-10 text-success">Verified</span>
+                        </li>
+                        <li class="d-flex align-items-center justify-content-between text-secondary">
+                            <span><i class="bi bi-telephone-check {{ $user->phone ? 'text-success' : 'text-secondary' }} me-2"></i>Phone</span>
+                            <span class="badge {{ $user->phone ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary' }}">
+                                {{ $user->phone ? 'Verified' : 'Not Provided' }}
+                            </span>
+                        </li>
+                        <li class="d-flex align-items-center justify-content-between text-secondary">
+                            <span><i class="bi bi-person-badge {{ $user->is_verified ? 'text-success' : 'text-secondary' }} me-2"></i>ID Identity</span>
+                            <span class="badge {{ $user->is_verified ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary' }}">
+                                {{ $user->is_verified ? 'Verified' : 'Pending' }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <!-- Short Bio / About Section -->
-        <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
-            <h6 class="text-white fw-bold small text-uppercase mb-2" style="letter-spacing: 0.05em; font-size: 0.78rem;">
-                About Member
-            </h6>
-            <p class="text-secondary small mb-0" style="line-height: 1.6; font-size: 0.88rem;">
-                {{ $user->bio ?: 'Verified Canadian community member and local marketplace participant. Committed to safe local meetups, reliable communication, and mutual aid.' }}
-            </p>
-        </div>
-    </div>
+        <!-- RIGHT COLUMN: Tabs and Content -->
+        <div class="col-12 col-lg-8">
+            <!-- 2. Profile Tabs Navigation -->
+            <div class="dark-surface-card p-3 mb-4 rounded-4" style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <ul class="nav nav-pills gap-2 flex-wrap" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-pill px-4 py-2 small fw-semibold" id="listings-tab" data-bs-toggle="pill" data-bs-target="#listings-content" type="button" role="tab">
+                            <i class="bi bi-collection-play me-1"></i> Active Listings ({{ count($userListings ?? []) }})
+                        </button>
+                    </li>
+                    @if(optional($user->gallery)->count() > 0)
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="gallery-tab" data-bs-toggle="pill" data-bs-target="#gallery-content" type="button" role="tab">
+                            <i class="bi bi-images me-1"></i> Photo Gallery ({{ $user->gallery->count() }})
+                        </button>
+                    </li>
+                    @endif
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="reviews-tab" data-bs-toggle="pill" data-bs-target="#reviews-content" type="button" role="tab">
+                            <i class="bi bi-star me-1"></i> Reviews & Feedback ({{ count($reviews ?? []) }})
+                        </button>
+                    </li>
+                    @if(isset($hostedMeetups) && $hostedMeetups->count() > 0)
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="meetups-tab" data-bs-toggle="pill" data-bs-target="#meetups-content" type="button" role="tab">
+                                <i class="bi bi-people me-1"></i> Hosted Meetups ({{ $hostedMeetups->count() }})
+                            </button>
+                        </li>
+                    @endif
+                </ul>
+            </div>
 
-    <!-- 2. Profile Tabs Navigation -->
-    <div class="dark-surface-card p-3 mb-4 rounded-4" style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
-        <ul class="nav nav-pills gap-2" id="profileTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active rounded-pill px-4 py-2 small fw-semibold" id="listings-tab" data-bs-toggle="pill" data-bs-target="#listings-content" type="button" role="tab">
-                    <i class="bi bi-collection-play me-1"></i> Active Listings ({{ count($userListings ?? []) }})
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="reviews-tab" data-bs-toggle="pill" data-bs-target="#reviews-content" type="button" role="tab">
-                    <i class="bi bi-star me-1"></i> Reviews & Feedback ({{ count($reviews ?? []) }})
-                </button>
-            </li>
-            @if(isset($hostedMeetups) && $hostedMeetups->count() > 0)
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="meetups-tab" data-bs-toggle="pill" data-bs-target="#meetups-content" type="button" role="tab">
-                        <i class="bi bi-people me-1"></i> Hosted Meetups ({{ $hostedMeetups->count() }})
-                    </button>
-                </li>
-            @endif
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="trust-tab" data-bs-toggle="pill" data-bs-target="#trust-content" type="button" role="tab">
-                    <i class="bi bi-shield-check me-1"></i> Reputation & Trust
-                </button>
-            </li>
-        </ul>
-    </div>
+            <!-- 3. Tab Panes -->
+            <div class="tab-content" id="profileTabsContent">
 
-    <!-- 3. Tab Panes -->
-    <div class="tab-content" id="profileTabsContent">
 
         <!-- Tab 1: Active Listings -->
         <div class="tab-pane fade show active" id="listings-content" role="tabpanel" aria-labelledby="listings-tab">
@@ -226,7 +300,28 @@
             </div>
         </div>
 
-        <!-- Tab 2: Reviews & Feedback -->
+        <!-- Tab: Photo Gallery -->
+        @if(optional($user->gallery)->count() > 0)
+        <div class="tab-pane fade" id="gallery-content" role="tabpanel" aria-labelledby="gallery-tab">
+            <div class="dark-surface-card p-4 rounded-4 mb-4" style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+                    <h2 class="h5 fw-bold text-white mb-0">Ambiance & Photo Gallery</h2>
+                </div>
+                
+                <div class="row g-3">
+                    @foreach($user->gallery as $img)
+                        <div class="col-6 col-md-4">
+                            <a href="{{ $img->image_path }}" target="_blank" class="d-block overflow-hidden rounded-3 shadow-sm" style="border: 1px solid rgba(255,255,255,0.1);">
+                                <img src="{{ $img->image_path }}" class="img-fluid w-100 object-fit-cover hover-scale" style="height: 180px; transition: transform 0.3s ease;">
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Tab: Reviews & Feedback -->
         <div class="tab-pane fade" id="reviews-content" role="tabpanel" aria-labelledby="reviews-tab">
             <div class="dark-surface-card p-4 rounded-4 mb-4" style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
                 <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-secondary border-opacity-10">
@@ -360,7 +455,8 @@
             </div>
         </div>
 
-    </div>
+    </div> <!-- End Right Column -->
+    </div> <!-- End Row -->
 
     @if(!$isOwnProfile)
         </div>

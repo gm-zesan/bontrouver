@@ -77,9 +77,9 @@ class UserProfileService
     }
 
     /**
-     * Update user profile information, including avatar image handling.
+     * Update user profile information, including avatar image handling and extended profile data.
      */
-    public function updateProfile(User $user, array $data, $avatarInput = null): User
+    public function updateProfile(User $user, array $data, $avatarInput = null, $coverInput = null, $galleryFiles = []): User
     {
         if (isset($data['name'])) {
             $user->name = trim($data['name']);
@@ -118,6 +118,44 @@ class UserProfileService
         }
 
         $user->save();
+
+        // Handle Extended Profile Data
+        $profile = $user->profile()->firstOrCreate(['user_id' => $user->id]);
+
+        if (isset($data['about_text'])) {
+            $profile->about_text = trim($data['about_text']);
+        }
+        if (isset($data['website_url'])) {
+            $profile->website_url = trim($data['website_url']);
+        }
+        if (isset($data['social_links'])) {
+            $profile->social_links = array_filter($data['social_links']); // removes nulls
+        }
+        if (isset($data['operating_hours'])) {
+            $profile->operating_hours = array_filter($data['operating_hours']);
+        }
+
+        // Handle Cover Image upload
+        if ($coverInput instanceof UploadedFile) {
+            $path = $coverInput->store('covers', 'public');
+            $profile->cover_image_path = '/storage/' . $path;
+        }
+
+        $profile->save();
+
+        // Handle Gallery Images
+        if (!empty($galleryFiles)) {
+            $currentMaxOrder = $user->gallery()->max('sort_order') ?? 0;
+            foreach ($galleryFiles as $idx => $file) {
+                if ($file instanceof UploadedFile) {
+                    $path = $file->store('galleries', 'public');
+                    $user->gallery()->create([
+                        'image_path' => '/storage/' . $path,
+                        'sort_order' => $currentMaxOrder + $idx + 1,
+                    ]);
+                }
+            }
+        }
 
         return $user;
     }

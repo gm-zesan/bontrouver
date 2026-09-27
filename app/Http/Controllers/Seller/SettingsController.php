@@ -45,8 +45,10 @@ class SettingsController extends Controller
         $user = Auth::user();
 
         $avatarFile = $request->file('avatar') ?? $request->input('avatar_base64');
+        $coverFile = $request->file('cover_image');
+        $galleryFiles = $request->file('gallery_images') ?? [];
 
-        $this->profileService->updateProfile($user, $request->validated(), $avatarFile);
+        $this->profileService->updateProfile($user, $request->validated(), $avatarFile, $coverFile, $galleryFiles);
 
         return redirect()->back()->with('status', 'Profile and settings updated successfully.');
     }

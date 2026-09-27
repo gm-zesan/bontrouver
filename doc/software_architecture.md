@@ -240,7 +240,9 @@ app/
 │   ├── CompanionshipRequest.php
 │   ├── CompanionshipAttendee.php
 │   ├── Report.php
-│   └── PointTransaction.php
+│   ├── PointTransaction.php
+│   ├── UserProfile.php
+│   └── UserGallery.php
 │
 ├── Notifications/
 │   └── SmartAlertTriggered.php

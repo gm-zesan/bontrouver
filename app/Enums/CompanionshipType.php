@@ -14,6 +14,7 @@ enum CompanionshipType: string
     case OUTING = 'Outings & Nightlife';
     case MEET_PEOPLE = 'Meet New People';
     case ENTREPRENEUR = 'Business & Entrepreneurs';
+    case PASSENGER_PARCEL = 'Passenger & Parcel Service';
 
     public static function values(): array
     {

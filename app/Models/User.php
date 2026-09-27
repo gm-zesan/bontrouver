@@ -133,6 +133,16 @@ class User extends Authenticatable
         return $this->hasMany(UserVerification::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function gallery()
+    {
+        return $this->hasMany(UserGallery::class)->orderBy('sort_order');
+    }
+
     public function latestVerification()
     {
         return $this->hasOne(UserVerification::class)->latestOfMany();

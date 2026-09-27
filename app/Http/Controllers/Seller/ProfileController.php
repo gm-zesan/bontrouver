@@ -34,6 +34,8 @@ class ProfileController extends Controller
             }
         }
 
+        $user->loadMissing(['profile', 'gallery']);
+
         return view('frontend.account.profile', [
             'user' => $user,
             'categories' => CategoryService::getAll(),

@@ -440,6 +440,7 @@ class CategorySeeder extends Seeder
                             ['name' => 'Hatchbacks & Wagons', 'slug' => 'hatchbacks-wagons'],
                             ['name' => 'Electric & Hybrid Vehicles', 'slug' => 'ev-hybrids'],
                             ['name' => 'Vans & Minivans', 'slug' => 'vans-minivans'],
+                            ['name' => 'Car Export', 'slug' => 'car-export'],
                         ],
                     ],
                     [

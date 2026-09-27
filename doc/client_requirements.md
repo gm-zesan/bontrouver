@@ -124,7 +124,21 @@ Designed explicitly as a **wholesome, social and friendly meetup platform** to r
 
 ---
 
-## 6. Implementation & Database Mapping Reference
+## 6. Enhanced Public User Profiles
+
+### Overview
+Instead of a separate business directory, every user in the marketplace is provided with an enhanced, rich public profile. This empowers all users (whether individuals, freelancers, or registered businesses) to present themselves professionally with a unified design.
+
+### Key Capabilities
+- **Rich Profiles**: Dedicated pages featuring a cover photo, user avatar (or logo), verified badges, operating hours, and location map.
+- **Listings as Offerings**: A user's active classified listings are beautifully showcased as their "Specialties" or "Offerings" on their profile.
+- **Features & Amenities**: Dynamic tags such as "Why Choose Me", "Fast Service", or "Quality Products".
+- **Ambiance Gallery**: Photo galleries to showcase the user's workspace, previous work, or business environment.
+- **Community Reviews**: Integration with the community `Review` system to collect ratings and feedback directly on the enhanced profile.
+
+---
+
+## 7. Implementation & Database Mapping Reference
 
 | Requirement Module | Database Tables / Models | Seeder Reference |
 | :--- | :--- | :--- |
@@ -134,3 +148,4 @@ Designed explicitly as a **wholesome, social and friendly meetup platform** to r
 | **Points & Tiers** | `member_tiers`, `point_transactions` | `MemberTierSeeder.php`, `PointTransactionSeeder.php` |
 | **Companionship** | `companionship_requests`, `companionship_attendees` | `CompanionshipSeeder.php` |
 | **Messaging & Inquiries** | `conversations`, `messages` | `ConversationSeeder.php` |
+| **User Profiles** | `users`, `user_profiles`, `user_galleries` (Planned) | TBD |
