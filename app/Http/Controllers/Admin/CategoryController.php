@@ -36,7 +36,7 @@ class CategoryController extends Controller
             return DataTables::of($query)
                 ->addIndexColumn()
                 ->editColumn('name', function ($row) {
-                    $iconHtml = $row->icon ? '<i class="' . e($row->icon) . ' me-2 text-primary fs-6"></i>' : '<i class="ri-folder-3-line me-2 text-muted fs-6"></i>';
+                    $iconHtml = '<i class="' . e($row->icon_class) . ' me-2 text-primary fs-6"></i>';
                     $isChild = $row->parent_id ? true : false;
                     $levelIndent = $isChild ? '<span class="text-muted ms-3 me-1">↳</span>' : '';
                     $parentBadge = $isChild ? '<span class="badge bg-light text-muted border ms-2" style="font-size: 10px;">Subcategory</span>' : '<span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-2" style="font-size: 10px;">Root Category</span>';
@@ -52,7 +52,7 @@ class CategoryController extends Controller
                 })
                 ->addColumn('parent_category', function ($row) {
                     if ($row->parent) {
-                        $parentIcon = $row->parent->icon ? '<i class="' . e($row->parent->icon) . ' me-1 text-secondary"></i>' : '';
+                        $parentIcon = '<i class="' . e($row->parent->icon_class) . ' me-1 text-secondary"></i>';
                         return '<span class="badge bg-light text-dark border fw-medium" style="font-size: 12px; padding: 4px 8px;">' . $parentIcon . e($row->parent->name) . '</span>';
                     }
                     return '<span class="text-muted small">— None (Main) —</span>';

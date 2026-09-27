@@ -966,6 +966,20 @@ function renderDynamicAttributes(attributes) {
                     ${optionsHTML}
                 </select>
             `;
+        } else if (attr.type === 'checkbox') {
+            fieldHTML = `
+                <div class="form-check form-switch pt-4">
+                    <input class="form-check-input" type="checkbox" role="switch" id="attr_${attr.id}" name="attributes[${attr.name}]" value="1">
+                    <label class="form-check-label fw-semibold text-dark ms-1" for="attr_${attr.id}">
+                        ${attr.label}
+                    </label>
+                </div>
+            `;
+        } else if (attr.type === 'textarea') {
+            fieldHTML = `
+                <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                <textarea class="form-control form-control-custom" name="attributes[${attr.name}]" rows="2" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''}></textarea>
+            `;
         } else if (attr.type === 'pills_radio') {
             const pillsHTML = (attr.options || []).map((opt, i) => `
                 <label class="condition-pill ${i === 0 ? 'active' : ''}">

@@ -58,6 +58,22 @@ class Category extends Model
     }
 
     /**
+     * Get safe CSS icon class string with library prefix handling.
+     */
+    public function getIconClassAttribute(): string
+    {
+        if (empty($this->icon)) {
+            return $this->parent_id ? 'ri-file-list-line' : 'ri-folder-3-fill';
+        }
+
+        if (str_starts_with($this->icon, 'bi-') && !str_starts_with($this->icon, 'bi bi-')) {
+            return 'bi ' . $this->icon;
+        }
+
+        return $this->icon;
+    }
+
+    /**
      * Get the category tree hierarchically.
      */
     public static function getTree()

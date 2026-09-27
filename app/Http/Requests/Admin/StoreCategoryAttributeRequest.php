@@ -33,6 +33,7 @@ class StoreCategoryAttributeRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
+                'regex:/^[a-z0-9_-]+$/',
                 Rule::unique('category_attributes', 'slug')->where(function ($query) use ($categoryId) {
                     return $query->where('category_id', $categoryId);
                 }),
@@ -44,6 +45,14 @@ class StoreCategoryAttributeRequest extends FormRequest
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'options' => ['nullable', 'array'],
             'options.*' => ['nullable', 'string', 'max:150'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'slug.regex' => 'The key must contain only lowercase letters, numbers, underscores (_), and dashes (-). No spaces or special characters allowed.',
+            'slug.unique' => 'This key is already in use for this category. Please provide a unique key.',
         ];
     }
 }

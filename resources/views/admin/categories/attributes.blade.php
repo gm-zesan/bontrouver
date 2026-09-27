@@ -87,16 +87,16 @@
                                         <th class="text-end" style="width: 90px;">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="attributesTableBody">
                                     @forelse($category->attributes as $index => $attr)
                                         <tr>
-                                            <td class="text-muted font-monospace small">{{ $attr->sort_order }}</td>
+                                            <td class="text-muted font-monospace small attr-sort-val">{{ $attr->sort_order }}</td>
                                             <td>
                                                 <div class="d-flex flex-column">
                                                     <span class="fw-semibold text-dark"
                                                         style="font-size: 13.5px;">{{ $attr->name }}</span>
                                                     <span class="text-muted font-monospace"
-                                                        style="font-size: 11px;">${{ $attr->slug }}</span>
+                                                        style="font-size: 11px;">key: <span class="badge bg-light text-secondary border font-monospace py-0.5 px-1.5">{{ $attr->slug }}</span></span>
                                                 </div>
                                             </td>
                                             <td>
@@ -341,16 +341,21 @@
                                     style="border: 1px solid #cbd5e1; border-radius: 6px;">
                             </div>
 
-                            {{-- Attribute Slug / Key --}}
+                            {{-- Attribute Key --}}
                             <div class="col-md-5">
-                                <label class="form-label small fw-semibold text-dark">Database Key <span
+                                <label class="form-label small fw-semibold text-dark">Key <span
                                         class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-light text-muted"
-                                        style="border: 1px solid #cbd5e1; border-right: none;">$</span>
+                                        style="border: 1px solid #cbd5e1; border-right: none;"><i class="ri-key-2-line"></i></span>
                                     <input type="text" class="form-control form-control-sm font-monospace" id="attr_slug"
-                                        name="slug" placeholder="fuel_type" required
+                                        name="slug" placeholder="e.g. fuel_type" required
+                                        pattern="^[a-z0-9_-]+$"
+                                        oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, '_')"
                                         style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
+                                </div>
+                                <div class="form-text mt-1 text-muted" style="font-size: 11px; line-height: 1.4;">
+                                    <i class="ri-information-line me-0.5 text-primary"></i> <strong>Key Rules:</strong> Lowercase letters, numbers, underscores (<code>_</code>) or dashes (<code>-</code>) only. No spaces.
                                 </div>
                             </div>
 
@@ -372,9 +377,15 @@
                             {{-- Sort Order --}}
                             <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark">Display Order</label>
-                                <input type="number" class="form-control form-control-sm" id="attr_sort_order"
-                                    name="sort_order" value="0" min="0"
-                                    style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light text-muted" style="border: 1px solid #cbd5e1; border-right: none;"><i class="ri-list-ordered"></i></span>
+                                    <input type="number" class="form-control form-control-sm font-monospace" id="attr_sort_order"
+                                        name="sort_order" value="{{ ($category->attributes->max('sort_order') ?? $category->attributes->count()) + 1 }}" min="1"
+                                        style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
+                                </div>
+                                <div class="form-text mt-1 text-muted" style="font-size: 11px;">
+                                    <i class="ri-magic-line me-0.5 text-primary"></i> Automatically set to next serial.
+                                </div>
                             </div>
 
                             {{-- Dynamic Options Manager for Select Type --}}
@@ -451,8 +462,9 @@
                 var attrId = $('#attr_id').val();
                 if (!attrId) {
                     var slug = val.toLowerCase()
-                        .replace(/[^\w ]+/g, '')
-                        .replace(/ +/g, '_');
+                        .trim()
+                        .replace(/[^a-z0-9]+/g, '_')
+                        .replace(/^_+|_+$/g, '');
                     $('#attr_slug').val(slug);
                 }
             };
@@ -460,21 +472,22 @@
             // Handle Type Change (show/hide options container)
             window.handleAttrTypeChange = function (type) {
                 if (type === 'select') {
-                    $('#optionsContainer').show();
+                    $('#optionsContainer').slideDown(200);
                     if ($('#optionRowsList .option-row').length === 0) {
                         addOptionInputRow('');
                         addOptionInputRow('');
                     }
                 } else {
-                    $('#optionsContainer').hide();
+                    $('#optionsContainer').slideUp(200);
+                    $('#optionRowsList').empty();
                 }
             };
 
-            // Add an option row
+            // Add an option row (No native HTML required to avoid browser blocking on hidden fields)
             window.addOptionInputRow = function (value) {
                 var rowHtml = '<div class="input-group input-group-sm option-row">' +
                     '<span class="input-group-text bg-white text-muted" style="border: 1px solid #cbd5e1; border-right: none;"><i class="ri-drag-move-2-line"></i></span>' +
-                    '<input type="text" name="options[]" class="form-control form-control-sm option-value-input" value="' + (value || '') + '" placeholder="Option label (e.g. Automatic, 2 Bedrooms)..." required style="border: 1px solid #cbd5e1;">' +
+                    '<input type="text" name="options[]" class="form-control form-control-sm option-value-input" value="' + (value ? $('<div>').text(value).html() : '') + '" placeholder="Option label (e.g. Automatic, 2 Bedrooms)..." style="border: 1px solid #cbd5e1;">' +
                     '<button type="button" class="btn btn-light border text-danger" style="border-color: #cbd5e1 !important;" onclick="$(this).closest(\'.option-row\').remove()"><i class="ri-delete-bin-line"></i></button>' +
                     '</div>';
                 $('#optionRowsList').append(rowHtml);
@@ -486,6 +499,18 @@
                 $('#attr_id').val('');
                 $('#attr_method').val('POST');
                 $('#attr_type').val('select');
+
+                // Calculate next serial automatically
+                var highestOrder = 0;
+                $('#attributesTableBody tr').each(function () {
+                    var orderVal = parseInt($(this).find('.attr-sort-val').text().trim(), 10);
+                    if (!isNaN(orderVal) && orderVal > highestOrder) {
+                        highestOrder = orderVal;
+                    }
+                });
+                var nextOrder = highestOrder > 0 ? highestOrder + 1 : {{ ($category->attributes->max('sort_order') ?? $category->attributes->count()) + 1 }};
+                $('#attr_sort_order').val(nextOrder);
+
                 $('#attr_is_active').prop('checked', true);
                 $('#attr_is_filterable').prop('checked', true);
                 $('#attr_is_required').prop('checked', false);
@@ -493,6 +518,7 @@
                 addOptionInputRow('');
                 addOptionInputRow('');
                 $('#optionsContainer').show();
+                $('#btnSaveAttribute').prop('disabled', false).html('<i class="ri-save-line me-1"></i> Save Attribute');
                 $('#attributeModalLabel').text('Add Custom Attribute for {{ $category->name }}');
                 $('#attributeModal').modal('show');
             };
@@ -529,6 +555,7 @@
                                 $('#optionsContainer').hide();
                             }
 
+                            $('#btnSaveAttribute').prop('disabled', false).html('<i class="ri-save-line me-1"></i> Save Attribute');
                             $('#attributeModalLabel').text('Edit Attribute: ' + a.name);
                             $('#attributeModal').modal('show');
                         }
@@ -542,13 +569,23 @@
                 var attrId = $('#attr_id').val();
                 var url = attrId ? ('/admin/categories/{{ $category->id }}/attributes/' + attrId) : "{{ route('admin.categories.attributes.store', $category->id) }}";
                 var method = attrId ? 'PUT' : 'POST';
+                var attrType = $('#attr_type').val();
 
                 var options = [];
-                if ($('#attr_type').val() === 'select') {
+                if (attrType === 'select') {
                     $('.option-value-input').each(function () {
                         var val = $(this).val().trim();
                         if (val) options.push(val);
                     });
+
+                    if (options.length === 0) {
+                        if (typeof window.showToast === 'function') {
+                            window.showToast('Please provide at least one option for the dropdown select field.', true, 'Validation Warning');
+                        } else {
+                            alert('Please provide at least one option for the dropdown select field.');
+                        }
+                        return;
+                    }
                 }
 
                 var formData = {
@@ -557,13 +594,16 @@
                     category_id: "{{ $category->id }}",
                     name: $('#attr_name').val(),
                     slug: $('#attr_slug').val(),
-                    type: $('#attr_type').val(),
+                    type: attrType,
                     sort_order: $('#attr_sort_order').val(),
                     is_required: $('#attr_is_required').is(':checked') ? 1 : 0,
                     is_filterable: $('#attr_is_filterable').is(':checked') ? 1 : 0,
                     is_active: $('#attr_is_active').is(':checked') ? 1 : 0,
                     options: options
                 };
+
+                var $btn = $('#btnSaveAttribute');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
 
                 $.ajax({
                     url: url,
@@ -576,9 +616,10 @@
                         }
                         setTimeout(function () {
                             location.reload();
-                        }, 600);
+                        }, 500);
                     },
                     error: function (xhr) {
+                        $btn.prop('disabled', false).html('<i class="ri-save-line me-1"></i> Save Attribute');
                         var errors = xhr.responseJSON?.errors;
                         var msg = xhr.responseJSON?.message || 'Validation failed.';
                         if (errors) {
@@ -638,7 +679,15 @@
                                     }
                                     setTimeout(function () {
                                         location.reload();
-                                    }, 600);
+                                    }, 500);
+                                },
+                                error: function (xhr) {
+                                    var msg = xhr.responseJSON?.message || 'Failed to delete attribute.';
+                                    if (typeof window.showToast === 'function') {
+                                        window.showToast(msg, true, 'Error');
+                                    } else {
+                                        alert(msg);
+                                    }
                                 }
                             });
                         }

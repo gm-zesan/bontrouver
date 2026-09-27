@@ -158,7 +158,7 @@
                                         <div class="d-flex align-items-center justify-content-between px-3 py-2.5 bg-light bg-opacity-75">
                                             <button class="accordion-button collapsed p-0 bg-transparent shadow-none d-flex align-items-center gap-2 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTree{{ $parentCat->id }}" aria-expanded="false" aria-controls="collapseTree{{ $parentCat->id }}">
                                                 <div class="rounded-circle p-1.5 bg-white border text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                                    <i class="{{ $parentCat->icon ?: 'ri-folder-3-fill' }} fs-6"></i>
+                                                    <i class="{{ $parentCat->icon_class }} fs-6"></i>
                                                 </div>
                                                 <div class="d-flex flex-column text-start">
                                                     <span class="fw-bold text-dark" style="font-size: 14px;">{{ $parentCat->name }}</span>
@@ -184,7 +184,7 @@
                                                         <div class="list-group-item d-flex align-items-center justify-content-between px-4 py-2.5 hover-bg-light">
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <span class="text-muted ms-2 me-1">↳</span>
-                                                                <i class="{{ $child->icon ?: 'ri-file-list-line' }} text-secondary fs-6"></i>
+                                                                <i class="{{ $child->icon_class }} text-secondary fs-6"></i>
                                                                 <div class="d-flex flex-column">
                                                                     <span class="fw-semibold text-dark" style="font-size: 13px;">{{ $child->name }}</span>
                                                                     <span class="text-muted font-monospace" style="font-size: 10.5px;">/{{ $child->slug }}</span>

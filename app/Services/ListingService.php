@@ -522,7 +522,8 @@ class ListingService
             'image'               => $primaryImg,
             'gallery'             => $gallery,
             'description'         => $listing->description,
-            'attributes'          => $rawAttrs,
+            'attributes'          => $this->extractDisplayAttributes($listing) ?: $rawAttrs,
+            'raw_attributes'      => $rawAttrs,
             'specs_pills'         => $specsPills,
             'url'                 => url('/listing/' . $listing->slug),
             ...$derived,
@@ -557,6 +558,24 @@ class ListingService
             }
         }
         return $raw;
+    }
+
+    private function extractDisplayAttributes(Listing $listing): array
+    {
+        $display = [];
+        if ($listing->relationLoaded('attributes')) {
+            foreach ($listing->attributes as $attr) {
+                $label = $attr->categoryAttribute?->name ?? ucwords(str_replace(['_', '-'], ' ', $attr->categoryAttribute?->slug ?? ''));
+                if ($label && $attr->value !== null && $attr->value !== '') {
+                    $val = $attr->value;
+                    if ($attr->categoryAttribute?->type === 'checkbox') {
+                        $val = ($val === '1' || $val === 'true' || $val === true) ? 'Yes' : 'No';
+                    }
+                    $display[$label] = $val;
+                }
+            }
+        }
+        return $display;
     }
 
     private function deriveAttributes(array $raw, string $subSlug, string $subName, Listing $listing): array

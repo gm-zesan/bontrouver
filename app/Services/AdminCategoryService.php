@@ -192,7 +192,11 @@ class AdminCategoryService
             $data['is_required'] = isset($data['is_required']) ? (bool) $data['is_required'] : false;
             $data['is_filterable'] = isset($data['is_filterable']) ? (bool) $data['is_filterable'] : false;
             $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : true;
-            $data['sort_order'] = $data['sort_order'] ?? 0;
+
+            if (empty($data['sort_order']) || (int) $data['sort_order'] <= 0) {
+                $maxOrder = CategoryAttribute::where('category_id', $category->id)->max('sort_order') ?? 0;
+                $data['sort_order'] = $maxOrder + 1;
+            }
 
             $options = $data['options'] ?? [];
             unset($data['options']);
@@ -227,8 +231,12 @@ class AdminCategoryService
 
             $attribute->update($data);
 
-            if ($attribute->type === 'select' && $options !== null) {
-                $this->saveAttributeOptions($attribute, $options);
+            if ($attribute->type === 'select') {
+                if ($options !== null) {
+                    $this->saveAttributeOptions($attribute, $options);
+                }
+            } else {
+                $attribute->options()->delete();
             }
 
             return $attribute;

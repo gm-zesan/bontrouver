@@ -60,8 +60,13 @@ class ListingSearchService
             return [];
         }
 
-        // Include parent attributes via category + parent_id
-        $categoryIds = array_filter([$category->id, $category->parent_id]);
+        // Collect category and all ancestor category IDs up the tree
+        $categoryIds = [$category->id];
+        $curr = $category;
+        while ($curr->parent_id && ($parent = Category::find($curr->parent_id))) {
+            $categoryIds[] = $parent->id;
+            $curr = $parent;
+        }
 
         $attributes = CategoryAttribute::with([
             'options' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
@@ -71,7 +76,10 @@ class ListingSearchService
             ->orderBy('sort_order')
             ->get();
 
-        return $attributes->map(function ($attr) {
+        // Deduplicate by slug (giving precedence to more specific subcategory attributes)
+        $uniqueAttributes = $attributes->unique('slug');
+
+        return $uniqueAttributes->map(function ($attr) {
             $options = $attr->options->pluck('label')->toArray();
             return [
                 'id'          => $attr->id,
@@ -82,7 +90,7 @@ class ListingSearchService
                 'filterable'  => (bool) $attr->is_filterable,
                 'options'     => !empty($options) ? $options : null,
                 'placeholder' => 'Enter ' . $attr->name,
-                'col'         => ($attr->type === 'boolean' || count($options) > 6) ? 12 : 6,
+                'col'         => ($attr->type === 'checkbox' || $attr->type === 'textarea' || count($options) > 6) ? 12 : 6,
             ];
         })->values()->toArray();
     }
