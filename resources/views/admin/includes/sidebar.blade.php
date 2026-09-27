@@ -47,6 +47,12 @@
                 <span class="link_names">Community Meetups</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.categories.index') }}" class="{{ Route::is('admin.categories.*') ? ' active-focus' : '' }}">
+                <i class="ri-node-tree"></i>
+                <span class="link_names">Categories & Attributes</span>
+            </a>
+        </li>
 
         <!-- 3. User & Trust -->
         <li class="category-li">

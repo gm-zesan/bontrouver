@@ -1811,3 +1811,74 @@ img.rounded-circle,
 td img.rounded-circle {
     object-fit: cover !important;
 }
+
+/* =============================================
+    ====== Admin Theme Color & Button System ====
+=================================================*/
+.btn-primary {
+    background-color: #49D17D !important;
+    border-color: #49D17D !important;
+    color: #ffffff !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        background-color: #35BE68 !important;
+        border-color: #35BE68 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(73, 209, 125, 0.25) !important;
+    }
+}
+
+.btn-outline-primary {
+    color: #49D17D !important;
+    border-color: #49D17D !important;
+    background-color: transparent !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
+        background-color: #49D17D !important;
+        border-color: #49D17D !important;
+        color: #ffffff !important;
+    }
+}
+
+.text-primary {
+    color: #49D17D !important;
+}
+
+.bg-primary {
+    background-color: #49D17D !important;
+}
+
+.bg-primary-subtle {
+    background-color: rgba(73, 209, 125, 0.12) !important;
+    color: #16a34a !important;
+}
+
+.border-primary-subtle {
+    border-color: rgba(73, 209, 125, 0.25) !important;
+}
+
+.form-check-input:checked {
+    background-color: #49D17D !important;
+    border-color: #49D17D !important;
+}
+
+.form-check-input:focus {
+    border-color: #49D17D !important;
+    box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.15) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #0f172a !important;
+    background-color: rgba(73, 209, 125, 0.06) !important;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
+}

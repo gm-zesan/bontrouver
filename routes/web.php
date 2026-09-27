@@ -152,6 +152,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('reports/{report}/resolve', [\App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
     Route::post('reports/{report}/dismiss', [\App\Http\Controllers\Admin\ReportController::class, 'dismiss'])->name('reports.dismiss');
     Route::post('reports/bulk', [\App\Http\Controllers\Admin\ReportController::class, 'bulkAction'])->name('reports.bulk');
+
+    // Category & Dynamic Custom Attribute Schema Management
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+    Route::post('categories/{category}/toggle-status', [\App\Http\Controllers\Admin\CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
+
+    Route::prefix('categories/{category}/attributes')->name('categories.attributes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'store'])->name('store');
+        Route::get('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'show'])->name('show');
+        Route::put('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'update'])->name('update');
+        Route::delete('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'destroy'])->name('destroy');
+        Route::post('/{attribute}/toggle-status', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'toggleStatus'])->name('toggleStatus');
+    });
 });
 
 // Static Marketplace Info & Footer Pages
