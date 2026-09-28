@@ -525,14 +525,7 @@
             if (!dropdown) return;
 
             const recents = getRecentSearches();
-            const trending = [
-                'Toyota RAV4 Hybrid',
-                'iPhone 16 Pro',
-                'PlayStation 5',
-                '1 Bedroom Apartment',
-                'Herman Miller Chair',
-                'Winter Tires'
-            ];
+            const trending = @json(\App\Models\SearchQuery::getTrendingKeywords(6));
 
             let html = '';
 

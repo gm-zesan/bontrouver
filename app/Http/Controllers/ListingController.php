@@ -51,6 +51,10 @@ class ListingController extends Controller
 
         $listings = $this->listingService->getDatabaseListings($selectedCity, $radius, $sellerId, $sellerName);
 
+        if (!empty($searchQuery)) {
+            \App\Models\SearchQuery::recordSearch($searchQuery, count($listings));
+        }
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success'     => true,

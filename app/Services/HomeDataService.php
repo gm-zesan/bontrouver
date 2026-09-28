@@ -226,8 +226,8 @@ class HomeDataService
 
         $classifieds = $this->buildClassifiedsSpotlight($allCategories);
 
-        $whyUsListing   = $trending->first() ?? $heroAds->first() ?? ['title' => 'iPhone 16 Pro (256GB)', 'price' => '$1,299.00', 'location' => 'Toronto, ON • 2.4 km away', 'image' => 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80', 'url' => url('/listings')];
-        $sellerCtaListing = $featured->first() ?? $trending->last() ?? ['title' => 'Solid Oak Dining Table with 4 Chairs', 'price' => '$450.00 CAD', 'location' => 'Montreal, QC • Le Plateau', 'image' => 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80', 'url' => url('/post-ad')];
+        $whyUsListing   = $trending->first() ?? $heroAds->first();
+        $sellerCtaListing = $featured->first() ?? $trending->last();
 
         return compact('housing', 'jobs', 'classifieds', 'whyUsListing', 'sellerCtaListing');
     }

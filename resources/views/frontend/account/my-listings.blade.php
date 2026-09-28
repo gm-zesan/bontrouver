@@ -182,8 +182,8 @@
     <div class="mb-3">
         <label class="form-label text-secondary small fw-bold">Select Promotion Type</label>
         <select id="promoteTypeSelect" class="form-select dark-filter-select">
-            <option value="featured">Featured Listing ({{ config('points.spend.featured_promotion') }} Points)</option>
-            <option value="sponsored">Sponsored Spotlight ({{ config('points.spend.sponsored_promotion') }} Points)</option>
+            <option value="featured">Featured Listing ({{ \App\Services\PointService::getRulePoints('featured_promotion', 'spend', 100) }} Points)</option>
+            <option value="sponsored">Sponsored Spotlight ({{ \App\Services\PointService::getRulePoints('sponsored_promotion', 'spend', 300) }} Points)</option>
         </select>
     </div>
 

@@ -116,7 +116,9 @@ class ListingController extends Controller
             return response()->json(['success' => false, 'message' => 'Listing is already sponsored.'], 400);
         }
 
-        $cost = $validated['type'] === 'featured' ? config('points.spend.featured_promotion') : config('points.spend.sponsored_promotion');
+        $cost = $validated['type'] === 'featured'
+            ? PointService::getRulePoints('featured_promotion', 'spend', 100)
+            : PointService::getRulePoints('sponsored_promotion', 'spend', 300);
 
         try {
             $this->pointService->spendPoints(

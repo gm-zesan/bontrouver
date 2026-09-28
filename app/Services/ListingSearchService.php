@@ -4,31 +4,13 @@ namespace App\Services;
 
 use App\Models\CategoryAttribute;
 use App\Models\Category;
+use App\Models\SearchQuery;
 
 /**
  * Handles listing search autocomplete and dynamic category attribute resolution.
  */
 class ListingSearchService
 {
-    /** Popular trending search keywords shown before user types. */
-    private const POPULAR_KEYWORDS = [
-        'Toyota RAV4 Hybrid',
-        'Honda Civic Touring',
-        'Apple iPhone 16 Pro Max',
-        'Sony PlayStation 5',
-        'Herman Miller Embody Chair',
-        '1 Bedroom Condo Apartment',
-        'Porsche Macan GTS',
-        'Tesla Model Y AWD',
-        'RTX 4090 Gaming PC',
-        'Eames Lounge Chair',
-        'Winter Tires Set',
-        'MacBook Pro M3 Max',
-        'Trek Mountain Bike',
-        'Apartments for Rent Toronto',
-        'Remote Software Engineer Job',
-    ];
-
     /**
      * Return autocomplete suggestions for the given query string.
      * Returns trending data when query is empty.
@@ -110,7 +92,7 @@ class ListingSearchService
         return [
             'success'           => true,
             'type'              => 'trending',
-            'trending_keywords' => array_slice(self::POPULAR_KEYWORDS, 0, 6),
+            'trending_keywords' => SearchQuery::getTrendingKeywords(6),
             'categories'        => $trendingCategories,
         ];
     }
@@ -118,10 +100,11 @@ class ListingSearchService
     private function matchedPayload(string $q, array $listings, array $categories): array
     {
         $lowerQ = mb_strtolower($q);
+        $trendingKeywords = SearchQuery::getTrendingKeywords(20);
 
         $keywords = array_slice(
             array_values(array_filter(
-                self::POPULAR_KEYWORDS,
+                $trendingKeywords,
                 fn ($kw) => mb_stripos($kw, $lowerQ) !== false
             )),
             0, 5

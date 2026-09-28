@@ -154,6 +154,10 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$pt->user()` → `belongsTo(User::class)`
 - `$pt->reference()` → `morphTo()`
 
+### PointRule (`App\Models\PointRule`)
+- Columns: `rule_key`, `name`, `type` (`earn`, `spend`), `points`, `category`, `description`, `is_active`, `sort_order`
+- Scopes: `scopeEarn()`, `scopeSpend()`, `scopeActive()`
+
 ### Report (`App\Models\Report`)
 - `$report->reporter()` → `belongsTo(User::class, 'reporter_id')`
 - `$report->reviewer()` → `belongsTo(User::class, 'reviewed_by')`
@@ -172,6 +176,10 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 ### UserGallery (`App\Models\UserGallery`)
 - `$gallery->user()` → `belongsTo(User::class)`
 - Fields: `user_id`, `image_path`, `sort_order`
+
+### SearchQuery (`App\Models\SearchQuery`)
+- Fields: `query`, `hits_count`, `results_count`, `last_searched_at`
+- Methods: `SearchQuery::recordSearch(string $query, int $resultsCount)`, `SearchQuery::getTrendingKeywords(int $limit = 8)`
 
 ---
 

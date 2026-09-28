@@ -52,6 +52,21 @@ Ledger tracking all point changes for users.
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `user_id`, `[reference_type, reference_id]`*
 
+### `point_rules`
+Configurable rules governing point earning and spending amounts across the mutual aid platform.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `rule_key` (VARCHAR 64, UNIQUE) - e.g. 'identity_verification', 'positive_review', 'free_listing', 'featured_promotion'
+- `name` (VARCHAR 150)
+- `type` (ENUM: 'earn', 'spend')
+- `points` (INT, UNSIGNED) - Points awarded or deducted
+- `category` (VARCHAR 100, NULLABLE)
+- `description` (TEXT, NULLABLE)
+- `is_active` (BOOLEAN, DEFAULT TRUE)
+- `sort_order` (INT, UNSIGNED, DEFAULT 0)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `rule_key`, `type`, `is_active`*
+
 ### `transactions`
 Tracks completed deals between buyers and sellers to display "number of transactions" on profiles.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
@@ -235,6 +250,17 @@ Values for dynamic category attributes attached to a specific listing.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Unique Constraint: `(listing_id, category_attribute_id)`*
+
+### `search_queries`
+Search queries aggregation table for dynamic trending keywords and search suggestions analytics.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `query` (VARCHAR 191, UNIQUE)
+- `hits_count` (INT, UNSIGNED, DEFAULT 1)
+- `results_count` (INT, UNSIGNED, DEFAULT 0)
+- `last_searched_at` (TIMESTAMP, NULLABLE)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `hits_count`, `last_searched_at`*
 
 ---
 

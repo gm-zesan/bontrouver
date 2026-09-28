@@ -411,41 +411,7 @@
                             </div>
                         </div>
 
-                        {{-- 7. GENERIC FULFILLMENT & DELIVERY (Hidden for Housing & Jobs) --}}
-                        <div class="filter-section generic-facet" id="genericFulfillmentSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
-                            <div class="filter-section-title">Fulfillment</div>
-                            <div class="filter-options-list">
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="delivery" value="both" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Delivery available</span>
-                                </label>
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="delivery" value="pickup" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Local pickup only</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- 8. SELLER TYPE FILTER --}}
-                        <div class="filter-section" id="sellerTypeSection">
-                            <div class="filter-section-title" id="sellerTypeTitle">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Advertiser / Seller' : 'Seller Type' }}</div>
-                            <div class="filter-options-list">
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="seller" value="private" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label" id="sellerLabelPrivate">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Private Landlord' : 'Private Seller' }}</span>
-                                </label>
-                                <label class="custom-filter-checkbox">
-                                    <input type="checkbox" name="seller" value="dealer" onchange="triggerLiveFilter()">
-                                    <span class="checkbox-box"></span>
-                                    <span class="checkbox-label" id="sellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        {{-- 9. COMMUNITY MEMBER TIER & TRUST FILTER --}}
+                        {{-- 7. COMMUNITY MEMBER TIER & TRUST FILTER --}}
                         <div class="filter-section" id="memberTierFilterSection">
                             <div class="filter-section-title">Community Trust & Tier</div>
                             <div class="filter-options-list">
@@ -889,40 +855,6 @@
             </div>
         </div>
 
-        {{-- Mobile Generic Fulfillment --}}
-        <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericFulfillmentGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
-            <label class="mobile-group-label">Fulfillment & Delivery</label>
-            <div class="filter-options-list">
-                <label class="custom-filter-checkbox">
-                    <input type="checkbox" name="m_delivery" value="both" onchange="syncMobileDelivery()">
-                    <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Delivery available</span>
-                </label>
-                <label class="custom-filter-checkbox">
-                    <input type="checkbox" name="m_delivery" value="pickup" onchange="syncMobileDelivery()">
-                    <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Local pickup only</span>
-                </label>
-            </div>
-        </div>
-
-        {{-- Mobile Seller Type --}}
-        <div class="mobile-filter-group" id="mobileSellerTypeGroup">
-            <label class="mobile-group-label" id="mobileSellerTypeLabel">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Advertiser / Seller' : 'Seller Type' }}</label>
-            <div class="filter-options-list">
-                <label class="custom-filter-checkbox">
-                    <input type="checkbox" name="m_seller" value="private" onchange="syncMobileSeller()">
-                    <span class="checkbox-box"></span>
-                    <span class="checkbox-label" id="mobileSellerLabelPrivate">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Private Landlord' : 'Private Seller' }}</span>
-                </label>
-                <label class="custom-filter-checkbox">
-                    <input type="checkbox" name="m_seller" value="dealer" onchange="syncMobileSeller()">
-                    <span class="checkbox-box"></span>
-                    <span class="checkbox-label" id="mobileSellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
-                </label>
-            </div>
-        </div>
-
         {{-- Mobile Member Tier & Trust Filter --}}
         <div class="mobile-filter-group" id="mobileMemberTierGroup">
             <label class="mobile-group-label">Community Trust & Tier</label>
@@ -1075,8 +1007,6 @@
 
         // Selected checkboxes for generic filters
         const selectedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked')).map(c => c.value);
-        const selectedDeliveries = Array.from(document.querySelectorAll('input[name="delivery"]:checked')).map(d => d.value);
-        const selectedSellers = Array.from(document.querySelectorAll('input[name="seller"]:checked')).map(s => s.value);
 
         // Selected Housing facets
         const selectedPropTypes = Array.from(document.querySelectorAll('input[name="h_prop_type"]:checked')).map(c => c.value);
@@ -1213,19 +1143,11 @@
                 if (selectedWorkSetups.length > 0 && (!item.work_setup || !selectedWorkSetups.includes(item.work_setup))) return false;
             }
 
-            // Generic Condition & Delivery (applied only for non-housing / non-jobs)
+            // Generic Condition (applied only for non-housing / non-jobs)
             if (!isHousingCategory && !isJobsCategory) {
                 if (selectedConditions.length > 0 && !selectedConditions.includes(item.condition)) {
                     return false;
                 }
-                if (selectedDeliveries.length > 0 && !selectedDeliveries.includes(item.delivery) && item.delivery !== 'both') {
-                    return false;
-                }
-            }
-
-            // Seller type check
-            if (selectedSellers.length > 0 && !selectedSellers.includes(item.seller_type)) {
-                return false;
             }
 
             // Direct Seller ID or Name URL filter check
@@ -1338,8 +1260,6 @@
             locationVal,
             radiusVal,
             selectedConditions,
-            selectedDeliveries,
-            selectedSellers,
             selectedPropTypes,
             selectedBedrooms,
             selectedBathrooms,
@@ -1518,15 +1438,6 @@
         // Generic chips
         (f.selectedConditions || []).forEach(c => {
             chips.push({ label: `Condition: ${c}`, clear: () => uncheckBothFilters('condition', 'm_condition', c) });
-        });
-        (f.selectedDeliveries || []).forEach(d => {
-            chips.push({ label: `Delivery: ${d === 'both' ? 'Available' : 'Pickup'}`, clear: () => uncheckBothFilters('delivery', 'm_delivery', d) });
-        });
-        (f.selectedSellers || []).forEach(s => {
-            const sText = (currentCategory === 'housing' || currentCategory === 'real-estate')
-                ? (s === 'private' ? 'Private Landlord' : 'Property Manager')
-                : (s === 'private' ? 'Private Seller' : 'Business / Dealer');
-            chips.push({ label: sText, clear: () => uncheckBothFilters('seller', 'm_seller', s) });
         });
 
         // Member Tier & Verified filter chips
@@ -1740,45 +1651,17 @@
             if (f) f.style.display = 'block';
         }
 
-        // 6. Generic Condition & Fulfillment (Desktop)
+        // 6. Generic Condition (Desktop)
         const condSec = document.getElementById('genericConditionSection');
-        const fulSec = document.getElementById('genericFulfillmentSection');
         if (condSec) condSec.style.display = (isHousing || isJobs) ? 'none' : 'block';
-        if (fulSec) fulSec.style.display = (isHousing || isJobs) ? 'none' : 'block';
 
         // 7. Mobile Facet Display
         const mobHousing = document.getElementById('mobileFacetHousing');
         const mobCond = document.getElementById('mobileGenericConditionGroup');
-        const mobFul = document.getElementById('mobileGenericFulfillmentGroup');
         if (mobHousing) mobHousing.style.display = isHousing ? 'block' : 'none';
         if (mobCond) mobCond.style.display = (isHousing || isJobs) ? 'none' : 'block';
-        if (mobFul) mobFul.style.display = (isHousing || isJobs) ? 'none' : 'block';
 
-        // 8. Seller labels update for Housing vs General
-        const sTitle = document.getElementById('sellerTypeTitle');
-        const sPriv = document.getElementById('sellerLabelPrivate');
-        const sDeal = document.getElementById('sellerLabelDealer');
-        const mTitle = document.getElementById('mobileSellerTypeLabel');
-        const mPriv = document.getElementById('mobileSellerLabelPrivate');
-        const mDeal = document.getElementById('mobileSellerLabelDealer');
-
-        if (isHousing) {
-            if (sTitle) sTitle.textContent = 'Advertiser / Landlord';
-            if (sPriv) sPriv.textContent = 'Private Landlord';
-            if (sDeal) sDeal.textContent = 'Property Manager / Broker';
-            if (mTitle) mTitle.textContent = 'Advertiser / Landlord';
-            if (mPriv) mPriv.textContent = 'Private Landlord';
-            if (mDeal) mDeal.textContent = 'Property Manager / Broker';
-        } else {
-            if (sTitle) sTitle.textContent = 'Seller Type';
-            if (sPriv) sPriv.textContent = 'Private Seller';
-            if (sDeal) sDeal.textContent = 'Business / Dealer';
-            if (mTitle) mTitle.textContent = 'Seller Type';
-            if (mPriv) mPriv.textContent = 'Private Seller';
-            if (mDeal) mDeal.textContent = 'Business / Dealer';
-        }
-
-        // 9. Load and render dynamic category attributes (Filterable attributes enabled in Admin)
+        // 8. Load and render dynamic category attributes (Filterable attributes enabled in Admin)
         loadCategoryFilterableAttributes(catSlug, subSlug);
     }
 
@@ -2099,22 +1982,6 @@
     function syncMobileCondition() {
         const mobileChecked = Array.from(document.querySelectorAll('input[name="m_condition"]:checked')).map(c => c.value);
         document.querySelectorAll('input[name="condition"]').forEach(cb => {
-            cb.checked = mobileChecked.includes(cb.value);
-        });
-        triggerLiveFilter();
-    }
-
-    function syncMobileDelivery() {
-        const mobileChecked = Array.from(document.querySelectorAll('input[name="m_delivery"]:checked')).map(c => c.value);
-        document.querySelectorAll('input[name="delivery"]').forEach(cb => {
-            cb.checked = mobileChecked.includes(cb.value);
-        });
-        triggerLiveFilter();
-    }
-
-    function syncMobileSeller() {
-        const mobileChecked = Array.from(document.querySelectorAll('input[name="m_seller"]:checked')).map(c => c.value);
-        document.querySelectorAll('input[name="seller"]').forEach(cb => {
             cb.checked = mobileChecked.includes(cb.value);
         });
         triggerLiveFilter();

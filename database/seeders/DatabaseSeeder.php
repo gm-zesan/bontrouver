@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             MemberTierSeeder::class,
+            PointRuleSeeder::class,
             CategorySeeder::class,
             CategoryAttributeSeeder::class,
             ProvinceSeeder::class,
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
             CompanionshipSeeder::class,
             PointTransactionSeeder::class,
             VerificationSeeder::class,
+            SearchQuerySeeder::class,
         ]);
     }
 }

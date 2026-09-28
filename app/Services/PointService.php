@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\PointRule;
 use App\Models\PointTransaction;
 use App\Models\Review;
 use App\Models\Listing;
@@ -93,14 +94,32 @@ class PointService
     }
 
     /**
+     * Resolve configured point amount for a specific rule key directly from database.
+     */
+    public static function getRulePoints(string $key, string $type = 'earn', int $default = 0): int
+    {
+        try {
+            $rule = PointRule::where('rule_key', $key)->where('type', $type)->where('is_active', true)->first();
+            if ($rule) {
+                return (int) $rule->points;
+            }
+        } catch (\Throwable) {
+            // Fallback during setup
+        }
+
+        return $default;
+    }
+
+    /**
      * Award points for receiving a positive review.
      */
     public function awardForPositiveReview(Review $review): void
     {
         if ($review->rating >= 4) {
+            $points = self::getRulePoints('positive_review', 'earn', 20);
             $this->awardPoints(
                 $review->reviewee,
-                config('points.earn.positive_review'),
+                $points,
                 'positive_review',
                 'Received a positive review from a community member',
                 $review
@@ -114,9 +133,10 @@ class PointService
     public function awardForFreeListing(Listing $listing): void
     {
         if ((float) $listing->price == 0 && $listing->status === 'active') {
+            $points = self::getRulePoints('free_listing', 'earn', 25);
             $this->awardPoints(
                 $listing->user,
-                config('points.earn.free_listing'),
+                $points,
                 'free_listing',
                 'Donated an item to the community for free',
                 $listing
@@ -130,10 +150,10 @@ class PointService
     public function awardForMeetupHost(CompanionshipRequest $meetup): void
     {
         if ($meetup->status === 'completed' || count($meetup->attendees->where('status', 'approved')) > 0) {
-            // Award if the meetup is successfully completed or they successfully gathered attendees.
+            $points = self::getRulePoints('meetup_host', 'earn', 30);
             $this->awardPoints(
                 $meetup->user,
-                config('points.earn.meetup_host'),
+                $points,
                 'meetup_host',
                 'Hosted a local community companionship meetup',
                 $meetup
@@ -142,13 +162,40 @@ class PointService
     }
 
     /**
+     * Award points for attending a community meetup.
+     */
+    public function awardForMeetupAttendee(User $attendee, CompanionshipRequest $meetup): void
+    {
+        $points = self::getRulePoints('meetup_attendee', 'earn', 15);
+        $this->awardPoints(
+            $attendee,
+            $points,
+            'meetup_attendee',
+            'Attended and participated in a local community meetup',
+            $meetup
+        );
+    }
+
+    /**
+     * Award points for completing the first marketplace transaction.
+     */
+    public function awardForFirstDeal(User $user, ?Model $reference = null): void
+    {
+        $points = self::getRulePoints('first_deal', 'earn', 25);
+        $this->awardPoints(
+            $user,
+            $points,
+            'first_deal',
+            'Bonus for completing your first community transaction',
+            $reference
+        );
+    }
+
+    /**
      * Check if the user has reached a new tier and update if necessary.
      */
     public function checkTierProgression(User $user): void
     {
-        // Not explicitly requested to store tier_id on user yet, 
-        // as MemberTier logic is dynamic based on user points.
-        // But if we need to dispatch a notification when they cross a threshold:
-        // (Optional future implementation for email/in-app notifications)
+        // MemberTier logic is dynamic based on user points via accessor.
     }
 }

@@ -116,9 +116,10 @@ class VerificationService
                 $targetUser->save();
 
                 // Award community points for identity verification if not previously awarded
+                $points = PointService::getRulePoints('identity_verification', 'earn', 50);
                 $this->pointService->awardPoints(
                     $targetUser,
-                    config('points.earn.identity_verification') ?? 50,
+                    $points,
                     'verified_identity',
                     'Bonus points for completing Canadian ID verification',
                     $verification

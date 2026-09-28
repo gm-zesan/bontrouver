@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\MemberTier;
+use App\Models\PointRule;
 use App\Models\PointTransaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -150,111 +151,62 @@ class AdminMemberTierService
     }
 
     /**
-     * Get system point earning and spending rules.
+     * Get system point earning and spending rules directly from database (PointRule model).
      */
     public function getPointRules(): array
     {
         return Cache::remember(self::POINT_RULES_CACHE_KEY, 86400 * 30, function () {
-            $defaultRules = [
-                'earn' => [
-                    [
-                        'key'         => 'identity_verification',
-                        'name'        => 'Identity Verification Approved',
-                        'points'      => config('points.earn.identity_verification', 50),
-                        'category'    => 'Trust & Verification',
-                        'description' => 'Awarded when admin approves official government ID verification.',
-                    ],
-                    [
-                        'key'         => 'verified_dealer',
-                        'name'        => 'Business / Dealer License Verified',
-                        'points'      => 100,
-                        'category'    => 'Trust & Verification',
-                        'description' => 'Awarded for licensed dealerships and verified business profiles.',
-                    ],
-                    [
-                        'key'         => 'positive_review',
-                        'name'        => 'Receiving 5-Star Buyer/Seller Review',
-                        'points'      => config('points.earn.positive_review', 20),
-                        'category'    => 'Reputation & Feedback',
-                        'description' => 'Awarded for high-quality transaction ratings (4-5 stars).',
-                    ],
-                    [
-                        'key'         => 'free_listing',
-                        'name'        => 'Giving Away a Free / Donated Item',
-                        'points'      => config('points.earn.free_listing', 25),
-                        'category'    => 'Mutual Aid & Giving',
-                        'description' => 'Rewarded for giving items to neighbors at $0 free of charge.',
-                    ],
-                    [
-                        'key'         => 'meetup_host',
-                        'name'        => 'Hosting a Companionship Meetup',
-                        'points'      => config('points.earn.meetup_host', 30),
-                        'category'    => 'Community Activities',
-                        'description' => 'Awarded when hosting a social meetup with confirmed attendees.',
-                    ],
-                    [
-                        'key'         => 'meetup_attendee',
-                        'name'        => 'Attending a Community Meetup',
-                        'points'      => 15,
-                        'category'    => 'Community Activities',
-                        'description' => 'Rewarded for attending and participating in social gatherings.',
-                    ],
-                    [
-                        'key'         => 'first_deal',
-                        'name'        => 'First Verified Marketplace Deal',
-                        'points'      => 25,
-                        'category'    => 'Marketplace Activity',
-                        'description' => 'Bonus awarded upon successfully completing first transaction.',
-                    ],
-                ],
-                'spend' => [
-                    [
-                        'key'         => 'featured_promotion',
-                        'name'        => 'Featured Listing Placement (7 Days)',
-                        'points'      => config('points.spend.featured_promotion', 100),
-                        'category'    => 'Ad Visibility',
-                        'description' => 'Reduces point balance to feature ad at top of category results.',
-                    ],
-                    [
-                        'key'         => 'sponsored_promotion',
-                        'name'        => 'Hero Carousel Spotlight (7 Days)',
-                        'points'      => config('points.spend.sponsored_promotion', 300),
-                        'category'    => 'Ad Visibility',
-                        'description' => 'Reduces point balance for homepage hero carousel banner exposure.',
-                    ],
-                ],
-            ];
+            $rules = PointRule::where('is_active', true)->orderBy('sort_order', 'asc')->get();
 
-            return $defaultRules;
+            $earnRules = $rules->where('type', 'earn')->map(fn ($r) => [
+                'id'          => $r->id,
+                'key'         => $r->rule_key,
+                'name'        => $r->name,
+                'points'      => (int) $r->points,
+                'category'    => $r->category,
+                'description' => $r->description,
+            ])->values()->toArray();
+
+            $spendRules = $rules->where('type', 'spend')->map(fn ($r) => [
+                'id'          => $r->id,
+                'key'         => $r->rule_key,
+                'name'        => $r->name,
+                'points'      => (int) $r->points,
+                'category'    => $r->category,
+                'description' => $r->description,
+            ])->values()->toArray();
+
+            return [
+                'earn'  => $earnRules,
+                'spend' => $spendRules,
+            ];
         });
     }
 
     /**
-     * Update configured point rules and invalidate cache.
+     * Update configured point rules in database and invalidate cache.
      */
     public function updatePointRules(array $rulesData): array
     {
-        $currentRules = $this->getPointRules();
-
         if (isset($rulesData['earn']) && is_array($rulesData['earn'])) {
-            foreach ($currentRules['earn'] as &$rule) {
-                if (isset($rulesData['earn'][$rule['key']])) {
-                    $rule['points'] = max(1, (int) $rulesData['earn'][$rule['key']]);
-                }
+            foreach ($rulesData['earn'] as $key => $points) {
+                PointRule::where('rule_key', $key)->where('type', 'earn')->update([
+                    'points' => max(1, (int) $points),
+                ]);
             }
         }
 
         if (isset($rulesData['spend']) && is_array($rulesData['spend'])) {
-            foreach ($currentRules['spend'] as &$rule) {
-                if (isset($rulesData['spend'][$rule['key']])) {
-                    $rule['points'] = max(1, (int) $rulesData['spend'][$rule['key']]);
-                }
+            foreach ($rulesData['spend'] as $key => $points) {
+                PointRule::where('rule_key', $key)->where('type', 'spend')->update([
+                    'points' => max(1, (int) $points),
+                ]);
             }
         }
 
-        Cache::put(self::POINT_RULES_CACHE_KEY, $currentRules, 86400 * 30);
+        Cache::forget(self::POINT_RULES_CACHE_KEY);
 
-        return $currentRules;
+        return $this->getPointRules();
     }
 
     /**
