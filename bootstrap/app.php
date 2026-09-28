@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             EnsureNotSuspended::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+            'webhook/stripe',
+        ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);

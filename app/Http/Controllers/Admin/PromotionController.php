@@ -19,11 +19,52 @@ class PromotionController extends Controller
     {
         $packages = PromotionPackage::orderBy('sort_order')->orderBy('price')->get();
 
+        $completedPromotions = ListingPromotion::where('payment_status', 'completed');
+        $totalRevenue = (float) (clone $completedPromotions)->sum('price_paid');
+        $totalPointsRedeemed = (int) (clone $completedPromotions)->sum('points_spent');
+        $paidOrdersCount = (clone $completedPromotions)->where('payment_method', 'stripe')->where('price_paid', '>', 0)->count();
+        $pointsOrdersCount = (clone $completedPromotions)->where('payment_method', 'points')->count();
+        $totalPromotions = ListingPromotion::count();
+        $activePromotions = ListingPromotion::active()->count();
+
+        $avgOrderValue = $paidOrdersCount > 0 ? round($totalRevenue / $paidOrdersCount, 2) : 0.00;
+
         $stats = [
-            'total_revenue' => ListingPromotion::where('payment_status', 'completed')->sum('price_paid'),
-            'total_points_redeemed' => ListingPromotion::where('payment_status', 'completed')->sum('points_spent'),
-            'active_promotions' => ListingPromotion::active()->count(),
-            'total_promotions' => ListingPromotion::count(),
+            'total_revenue' => $totalRevenue,
+            'total_points_redeemed' => $totalPointsRedeemed,
+            'active_promotions' => $activePromotions,
+            'total_promotions' => $totalPromotions,
+            'paid_orders_count' => $paidOrdersCount,
+            'points_orders_count' => $pointsOrdersCount,
+            'avg_order_value' => $avgOrderValue,
+        ];
+
+        // 30-day Daily Revenue Trend (CAD $)
+        $days = collect(range(29, 0))->map(fn ($daysAgo) => now()->subDays($daysAgo)->format('Y-m-d'));
+        $dailyRevenues = ListingPromotion::where('payment_status', 'completed')
+            ->where('created_at', '>=', now()->subDays(29)->startOfDay())
+            ->selectRaw('DATE(created_at) as date, SUM(price_paid) as daily_total, COUNT(*) as orders_count')
+            ->groupBy('date')
+            ->pluck('daily_total', 'date');
+
+        $chartDates = [];
+        $chartRevenues = [];
+        foreach ($days as $day) {
+            $chartDates[] = \Carbon\Carbon::parse($day)->format('M d');
+            $chartRevenues[] = (float) ($dailyRevenues->get($day) ?? 0);
+        }
+
+        // Revenue Share by Boost Type
+        $revenueByType = ListingPromotion::where('payment_status', 'completed')
+            ->selectRaw('type, SUM(price_paid) as total_cad, COUNT(*) as total_count')
+            ->groupBy('type')
+            ->get()
+            ->keyBy('type');
+
+        $typeSeries = [
+            'sponsored' => (float) ($revenueByType->get('sponsored')?->total_cad ?? 0),
+            'featured' => (float) ($revenueByType->get('featured')?->total_cad ?? 0),
+            'bump_up' => (float) ($revenueByType->get('bump_up')?->total_cad ?? 0),
         ];
 
         $promotions = ListingPromotion::with(['listing', 'user', 'package'])
@@ -36,17 +77,26 @@ class PromotionController extends Controller
             'auto_approve_listings' => (bool) site_setting('auto_approve_listings', true),
         ];
 
+        $analytics = [
+            'chart_dates' => $chartDates,
+            'chart_revenues' => $chartRevenues,
+            'type_series' => array_values($typeSeries),
+            'type_labels' => ['Sponsored Spotlight', 'Featured Highlight', 'Instant Bump-Up'],
+            'payment_split' => [$paidOrdersCount, $pointsOrdersCount],
+        ];
+
         if ($request->ajax() && $request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'packages' => $packages,
                 'stats' => $stats,
+                'analytics' => $analytics,
                 'promotions' => $promotions,
                 'quota_settings' => $quotaSettings,
             ]);
         }
 
-        return view('admin.promotions.index', compact('packages', 'stats', 'promotions', 'quotaSettings'));
+        return view('admin.promotions.index', compact('packages', 'stats', 'analytics', 'promotions', 'quotaSettings'));
     }
 
     /**

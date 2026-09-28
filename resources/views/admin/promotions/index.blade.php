@@ -84,6 +84,68 @@
         </div>
     </div>
 
+    <!-- Revenue & Boost Visual Analytics Row -->
+    <div class="row g-3 mb-4">
+        <!-- 30-Day CAD Revenue Area Chart -->
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="ri-line-chart-line fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">30-Day Boost Revenue Trend (CAD $)</h6>
+                            <small class="text-muted">Daily gross earnings from listing upgrades & promotions</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success-subtle text-success px-3 py-1 font-monospace" style="font-size: 11.5px;">
+                            Avg Order: ${{ number_format($stats['avg_order_value'] ?? 0, 2) }} CAD
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div id="revenueTrendChart" style="min-height: 280px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Share by Boost Tier Donut Chart -->
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="ri-pie-chart-2-line fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">Revenue by Boost Tier</h6>
+                            <small class="text-muted">Monetization share by package</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                    <div id="boostTypeDonutChart" style="min-height: 240px;"></div>
+                    <div class="d-flex align-items-center justify-content-around mt-3 pt-2 border-top text-center">
+                        <div>
+                            <span class="text-muted small d-block" style="font-size: 11px;">Stripe Paid</span>
+                            <span class="fw-bold text-success">{{ $stats['paid_orders_count'] ?? 0 }}</span>
+                        </div>
+                        <div class="border-start ps-3">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Points Redeemed</span>
+                            <span class="fw-bold text-warning">{{ $stats['points_orders_count'] ?? 0 }}</span>
+                        </div>
+                        <div class="border-start ps-3">
+                            <span class="text-muted small d-block" style="font-size: 11px;">Avg CAD Order</span>
+                            <span class="fw-bold text-dark">${{ number_format($stats['avg_order_value'] ?? 0, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Freemium Listing Quota & Marketplace Rules -->
     <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
         <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -406,8 +468,135 @@
 @endsection
 
 @push('custom-script')
+<!-- ApexCharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
 $(document).ready(function () {
+    // 1. Revenue Trend Area Chart
+    const revenueDates = @json($analytics['chart_dates'] ?? []);
+    const revenueData = @json($analytics['chart_revenues'] ?? []);
+
+    const revenueOptions = {
+        series: [{
+            name: 'CAD Gross Revenue',
+            data: revenueData
+        }],
+        chart: {
+            type: 'area',
+            height: 260,
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            fontFamily: 'inherit'
+        },
+        dataLabels: { enabled: false },
+        stroke: {
+            curve: 'smooth',
+            width: 2.5,
+            colors: ['#10B981']
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [0, 95, 100],
+                colorStops: [
+                    { offset: 0, color: '#10B981', opacity: 0.4 },
+                    { offset: 100, color: '#10B981', opacity: 0.0 }
+                ]
+            }
+        },
+        xaxis: {
+            categories: revenueDates,
+            labels: {
+                style: { colors: '#64748B', fontSize: '11px' }
+            },
+            axisBorder: { show: false },
+            axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return '$' + val.toFixed(0);
+                },
+                style: { colors: '#64748B', fontSize: '11px' }
+            }
+        },
+        grid: {
+            borderColor: '#F1F5F9',
+            strokeDashArray: 4
+        },
+        tooltip: {
+            theme: 'dark',
+            y: {
+                formatter: function (val) {
+                    return '$' + val.toFixed(2) + ' CAD';
+                }
+            }
+        },
+        colors: ['#10B981']
+    };
+
+    if (document.querySelector("#revenueTrendChart")) {
+        new ApexCharts(document.querySelector("#revenueTrendChart"), revenueOptions).render();
+    }
+
+    // 2. Boost Type Donut Chart
+    const typeSeries = @json($analytics['type_series'] ?? [0, 0, 0]);
+    const hasTypeData = typeSeries.some(v => v > 0);
+    const displayTypeSeries = hasTypeData ? typeSeries : [1, 1, 1];
+
+    const typeOptions = {
+        series: displayTypeSeries,
+        labels: @json($analytics['type_labels'] ?? ['Sponsored Spotlight', 'Featured Highlight', 'Instant Bump-Up']),
+        chart: {
+            type: 'donut',
+            height: 220,
+            fontFamily: 'inherit'
+        },
+        colors: ['#F59E0B', '#3B82F6', '#10B981'],
+        legend: {
+            position: 'bottom',
+            fontSize: '11.5px',
+            labels: { colors: '#64748B' },
+            markers: { radius: 12 }
+        },
+        dataLabels: { enabled: false },
+        stroke: { width: 0 },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '72%',
+                    labels: {
+                        show: true,
+                        total: {
+                            show: true,
+                            label: 'Total Revenue',
+                            fontSize: '12px',
+                            color: '#64748B',
+                            formatter: function () {
+                                return '${{ number_format($stats['total_revenue'] ?? 0, 2) }}';
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        tooltip: {
+            theme: 'dark',
+            y: {
+                formatter: function (val) {
+                    return '$' + val.toFixed(2) + ' CAD';
+                }
+            }
+        }
+    };
+
+    if (document.querySelector("#boostTypeDonutChart")) {
+        new ApexCharts(document.querySelector("#boostTypeDonutChart"), typeOptions).render();
+    }
+
     // Initialize Boost Audit DataTable
     if ($.fn.DataTable) {
         $('#promotions-data-table').DataTable({

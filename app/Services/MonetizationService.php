@@ -120,7 +120,7 @@ class MonetizationService
             $listing->save();
 
             // Create listing promotion audit record
-            return ListingPromotion::create([
+            $promotion = ListingPromotion::create([
                 'listing_id' => $listing->id,
                 'user_id' => $user->id,
                 'promotion_package_id' => $package->id,
@@ -134,6 +134,15 @@ class MonetizationService
                 'expires_at' => $expiresAt,
                 'is_active' => true,
             ]);
+
+            // Dispatch internal platform notification
+            try {
+                $user->notify(new \App\Notifications\ListingBoostActivated($listing, $package, $promotion));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Could not dispatch boost notification', ['error' => $e->getMessage()]);
+            }
+
+            return $promotion;
         });
     }
 

@@ -26,6 +26,7 @@ class ListingCreationTest extends TestCase
         $this->seed(\Database\Seeders\CategorySeeder::class);
         $this->seed(\Database\Seeders\CategoryAttributeSeeder::class);
         $this->seed(\Database\Seeders\UserSeeder::class);
+        $this->seed(\Database\Seeders\MonetizationSeeder::class);
         Storage::fake('public');
     }
 
@@ -418,5 +419,32 @@ class ListingCreationTest extends TestCase
         $this->assertTrue($listing->isFeatured());
         $this->assertTrue($listing->isBumped());
     }
+
+    public function test_listing_creates_with_card_promotion_returns_stripe_checkout_url(): void
+    {
+        $user = User::first() ?? User::factory()->create();
+        $category = Category::first();
+
+        $postRes = $this->actingAs($user)->postJson('/post-ad', [
+            'title'             => 'Sponsored Dell XPS 15 4K Touch Laptop',
+            'category_slug'     => $category->slug,
+            'description'       => 'Immaculate Dell XPS 15 OLED display with RTX 4070, 32GB RAM and 1TB SSD.',
+            'city'              => 'Calgary',
+            'province'          => 'AB',
+            'price_type'        => 'fixed',
+            'price'             => 2100,
+            'promotions'        => ['sponsored'],
+            'payment_method'    => 'card',
+        ]);
+
+        $postRes->assertStatus(200)
+            ->assertJson(['success' => true])
+            ->assertJsonStructure(['listing_id', 'checkout_url']);
+
+        $checkoutUrl = $postRes->json('checkout_url');
+        $this->assertNotNull($checkoutUrl);
+        $this->assertStringContainsString('promote/success', $checkoutUrl);
+    }
 }
+
 

@@ -204,6 +204,11 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Methods: `SiteSetting::get(string $key, mixed $default = null)`, `SiteSetting::set(string $key, mixed $value, string $group = 'general', string $type = 'string')`, `SiteSetting::getAllGrouped()`, `SiteSetting::flushCache()`
 - Helpers: `site_setting(string $key, mixed $default = null)`
 
+### StripeService & Monetization (`App\Services\StripeService`, `App\Services\MonetizationService`)
+- Real-time Stripe API charges & PaymentIntents (`createPaymentIntent`, `chargeCard`, `verifyWebhookSignature`).
+- Internal platform notifications: `ListingBoostActivated` dispatched upon boost activation.
+- Webhook Listener: `POST /webhook/stripe` (`App\Http\Controllers\StripeWebhookController`).
+
 ---
 
 ## 3. Code Standards & Development Rules

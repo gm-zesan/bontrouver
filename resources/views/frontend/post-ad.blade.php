@@ -1543,6 +1543,12 @@ function handleFormSubmit(e) {
             // Clear local draft
             localStorage.removeItem('bontrouver_ad_draft');
 
+            // If Stripe checkout was initiated for paid promotion, redirect to Stripe Checkout
+            if (data.checkout_url) {
+                window.location.href = data.checkout_url;
+                return;
+            }
+
             // Show Success Modal
             document.getElementById('successListingTitle').textContent = postAdState.title;
             document.getElementById('successListingPrice').textContent = document.getElementById('revPriceVal').textContent;

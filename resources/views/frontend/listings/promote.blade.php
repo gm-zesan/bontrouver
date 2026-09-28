@@ -135,6 +135,7 @@
                                         @if(!$isAlreadyActive)
                                             <input type="radio" name="package_id" value="{{ $pkg->id }}"
                                                 id="radio_pkg_{{ $pkg->id }}"
+                                                {{ $loop->first ? 'checked' : '' }}
                                                 class="form-check-input position-absolute top-0 end-0 m-3" style="cursor: pointer;">
                                         @else
                                             <span class="position-absolute top-0 end-0 m-3 badge bg-warning text-dark fw-bold"
@@ -243,7 +244,7 @@
                                 <span id="points_warning_text"></span>
                             </div>
 
-                            <!-- Order Summary & Activate Action Bar -->
+                            <!-- Order Summary & Action Bar -->
                             <div
                                 class="border-top border-secondary border-opacity-10 pt-3 mt-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                                 <div>
@@ -257,106 +258,23 @@
                                     </div>
                                 </div>
 
-                                <button type="button"
+                                <button type="submit"
                                     class="btn btn-theme-primary btn-lg px-4 py-2 rounded-pill shadow d-inline-flex align-items-center justify-content-center gap-2 fw-semibold"
-                                    id="btn_submit_boost" onclick="handleActivateBoostClick()">
-                                    <i class="bi bi-rocket-takeoff-fill fs-5"></i>
-                                    <span id="btn_submit_boost_text">Activate Boost</span>
+                                    id="btn_submit_boost">
+                                    <i class="bi bi-shield-lock-fill fs-5" id="btn_submit_boost_icon"></i>
+                                    <span id="btn_submit_boost_text">Proceed to Stripe Checkout</span>
                                 </button>
                             </div>
 
-                        </div>
-
-                        <!-- STRIPE PAYMENT MODAL (RENDERED ON ACTIVATE BOOST CLICK) -->
-                        <div class="modal fade" id="stripeCheckoutModal" tabindex="-1" aria-labelledby="stripeCheckoutModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content rounded-4 border-0 shadow-lg" style="background: #0D243C; border: 1px solid rgba(255,255,255,0.12) !important; color: #fff;">
-                                    <div class="modal-header border-bottom border-secondary border-opacity-25 pb-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="p-2 rounded-3" style="background: rgba(59, 130, 246, 0.15); color: #3B82F6;">
-                                                <i class="bi bi-credit-card-2-front-fill fs-5"></i>
-                                            </div>
-                                            <div>
-                                                <h5 class="modal-title fw-bold text-white mb-0" id="stripeCheckoutModalLabel">Stripe Secure Payment</h5>
-                                                <span class="text-secondary small" style="font-size: 0.75rem;"><i class="bi bi-shield-check text-success me-1"></i> 256-bit Encrypted Checkout</span>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body py-4">
-                                        <!-- Order summary preview inside modal -->
-                                        <div class="p-3 rounded-3 mb-3" style="background: #081D33; border: 1px solid rgba(255,255,255,0.08);">
-                                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                                <span class="text-secondary small">Listing Ad:</span>
-                                                <span class="text-white small fw-semibold text-truncate ms-2" style="max-width: 200px;">{{ $listing->title }}</span>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                                <span class="text-secondary small">Boost Package:</span>
-                                                <span class="text-info small fw-bold" id="modal_package_name">{{ $packages->first()?->name ?? 'Boost' }}</span>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary border-opacity-10">
-                                                <span class="text-white fw-bold">Total Due:</span>
-                                                <span class="text-success fw-bold fs-5" id="modal_package_price">${{ number_format($packages->first()?->price ?? 0, 2) }} CAD</span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Stripe Card Inputs -->
-                                        <div class="row g-3">
-                                            <div class="col-12">
-                                                <label class="form-label text-secondary small fw-bold mb-1">Cardholder Name <span class="text-danger">*</span></label>
-                                                <input type="text" name="stripe_cardholder_name" id="stripe_cardholder_name"
-                                                    class="form-control dark-filter-input" value="{{ auth()->user()->name }}"
-                                                    placeholder="Full Name on Card" required
-                                                    style="background: #081D33 !important; font-size: 0.88rem;">
-                                            </div>
-                                            <div class="col-12">
-                                                <label class="form-label text-secondary small fw-bold mb-1">Card Number <span class="text-danger">*</span></label>
-                                                <div class="input-group">
-                                                    <input type="text" name="stripe_card_number" id="stripe_card_number"
-                                                        class="form-control dark-filter-input" placeholder="•••• •••• •••• ••••"
-                                                        maxlength="19" value="4242 •••• •••• 4242" required
-                                                        style="background: #081D33 !important; font-size: 0.88rem;">
-                                                    <span class="input-group-text dark-search-addon"
-                                                        style="background: #081D33; border-color: rgba(255,255,255,0.1);"><i
-                                                            class="bi bi-credit-card text-success"></i></span>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label text-secondary small fw-bold mb-1">Expiration <span class="text-danger">*</span></label>
-                                                <input type="text" name="stripe_card_expiry" id="stripe_card_expiry" class="form-control dark-filter-input"
-                                                    placeholder="MM / YY" maxlength="7" value="12 / 28" required
-                                                    style="background: #081D33 !important; font-size: 0.88rem;">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label text-secondary small fw-bold mb-1">CVC / CVV <span class="text-danger">*</span></label>
-                                                <input type="password" name="stripe_card_cvc" id="stripe_card_cvc" class="form-control dark-filter-input"
-                                                    placeholder="CVC" maxlength="4" value="888" required
-                                                    style="background: #081D33 !important; font-size: 0.88rem;">
-                                            </div>
-                                            <div class="col-12">
-                                                <label class="form-label text-secondary small fw-bold mb-1">Billing Postal Code</label>
-                                                <input type="text" name="stripe_postal_code" id="stripe_postal_code" class="form-control dark-filter-input"
-                                                    placeholder="H3Z 2Y7" maxlength="7"
-                                                    value="{{ auth()->user()->postal_code ?? 'H3Z 2Y7' }}"
-                                                    style="background: #081D33 !important; font-size: 0.88rem;">
-                                            </div>
-                                        </div>
-
-                                        <div class="mt-3 text-center">
-                                            <span class="text-secondary" style="font-size: 0.74rem;">
-                                                <i class="bi bi-lock-fill text-success me-1"></i> Powered by Stripe Payments Canada. Real-time authorization.
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-top border-secondary border-opacity-25 pt-3">
-                                        <button type="button" class="btn btn-outline-secondary rounded-pill px-3 py-2 text-white-50" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-success rounded-pill px-4 py-2 fw-semibold d-inline-flex align-items-center gap-2 shadow" id="btn_modal_complete_payment" onclick="submitStripePayment()">
-                                            <i class="bi bi-shield-check fs-5"></i>
-                                            <span id="btn_modal_complete_text">Complete Payment & Boost</span>
-                                        </button>
-                                    </div>
-                                </div>
+                            <!-- Trust & Security Badges -->
+                            <div class="d-flex align-items-center justify-content-center gap-3 mt-3 pt-2 text-secondary small flex-wrap" style="font-size: 0.78rem;">
+                                <span><i class="bi bi-shield-check text-success me-1"></i> 256-bit Encrypted SSL</span>
+                                <span>•</span>
+                                <span><i class="bi bi-patch-check-fill text-info me-1"></i> Powered by Stripe Canada</span>
+                                <span>•</span>
+                                <span><i class="bi bi-credit-card-2-front me-1"></i> Visa, Mastercard, AMEX, Apple Pay, Google Pay</span>
                             </div>
+
                         </div>
 
                     </form>
@@ -406,7 +324,6 @@
             let currentPointCost = {{ $packages->first()?->point_cost ?? 0 }};
             let currentPlanName = "{{ addslashes($packages->first()?->name ?? '') }}";
             const userPoints = {{ (int) $user->community_points }};
-            let stripeModal = null;
 
             function selectPackage(id, price, pointCost, name, type) {
                 document.querySelectorAll('.dark-pkg-card').forEach(card => card.classList.remove('selected'));
@@ -446,6 +363,7 @@
                 const warningText = document.getElementById('points_warning_text');
                 const submitBtn = document.getElementById('btn_submit_boost');
                 const submitBtnText = document.getElementById('btn_submit_boost_text');
+                const submitBtnIcon = document.getElementById('btn_submit_boost_icon');
 
                 if (summaryPlanName) summaryPlanName.innerText = currentPlanName;
 
@@ -455,6 +373,7 @@
                         summaryCost.className = 'fw-bold text-warning fs-5';
                     }
                     if (submitBtnText) submitBtnText.innerText = 'Activate Boost with Points';
+                    if (submitBtnIcon) submitBtnIcon.className = 'bi bi-award-fill fs-5 text-warning';
 
                     if (currentPointCost <= 0) {
                         warningBox.classList.remove('d-none');
@@ -473,53 +392,26 @@
                         summaryCost.innerText = `$${parseFloat(currentPrice).toFixed(2)} CAD`;
                         summaryCost.className = 'fw-bold text-success fs-5';
                     }
-                    if (submitBtnText) submitBtnText.innerText = 'Activate Boost';
+                    if (submitBtnText) submitBtnText.innerText = `Proceed to Stripe Checkout ($${parseFloat(currentPrice).toFixed(2)})`;
+                    if (submitBtnIcon) submitBtnIcon.className = 'bi bi-shield-lock-fill fs-5';
                     warningBox.classList.add('d-none');
                     submitBtn.disabled = false;
                 }
             }
 
-            function handleActivateBoostClick() {
-                const isPoints = document.getElementById('method_points').checked;
-                const form = document.getElementById('promotionForm');
-
-                if (isPoints) {
-                    // Direct point redemption
-                    form.submit();
-                } else {
-                    // Open Stripe payment modal
-                    const modalPkgName = document.getElementById('modal_package_name');
-                    const modalPkgPrice = document.getElementById('modal_package_price');
-                    const modalBtnText = document.getElementById('btn_modal_complete_text');
-
-                    if (modalPkgName) modalPkgName.innerText = currentPlanName;
-                    if (modalPkgPrice) modalPkgPrice.innerText = `$${parseFloat(currentPrice).toFixed(2)} CAD`;
-                    if (modalBtnText) modalBtnText.innerText = `Complete Payment & Boost ($${parseFloat(currentPrice).toFixed(2)})`;
-
-                    if (!stripeModal) {
-                        stripeModal = new bootstrap.Modal(document.getElementById('stripeCheckoutModal'));
-                    }
-                    stripeModal.show();
-                }
-            }
-
-            function submitStripePayment() {
-                const btn = document.getElementById('btn_modal_complete_payment');
-                const btnText = document.getElementById('btn_modal_complete_text');
-                const cardName = document.getElementById('stripe_cardholder_name')?.value;
-                const cardNumber = document.getElementById('stripe_card_number')?.value;
-
-                if (!cardName || !cardNumber) {
-                    alert('Please enter your cardholder name and card number.');
-                    return;
-                }
+            // Handle submission loading state
+            document.getElementById('promotionForm')?.addEventListener('submit', function(e) {
+                const btn = document.getElementById('btn_submit_boost');
+                const btnText = document.getElementById('btn_submit_boost_text');
+                const isPoints = document.getElementById('method_points')?.checked;
 
                 if (btn) btn.disabled = true;
-                if (btnText) btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing via Stripe...';
-
-                // Submit main form
-                document.getElementById('promotionForm').submit();
-            }
+                if (btnText) {
+                    btnText.innerHTML = isPoints 
+                        ? '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Activating Boost...' 
+                        : '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Redirecting to Stripe...';
+                }
+            });
 
             // Initial selection of first available package
             document.addEventListener('DOMContentLoaded', () => {

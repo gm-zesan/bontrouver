@@ -18,10 +18,18 @@ use App\Services\PointService;
  */
 class ListingService
 {
+    protected ?string $lastCheckoutUrl = null;
+
     public function __construct(
         private readonly LocationService $locationService,
-        private readonly PointService $pointService
+        private readonly PointService $pointService,
+        private readonly StripeService $stripeService
     ) {}
+
+    public function getLastCheckoutUrl(): ?string
+    {
+        return $this->lastCheckoutUrl;
+    }
 
     // ─── Read ──────────────────────────────────────────────────────────────────
 
@@ -452,6 +460,48 @@ class ListingService
                 'expires_at'            => null,
                 'is_active'             => true,
             ]);
+        }
+
+        // If paid with Card (Stripe), initiate Stripe checkout session for seamless payment
+        $selectedPkg = null;
+        if ($isSponsored) {
+            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+                ['type' => 'sponsored'],
+                ['name' => 'Sponsored Spotlight', 'slug' => 'sponsored-spotlight', 'price' => 9.99, 'point_cost' => 300, 'duration_days' => 7, 'is_active' => true]
+            );
+        } elseif ($isFeatured) {
+            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+                ['type' => 'featured'],
+                ['name' => 'Featured Highlight', 'slug' => 'featured-highlight', 'price' => 4.99, 'point_cost' => 150, 'duration_days' => 7, 'is_active' => true]
+            );
+        } elseif ($isBumped) {
+            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+                ['type' => 'bump_up'],
+                ['name' => 'Instant Bump-Up', 'slug' => 'instant-bump-up', 'price' => 1.99, 'point_cost' => 60, 'duration_days' => 1, 'is_active' => true]
+            );
+        }
+
+        if ($paymentMethod === 'card' && $selectedPkg) {
+            $successUrl = route('listings.promote.success', [
+                'listing' => $listing->id,
+                'package_id' => $selectedPkg->id,
+            ]);
+            $cancelUrl = route('listings.show', [
+                'idOrSlug' => $listing->slug ?? $listing->id,
+                'promo_cancelled' => 1,
+            ]);
+
+            $session = $this->stripeService->createCheckoutSession(
+                listing: $listing,
+                package: $selectedPkg,
+                user: $user,
+                successUrl: $successUrl,
+                cancelUrl: $cancelUrl
+            );
+
+            if ($session['success'] && !empty($session['url'])) {
+                $this->lastCheckoutUrl = $session['url'];
+            }
         }
 
         // Save dynamic category attributes if provided

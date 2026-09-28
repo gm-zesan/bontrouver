@@ -161,6 +161,7 @@ class ListingController extends Controller
     public function store(StoreListingRequest $request): JsonResponse|RedirectResponse
     {
         $listing = $this->listingService->create($request->validated());
+        $checkoutUrl = $this->listingService->getLastCheckoutUrl();
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -168,9 +169,14 @@ class ListingController extends Controller
                 'message'      => 'Your ad has been successfully published!',
                 'listing_id'   => $listing->id,
                 'listing_slug' => $listing->slug,
+                'checkout_url' => $checkoutUrl,
                 'view_url'     => url('/listing/' . $listing->id),
                 'manage_url'   => url('/my-listings'),
             ]);
+        }
+
+        if ($checkoutUrl) {
+            return redirect()->away($checkoutUrl);
         }
 
         return redirect()

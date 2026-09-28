@@ -110,8 +110,14 @@ class MonetizationTest extends TestCase
             'payment_method' => 'stripe',
         ]);
 
-        $response->assertRedirect(route('listings.show', $this->listing->slug));
-        $response->assertSessionHas('success');
+        $response->assertRedirect();
+        $redirectUrl = $response->headers->get('Location');
+        $this->assertStringContainsString('promote/success', $redirectUrl);
+
+        // Follow the Stripe Checkout success callback
+        $callbackResponse = $this->actingAs($this->user)->get($redirectUrl);
+        $callbackResponse->assertRedirect(route('listings.show', $this->listing->slug));
+        $callbackResponse->assertSessionHas('success');
 
         $this->listing->refresh();
         $this->assertTrue($this->listing->is_sponsored);

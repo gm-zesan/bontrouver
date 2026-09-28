@@ -116,10 +116,20 @@ Route::middleware(['auth'])->group(function () {
     // 7. Community Abuse & Moderation Reporting
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 
-    // 8. Listing Promotion & Boost Hub (Standardized singular to match /listing/{id})
+    // 8. Listing Promotion & Boost Hub (Supports both /listing/{id}/promote and /listings/{id}/promote)
     Route::get('/listing/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show');
     Route::post('/listing/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store');
+    Route::get('/listing/{listing}/promote/success', [ListingPromotionController::class, 'success'])->name('listings.promote.success');
+    Route::get('/listing/{listing}/promote/cancel', [ListingPromotionController::class, 'cancel'])->name('listings.promote.cancel');
+    Route::get('/listings/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show.alias');
+    Route::post('/listings/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store.alias');
+    Route::get('/listings/{listing}/promote/success', [ListingPromotionController::class, 'success']);
+    Route::get('/listings/{listing}/promote/cancel', [ListingPromotionController::class, 'cancel']);
 });
+
+// Stripe Payment Webhook
+Route::post('/webhook/stripe', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
+
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
