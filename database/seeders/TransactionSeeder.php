@@ -15,12 +15,12 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
-        $metro = User::where('email', 'metro.auto@bontrouver.ca')->first();
-        $sarah = User::where('email', 'seller@bontrouver.ca')->first();
-        $david = User::where('email', 'david.miller@example.ca')->first();
-        $alex  = User::where('email', 'buyer@bontrouver.ca')->first();
+        $marcus = User::where('email', 'marcus.v@bontrouver.ca')->first();
+        $sarah  = User::where('email', 'seller@bontrouver.ca')->first();
+        $david  = User::where('email', 'david.miller@bontrouver.ca')->first();
+        $alex   = User::where('email', 'buyer@bontrouver.ca')->first();
 
-        if (!$alex || !$metro || !$sarah || !$david) {
+        if (!$alex || !$marcus || !$sarah || !$david) {
             $this->command->warn('Users missing. Skipping TransactionSeeder.');
             return;
         }
@@ -29,9 +29,9 @@ class TransactionSeeder extends Seeder
 
         $transactions = [
             [
-                'listing_id'   => $listings->firstWhere('user_id', $metro->id)?->id,
+                'listing_id'   => $listings->firstWhere('user_id', $marcus->id)?->id,
                 'buyer_id'     => $alex->id,
-                'seller_id'    => $metro->id,
+                'seller_id'    => $marcus->id,
                 'amount'       => 22800.00,
                 'status'       => 'completed',
                 'completed_at' => now()->subDays(15),

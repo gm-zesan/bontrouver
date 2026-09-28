@@ -16,7 +16,7 @@ class FavoriteSeeder extends Seeder
     {
         $alex  = User::where('email', 'buyer@bontrouver.ca')->first();
         $sarah = User::where('email', 'seller@bontrouver.ca')->first();
-        $david = User::where('email', 'david.miller@example.ca')->first();
+        $david = User::where('email', 'david.miller@bontrouver.ca')->first();
 
         $listings = Listing::all();
 

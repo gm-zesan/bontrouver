@@ -15,13 +15,16 @@ class ListingSeeder extends Seeder
 {
     public function run(): void
     {
-        $admin = User::where('email', 'admin@bontrouver.ca')->first();
-        $metro = User::where('email', 'metro.auto@bontrouver.ca')->first();
-        $sarah = User::where('email', 'seller@bontrouver.ca')->first();
-        $david = User::where('email', 'david.miller@example.ca')->first();
-        $alex  = User::where('email', 'buyer@bontrouver.ca')->first();
+        $admin  = User::where('email', 'admin@bontrouver.ca')->first();
+        $sarah  = User::where('email', 'seller@bontrouver.ca')->first();
+        $marcus = User::where('email', 'marcus.v@bontrouver.ca')->first();
+        $david  = User::where('email', 'david.miller@bontrouver.ca')->first();
+        $elena  = User::where('email', 'elena.r@bontrouver.ca')->first();
+        $alex   = User::where('email', 'buyer@bontrouver.ca')->first();
+        $priya  = User::where('email', 'priya.p@bontrouver.ca')->first();
+        $jeanluc = User::where('email', 'jeanluc.d@bontrouver.ca')->first();
 
-        if (!$admin || !$metro || !$sarah || !$david) {
+        if (!$sarah || !$marcus || !$david) {
             $this->command->warn('Required users not found. Run UserSeeder first.');
             return;
         }
@@ -29,7 +32,7 @@ class ListingSeeder extends Seeder
         $listings = [
             // ─── HOUSING ───
             [
-                'user'          => $metro,
+                'user'          => $marcus,
                 'category'      => 'apartments-condos-rent',
                 'title'         => 'Modern 1-Bedroom Condo with Balcony & City Views',
                 'description'   => 'Bright and spacious 1-bedroom condo in Liberty Village. Floor-to-ceiling windows, stainless steel appliances, in-suite laundry, gym and pool access. Just steps from TTC King streetcar and local cafes.',
@@ -153,7 +156,7 @@ class ListingSeeder extends Seeder
 
             // ─── CARS & VEHICLES ───
             [
-                'user'          => $metro,
+                'user'          => $marcus,
                 'category'      => 'cars-trucks',
                 'title'         => '2023 Toyota RAV4 Hybrid XSE AWD — One Owner, Low KM',
                 'description'   => 'Single-owner 2023 RAV4 Hybrid XSE AWD. Only 12,400 km. Equipped with Technology Package, Apple CarPlay, panoramic sunroof, heated steering wheel, and winter tire set. Clean CARFAX with no accidents.',
@@ -187,7 +190,7 @@ class ListingSeeder extends Seeder
                 ],
             ],
             [
-                'user'          => $metro,
+                'user'          => $elena,
                 'category'      => 'cars-trucks',
                 'title'         => '2022 Tesla Model 3 Long Range AWD — Autopilot & Low Mileage',
                 'description'   => 'Immaculate 2022 Tesla Model 3 Long Range with Dual Motor AWD. Pearl White Multi-Coat, Premium Black Interior, 28,000 km. Includes Mobile Connector, tinted windows, and Full Self-Driving computer ready.',
@@ -221,7 +224,7 @@ class ListingSeeder extends Seeder
                 ],
             ],
             [
-                'user'          => $metro,
+                'user'          => $priya,
                 'category'      => 'cars-trucks',
                 'title'         => '2021 Ford F-150 Lariat 4x4 SuperCrew 3.5L EcoBoost',
                 'description'   => 'Loaded 2021 Ford F-150 Lariat 4x4. 44,000 km, FX4 Off-Road package, 502A Luxury package, B&O Sound System, twin panel moonroof, spray-in bedliner, tonneau cover.',
@@ -254,7 +257,7 @@ class ListingSeeder extends Seeder
                 ],
             ],
             [
-                'user'          => $metro,
+                'user'          => $david,
                 'category'      => 'cars-trucks',
                 'title'         => '2020 Honda Civic Sport Hatchback — Manual 6-Speed',
                 'description'   => 'Fun to drive 2020 Honda Civic Sport 6-speed manual. 52,000 km. Excellent condition, always serviced at Honda dealer. Apple CarPlay/Android Auto, Honda Sensing safety suite.',

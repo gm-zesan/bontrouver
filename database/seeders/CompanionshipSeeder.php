@@ -19,12 +19,15 @@ class CompanionshipSeeder extends Seeder
      */
     public function run(): void
     {
-        $alex = User::where('email', 'buyer@bontrouver.ca')->first();
-        $sarah = User::where('email', 'seller@bontrouver.ca')->first();
-        $david = User::where('email', 'david.miller@example.ca')->first();
-        $admin = User::where('email', 'admin@bontrouver.ca')->first();
+        $sarah   = User::where('email', 'seller@bontrouver.ca')->first();
+        $marcus  = User::where('email', 'marcus.v@bontrouver.ca')->first();
+        $david   = User::where('email', 'david.miller@bontrouver.ca')->first();
+        $elena   = User::where('email', 'elena.r@bontrouver.ca')->first();
+        $alex    = User::where('email', 'buyer@bontrouver.ca')->first();
+        $priya   = User::where('email', 'priya.p@bontrouver.ca')->first();
+        $jeanluc = User::where('email', 'jeanluc.d@bontrouver.ca')->first();
 
-        if (!$alex || !$sarah || !$david) {
+        if (!$alex || !$sarah || !$david || !$marcus) {
             $this->command->warn('Users missing. Skipping CompanionshipSeeder.');
             return;
         }
@@ -68,7 +71,7 @@ class CompanionshipSeeder extends Seeder
 
             // 🍽️ Dining in Toronto
             [
-                'user_id'          => $admin->id,
+                'user_id'          => $marcus->id,
                 'type'             => CompanionshipType::DINING->value,
                 'title' => 'Tasting authentic ramen and street food in Downtown Toronto',
                 'description' => 'Food lovers unite! Organizing a small table of 4 to check out the new Hokkaido Ramen spot on Dundas West this Friday evening.',
@@ -87,7 +90,7 @@ class CompanionshipSeeder extends Seeder
 
             // ⚽ Watch a sports match in Calgary
             [
-                'user_id'          => $alex->id,
+                'user_id'          => $elena->id,
                 'type'             => CompanionshipType::MATCH->value,
                 'title' => 'Watch Calgary Flames / NHL game at local sports pub',
                 'description' => 'Big hockey game this Saturday! Looking for a couple of fellow sports fans in Beltline to grab wings and watch the game together.',
@@ -103,7 +106,7 @@ class CompanionshipSeeder extends Seeder
 
             // 🎮 Board games & video games
             [
-                'user_id'          => $sarah->id,
+                'user_id'          => $priya->id,
                 'type'             => CompanionshipType::GAMING->value,
                 'title' => 'Casual Board Game Night (Catan, Ticket to Ride, Mario Kart)',
                 'description' => 'Friendly social evening playing tabletop classics and casual Nintendo Switch games at a local board game cafe. All skill levels welcome!',

@@ -17,11 +17,13 @@ return new class extends Migration
             $table->string('code', 4)->unique();
             $table->string('slug')->unique();
             $table->string('country_code', 3)->default('CA');
+            $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
 
             $table->index('code');
             $table->index('slug');
+            $table->index('is_active');
         });
     }
 

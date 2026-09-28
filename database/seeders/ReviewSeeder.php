@@ -14,56 +14,67 @@ class ReviewSeeder extends Seeder
      */
     public function run(): void
     {
-        $metro = User::where('email', 'metro.auto@bontrouver.ca')->first();
-        $sarah = User::where('email', 'seller@bontrouver.ca')->first();
-        $david = User::where('email', 'david.miller@example.ca')->first();
-        $alex  = User::where('email', 'buyer@bontrouver.ca')->first();
+        $sarah   = User::where('email', 'seller@bontrouver.ca')->first();
+        $marcus  = User::where('email', 'marcus.v@bontrouver.ca')->first();
+        $david   = User::where('email', 'david.miller@bontrouver.ca')->first();
+        $elena   = User::where('email', 'elena.r@bontrouver.ca')->first();
+        $alex    = User::where('email', 'buyer@bontrouver.ca')->first();
+        $priya   = User::where('email', 'priya.p@bontrouver.ca')->first();
+        $jeanluc = User::where('email', 'jeanluc.d@bontrouver.ca')->first();
 
-        if (!$metro || !$sarah || !$david || !$alex) {
+        if (!$sarah || !$marcus || !$david || !$alex) {
             $this->command->warn('Required users not found. Skipping ReviewSeeder.');
             return;
         }
 
         $reviews = [
-            // Review for Metro Auto from Alex
+            // Review for Marcus from Alex
             [
                 'reviewer_id' => $alex->id,
-                'reviewee_id' => $metro->id,
-                'listing_id'  => Listing::where('user_id', $metro->id)->first()?->id,
+                'reviewee_id' => $marcus->id,
+                'listing_id'  => Listing::where('user_id', $marcus->id)->first()?->id,
                 'rating'      => 5,
-                'comment'     => 'Exceptional dealership experience. The vehicle matched the exact description, CARFAX report provided immediately, and test drive was seamless. Highly recommended!',
+                'comment'     => 'Exceptional experience! Marcus demoed the audio turntable setup in person. Everything matched the description perfectly and sound quality is sublime.',
             ],
-            // Review for Sarah (TechVault) from Alex
+            // Review for Sarah (Photography & Tech) from Alex
             [
                 'reviewer_id' => $alex->id,
                 'reviewee_id' => $sarah->id,
                 'listing_id'  => Listing::where('user_id', $sarah->id)->first()?->id,
                 'rating'      => 5,
-                'comment'     => 'Purchased the iPhone in person. Sarah is super trustworthy, product was in mint condition with original accessories. Fast and safe meetup in Montreal.',
+                'comment'     => 'Purchased the camera lens in person. Sarah is super trustworthy, gear was in mint condition with original packaging. Fast and safe meetup near Metro Mont-Royal!',
             ],
-            // Review for David from Alex
+            // Review for David from Priya
             [
-                'reviewer_id' => $alex->id,
+                'reviewer_id' => $priya->id,
                 'reviewee_id' => $david->id,
                 'listing_id'  => Listing::where('user_id', $david->id)->first()?->id,
                 'rating'      => 5,
-                'comment'     => 'Smooth transaction and great communication. David helped load the furniture safely into my vehicle. Would buy from again anytime!',
+                'comment'     => 'Smooth transaction and great communication. David helped load the custom solid wood table safely into my SUV. Beautiful craftsmanship!',
             ],
-            // Review for Sarah from David
+            // Review for Elena from Marcus
+            [
+                'reviewer_id' => $marcus->id,
+                'reviewee_id' => $elena->id,
+                'listing_id'  => Listing::where('user_id', $elena->id)->first()?->id,
+                'rating'      => 5,
+                'comment'     => 'High performance ski gear as described. Elena is super responsive and knows mountain gear inside out. A+ seller in Calgary!',
+            ],
+            // Review for Jean-Luc from Sarah
+            [
+                'reviewer_id' => $sarah->id,
+                'reviewee_id' => $jeanluc->id,
+                'listing_id'  => Listing::where('user_id', $jeanluc->id)->first()?->id,
+                'rating'      => 5,
+                'comment'     => 'Livre d\'art rare reçu en parfait état, emballé avec grand soin. Un grand passionné d\'histoire fort sympathique!',
+            ],
+            // Review for Alex (buyer) from David
             [
                 'reviewer_id' => $david->id,
-                'reviewee_id' => $sarah->id,
-                'listing_id'  => Listing::where('user_id', $sarah->id)->skip(1)->first()?->id,
-                'rating'      => 4,
-                'comment'     => 'Great communication, prompt response time, and friendly seller. Gadget was exactly as described in the ad.',
-            ],
-            // Review for Alex (buyer) from Metro Auto
-            [
-                'reviewer_id' => $metro->id,
                 'reviewee_id' => $alex->id,
                 'listing_id'  => null,
                 'rating'      => 5,
-                'comment'     => 'A+ buyer! Prompt payment, showed up on time, and very respectful during negotiations.',
+                'comment'     => 'A+ community member! Prompt payment via Interac e-Transfer, showed up right on time for pickup, and very courteous.',
             ],
         ];
 
