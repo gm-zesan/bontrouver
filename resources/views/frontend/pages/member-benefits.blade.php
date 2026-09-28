@@ -31,6 +31,34 @@
                 </a>
             @endguest
         </div>
+
+        <!-- Live Platform Stats (Dynamic from DB) -->
+        <div class="row g-3 justify-content-center mt-4 pt-2">
+            <div class="col-6 col-md-3">
+                <div class="static-stat-box">
+                    <div class="static-stat-number text-success">{{ number_format($stats['points_circulated'] ?? 0) }}</div>
+                    <div class="static-stat-label">Total Points Earned</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="static-stat-box">
+                    <div class="static-stat-number text-primary">{{ number_format($stats['verified_members'] ?? 0) }}</div>
+                    <div class="static-stat-label">Verified Canadian Members</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="static-stat-box">
+                    <div class="static-stat-number text-warning">{{ number_format($stats['active_listings'] ?? 0) }}</div>
+                    <div class="static-stat-label">Active Classified Ads</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="static-stat-box">
+                    <div class="static-stat-number text-info">{{ number_format($stats['elite_members'] ?? 0) }}</div>
+                    <div class="static-stat-label">Gold &amp; Elite Members</div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

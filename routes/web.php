@@ -8,6 +8,7 @@ use App\Http\Controllers\Seller\MessageController;
 use App\Http\Controllers\Seller\NotificationController;
 use App\Http\Controllers\Seller\SettingsController;
 use App\Http\Controllers\Seller\MeetupController;
+use App\Http\Controllers\Seller\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\VerificationReviewController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -102,8 +105,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
 
     // 5. Canadian Identity Document Verification Center
-    Route::get('/account/verification', [\App\Http\Controllers\Seller\VerificationController::class, 'index'])->name('account.verification.index');
-    Route::post('/account/verification/document', [\App\Http\Controllers\Seller\VerificationController::class, 'store'])->name('verification.document.store');
+    Route::get('/account/verification', [VerificationController::class, 'index'])->name('account.verification.index');
+    Route::post('/account/verification/document', [VerificationController::class, 'store'])->name('verification.document.store');
 
     // 6. Community Meetups Management
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
@@ -111,11 +114,17 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
 
     // 7. Community Abuse & Moderation Reporting
-    Route::post('/reports', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin Profile & Security Settings
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+
     // ID Verifications Center
     Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
     Route::get('/verifications/{verification}', [VerificationReviewController::class, 'show'])->name('verifications.show');

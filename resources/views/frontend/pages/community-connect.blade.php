@@ -93,14 +93,14 @@
                 <div class="row g-3">
                     <div class="col-6">
                         <div class="static-stat-box">
-                            <div class="static-stat-number text-success">100%</div>
-                            <div class="static-stat-label">Free to Give & Receive</div>
+                            <div class="static-stat-number text-success">{{ number_format($freeCount ?? 0) }}</div>
+                            <div class="static-stat-label">Free Items Available</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="static-stat-box">
-                            <div class="static-stat-number text-primary">0 kg</div>
-                            <div class="static-stat-label">Zero Landfill Goal</div>
+                            <div class="static-stat-number text-primary">{{ number_format($openMeetupsCount ?? 0) }}</div>
+                            <div class="static-stat-label">Open Community Meetups</div>
                         </div>
                     </div>
                     <div class="col-12">

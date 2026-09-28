@@ -36,8 +36,9 @@
 | **7. Member Tiers & Points Config** | `/admin/member-tiers` | ✅ **Complete** | **100%** | Tier threshold manager, badge customizations, point earning & spending rules editor, manual point adjustments (Award/Deduct) with full transaction audit trail, and DataTables AJAX live point ledger. | 🎉 Module Complete! |
 | **8. Locations & Canadian Cities** | `/admin/locations` | ✅ **Complete** | **100%** | Dual-tab directory for 100+ Canadian cities & 13 provinces, 34px unified toolbar, province/status/metro hub filters, GPS coordinate editor with external map preview, active/featured switches, create/edit modals, delete protection, and automated cache flushing. | 🎉 Module Complete! |
 | **9. Dashboard & Live Analytics** | `/admin/dashboard` | ✅ **Complete** | **100%** | Executive Command Center, Today at a Glance daily pulse counters, process lifecycle pipeline progress bars, 30-day activity growth area chart, category inventory share donut chart, point flow bar chart, and recent verification/listing tables. | 🎉 Module Complete! |
-| **10. Platform & Site Settings** | `/admin/settings` | 🔴 **Pending** | **0%** | None. | Site identity (Name, logo, favicon), Canadian tax/currency formatting, support email, SEO meta tags, maintenance mode. |
-| **11. Enhanced User Profiles Mgmt** | `/admin/users` | 🔴 **Pending** | **0%** | (Extension of User Mgmt to handle new profile elements) |
+| **10. Admin Profile & Security** | `/admin/profile` | ✅ **Complete** | **100%** | Dedicated Admin panel profile management interface, 2-column layout, avatar upload/replace with instant preview, administrator contact details & bio editor, secure password change with verification, and simplified frontend header profile dropdown for admins (Admin Dashboard & Logout only). | 🎉 Module Complete! |
+| **11. Platform & Site Settings** | `/admin/settings` | 🔴 **Pending** | **0%** | None. | Site identity (Name, logo, favicon), Canadian tax/currency formatting, support email, SEO meta tags, maintenance mode. |
+| **12. Enhanced User Profiles Mgmt** | `/admin/users` | 🔴 **Pending** | **0%** | (Extension of User Mgmt to handle new profile elements) |
 
 ---
 
@@ -181,6 +182,7 @@
     - [x] 2-Row × 4-Column responsive grid layout with border containment and row divider on User Details tabs ([`admin/users/show.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/admin/users/show.blade.php)).
     - [x] Standardized `object-fit: cover` aspect ratio preservation across all circular user avatars, seller thumbnails, and profile cards.
     - [x] Confined DataTables X-axis horizontal scrolling strictly to container wrapper (`div.dataTables_wrapper`) without page overflow.
+    - [x] Upgraded static/informational pages ([`member-benefits.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/frontend/pages/member-benefits.blade.php), [`about.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/frontend/pages/about.blade.php), [`community-connect.blade.php`](file:///Users/zesan/Desktop/My-Work/bontrouver/resources/views/frontend/pages/community-connect.blade.php)) with live database aggregates (`MemberTier`, `PointRule`, `Listing`, `User`, `Province`, `City`, `CompanionshipRequest`).
   * ✅ **Community Abuse & Moderation Reporting Subsystem (100% Complete)**:
     - [x] Dedicated service layer [`ReportService`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Services/ReportService.php) with anti-spam and self-report prevention logic.
     - [x] Dedicated Form Request validation [`StoreReportRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/StoreReportRequest.php).

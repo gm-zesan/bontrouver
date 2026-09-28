@@ -140,20 +140,11 @@ class HomeDataService
     {
         $cities = City::with('province')
             ->withCount(['listings' => fn ($q) => $q->where('status', 'active')])
-            ->where('is_featured', true)
             ->where('is_active', true)
+            ->orderByDesc('listings_count')
             ->orderBy('sort_order')
             ->limit(8)
             ->get();
-
-        if ($cities->isEmpty()) {
-            $cities = City::with('province')
-                ->withCount(['listings' => fn ($q) => $q->where('status', 'active')])
-                ->where('is_active', true)
-                ->orderByDesc('listings_count')
-                ->limit(8)
-                ->get();
-        }
 
         return $cities->map(fn (City $c) => [
             'id'             => $c->id,
@@ -307,9 +298,11 @@ class HomeDataService
 
     public function getAvailableCities(): array
     {
-        return City::where('is_featured', true)
+        return City::where('is_active', true)
             ->with('province')
             ->orderBy('sort_order')
+            ->orderBy('name')
+            ->limit(12)
             ->get()
             ->mapWithKeys(fn ($c) => [$c->name => $c->name . ', ' . ($c->province?->code ?? 'CA')])
             ->toArray();

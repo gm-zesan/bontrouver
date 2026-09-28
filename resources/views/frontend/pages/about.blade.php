@@ -12,30 +12,30 @@
             Bontrouver is modernizing classifieds across Canada with a faster, safer, and intuitive local marketplace for goods, cars, housing, jobs, and services.
         </p>
 
-        <!-- Key Marketplace Stats -->
+        <!-- Key Marketplace Stats (Dynamic from DB) -->
         <div class="row g-3 justify-content-center mt-3">
             <div class="col-6 col-md-3">
                 <div class="static-stat-box">
-                    <div class="static-stat-number text-success">10</div>
-                    <div class="static-stat-label">Provinces & Territories</div>
+                    <div class="static-stat-number text-success">{{ $stats['provinces_count'] ?? 13 }}</div>
+                    <div class="static-stat-label">Provinces &amp; Territories</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="static-stat-box">
-                    <div class="static-stat-number text-primary">100K+</div>
-                    <div class="static-stat-label">Active Listings</div>
+                    <div class="static-stat-number text-primary">{{ number_format($stats['listings_count'] ?? 0) }}</div>
+                    <div class="static-stat-label">Active Classified Ads</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="static-stat-box">
-                    <div class="static-stat-number text-warning">24/7</div>
-                    <div class="static-stat-label">Trust & Safety</div>
+                    <div class="static-stat-number text-warning">{{ number_format($stats['verified_users_count'] ?? 0) }}</div>
+                    <div class="static-stat-label">Verified Members</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="static-stat-box">
-                    <div class="static-stat-number text-info">$0</div>
-                    <div class="static-stat-label">Free Basic Postings</div>
+                    <div class="static-stat-number text-info">{{ number_format($stats['points_circulated'] ?? 0) }}</div>
+                    <div class="static-stat-label">Community Points Earned</div>
                 </div>
             </div>
         </div>
