@@ -241,8 +241,11 @@ app/
 │   ├── CompanionshipAttendee.php
 │   ├── Report.php
 │   ├── PointTransaction.php
+│   ├── PointRule.php
+│   ├── UserVerification.php
 │   ├── UserProfile.php
-│   └── UserGallery.php
+│   ├── UserGallery.php
+│   └── SearchQuery.php
 │
 ├── Notifications/
 │   └── SmartAlertTriggered.php
@@ -259,11 +262,14 @@ app/
     ├── CategoryService.php
     ├── LocationService.php
     ├── ListingService.php
+    ├── ListingSearchService.php
     ├── ReputationService.php
+    ├── PointService.php
     ├── MemberTierService.php
     ├── AlertMatcherService.php
     ├── SmartAlertService.php
     ├── MessagingService.php
+    ├── VerificationService.php
     └── CompanionshipService.php
 ```
 

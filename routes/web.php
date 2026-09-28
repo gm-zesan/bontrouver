@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reports', [\App\Http\Controllers\ReportController::class, 'store'])->name('reports.store');
 });
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // ID Verifications Center
     Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
