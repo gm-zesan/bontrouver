@@ -11,7 +11,13 @@ class Province extends Model
         'code',
         'slug',
         'country_code',
+        'is_active',
         'sort_order',
+    ];
+
+    protected $casts = [
+        'is_active'  => 'boolean',
+        'sort_order' => 'integer',
     ];
 
     public function cities()

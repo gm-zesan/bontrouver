@@ -53,6 +53,12 @@
                 <span class="link_names">Categories & Attributes</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.locations.index') }}" class="{{ Route::is('admin.locations.*') ? ' active-focus' : '' }}">
+                <i class="ri-map-pin-2-line"></i>
+                <span class="link_names">Locations & Cities</span>
+            </a>
+        </li>
 
         <!-- 3. User & Trust -->
         <li class="category-li">

@@ -21,7 +21,11 @@ class ListingCreationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed(\Database\Seeders\ProvinceSeeder::class);
+        $this->seed(\Database\Seeders\CitySeeder::class);
+        $this->seed(\Database\Seeders\CategorySeeder::class);
+        $this->seed(\Database\Seeders\CategoryAttributeSeeder::class);
+        $this->seed(\Database\Seeders\UserSeeder::class);
         Storage::fake('public');
     }
 

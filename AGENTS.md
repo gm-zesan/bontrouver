@@ -73,6 +73,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$province->cities()` → `hasMany(City::class)`
 - `$province->listings()` → `hasManyThrough(Listing::class, City::class)`
 - `$province->smartAlerts()` → `hasMany(SmartAlert::class)`
+- Fields: `name`, `code`, `slug`, `country_code`, `is_active`, `sort_order`
 
 ### City (`App\Models\City`)
 - `$city->province()` → `belongsTo(Province::class)`

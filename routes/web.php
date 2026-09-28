@@ -175,6 +175,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/adjust-points', [\App\Http\Controllers\Admin\MemberTierController::class, 'adjustPoints'])->name('adjustPoints');
         Route::put('/rules/update', [\App\Http\Controllers\Admin\MemberTierController::class, 'updateRules'])->name('updateRules');
     });
+
+    // Canadian Locations & Cities Management Hub
+    Route::prefix('locations')->name('locations.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\LocationController::class, 'index'])->name('index');
+        Route::post('/cities', [\App\Http\Controllers\Admin\LocationController::class, 'storeCity'])->name('cities.store');
+        Route::get('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'showCity'])->name('cities.show');
+        Route::put('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'updateCity'])->name('cities.update');
+        Route::post('/cities/{city}/toggle-active', [\App\Http\Controllers\Admin\LocationController::class, 'toggleCityActive'])->name('cities.toggleActive');
+        Route::post('/cities/{city}/toggle-featured', [\App\Http\Controllers\Admin\LocationController::class, 'toggleCityFeatured'])->name('cities.toggleFeatured');
+        Route::delete('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'destroyCity'])->name('cities.destroy');
+
+        Route::get('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'showProvince'])->name('provinces.show');
+        Route::put('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'updateProvince'])->name('provinces.update');
+        Route::post('/provinces/{province}/toggle-active', [\App\Http\Controllers\Admin\LocationController::class, 'toggleProvinceActive'])->name('provinces.toggleActive');
+    });
 });
 
 // Static Marketplace Info & Footer Pages

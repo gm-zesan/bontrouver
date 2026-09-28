@@ -12,7 +12,9 @@ class LocationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed(\Database\Seeders\ProvinceSeeder::class);
+        $this->seed(\Database\Seeders\CitySeeder::class);
+        $this->seed(\Database\Seeders\CategorySeeder::class);
     }
     public function test_it_returns_canadian_cities_list(): void
     {
@@ -140,7 +142,7 @@ class LocationTest extends TestCase
         $listing = \App\Models\Listing::where('title', 'Vintage Canadian Acoustic Guitar')->first();
         $this->assertNotNull($listing);
         $this->assertNotNull($listing->city_id);
-        $this->assertEquals('Toronto', $listing->cityRel?->name ?? $listing->city);
+        $this->assertEquals('Toronto', $listing->city?->name ?? $listing->city);
     }
 
     public function test_location_service_calculates_distance_and_finds_nearest_city(): void
