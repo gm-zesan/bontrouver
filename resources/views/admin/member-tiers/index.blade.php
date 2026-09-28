@@ -14,9 +14,10 @@
                             <div class="text-muted small fw-semibold text-uppercase"
                                 style="letter-spacing: 0.05em; font-size: 11px;">Points in Circulation</div>
                             <div class="fs-4 fw-bold text-dark mt-1">
-                                {{ number_format($kpis['total_points_circulation'] ?? 0) }}</div>
+                                {{ number_format($kpis['total_points_circulation'] ?? 0) }}
+                            </div>
                         </div>
-                        <div class="rounded-3 p-2.5 bg-success-subtle text-success d-flex align-items-center justify-content-center"
+                        <div class="rounded-3 p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center"
                             style="width: 44px; height: 44px;">
                             <i class="ri-copper-coin-fill fs-5"></i>
                         </div>
@@ -31,9 +32,10 @@
                             <div class="text-muted small fw-semibold text-uppercase"
                                 style="letter-spacing: 0.05em; font-size: 11px;">Total Transactions</div>
                             <div class="fs-4 fw-bold text-primary mt-1">
-                                {{ number_format($kpis['total_transactions'] ?? 0) }}</div>
+                                {{ number_format($kpis['total_transactions'] ?? 0) }}
+                            </div>
                         </div>
-                        <div class="rounded-3 p-2.5 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                        <div class="rounded-3 p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
                             style="width: 44px; height: 44px;">
                             <i class="ri-history-line fs-5"></i>
                         </div>
@@ -50,7 +52,7 @@
                             <div class="fs-4 fw-bold text-info mt-1">+{{ number_format($kpis['points_awarded_30d'] ?? 0) }}
                             </div>
                         </div>
-                        <div class="rounded-3 p-2.5 bg-info-subtle text-info d-flex align-items-center justify-content-center"
+                        <div class="rounded-3 p-2 bg-info-subtle text-info d-flex align-items-center justify-content-center"
                             style="width: 44px; height: 44px;">
                             <i class="ri-hand-heart-line fs-5"></i>
                         </div>
@@ -65,9 +67,10 @@
                             <div class="text-muted small fw-semibold text-uppercase"
                                 style="letter-spacing: 0.05em; font-size: 11px;">Elite Tier Members</div>
                             <div class="fs-4 fw-bold text-warning mt-1">
-                                {{ number_format($kpis['elite_members_count'] ?? 0) }}</div>
+                                {{ number_format($kpis['elite_members_count'] ?? 0) }}
+                            </div>
                         </div>
-                        <div class="rounded-3 p-2.5 bg-warning-subtle text-warning d-flex align-items-center justify-content-center"
+                        <div class="rounded-3 p-2 bg-warning-subtle text-warning d-flex align-items-center justify-content-center"
                             style="width: 44px; height: 44px;">
                             <i class="ri-medal-fill fs-5"></i>
                         </div>
@@ -100,7 +103,7 @@
 
                         {{-- 2. Header Actions --}}
                         <div class="d-flex align-items-center flex-wrap gap-2">
-                            <button type="button" class="btn btn-primary d-flex align-items-center gap-1.5"
+                            <button type="button" class="btn btn-primary d-flex align-items-center gap-1"
                                 onclick="openAdjustPointsModal()" style="height: 34px; font-size: 13px;">
                                 <i class="ri-add-circle-line fs-6"></i>
                                 <span>Adjust User Points</span>
@@ -172,14 +175,14 @@
                                                             </button>
                                                         </div>
 
-                                                        <div class="d-flex align-items-center gap-2 mb-2.5">
+                                                        <div class="d-flex align-items-center gap-2 mb-2">
                                                             <span class="fs-4">{{ $tier['icon'] }}</span>
                                                             <h6 class="fw-bold text-dark mb-0" style="font-size: 14.5px;">
                                                                 {{ $tier['clean_name'] }}
                                                             </h6>
                                                         </div>
 
-                                                        <div class="p-2.5 bg-light rounded-2 border mb-3">
+                                                        <div class="p-2 bg-light rounded-2 border mb-3">
                                                             <div class="d-flex align-items-center justify-content-between">
                                                                 <span class="text-muted small" style="font-size: 11.5px;">Point
                                                                     Range:</span>
@@ -218,7 +221,7 @@
                                                                 </span>
                                                                 <ul class="list-unstyled mb-0 d-flex flex-column gap-1">
                                                                     @foreach($tier['perks'] as $perk)
-                                                                        <li class="d-flex align-items-start gap-1.5 text-muted"
+                                                                        <li class="d-flex align-items-start gap-1 text-muted"
                                                                             style="font-size: 11.5px;">
                                                                             <i class="ri-check-line text-success mt-0.5"></i>
                                                                             <span>{{ $perk }}</span>
@@ -232,50 +235,6 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                </div>
-
-                                {{-- Interactive Tier Simulator Card --}}
-                                <div class="card border rounded-3 p-3.5 bg-light">
-                                    <div class="row align-items-center g-3">
-                                        <div class="col-lg-4">
-                                            <h6 class="fw-bold text-dark mb-1 fs-6">
-                                                <i class="ri-calculator-line text-primary me-1"></i> Live Tier Progression
-                                                Simulator
-                                            </h6>
-                                            <span class="text-muted small" style="font-size: 12px;">Test how any point
-                                                amount maps to member level and progress</span>
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <div class="input-group" style="height: 34px;">
-                                                <span class="input-group-text bg-white text-muted border-end-0"
-                                                    style="height: 34px;">
-                                                    <i class="ri-copper-coin-line"></i>
-                                                </span>
-                                                <input type="number" id="sim_points_input"
-                                                    class="form-control table-search-input border-start-0"
-                                                    placeholder="Enter test points (e.g. 250)..." value="250"
-                                                    oninput="simulateTierProgression(this.value)"
-                                                    style="height: 34px; font-size: 13px;">
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-4">
-                                            <div id="sim_result_box"
-                                                class="p-2.5 bg-white rounded-2 border d-flex align-items-center justify-content-between">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span id="sim_tier_icon" class="fs-4">🥈</span>
-                                                    <div>
-                                                        <div class="fw-bold text-dark small" id="sim_tier_name"
-                                                            style="font-size: 13px;">Active Member (Level 2)</div>
-                                                        <div class="text-muted" style="font-size: 11px;"
-                                                            id="sim_tier_progress">75% to Trusted Member</div>
-                                                    </div>
-                                                </div>
-                                                <span
-                                                    class="badge bg-success-subtle text-success border border-success-subtle"
-                                                    id="sim_badge">Active</span>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -312,7 +271,7 @@
                                             <div class="card border rounded-3 h-100 shadow-sm overflow-hidden bg-white">
                                                 <div
                                                     class="card-header bg-light border-bottom py-3 px-3.5 d-flex align-items-center justify-content-between">
-                                                    <div class="d-flex align-items-center gap-2.5">
+                                                    <div class="d-flex align-items-center gap-2">
                                                         <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center"
                                                             style="width: 32px; height: 32px;">
                                                             <i class="ri-add-circle-fill fs-5"></i>
@@ -376,7 +335,7 @@
                                             <div class="card border rounded-3 h-100 shadow-sm overflow-hidden bg-white">
                                                 <div
                                                     class="card-header bg-light border-bottom py-3 px-3.5 d-flex align-items-center justify-content-between">
-                                                    <div class="d-flex align-items-center gap-2.5">
+                                                    <div class="d-flex align-items-center gap-2">
                                                         <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
                                                             style="width: 32px; height: 32px;">
                                                             <i class="ri-indeterminate-circle-fill fs-5"></i>
@@ -494,7 +453,7 @@
                                     </div>
 
                                     <div class="d-flex align-items-center gap-2">
-                                        <button type="button" class="btn btn-primary d-flex align-items-center gap-1.5"
+                                        <button type="button" class="btn btn-primary d-flex align-items-center gap-1"
                                             onclick="openAdjustPointsModal()" style="height: 34px; font-size: 13px;">
                                             <i class="ri-add-circle-line fs-6"></i>
                                             <span>Manual Point Adjustment</span>
@@ -533,7 +492,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-3">
                 <div class="modal-header bg-white border-bottom px-4 py-3">
-                    <div class="d-flex align-items-center gap-2.5">
+                    <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
                             style="width: 36px; height: 36px;">
                             <i class="ri-medal-line fs-5"></i>
@@ -634,8 +593,8 @@
                         class="modal-footer bg-light border-top px-4 py-2.5 d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal"
                             style="height: 34px; font-size: 13px;">Cancel</button>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1.5 px-4"
-                            id="btnSaveTier" style="height: 34px; font-size: 13px;">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1 px-4" id="btnSaveTier"
+                            style="height: 34px; font-size: 13px;">
                             <i class="ri-save-line fs-6"></i>
                             <span>Update Tier Thresholds</span>
                         </button>
@@ -651,7 +610,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-3">
                 <div class="modal-header bg-white border-bottom px-4 py-3">
-                    <div class="d-flex align-items-center gap-2.5">
+                    <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center"
                             style="width: 36px; height: 36px;">
                             <i class="ri-copper-coin-line fs-5"></i>
@@ -729,7 +688,7 @@
                         class="modal-footer bg-light border-top px-4 py-2.5 d-flex justify-content-between align-items-center">
                         <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal"
                             style="height: 34px; font-size: 13px;">Cancel</button>
-                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1.5 px-4"
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1 px-4"
                             id="btnSubmitAdjustment" style="height: 34px; font-size: 13px;">
                             <i class="ri-check-line fs-6"></i>
                             <span>Apply Adjustment</span>
@@ -815,9 +774,6 @@
                     ledgerTable.columns.adjust().draw();
                 }
             });
-
-            // Initialize simulator
-            simulateTierProgression(250);
         });
 
         // ─────────────────────────────────────────────────────────────
@@ -943,51 +899,6 @@
                     window.showToast(msg, true, "Adjustment Error");
                 }
             });
-        }
-
-        // ─────────────────────────────────────────────────────────────
-        // 5. LIVE SIMULATOR LOGIC
-        // ─────────────────────────────────────────────────────────────
-        var tiersData = @json($tiers);
-
-        function simulateTierProgression(pts) {
-            var points = parseInt(pts) || 0;
-            if (points < 0) points = 0;
-
-            var matchedTier = null;
-            var nextTier = null;
-
-            for (var i = 0; i < tiersData.length; i++) {
-                var t = tiersData[i];
-                var min = t.min_points;
-                var max = t.max_points;
-
-                if (points >= min && (max === null || points <= max)) {
-                    matchedTier = t;
-                    nextTier = tiersData[i + 1] || null;
-                    break;
-                }
-            }
-
-            if (!matchedTier && tiersData.length > 0) {
-                matchedTier = tiersData[tiersData.length - 1];
-            }
-
-            if (matchedTier) {
-                $('#sim_tier_icon').text(matchedTier.icon || '🥉');
-                $('#sim_tier_name').text(matchedTier.clean_name + ' (Level ' + matchedTier.level + ')');
-                $('#sim_badge').text(matchedTier.clean_name).css('background-color', matchedTier.badge_color + '22').css('color', matchedTier.badge_color);
-
-                if (nextTier) {
-                    var range = nextTier.min_points - matchedTier.min_points;
-                    var current = points - matchedTier.min_points;
-                    var pct = Math.min(100, Math.max(0, Math.round((current / range) * 100)));
-                    var needed = nextTier.min_points - points;
-                    $('#sim_tier_progress').text(pct + '% progress (requires ' + needed + ' more pts for ' + nextTier.clean_name + ')');
-                } else {
-                    $('#sim_tier_progress').text('⭐ Top Tier Max Level achieved!');
-                }
-            }
         }
     </script>
 @endpush

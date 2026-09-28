@@ -59,6 +59,7 @@
                         </div>
                         <p class="text-secondary small mb-0 mt-1">
                             You currently have <strong class="text-white">{{ $user->community_points ?? 0 }} Community Points</strong> earned through mutual aid and verified transactions.
+                            <a href="{{ route('pages.member-benefits') }}" class="text-success text-decoration-none ms-1 fw-medium"><i class="bi bi-gift me-1"></i>Tier Perks & Rewards &rarr;</a>
                         </p>
                     </div>
                 </div>

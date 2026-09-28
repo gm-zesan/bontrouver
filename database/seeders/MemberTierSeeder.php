@@ -81,7 +81,7 @@ class MemberTierSeeder extends Seeder
             );
         }
 
-        cache()->forget('member_tiers_all_v2');
+        cache()->forget(MemberTier::CACHE_KEY);
 
         $this->command->info('MemberTierSeeder: 4 client tiers seeded.');
     }

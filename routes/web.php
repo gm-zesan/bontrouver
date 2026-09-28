@@ -97,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::post('/settings/notifications/toggle', [SettingsController::class, 'toggleNotification'])->name('settings.notifications.toggle');
     Route::get('/settings/edit', [SettingsController::class, 'index'])->name('profile.edit');
+    Route::get('/account/points', [SettingsController::class, 'pointsLedger'])->name('account.points');
     Route::patch('/settings/auth', [SettingsController::class, 'updateAuth'])->name('profile.update');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
 

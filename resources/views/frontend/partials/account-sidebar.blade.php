@@ -91,6 +91,13 @@
                 <span class="flex-grow-1">Smart Alerts</span>
             </a>
 
+            <a href="{{ route('account.points') }}"
+                class="account-dark-nav-item {{ $currentRoute === 'points' ? 'active' : '' }}">
+                <i class="bi bi-coin"></i>
+                <span class="flex-grow-1">Points & Standing</span>
+                <span class="badge bg-success-subtle text-success rounded-pill">{{ number_format(Auth::user()->community_points ?? 0) }} pts</span>
+            </a>
+
             <a href="{{ url('/settings') }}"
                 class="account-dark-nav-item {{ $currentRoute === 'settings' ? 'active' : '' }}">
                 <i class="bi bi-gear-fill"></i>

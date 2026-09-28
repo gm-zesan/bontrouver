@@ -55,12 +55,15 @@ class MessageController extends Controller
             return [
                 'id' => $conv->id,
                 'user' => [
+                    'id' => $otherUser->id ?? null,
                     'name' => $otherUser->name ?? 'Unknown',
                     'avatar' => $otherUser->avatar ?? null,
                     'online' => false,
                     'location' => $otherUser->location ?? 'Canada',
                     'verified' => $otherUser->is_verified ?? false,
                     'rating' => $otherUser->rating ?? 0,
+                    'community_points' => $otherUser->community_points ?? 0,
+                    'member_tier' => $otherUser?->member_tier,
                 ],
                 'listing' => [
                     'id' => $listing->id ?? null,

@@ -210,7 +210,7 @@ class User extends Authenticatable
         $pts = (int) ($this->community_points ?? 0);
 
         try {
-            $tiersData = cache()->remember('member_tiers_all_v2', 3600, function () {
+            $tiersData = cache()->remember(MemberTier::CACHE_KEY, 3600, function () {
                 return MemberTier::orderBy('min_points', 'asc')->get()->toArray();
             });
             $tiers = collect($tiersData);
@@ -262,23 +262,29 @@ class User extends Authenticatable
         }
 
         $tierName = is_array($currentTier) ? $currentTier['name'] : $currentTier->name;
-        $icon = '🥉';
-        if (preg_match('/^([\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉])\s*(.*)$/u', $tierName, $matches)) {
+        $tierIcon = is_array($currentTier) ? ($currentTier['icon'] ?? null) : ($currentTier->icon ?? null);
+        $tierBadgeColor = is_array($currentTier) ? ($currentTier['badge_color'] ?? '#cd7f32') : ($currentTier->badge_color ?? '#cd7f32');
+        $tierBadgeClass = is_array($currentTier) ? ($currentTier['badge_class'] ?? null) : ($currentTier->badge_class ?? null);
+        $tierPerks = is_array($currentTier) ? ($currentTier['perks'] ?? []) : ($currentTier->perks ?? []);
+        $tierDescription = is_array($currentTier) ? ($currentTier['description'] ?? '') : ($currentTier->description ?? '');
+
+        if ($tierIcon) {
+            $icon = $tierIcon;
+            $cleanName = trim(preg_replace('/^[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉]\s*/u', '', $tierName));
+        } elseif (preg_match('/^([\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉])\s*(.*)$/u', $tierName, $matches)) {
             $icon = $matches[1];
             $cleanName = trim($matches[2]);
         } else {
+            $icon = '🥉';
             $cleanName = $tierName;
         }
 
-        $badgeClass = match ($currentLevel) {
+        $badgeClass = $tierBadgeClass ?: match ($currentLevel) {
             4 => 'tier-badge tier-platinum',
             3 => 'tier-badge tier-gold',
             2 => 'tier-badge tier-silver',
             default => 'tier-badge tier-bronze',
         };
-        if ($currentLevel >= 4) {
-            $badgeClass = 'tier-badge tier-platinum';
-        }
 
         $pointsNeeded = 0;
         $progressPercentage = 100;
@@ -298,23 +304,26 @@ class User extends Authenticatable
                 $progressPercentage = 0;
             }
             $nextRawName = is_array($nextTier) ? $nextTier['name'] : $nextTier->name;
-            $nextTierName = preg_replace('/^[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉\s]+/u', '', $nextRawName);
+            $nextTierName = trim(preg_replace('/^[\x{1F300}-\x{1F9FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}\x{1F1E6}-\x{1F1FF}⭐🥇🥈🥉\s]+/u', '', $nextRawName));
         }
 
         return [
-            'name' => $cleanName,
-            'full_name' => $tierName,
-            'short_name' => str_replace(' Member', '', $cleanName),
-            'icon' => $icon,
-            'level' => $currentLevel,
-            'badge_class' => $badgeClass,
-            'min' => $currentMin,
-            'max' => $currentMax !== null ? (int) $currentMax : null,
-            'next_threshold' => $nextThreshold,
-            'next_tier' => $nextTierName,
-            'points_needed' => $pointsNeeded,
+            'name'                => $cleanName,
+            'full_name'           => $tierName,
+            'short_name'          => str_replace(' Member', '', $cleanName),
+            'icon'                => $icon,
+            'level'               => $currentLevel,
+            'badge_color'         => $tierBadgeColor,
+            'badge_class'         => $badgeClass,
+            'description'         => $tierDescription,
+            'perks'               => is_array($tierPerks) ? $tierPerks : [],
+            'min'                 => $currentMin,
+            'max'                 => $currentMax !== null ? (int) $currentMax : null,
+            'next_threshold'      => $nextThreshold,
+            'next_tier'           => $nextTierName,
+            'points_needed'       => $pointsNeeded,
             'progress_percentage' => $progressPercentage,
-            'model' => $currentTier,
+            'model'               => $currentTier,
         ];
     }
 }

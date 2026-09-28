@@ -33,7 +33,38 @@ class SettingsController extends Controller
             'categories' => CategoryService::getAll(),
             'stats' => $this->listingService->getDashboardHeaderStats($user),
             'latestVerification' => $user->latestVerification,
-            'verifications' => $user->verifications()->latest()->get(),
+        ]);
+    }
+
+    /**
+     * Display User Points Ledger & Community Standing.
+     */
+    public function pointsLedger(Request $request): View
+    {
+        $user = Auth::user();
+        $type = $request->query('type'); // 'earned', 'spent', or null
+
+        $query = $user->pointTransactions()->latest();
+
+        if ($type === 'earned') {
+            $query->where('points', '>', 0);
+        } elseif ($type === 'spent') {
+            $query->where('points', '<', 0);
+        }
+
+        $transactions = $query->paginate(15)->withQueryString();
+
+        $totalEarned = (int) $user->pointTransactions()->where('points', '>', 0)->sum('points');
+        $totalSpent = abs((int) $user->pointTransactions()->where('points', '<', 0)->sum('points'));
+
+        return view('frontend.account.points', [
+            'user' => $user,
+            'tier' => $user->member_tier,
+            'transactions' => $transactions,
+            'totalEarned' => $totalEarned,
+            'totalSpent' => $totalSpent,
+            'activeType' => $type ?? 'all',
+            'stats' => $this->listingService->getDashboardHeaderStats($user),
         ]);
     }
 

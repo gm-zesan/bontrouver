@@ -33,7 +33,7 @@
 | **4. Global Reports & Moderation** | `/admin/reports` | ✅ **Complete** | **100%** | Dedicated Central Moderation Queue, live KPI cards, polymorphic target inspection (Listings, Users, Meetups), reason & status filters, contextual disciplinary resolution actions (takedown listing, suspend user, cancel meetup), bulk moderation, and DataTables AJAX pagination. | 🎉 Module Complete! |
 | **5. Community Meetups Management** | `/admin/meetups` | ✅ **Complete** | **100%** | DataTables with type/status filters, 2-column inspector, host summary, capacity progress, attendee moderation, cancel actions. | 🎉 Module Complete! |
 | **6. Category & Custom Attributes** | `/admin/categories` | ✅ **Complete** | **100%** | Visual Category Tree Explorer & DataTables view, KPI metric cards, 34px toolbar filters, parent/child nesting CRUD, icon class picker, auto-slug generator, Active status toggles, Category deletion safety checks, Dynamic Custom Attributes EAV Schema Builder (`/admin/categories/{id}/attributes`) supporting `select`, `text`, `number`, `checkbox`, `textarea` field types, dynamic select option rows manager, Post-an-Ad Form Simulator, Search Sidebar Filter Simulator, and 100% automated attribute seeder coverage for all 470 platform categories with 2,100+ attributes & 9,800+ options. | 🎉 Module Complete! |
-| **7. Member Tiers & Points Config** | `/admin/member-tiers` | ✅ **Complete** | **100%** | Tier threshold manager, badge customizations, point earning & spending rules editor, manual point adjustments (Award/Deduct) with full transaction audit trail, DataTables AJAX live point ledger, and interactive progression simulator. | 🎉 Module Complete! |
+| **7. Member Tiers & Points Config** | `/admin/member-tiers` | ✅ **Complete** | **100%** | Tier threshold manager, badge customizations, point earning & spending rules editor, manual point adjustments (Award/Deduct) with full transaction audit trail, and DataTables AJAX live point ledger. | 🎉 Module Complete! |
 | **8. Locations & Canadian Cities** | `/admin/locations` | 🔴 **Pending** | **0%** | `Province`, `City` models exist with 100+ Canadian cities. | Province & city active toggles, postal code indexing, coordinate center management. |
 | **9. Dashboard & Live Analytics** | `/admin/dashboard` | 🟡 **In Progress** | **50%** | Dashboard base layout & stats cards. | Real-time dynamic KPI metrics (Revenue/Points, Pending Verifications, Open Flags, Active Listings), 30-day activity charts. |
 | **10. Platform & Site Settings** | `/admin/settings` | 🔴 **Pending** | **0%** | None. | Site identity (Name, logo, favicon), Canadian tax/currency formatting, support email, SEO meta tags, maintenance mode. |
@@ -130,12 +130,20 @@
     - [x] Dedicated Form Requests: [`UpdateMemberTierRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/Admin/UpdateMemberTierRequest.php), [`AdjustUserPointsRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/Admin/AdjustUserPointsRequest.php), and [`UpdatePointRulesRequest`](file:///Users/zesan/Desktop/My-Work/bontrouver/app/Http/Requests/Admin/UpdatePointRulesRequest.php).
     - [x] Top Real-time KPI Metric Cards (Points in Circulation, 30-Day Points Awarded, 30-Day Points Spent, Elite Members Count, Avg Balance/User).
     - [x] Interactive Member Tiers Hierarchy Cards with live user population counts & percentage distribution bars.
-    - [x] Tier Threshold & Perks Configuration Modal (Icon, Badge Color, Min/Max Points, Custom Perks List) with automatic cache invalidation (`member_tiers_all_v2`).
-    - [x] Point Earning & Spending Rules Matrix Editor (Configurable rewards for ID verification, Dealer license, 5-Star reviews, Free giveaways, Meetup hosting, First deal; configurable costs for Featured placement & Hero carousel spotlight) with cache management (`bontrouver_point_rules_v1`).
+    - [x] Tier Threshold & Perks Configuration Modal (Icon, Badge Color, Min/Max Points, Custom Perks List) with automatic cache invalidation (`MemberTier::CACHE_KEY`).
+    - [x] Point Earning & Spending Rules Matrix Editor (Configurable rewards for ID verification, Dealer license, 5-Star reviews, Free giveaways, Meetup hosting, First deal; configurable costs for Featured placement & Hero carousel spotlight) with cache management (`AdminMemberTierService::POINT_RULES_CACHE_KEY`).
     - [x] Live Points Transaction Ledger & Audit Trail with DataTables AJAX pagination, 34px toolbar search, action filter, and direction filter (`earned`/`spent`).
     - [x] Administrative Manual Point Adjustment Modal (Award or Deduct points from any user with formal reason logging and zero-floor balance protection).
-    - [x] Client-side Tier Progression Simulator (Interactive slider dynamically calculating member tier, progress percentage, points needed, and active perks).
-    - [x] 100% test coverage with 13 passing feature tests (47 assertions) in [`AdminMemberTierTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminMemberTierTest.php).
+  * ✅ **User-Facing Community Points & Standing Ledger (`/account/points`)**:
+    - [x] Dedicated member dashboard page with points balance, Level badge, progress bar to next tier, lifetime earned/redeemed stats, and filterable transaction audit ledger (`earned`/`spent`).
+  * ✅ **Tier Level-Up Celebration & Notifications**:
+    - [x] Automated level-up detection in `PointService` & `AdminMemberTierService` dispatching `MemberTierUpgraded` notification and celebratory in-app modal with unlocked privileges.
+  * ✅ **Chat & Direct Messages Trust Badges (`/messages`)**:
+    - [x] Active chat headers display counterpart's dynamic Member Tier badge, verification status, and direct profile link.
+  * ✅ **Search Sidebar Member Tier & Trust Filter (`/listings`)**:
+    - [x] Fast client-side and server-side filtering for Trusted Members (Level 3+), Active Members (Level 2+), and Verified Sellers Only with active filter chips.
+  * ✅ **100% Automated Test Suite**:
+    - [x] 34 passing tests (144 assertions) across [`AdminMemberTierTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminMemberTierTest.php), [`UserProfileTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/UserProfileTest.php), and [`MemberTierEnhancementsTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/MemberTierEnhancementsTest.php).
 * **Remaining / Next Improvements**:
   * 🎉 All core reputation, member tier and point configuration systems are complete!
 

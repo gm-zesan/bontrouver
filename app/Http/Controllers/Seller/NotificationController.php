@@ -66,6 +66,13 @@ class NotificationController extends Controller
                 $body = 'The meetup "' . ($dbNotif->data['meetup_title'] ?? '') . '" has been cancelled by the host.';
                 $action_url = route('meetups.my');
                 $action_label = 'View My Meetups';
+            } elseif ($type === 'MemberTierUpgraded') {
+                $tierName = $dbNotif->data['tier_name'] ?? 'Trusted Member';
+                $icon = 'bi-trophy-fill text-warning';
+                $title = $dbNotif->data['title'] ?? "🎉 Level Up! You reached {$tierName}!";
+                $body = $dbNotif->data['message'] ?? "Congratulations! You have unlocked {$tierName} and exclusive community privileges.";
+                $action_url = $dbNotif->data['action_url'] ?? route('account.points');
+                $action_label = $dbNotif->data['action_label'] ?? 'View Perks & Points';
             }
 
             $formatted = [

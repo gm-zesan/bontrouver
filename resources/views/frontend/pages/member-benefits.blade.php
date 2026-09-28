@@ -9,7 +9,7 @@
         </span>
         <h1 class="static-hero-title">Bontrouver Member Tiers & Reputation Points</h1>
         <p class="static-hero-desc">
-            Earn community trust points by helping neighbors, giving away free items, verifying your Canadian identity, and hosting social meetups. Climb member tiers to unlock exclusive perks!
+            Earn community trust points by helping neighbors, giving away free items, verifying your Canadian identity, and hosting social meetups. Climb member tiers to unlock exclusive perks across Canada!
         </p>
         <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap mt-3">
             @guest
@@ -21,14 +21,70 @@
                     <span>Sign In to Dashboard</span>
                 </a>
             @else
-                <a href="{{ route('profile.edit') }}" class="hero-btn-primary">
-                    <span>View My Community Standing</span>
-                    <i class="bi bi-person-circle"></i>
+                <a href="{{ route('account.points') }}" class="hero-btn-primary">
+                    <i class="bi bi-coin me-1"></i>
+                    <span>My Points &amp; Standing</span>
+                </a>
+                <a href="{{ route('profile.view') }}" class="btn-theme-outline-secondary">
+                    <i class="bi bi-person-circle me-1"></i>
+                    <span>View Public Profile</span>
                 </a>
             @endguest
         </div>
     </div>
 </section>
+
+@auth
+<!-- Live Member Standing Snapshot for Logged-In User -->
+<section class="py-4" style="background: #081D33; border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <div class="container-xl">
+        @php
+            $userTier = Auth::user()->member_tier;
+        @endphp
+        <div class="p-3.5 p-md-4 rounded-4 shadow-sm"
+            style="background: linear-gradient(135deg, #0D243C 0%, #112D4E 100%); border: 1px solid rgba(73, 209, 125, 0.25);">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 shadow"
+                        style="width: 58px; height: 58px; background: rgba(255,255,255,0.06); border: 2px solid {{ $userTier['badge_color'] ?? '#49D17D' }}; font-size: 1.8rem;">
+                        {{ $userTier['icon'] ?? '🥉' }}
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h3 class="h5 fw-bold text-white mb-0">{{ Auth::user()->name }}</h3>
+                            <span class="badge {{ $userTier['badge_class'] ?? 'bg-secondary' }} px-2.5 py-0.5 rounded-pill" style="font-size: 11px;">
+                                {{ $userTier['name'] ?? 'Member' }} (Level {{ $userTier['level'] ?? 1 }})
+                            </span>
+                            @if(Auth::user()->is_verified)
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5 rounded-pill" style="font-size: 11px;">
+                                    <i class="bi bi-shield-check me-0.5"></i> ID Verified
+                                </span>
+                            @endif
+                        </div>
+                        <p class="text-secondary small mb-0 mt-1">
+                            Current Balance: <strong class="text-white font-monospace">{{ number_format(Auth::user()->community_points ?? 0) }} Points</strong>
+                            @if(!empty($userTier['next_tier']))
+                                • <span class="text-success">{{ number_format($userTier['points_needed'] ?? 0) }} pts to {{ $userTier['next_tier'] }}</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <a href="{{ route('account.points') }}" class="btn btn-sm btn-success rounded-pill px-3.5 py-2 fw-semibold text-dark shadow-sm">
+                        <i class="bi bi-journal-text me-1"></i> View Points History
+                    </a>
+                    @if(!Auth::user()->is_verified)
+                        <a href="{{ route('account.verification.index') }}" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 text-nowrap">
+                            <i class="bi bi-patch-check me-1"></i> Verify ID (+50 pts)
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@endauth
 
 <!-- Section 1: Member Tiers Progression Cards -->
 <section class="static-section">
@@ -174,8 +230,69 @@
     </div>
 </section>
 
-<!-- Section 3: Frequently Asked Questions -->
+<!-- Section 3: Trust & Visibility Features Across Bontrouver -->
 <section class="static-section">
+    <div class="container-xl">
+        <div class="static-section-header text-center">
+            <span class="section-eyebrow">MARKETPLACE INTEGRATION</span>
+            <h2 class="section-heading">Where Your Member Tier Matters</h2>
+            <p class="section-subtext">Your verified reputation is displayed across the platform to build instant credibility.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="static-card h-100 p-4">
+                    <div class="rounded-circle p-3 bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <i class="bi bi-chat-dots-fill fs-4"></i>
+                    </div>
+                    <h3 class="h6 fw-bold text-white mb-2">Live Chat Trust Badges</h3>
+                    <p class="text-secondary small mb-0">
+                        When buyers and sellers message on Bontrouver, your verified member tier badge is displayed prominently in the chat header, ensuring peace of mind during negotiations.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="static-card h-100 p-4">
+                    <div class="rounded-circle p-3 bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <i class="bi bi-funnel-fill fs-4"></i>
+                    </div>
+                    <h3 class="h6 fw-bold text-white mb-2">Trusted Sellers Search Filter</h3>
+                    <p class="text-secondary small mb-0">
+                        Canadian buyers can filter classified results by "Trusted Members (Level 3+)" to prioritize items from community pillars with proven transaction histories.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="static-card h-100 p-4">
+                    <div class="rounded-circle p-3 bg-warning-subtle text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <i class="bi bi-trophy-fill fs-4"></i>
+                    </div>
+                    <h3 class="h6 fw-bold text-white mb-2">Level-Up Celebrations</h3>
+                    <p class="text-secondary small mb-0">
+                        Every time you cross a new points milestone, you receive celebratory in-app notifications and immediate access to upgraded perks, ad promotions, and trust badges.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="static-card h-100 p-4">
+                    <div class="rounded-circle p-3 bg-info-subtle text-info d-inline-flex align-items-center justify-content-center mb-3" style="width: 52px; height: 52px;">
+                        <i class="bi bi-journal-check fs-4"></i>
+                    </div>
+                    <h3 class="h6 fw-bold text-white mb-2">Transparent Points Ledger</h3>
+                    <p class="text-secondary small mb-0">
+                        Keep track of every single point with your personal "Points &amp; Standing" ledger under your account dashboard, complete with audit timestamps and activity tags.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 4: Frequently Asked Questions -->
+<section class="static-section static-section-alt">
     <div class="container-xl">
         <div class="static-section-header text-center">
             <span class="section-eyebrow">COMMON QUESTIONS</span>
@@ -196,8 +313,8 @@
             </div>
             <div class="col-md-6">
                 <div class="static-faq-item">
-                    <div class="static-faq-q"><i class="bi bi-question-circle"></i> Does my member tier display on my ads?</div>
-                    <div class="static-faq-a">Yes. Buyers see your verified member tier badge (e.g. 🥈 Active, 🥇 Trusted, or ⭐ Elite) alongside your star ratings directly on your ad details and seller profile, establishing instant credibility.</div>
+                    <div class="static-faq-q"><i class="bi bi-question-circle"></i> Where does my member tier badge appear?</div>
+                    <div class="static-faq-a">Your member tier badge appears on all your listing detail cards, in conversation headers in direct messaging, on your public profile, and in community meetup host listings.</div>
                 </div>
                 <div class="static-faq-item">
                     <div class="static-faq-q"><i class="bi bi-question-circle"></i> Do points expire?</div>
@@ -208,7 +325,7 @@
     </div>
 </section>
 
-<!-- Section 4: CTA Banner -->
+<!-- Section 5: CTA Banner -->
 <section class="static-section">
     <div class="container-xl">
         <div class="static-cta-banner">
@@ -222,8 +339,8 @@
                     <i class="bi bi-arrow-right"></i>
                 </a>
             @else
-                <a href="{{ route('settings.index') }}" class="hero-btn-primary">
-                    <span>Go to Account Settings</span>
+                <a href="{{ route('account.points') }}" class="hero-btn-primary">
+                    <span>View My Points Ledger</span>
                     <i class="bi bi-arrow-right"></i>
                 </a>
             @endguest

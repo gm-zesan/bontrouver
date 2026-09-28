@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class City extends Model
 {
+    public const CACHE_KEY = 'canadian_cities_map';
+
     protected $fillable = [
         'province_id',
         'name',
@@ -53,7 +55,7 @@ class City extends Model
     public static function getCitiesMap(): array
     {
         try {
-            return cache()->remember('canadian_cities_map_v1', 3600, function () {
+            return cache()->remember(self::CACHE_KEY, 3600, function () {
                 return self::with('province')
                     ->where('is_active', true)
                     ->orderBy('sort_order')

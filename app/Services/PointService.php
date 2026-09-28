@@ -33,6 +33,8 @@ class PointService
             }
         }
 
+        $oldTier = $user->member_tier;
+
         $transaction = PointTransaction::create([
             'user_id' => $user->id,
             'points' => $points,
@@ -43,6 +45,20 @@ class PointService
         ]);
 
         $user->increment('community_points', $points);
+        $user->refresh();
+
+        $newTier = $user->member_tier;
+
+        if (($newTier['level'] ?? 1) > ($oldTier['level'] ?? 1)) {
+            $user->notify(new \App\Notifications\MemberTierUpgraded($newTier, $oldTier, $user->community_points));
+            if (session()) {
+                session()->flash('tier_level_up', [
+                    'tier' => $newTier,
+                    'points' => $user->community_points,
+                    'message' => "Congratulations! You've leveled up to {$newTier['name']}!",
+                ]);
+            }
+        }
 
         return $transaction;
     }

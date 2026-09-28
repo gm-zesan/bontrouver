@@ -386,6 +386,9 @@
                             </div>
                         </div>
 
+                        {{-- 5B. DYNAMIC CATEGORY ATTRIBUTES FILTER (Auto-populated when admin toggles "Enable in Search Filter") --}}
+                        <div id="dynamicCategoryAttributesDesktop" class="dynamic-category-attributes-container"></div>
+
                         {{-- 6. GENERIC CONDITION FILTER (Hidden for Housing & Jobs) --}}
                         <div class="filter-section generic-facet" id="genericConditionSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
                             <div class="filter-section-title">Condition</div>
@@ -438,6 +441,28 @@
                                     <input type="checkbox" name="seller" value="dealer" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
                                     <span class="checkbox-label" id="sellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- 9. COMMUNITY MEMBER TIER & TRUST FILTER --}}
+                        <div class="filter-section" id="memberTierFilterSection">
+                            <div class="filter-section-title">Community Trust & Tier</div>
+                            <div class="filter-options-list">
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="min_tier" value="3" onchange="triggerLiveFilter()">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label"><span class="me-1">🥇</span> Trusted Members (Level 3+)</span>
+                                </label>
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="min_tier" value="2" onchange="triggerLiveFilter()">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label"><span class="me-1">🥈</span> Active Members (Level 2+)</span>
+                                </label>
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="verified_only" value="1" onchange="triggerLiveFilter()">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> Verified Sellers Only</span>
                                 </label>
                             </div>
                         </div>
@@ -839,6 +864,9 @@
             </div>
         </div>
 
+        {{-- Mobile Dynamic Category Attributes (Auto-populated when admin toggles "Enable in Search Filter") --}}
+        <div id="dynamicCategoryAttributesMobile" class="dynamic-category-attributes-container"></div>
+
         {{-- Mobile Generic Condition --}}
         <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericConditionGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
             <label class="mobile-group-label">Condition</label>
@@ -891,6 +919,28 @@
                     <input type="checkbox" name="m_seller" value="dealer" onchange="syncMobileSeller()">
                     <span class="checkbox-box"></span>
                     <span class="checkbox-label" id="mobileSellerLabelDealer">{{ in_array($categorySlug, ['housing', 'real-estate']) ? 'Property Manager / Broker' : 'Business / Dealer' }}</span>
+                </label>
+            </div>
+        </div>
+
+        {{-- Mobile Member Tier & Trust Filter --}}
+        <div class="mobile-filter-group" id="mobileMemberTierGroup">
+            <label class="mobile-group-label">Community Trust & Tier</label>
+            <div class="filter-options-list">
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_min_tier" value="3" onchange="syncMobileTier()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label"><span class="me-1">🥇</span> Trusted Members (Level 3+)</span>
+                </label>
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_min_tier" value="2" onchange="syncMobileTier()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label"><span class="me-1">🥈</span> Active Members (Level 2+)</span>
+                </label>
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_verified_only" value="1" onchange="syncMobileTier()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> Verified Only</span>
                 </label>
             </div>
         </div>
@@ -1044,6 +1094,18 @@
         const selectedJobTypes = Array.from(document.querySelectorAll('input[name="job_type"]:checked')).map(c => c.value);
         const selectedWorkSetups = Array.from(document.querySelectorAll('input[name="work_setup"]:checked')).map(c => c.value);
 
+        // Selected Dynamic Category Attributes
+        const selectedDynAttrs = {};
+        document.querySelectorAll('input[data-attr-slug]:checked').forEach(input => {
+            const slug = input.getAttribute('data-attr-slug');
+            if (!selectedDynAttrs[slug]) {
+                selectedDynAttrs[slug] = [];
+            }
+            if (!selectedDynAttrs[slug].includes(input.value)) {
+                selectedDynAttrs[slug].push(input.value);
+            }
+        });
+
         const isHousingCategory = (currentCategory === 'housing' || currentCategory === 'real-estate');
         const isCarsCategory = (currentCategory === 'cars-vehicles');
         const isJobsCategory = (currentCategory === 'jobs');
@@ -1178,6 +1240,55 @@
                 if (!itemSellerName.includes(urlSellerName.toLowerCase())) return false;
             }
 
+            // Member Tier & Verified Seller Filter check
+            const selectedMinTiers = Array.from(document.querySelectorAll('input[name="min_tier"]:checked')).map(t => parseInt(t.value, 10));
+            const isVerifiedOnly = document.querySelector('input[name="verified_only"]:checked');
+
+            if (isVerifiedOnly && (!item.seller || !item.seller.is_verified)) {
+                return false;
+            }
+
+            if (selectedMinTiers.length > 0) {
+                const requiredMinTier = Math.min(...selectedMinTiers);
+                const sellerTierLevel = (item.seller && item.seller.member_tier && item.seller.member_tier.level) ? parseInt(item.seller.member_tier.level, 10) : 1;
+                if (sellerTierLevel < requiredMinTier) {
+                    return false;
+                }
+            }
+
+            // Dynamic Custom Category Attributes Filter check
+            for (const [attrSlug, selectedVals] of Object.entries(selectedDynAttrs)) {
+                if (!selectedVals || selectedVals.length === 0) continue;
+
+                const itemRawVal = item.raw_attributes ? item.raw_attributes[attrSlug] : null;
+                const itemDisplayVal = item.attributes ? item.attributes[attrSlug] : null;
+                const itemPropVal = item[attrSlug] !== undefined ? item[attrSlug] : null;
+
+                const actualVal = (itemRawVal !== null && itemRawVal !== undefined && itemRawVal !== '')
+                    ? itemRawVal
+                    : ((itemDisplayVal !== null && itemDisplayVal !== undefined && itemDisplayVal !== '')
+                        ? itemDisplayVal
+                        : itemPropVal);
+
+                if (actualVal === null || actualVal === undefined || actualVal === '') {
+                    return false;
+                }
+
+                const matches = selectedVals.some(v => {
+                    if (Array.isArray(actualVal)) {
+                        return actualVal.some(av => String(av).trim().toLowerCase() === String(v).trim().toLowerCase());
+                    }
+                    if (v === '1') {
+                        return actualVal === true || actualVal === 1 || actualVal === '1' || String(actualVal).toLowerCase() === 'yes';
+                    }
+                    return String(actualVal).trim().toLowerCase() === String(v).trim().toLowerCase();
+                });
+
+                if (!matches) {
+                    return false;
+                }
+            }
+
             return true;
         });
 
@@ -1238,7 +1349,8 @@
             selectedFuels,
             selectedTransmissions,
             selectedJobTypes,
-            selectedWorkSetups
+            selectedWorkSetups,
+            selectedDynAttrs
         });
 
         // Update Browser URL without page refresh
@@ -1262,6 +1374,13 @@
             <span class="listing-seller-pill">
                 <i class="bi bi-patch-check-fill"></i>
                 <span>${sellerLabel}</span>
+            </span>
+        ` : '';
+
+        const tierBadgeHTML = (item.seller && item.seller.member_tier) ? `
+            <span class="listing-dot">•</span>
+            <span class="badge ${item.seller.member_tier.badge_class || 'bg-secondary'} px-2 py-0.5 small rounded-pill text-white" style="font-size: 0.72rem;">
+                <span class="me-0.5">${item.seller.member_tier.icon || '🥉'}</span> ${item.seller.member_tier.name || 'Member'}
             </span>
         ` : '';
 
@@ -1295,6 +1414,7 @@
                         <span class="listing-row-time">${item.posted_at}</span>
                         ${distanceHTML}
                         ${sellerHTML}
+                        ${tierBadgeHTML}
                     </div>
                 </div>
 
@@ -1408,6 +1528,32 @@
                 : (s === 'private' ? 'Private Seller' : 'Business / Dealer');
             chips.push({ label: sText, clear: () => uncheckBothFilters('seller', 'm_seller', s) });
         });
+
+        // Member Tier & Verified filter chips
+        const selectedMinTiers = Array.from(document.querySelectorAll('input[name="min_tier"]:checked')).map(t => parseInt(t.value, 10));
+        selectedMinTiers.forEach(tierLvl => {
+            const tierName = tierLvl >= 3 ? '🥇 Trusted Members (Level 3+)' : '🥈 Active Members (Level 2+)';
+            chips.push({ label: tierName, clear: () => uncheckBothFilters('min_tier', 'm_min_tier', tierLvl) });
+        });
+        if (document.querySelector('input[name="verified_only"]:checked')) {
+            chips.push({ label: '🛡️ Verified Sellers Only', clear: () => uncheckBothFilters('verified_only', 'm_verified_only', '1') });
+        }
+
+        // Dynamic Attributes Active Chips
+        if (f.selectedDynAttrs) {
+            for (const [attrSlug, vals] of Object.entries(f.selectedDynAttrs)) {
+                if (!Array.isArray(vals) || vals.length === 0) continue;
+                const attrObj = (typeof dynamicAttributesData !== 'undefined') ? dynamicAttributesData.find(a => a.name === attrSlug) : null;
+                const attrLabel = attrObj ? attrObj.label : attrSlug.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                vals.forEach(val => {
+                    const displayVal = (val === '1') ? 'Yes' : val;
+                    chips.push({
+                        label: `${attrLabel}: ${displayVal}`,
+                        clear: () => syncDynamicFilter(attrSlug, val, false)
+                    });
+                });
+            }
+        }
 
         // Specific Seller Filter Chip
         const urlParams = new URLSearchParams(window.location.search);
@@ -1631,6 +1777,139 @@
             if (mPriv) mPriv.textContent = 'Private Seller';
             if (mDeal) mDeal.textContent = 'Business / Dealer';
         }
+
+        // 9. Load and render dynamic category attributes (Filterable attributes enabled in Admin)
+        loadCategoryFilterableAttributes(catSlug, subSlug);
+    }
+
+    let dynamicAttributesData = [];
+    let lastLoadedCatKey = '';
+
+    async function loadCategoryFilterableAttributes(catSlug, subSlug = '') {
+        const desktopContainer = document.getElementById('dynamicCategoryAttributesDesktop');
+        const mobileContainer = document.getElementById('dynamicCategoryAttributesMobile');
+
+        if (!catSlug) {
+            dynamicAttributesData = [];
+            lastLoadedCatKey = '';
+            if (desktopContainer) desktopContainer.innerHTML = '';
+            if (mobileContainer) mobileContainer.innerHTML = '';
+            return;
+        }
+
+        const catKey = `${catSlug}_${subSlug}`;
+        if (lastLoadedCatKey === catKey) return;
+        lastLoadedCatKey = catKey;
+
+        try {
+            const url = `{{ url('/api/category-attributes') }}/${encodeURIComponent(catSlug)}${subSlug ? '?sub=' + encodeURIComponent(subSlug) : ''}`;
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const data = await res.json();
+
+            if (data.success && Array.isArray(data.attributes)) {
+                // Filter only attributes where is_filterable is true
+                const filterable = data.attributes.filter(a => a.filterable === true);
+
+                // Exclude attributes already handled by dedicated hardcoded category facets to avoid duplication
+                const hardcodedSlugs = [
+                    'condition', 'delivery', 'property_type', 'bedrooms', 'bathrooms',
+                    'furnished', 'parking', 'pet_friendly', 'utilities_included', 'fuel',
+                    'transmission', 'job_type', 'work_setup'
+                ];
+                dynamicAttributesData = filterable.filter(a => !hardcodedSlugs.includes(a.name));
+                renderDynamicCategoryAttributesUI(dynamicAttributesData);
+            } else {
+                dynamicAttributesData = [];
+                if (desktopContainer) desktopContainer.innerHTML = '';
+                if (mobileContainer) mobileContainer.innerHTML = '';
+            }
+        } catch (err) {
+            console.error('Failed to load filterable category attributes:', err);
+        }
+    }
+
+    function renderDynamicCategoryAttributesUI(attributes) {
+        const desktopContainer = document.getElementById('dynamicCategoryAttributesDesktop');
+        const mobileContainer = document.getElementById('dynamicCategoryAttributesMobile');
+
+        if (!attributes || attributes.length === 0) {
+            if (desktopContainer) desktopContainer.innerHTML = '';
+            if (mobileContainer) mobileContainer.innerHTML = '';
+            return;
+        }
+
+        let desktopHtml = '';
+        let mobileHtml = '';
+
+        attributes.forEach(attr => {
+            const options = attr.options || [];
+
+            if (options.length > 0) {
+                desktopHtml += `
+                    <div class="filter-section dynamic-attr-section mb-3" data-dyn-section="${attr.name}">
+                        <div class="filter-section-title">${attr.label}</div>
+                        <div class="filter-options-list">
+                            ${options.map(opt => `
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="dyn_attr_${attr.name}" data-attr-slug="${attr.name}" value="${opt}" onchange="syncDynamicFilter('${attr.name}', '${opt.replace(/'/g, "\\'")}', this.checked)">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+
+                mobileHtml += `
+                    <div class="mobile-filter-group dynamic-attr-group mb-3" data-dyn-section="${attr.name}">
+                        <label class="mobile-group-label">${attr.label}</label>
+                        <div class="filter-options-list">
+                            ${options.map(opt => `
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="m_dyn_attr_${attr.name}" data-attr-slug="${attr.name}" value="${opt}" onchange="syncDynamicFilter('${attr.name}', '${opt.replace(/'/g, "\\'")}', this.checked)">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (attr.type === 'checkbox') {
+                desktopHtml += `
+                    <div class="filter-section dynamic-attr-section mb-3" data-dyn-section="${attr.name}">
+                        <div class="filter-options-list">
+                            <label class="custom-filter-checkbox">
+                                <input type="checkbox" name="dyn_attr_${attr.name}" data-attr-slug="${attr.name}" value="1" onchange="syncDynamicFilter('${attr.name}', '1', this.checked)">
+                                <span class="checkbox-box"></span>
+                                <span class="checkbox-label">${attr.label}</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+
+                mobileHtml += `
+                    <div class="mobile-filter-group dynamic-attr-group mb-3" data-dyn-section="${attr.name}">
+                        <div class="filter-options-list">
+                            <label class="custom-filter-checkbox">
+                                <input type="checkbox" name="m_dyn_attr_${attr.name}" data-attr-slug="${attr.name}" value="1" onchange="syncDynamicFilter('${attr.name}', '1', this.checked)">
+                                <span class="checkbox-box"></span>
+                                <span class="checkbox-label">${attr.label}</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        if (desktopContainer) desktopContainer.innerHTML = desktopHtml;
+        if (mobileContainer) mobileContainer.innerHTML = mobileHtml;
+    }
+
+    function syncDynamicFilter(slug, value, isChecked) {
+        document.querySelectorAll(`input[name="dyn_attr_${slug}"][value="${value}"]`).forEach(el => el.checked = isChecked);
+        document.querySelectorAll(`input[name="m_dyn_attr_${slug}"][value="${value}"]`).forEach(el => el.checked = isChecked);
+        triggerLiveFilter();
     }
 
     function selectCategoryFilter(slug) {
@@ -1838,6 +2117,17 @@
         document.querySelectorAll('input[name="seller"]').forEach(cb => {
             cb.checked = mobileChecked.includes(cb.value);
         });
+        triggerLiveFilter();
+    }
+
+    function syncMobileTier() {
+        const mobileMinTiers = Array.from(document.querySelectorAll('input[name="m_min_tier"]:checked')).map(c => c.value);
+        document.querySelectorAll('input[name="min_tier"]').forEach(cb => {
+            cb.checked = mobileMinTiers.includes(cb.value);
+        });
+        const mobileVerified = document.querySelector('input[name="m_verified_only"]')?.checked || false;
+        const desktopVerified = document.querySelector('input[name="verified_only"]');
+        if (desktopVerified) desktopVerified.checked = mobileVerified;
         triggerLiveFilter();
     }
 </script>

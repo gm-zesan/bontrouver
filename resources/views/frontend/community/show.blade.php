@@ -191,6 +191,15 @@
                             </h3>
                             <p class="text-white-50 small mb-2">Host • Member since {{ $meetup->user->created_at ? $meetup->user->created_at->format('Y') : '2024' }}</p>
 
+                            @php $hostTier = $meetup->user->member_tier ?? null; @endphp
+                            @if($hostTier)
+                                <div class="mb-3">
+                                    <span class="badge {{ $hostTier['badge_class'] ?? 'bg-secondary' }} px-2.5 py-1 small rounded-pill border border-secondary border-opacity-25">
+                                        <span class="me-1">{{ $hostTier['icon'] }}</span> {{ $hostTier['name'] }}
+                                    </span>
+                                </div>
+                            @endif
+
                             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
                                 <div class="px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.05);">
                                     <div class="fw-bold">{{ $meetup->user->community_points ?? 0 }}</div>

@@ -103,8 +103,7 @@
                                         </div>
                                     @endif
                                     
-                                    <div class="min-w-0">
-                                        <div class="d-flex align-items-center gap-2">
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
                                             <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.92rem;">
                                                 {{ $activeConversation['user']['name'] ?? 'User' }}
                                             </h6>
@@ -113,12 +112,27 @@
                                                     <i class="bi bi-shield-check me-1"></i> Verified
                                                 </span>
                                             @endif
+                                            @if(!empty($activeConversation['user']['member_tier']))
+                                                @php $chatTier = $activeConversation['user']['member_tier']; @endphp
+                                                <span class="badge {{ $chatTier['badge_class'] ?? 'bg-secondary' }} border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
+                                                    <span class="me-0.5">{{ $chatTier['icon'] }}</span> {{ $chatTier['name'] }}
+                                                </span>
+                                            @endif
                                         </div>
                                         <span class="small text-secondary" style="font-size: 0.75rem;">
                                             <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}
                                         </span>
                                     </div>
                                 </div>
+
+                                @if(!empty($activeConversation['user']['id']))
+                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                        <a href="{{ route('profile.view', ['id' => $activeConversation['user']['id']]) }}" target="_blank" class="btn btn-sm btn-theme-outline-secondary rounded-pill px-2.5 py-1 text-nowrap d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                                            <i class="bi bi-person-circle"></i>
+                                            <span class="d-none d-sm-inline">View Profile</span>
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
 
                             <!-- Messages Stream Box -->

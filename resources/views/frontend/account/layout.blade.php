@@ -13,8 +13,9 @@
         request()->routeIs('messages*') ? 'messages' : (
         request()->routeIs('notifications*') ? 'notifications' : (
         request()->routeIs('settings*') ? 'settings' : (
+        request()->routeIs('account.points*') ? 'points' : (
         request()->routeIs('meetups*') ? 'meetups' : (
-        request()->routeIs('account.alerts*') ? 'alerts' : 'profile')))))))
+        request()->routeIs('account.alerts*') ? 'alerts' : 'profile'))))))))
     );
     $stats = $stats ?? [];
 @endphp
@@ -62,6 +63,11 @@
                             @if(isset($stats['unread_notifications_count']) && $stats['unread_notifications_count'] > 0)
                                 <span class="badge bg-warning text-dark ms-1">{{ $stats['unread_notifications_count'] }}</span>
                             @endif
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('account.points') }}" class="nav-link mobile-dark-pill {{ $currentNav === 'points' ? 'active' : '' }}">
+                            <i class="bi bi-coin me-1"></i> Points
                         </a>
                     </li>
                     <li class="nav-item">

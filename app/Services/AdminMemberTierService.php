@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
 
 class AdminMemberTierService
 {
-    public const POINT_RULES_CACHE_KEY = 'bontrouver_point_rules_v1';
+    public const POINT_RULES_CACHE_KEY = 'point_rules';
 
     /**
      * Get all member tiers with member counts and distribution statistics.
@@ -73,7 +73,7 @@ class AdminMemberTierService
                 'perks'       => $perks,
             ]);
 
-            Cache::forget('member_tiers_all_v2');
+            Cache::forget(MemberTier::CACHE_KEY);
 
             return $tier;
         });
@@ -123,6 +123,8 @@ class AdminMemberTierService
     public function adjustUserPoints(User $user, int $amount, string $actionType, string $description, ?int $adminId = null): PointTransaction
     {
         return DB::transaction(function () use ($user, $amount, $actionType, $description) {
+            $oldTier = $user->member_tier;
+
             $transaction = PointTransaction::create([
                 'user_id'        => $user->id,
                 'points'         => $amount,
@@ -135,6 +137,13 @@ class AdminMemberTierService
             // Adjust community_points safely (avoid negative balances)
             $newPoints = max(0, ((int) $user->community_points) + $amount);
             $user->update(['community_points' => $newPoints]);
+            $user->refresh();
+
+            $newTier = $user->member_tier;
+
+            if ($amount > 0 && ($newTier['level'] ?? 1) > ($oldTier['level'] ?? 1)) {
+                $user->notify(new \App\Notifications\MemberTierUpgraded($newTier, $oldTier, $newPoints));
+            }
 
             return $transaction;
         });

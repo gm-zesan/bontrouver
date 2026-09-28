@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class MemberTier extends Model
 {
+    public const CACHE_KEY = 'member_tiers';
+
     protected $fillable = [
         'name',
         'icon',

@@ -300,8 +300,13 @@
                                 </a>
                             </li>
                             <li>
+                                <a class="dropdown-item" href="{{ route('account.points') }}">
+                                    <i class="bi bi-coin me-2 text-success"></i> My Points & Standing
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="{{ route('pages.member-benefits') }}">
-                                    <i class="bi bi-award me-2 text-success"></i> Member Benefits & Points
+                                    <i class="bi bi-award me-2 text-primary"></i> Member Benefits & Perks
                                 </a>
                             </li>
                             <li>

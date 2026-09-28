@@ -115,6 +115,47 @@
     }
     </script>
 
+    @if(session('tier_level_up'))
+        @php $levelUpData = session('tier_level_up'); $t = $levelUpData['tier'] ?? []; @endphp
+        <!-- Member Tier Level-Up Celebration Modal -->
+        <div class="modal fade" id="tierLevelUpCelebrationModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4" style="background: linear-gradient(135deg, #0D243C 0%, #081D33 100%); color: #fff; border: 2px solid {{ $t['badge_color'] ?? '#49D17D' }} !important;">
+                    <div class="modal-body py-3">
+                        <div class="display-1 mb-2 animate__animated animate__bounceIn">
+                            {{ $t['icon'] ?? '🎉' }}
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-1 rounded-pill mb-3 fs-6">
+                            LEVEL UP CELEBRATION!
+                        </span>
+                        <h2 class="h3 fw-bold text-white mb-2">
+                            {{ $t['name'] ?? 'Active Member' }}
+                        </h2>
+                        <p class="text-secondary mb-4" style="font-size: 0.95rem;">
+                            {{ $levelUpData['message'] ?? 'Congratulations on leveling up your Canadian community standing!' }}
+                        </p>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <a href="{{ route('account.points') }}" class="btn btn-success rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                <i class="bi bi-gift-fill me-1"></i> View My Unlocked Perks
+                            </a>
+                            <button type="button" class="btn btn-theme-outline-secondary rounded-pill px-3 py-2" data-bs-dismiss="modal">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var celebrationModal = document.getElementById('tierLevelUpCelebrationModal');
+                if (celebrationModal && typeof bootstrap !== 'undefined') {
+                    new bootstrap.Modal(celebrationModal).show();
+                }
+            });
+        </script>
+    @endif
+
     @stack('scripts')
     @if ($errors->any())
         @php
