@@ -12,6 +12,7 @@ use App\Http\Controllers\Seller\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ListingPromotionController;
 use App\Http\Controllers\SmartAlertController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\StaticPageController;
@@ -112,10 +113,12 @@ Route::middleware(['auth'])->group(function () {
     // 6. Community Meetups Management
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
     Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
-    Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
-
     // 7. Community Abuse & Moderation Reporting
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+
+    // 8. Listing Promotion & Boost Hub (Standardized singular to match /listing/{id})
+    Route::get('/listing/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show');
+    Route::post('/listing/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store');
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -151,6 +154,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('listings/{listing}/reports/{report}/resolve', [\App\Http\Controllers\Admin\ListingController::class, 'resolveReport'])->name('listings.reports.resolve');
     Route::post('listings/{listing}/reports/{report}/dismiss', [\App\Http\Controllers\Admin\ListingController::class, 'dismissReport'])->name('listings.reports.dismiss');
     Route::post('listings/bulk', [\App\Http\Controllers\Admin\ListingController::class, 'bulkAction'])->name('listings.bulk');
+
+    // Listing Promotions & Revenue Management Hub
+    Route::prefix('promotions')->name('promotions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PromotionController::class, 'index'])->name('index');
+        Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PromotionController::class, 'updatePackage'])->name('packages.update');
+        Route::put('/quota', [\App\Http\Controllers\Admin\PromotionController::class, 'updateQuota'])->name('quota.update');
+    });
+
+    // Local Sponsor Banner Ads & AdSense Hub
+    Route::prefix('banners')->name('banners.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BannerAdController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\BannerAdController::class, 'store'])->name('store');
+        Route::put('/{banner}', [\App\Http\Controllers\Admin\BannerAdController::class, 'update'])->name('update');
+        Route::delete('/{banner}', [\App\Http\Controllers\Admin\BannerAdController::class, 'destroy'])->name('destroy');
+        Route::post('/{banner}/toggle', [\App\Http\Controllers\Admin\BannerAdController::class, 'toggleStatus'])->name('toggle');
+    });
 
     // Meetup Management
     Route::resource('meetups', \App\Http\Controllers\Admin\MeetupController::class)->only(['index', 'show', 'destroy']);

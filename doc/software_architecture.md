@@ -245,6 +245,10 @@ app/
 │   ├── UserVerification.php
 │   ├── UserProfile.php
 │   ├── UserGallery.php
+│   ├── PromotionPackage.php
+│   ├── ListingPromotion.php
+│   ├── BannerAd.php
+│   ├── SiteSetting.php
 │   └── SearchQuery.php
 │
 ├── Notifications/
@@ -272,6 +276,8 @@ app/
     ├── SmartAlertService.php
     ├── MessagingService.php
     ├── VerificationService.php
+    ├── MonetizationService.php
+    ├── SiteSettingService.php
     └── CompanionshipService.php
 ```
 

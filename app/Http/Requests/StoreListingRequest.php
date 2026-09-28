@@ -33,6 +33,12 @@ class StoreListingRequest extends FormRequest
             'images'                     => ['nullable', 'array', 'max:' . site_setting('max_images_per_listing', 10)],
             'attributes'                 => ['nullable', 'array'],
             'promotions'                 => ['nullable', 'array'],
+            'payment_method'             => ['nullable', 'string', 'in:card,points,stripe'],
+            'stripe_cardholder_name'     => ['nullable', 'string', 'max:150'],
+            'stripe_card_number'         => ['nullable', 'string', 'max:30'],
+            'stripe_card_expiry'         => ['nullable', 'string', 'max:10'],
+            'stripe_card_cvc'            => ['nullable', 'string', 'max:6'],
+            'stripe_postal_code'         => ['nullable', 'string', 'max:12'],
         ];
     }
 

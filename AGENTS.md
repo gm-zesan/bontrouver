@@ -93,8 +93,12 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->conversations()` → `hasMany(Conversation::class)`
 - `$listing->transactions()` → `hasMany(Transaction::class)`
 - `$listing->reports()` → `morphMany(Report::class, 'reportable')`
+- `$listing->promotions()` → `hasMany(ListingPromotion::class)`
+- `$listing->activePromotions()` → `hasMany(ListingPromotion::class)->active()`
 - Enums & Casts: `status` (`App\Enums\ListingStatus`: `DRAFT`, `PENDING_REVIEW`, `ACTIVE`, `PAUSED`, `SOLD`, `EXPIRED`, `REJECTED`)
-- Flags: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel)
+- Flags & Boosts: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel), `featured_until`, `sponsored_until`, `bumped_at` (bump to top)
+- Scopes: `scopeActive()`, `scopeFeatured()`, `scopeSponsored()`, `scopeBumped()`, `scopeWithinRadius()`
+- Helpers: `$listing->isFeatured()`, `$listing->isSponsored()`, `$listing->isBumped()`
 
 ### ListingImage (`App\Models\ListingImage`)
 - `$image->listing()` → `belongsTo(Listing::class)`
@@ -177,6 +181,19 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 ### UserGallery (`App\Models\UserGallery`)
 - `$gallery->user()` → `belongsTo(User::class)`
 - Fields: `user_id`, `image_path`, `sort_order`
+
+### PromotionPackage (`App\Models\PromotionPackage`)
+- `$pkg->listingPromotions()` → `hasMany(ListingPromotion::class)`
+- Columns: `name`, `slug`, `type` (`sponsored`, `featured`, `bump_up`), `badge_text`, `badge_color`, `badge_icon`, `price`, `point_cost`, `duration_days`, `description`, `features` (json), `is_active`, `sort_order`
+
+### ListingPromotion (`App\Models\ListingPromotion`)
+- `$promo->listing()` → `belongsTo(Listing::class)`
+- `$promo->user()` → `belongsTo(User::class)`
+- `$promo->package()` → `belongsTo(PromotionPackage::class, 'promotion_package_id')`
+- Columns: `listing_id`, `user_id`, `promotion_package_id`, `type`, `price_paid`, `points_spent`, `payment_method`, `payment_status`, `transaction_reference`, `starts_at`, `expires_at`, `is_active`
+
+### BannerAd (`App\Models\BannerAd`)
+- Columns: `title`, `position` (`homepage_top`, `homepage_middle`, `homepage_bottom`, `homepage_leaderboard`, `search_sidebar`, `listing_detail_bottom`, `community_sidebar`), `image_path`, `target_url`, `html_code`, `city`, `province`, `is_active`, `sort_order`, `impressions_count`, `clicks_count`, `starts_at`, `expires_at`
 
 ### SearchQuery (`App\Models\SearchQuery`)
 - Fields: `query`, `hits_count`, `results_count`, `last_searched_at`

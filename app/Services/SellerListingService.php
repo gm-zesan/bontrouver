@@ -20,21 +20,43 @@ class SellerListingService
             ->get();
 
         return $dbListings->map(function ($item) {
+            $isSponsored = $item->isSponsored();
+            $isFeatured  = $item->isFeatured();
+            $isBumped    = $item->isBumped();
+
+            $badge = null;
+            $badgeType = null;
+            if ($isSponsored) {
+                $badge = 'SPONSORED';
+                $badgeType = 'sponsored';
+            } elseif ($isFeatured) {
+                $badge = 'FEATURED';
+                $badgeType = 'featured';
+            } elseif ($isBumped) {
+                $badge = 'BUMPED';
+                $badgeType = 'bumped';
+            }
+
             return [
                 'id' => $item->id,
                 'title' => $item->title,
                 'price' => '$' . number_format($item->price, 2),
                 'category' => $item->category->name ?? 'Uncategorized',
                 'location' => $item->city . ', ' . $item->province,
-                'status' => $item->status,
-                'posted_at' => $item->created_at->diffForHumans(),
+                'status' => $item->status instanceof \App\Enums\ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
+                'posted_at' => ($item->bumped_at ?? $item->created_at)->diffForHumans(),
                 'created_at' => $item->created_at->format('Y-m-d'),
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,
                 'messages' => $item->messages ?? 0,
                 'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
-                'featured' => $item->is_featured,
-                'sponsored' => $item->is_sponsored,
+                'featured' => $isFeatured,
+                'sponsored' => $isSponsored,
+                'is_featured' => $isFeatured,
+                'is_sponsored' => $isSponsored,
+                'is_bumped' => $isBumped,
+                'badge' => $badge,
+                'badge_type' => $badgeType,
                 'draft_progress' => 100,
             ];
         })->toArray();

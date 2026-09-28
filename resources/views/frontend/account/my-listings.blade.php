@@ -170,26 +170,36 @@
 <!-- 4. Promote Listing Modal -->
 <x-confirm-modal 
     id="promoteConfirmModal"
-    title="<i class='bi bi-rocket-takeoff text-info me-2'></i> <span class='text-info'>Promote Listing</span>"
-    buttonText="<i class='bi bi-arrow-up-circle-fill me-1'></i> Promote Now"
+    title="<i class='bi bi-rocket-takeoff text-info me-2'></i> <span class='text-info'>Boost & Promote Listing</span>"
+    buttonText="<i class='bi bi-arrow-up-circle-fill me-1'></i> Boost with Points"
     buttonClass="btn-info fw-semibold text-dark"
     buttonId="confirmPromoteBtn"
 >
     <p class="text-secondary mb-3">
-        Boost the visibility of <strong id="promoteModalListingTitle" class="text-white">this listing</strong> by using your Community Points!
+        Boost the visibility of <strong id="promoteModalListingTitle" class="text-white">this listing</strong> using your earned Community Points!
     </p>
     
+    <div id="promoteActiveNotice" class="alert alert-warning border-0 rounded-3 small mb-3 py-2 px-3" style="display: none; background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3) !important;">
+        <i class="bi bi-info-circle-fill me-1"></i> <span id="promoteActiveNoticeText"></span>
+    </div>
+
     <div class="mb-3">
-        <label class="form-label text-secondary small fw-bold">Select Promotion Type</label>
+        <label class="form-label text-secondary small fw-bold">Select 1-Click Boost Option</label>
         <select id="promoteTypeSelect" class="form-select dark-filter-select">
-            <option value="featured">Featured Listing ({{ \App\Services\PointService::getRulePoints('featured_promotion', 'spend', 100) }} Points)</option>
-            <option value="sponsored">Sponsored Spotlight ({{ \App\Services\PointService::getRulePoints('sponsored_promotion', 'spend', 300) }} Points)</option>
+            <option value="bump_up">🚀 Instant Bump-Up (60 Points)</option>
+            <option value="featured">⭐ Featured Listing (150 Points)</option>
+            <option value="sponsored">👑 Sponsored Spotlight (300 Points)</option>
         </select>
     </div>
 
-    <div class="p-3 rounded-3 small mb-0 mt-3" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
-        <i class="bi bi-info-circle-fill text-info me-1"></i>
-        Points will be deducted immediately. Make sure you have enough points!
+    <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background: #081D33; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <span class="text-secondary small">Your Community Points:</span>
+        <span class="badge bg-primary text-white fs-6 px-3 py-1"><i class="bi bi-award-fill me-1"></i>{{ number_format(Auth::user()->community_points ?? 0) }} pts</span>
+    </div>
+
+    <div class="p-3 rounded-3 small mb-0" style="background: #081D33; border: 1px solid var(--border-color, #18344D); color: #94A3B8;">
+        <i class="bi bi-credit-card-2-front text-success me-1"></i>
+        Want to pay with CAD card or view full packages? <a href="#" id="promoteFullPageLink" class="text-success text-decoration-underline fw-semibold">Open Full Boost & Payment Page →</a>
     </div>
 </x-confirm-modal>
 
@@ -400,13 +410,25 @@ document.addEventListener('DOMContentLoaded', function () {
         activeActionListing = { id, title, currentStatus };
         const titleEl = document.getElementById('pauseModalListingTitle');
         if (titleEl) titleEl.textContent = `"${title}"`;
+        
         const actionWord = currentStatus === 'paused' ? 'Resume Listing' : 'Pause Listing';
         const wordEl = document.getElementById('pauseModalActionWord');
         if (wordEl) wordEl.textContent = actionWord;
+
+        const confirmBtn = document.getElementById('confirmPauseBtn');
+        if (confirmBtn) {
+            confirmBtn.innerHTML = currentStatus === 'paused'
+                ? '<i class="bi bi-play-fill me-1"></i> Resume Listing'
+                : '<i class="bi bi-pause-fill me-1"></i> Pause Listing';
+            confirmBtn.className = currentStatus === 'paused'
+                ? 'btn btn-success text-dark fw-bold rounded-pill px-4'
+                : 'btn btn-warning text-dark fw-bold rounded-pill px-4';
+        }
+
         const descEl = document.getElementById('pauseModalDescription');
         if (descEl) {
             descEl.innerHTML = currentStatus === 'paused'
-                ? `Reactivate <strong class="text-white">"${title}"</strong> and make it visible to buyers again?`
+                ? `Reactivate <strong class="text-white">"${title}"</strong> and make it immediately visible to buyers in public search results?`
                 : `Temporarily deactivate <strong class="text-white">"${title}"</strong>?`;
         }
         pauseModal.show();
@@ -419,10 +441,61 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteModal.show();
     };
 
-    window.openPromoteModal = function (id, title) {
-        activeActionListing = { id, title };
+    window.openPromoteModal = function (id, title, isSponsored = false, isFeatured = false, isBumped = false) {
+        activeActionListing = { id, title, isSponsored, isFeatured, isBumped };
         const el = document.getElementById('promoteModalListingTitle');
         if (el) el.textContent = `"${title}"`;
+        const fullLink = document.getElementById('promoteFullPageLink');
+        if (fullLink) fullLink.href = `/listing/${id}/promote`;
+
+        const select = document.getElementById('promoteTypeSelect');
+        const confirmBtn = document.getElementById('confirmPromoteBtn');
+        const noticeEl = document.getElementById('promoteActiveNotice');
+        const noticeText = document.getElementById('promoteActiveNoticeText');
+
+        if (select) {
+            const optBump = select.querySelector('option[value="bump_up"]');
+            const optFeatured = select.querySelector('option[value="featured"]');
+            const optSponsored = select.querySelector('option[value="sponsored"]');
+
+            if (optBump) {
+                optBump.disabled = isBumped;
+                optBump.textContent = isBumped ? '🚀 Instant Bump-Up (Already Bumped Today - Unavailable)' : '🚀 Instant Bump-Up (60 Points)';
+            }
+            if (optFeatured) {
+                optFeatured.disabled = isFeatured;
+                optFeatured.textContent = isFeatured ? '⭐ Featured Listing (Already Active - Unavailable)' : '⭐ Featured Listing (150 Points)';
+            }
+            if (optSponsored) {
+                optSponsored.disabled = isSponsored;
+                optSponsored.textContent = isSponsored ? '👑 Sponsored Spotlight (Already Active - Unavailable)' : '👑 Sponsored Spotlight (300 Points)';
+            }
+
+            const availableOpts = Array.from(select.options).filter(opt => !opt.disabled);
+            if (availableOpts.length > 0) {
+                select.value = availableOpts[0].value;
+                if (confirmBtn) confirmBtn.disabled = false;
+                if (noticeEl) {
+                    if (isSponsored || isFeatured || isBumped) {
+                        const activeNames = [];
+                        if (isSponsored) activeNames.push('Sponsored Spotlight');
+                        if (isFeatured) activeNames.push('Featured Badge');
+                        if (isBumped) activeNames.push('Bump-Up');
+                        if (noticeText) noticeText.textContent = `Currently active on this listing: ${activeNames.join(', ')}. You cannot duplicate active boosts until their duration expires.`;
+                        noticeEl.style.display = 'block';
+                    } else {
+                        noticeEl.style.display = 'none';
+                    }
+                }
+            } else {
+                if (confirmBtn) confirmBtn.disabled = true;
+                if (noticeEl) {
+                    if (noticeText) noticeText.textContent = 'All boost packages (Sponsored, Featured & Bump) are already active on this listing! Please wait until their duration expires.';
+                    noticeEl.style.display = 'block';
+                }
+            }
+        }
+
         promoteModal.show();
     };
 
@@ -519,6 +592,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!activeActionListing) return;
         const { id, title, currentStatus } = activeActionListing;
         const targetStatus = currentStatus === 'paused' ? 'active' : 'paused';
+        const btn = document.getElementById('confirmPauseBtn');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Processing...';
 
         fetch(`/my-listings/${id}/status`, {
             method: 'POST',
@@ -531,15 +608,21 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(res => res.json())
         .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             pauseModal.hide();
             if (data.success) {
-                showToast(targetStatus === 'paused' ? `"${title}" paused.` : `"${title}" reactivated!`);
-                updateListingDomStatus(id, targetStatus);
+                showToast(targetStatus === 'paused' ? `"${title}" paused successfully.` : `"${title}" reactivated and live!`);
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast(data.message || 'Unable to update listing status.', false);
             }
         })
         .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             pauseModal.hide();
-            showToast('Unable to update listing status.', false);
+            showToast('Unable to update listing status. Please try again.', false);
         });
     });
 

@@ -391,4 +391,32 @@ class ListingCreationTest extends TestCase
         $detailRes->assertSee('340');
         $detailRes->assertSee('Toronto');
     }
+
+    public function test_listing_creates_with_promotions_array_and_sets_featured_and_bumped(): void
+    {
+        $user = User::first() ?? User::factory()->create();
+        $category = Category::first();
+
+        $postRes = $this->actingAs($user)->postJson('/post-ad', [
+            'title'             => 'Promoted MacBook Pro M3 Max 64GB Unified Memory',
+            'category_slug'     => $category->slug,
+            'description'       => 'Flawless condition MacBook Pro M3 Max with box, warranty, and fast charger included.',
+            'city'              => 'Montreal',
+            'province'          => 'QC',
+            'price_type'        => 'fixed',
+            'price'             => 3200,
+            'promotions'        => ['featured', 'bump_up'],
+        ]);
+
+        $postRes->assertStatus(200)->assertJson(['success' => true]);
+
+        $listing = Listing::where('title', 'Promoted MacBook Pro M3 Max 64GB Unified Memory')->first();
+        $this->assertNotNull($listing);
+        $this->assertTrue((bool)$listing->is_featured);
+        $this->assertNotNull($listing->featured_until);
+        $this->assertNotNull($listing->bumped_at);
+        $this->assertTrue($listing->isFeatured());
+        $this->assertTrue($listing->isBumped());
+    }
 }
+

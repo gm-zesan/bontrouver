@@ -48,7 +48,10 @@ class ListingService
             });
         }
 
-        $listings = $query->orderByDesc('created_at')->get();
+        $listings = $query->orderByDesc('is_sponsored')
+            ->orderByDesc('is_featured')
+            ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
+            ->get();
 
         [$refLat, $refLng] = $this->resolveReferenceCoordinates($selectedCity);
 
@@ -302,30 +305,154 @@ class ListingService
         $category ??= Category::first();
 
         $userId = auth()->id() ?? \App\Models\User::first()?->id ?? 1;
-        $slug   = Str::slug($validated['title']) . '-' . rand(1000, 9999);
+        $promotions = $validated['promotions'] ?? [];
+        $isFeatured = false;
+        $isSponsored = false;
+        $isBumped = false;
 
+        if (is_array($promotions)) {
+            $isFeatured = in_array('featured', $promotions) || !empty($promotions['featured']);
+            $isSponsored = in_array('sponsored', $promotions) || !empty($promotions['sponsored']);
+            $isBumped = in_array('bump_up', $promotions) || in_array('bump', $promotions) || !empty($promotions['bump_up']) || !empty($promotions['bump']);
+        } elseif (is_string($promotions)) {
+            $isFeatured = $promotions === 'featured';
+            $isSponsored = $promotions === 'sponsored';
+            $isBumped = in_array($promotions, ['bump_up', 'bump']);
+        }
+
+        $now = now();
+        $slug = Str::slug($validated['title']) . '-' . rand(1000, 9999);
         $listing = Listing::create([
-            'user_id'       => $userId,
-            'category_id'   => $category?->id ?? 1,
-            'city_id'       => $cityModel?->id,
-            'title'         => $validated['title'],
-            'slug'          => $slug,
-            'description'   => $validated['description'],
-            'price'         => $validated['price'] ?? 0,
-            'price_type'    => $validated['price_type'] ?? 'fixed',
-            'condition'     => $validated['condition'] ?? 'used',
-            'city'          => $cityModel?->name ?? $cityName,
-            'province'      => $provinceCode,
-            'postal_code'   => $validated['postal_code'] ?? null,
-            'location_name' => $validated['neighbourhood'] ?? null,
-            'latitude'      => $latitude,
-            'longitude'     => $longitude,
-            'status'        => site_setting('auto_approve_listings', true) ? 'active' : 'pending_review',
-            'views_count'   => 0,
-            'is_featured'   => !empty($validated['promotions']['featured']),
-            'is_sponsored'  => false,
-            'published_at'  => site_setting('auto_approve_listings', true) ? now() : null,
+            'user_id'         => $userId,
+            'category_id'     => $category?->id ?? 1,
+            'city_id'         => $cityModel?->id,
+            'title'           => $validated['title'],
+            'slug'            => $slug,
+            'description'     => $validated['description'],
+            'price'           => $validated['price'] ?? 0,
+            'price_type'      => $validated['price_type'] ?? 'fixed',
+            'condition'       => $validated['condition'] ?? 'used',
+            'city'            => $cityModel?->name ?? $cityName,
+            'province'        => $provinceCode,
+            'postal_code'     => $validated['postal_code'] ?? null,
+            'location_name'   => $validated['neighbourhood'] ?? null,
+            'latitude'        => $latitude,
+            'longitude'       => $longitude,
+            'status'          => site_setting('auto_approve_listings', true) ? 'active' : 'pending_review',
+            'views_count'     => 0,
+            'is_featured'     => $isFeatured,
+            'featured_until'  => $isFeatured ? $now->copy()->addDays(7) : null,
+            'is_sponsored'    => $isSponsored,
+            'sponsored_until' => $isSponsored ? $now->copy()->addDays(7) : null,
+            'bumped_at'       => $isBumped ? $now : null,
+            'published_at'    => site_setting('auto_approve_listings', true) ? $now : null,
         ]);
+
+        $user = auth()->user() ?? \App\Models\User::find($userId);
+        $paymentMethod = ($validated['payment_method'] ?? 'card') === 'points' ? 'points' : 'card';
+
+        // Record audit promotion if selected during posting
+        if ($isFeatured) {
+            $featPkg = \App\Models\PromotionPackage::where('type', 'featured')->first();
+            $pointsCost = $featPkg?->point_cost ?? 150;
+            $priceCost  = $featPkg?->price ?? 4.99;
+            $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
+
+            if ($isPaidWithPoints) {
+                $user->decrement('community_points', $pointsCost);
+                \App\Models\PointTransaction::create([
+                    'user_id'        => $user->id,
+                    'points'         => -$pointsCost,
+                    'action_type'    => 'listing_boost_featured',
+                    'description'    => "Redeemed {$pointsCost} points for Featured Badge on listing: {$listing->title}",
+                    'reference_type' => Listing::class,
+                    'reference_id'   => $listing->id,
+                ]);
+            }
+
+            \App\Models\ListingPromotion::create([
+                'listing_id'            => $listing->id,
+                'user_id'               => $userId,
+                'promotion_package_id'  => $featPkg?->id,
+                'type'                  => 'featured',
+                'price_paid'            => $isPaidWithPoints ? 0.00 : $priceCost,
+                'points_spent'          => $isPaidWithPoints ? $pointsCost : 0,
+                'payment_method'        => $isPaidWithPoints ? 'points' : 'card',
+                'payment_status'        => 'completed',
+                'transaction_reference' => $isPaidWithPoints ? ('BT-POINTS-' . strtoupper(uniqid())) : ('BT-STRIPE-' . strtoupper(uniqid())),
+                'starts_at'             => $now,
+                'expires_at'            => $now->copy()->addDays($featPkg?->duration_days ?? 7),
+                'is_active'             => true,
+            ]);
+        }
+
+        if ($isSponsored) {
+            $sponPkg = \App\Models\PromotionPackage::where('type', 'sponsored')->first();
+            $pointsCost = $sponPkg?->point_cost ?? 300;
+            $priceCost  = $sponPkg?->price ?? 9.99;
+            $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
+
+            if ($isPaidWithPoints) {
+                $user->decrement('community_points', $pointsCost);
+                \App\Models\PointTransaction::create([
+                    'user_id'        => $user->id,
+                    'points'         => -$pointsCost,
+                    'action_type'    => 'listing_boost_sponsored',
+                    'description'    => "Redeemed {$pointsCost} points for Sponsored Spotlight on listing: {$listing->title}",
+                    'reference_type' => Listing::class,
+                    'reference_id'   => $listing->id,
+                ]);
+            }
+
+            \App\Models\ListingPromotion::create([
+                'listing_id'            => $listing->id,
+                'user_id'               => $userId,
+                'promotion_package_id'  => $sponPkg?->id,
+                'type'                  => 'sponsored',
+                'price_paid'            => $isPaidWithPoints ? 0.00 : $priceCost,
+                'points_spent'          => $isPaidWithPoints ? $pointsCost : 0,
+                'payment_method'        => $isPaidWithPoints ? 'points' : 'card',
+                'payment_status'        => 'completed',
+                'transaction_reference' => $isPaidWithPoints ? ('BT-POINTS-' . strtoupper(uniqid())) : ('BT-STRIPE-' . strtoupper(uniqid())),
+                'starts_at'             => $now,
+                'expires_at'            => $now->copy()->addDays($sponPkg?->duration_days ?? 7),
+                'is_active'             => true,
+            ]);
+        }
+
+        if ($isBumped) {
+            $bumpPkg = \App\Models\PromotionPackage::where('type', 'bump_up')->first();
+            $pointsCost = $bumpPkg?->point_cost ?? 60;
+            $priceCost  = $bumpPkg?->price ?? 1.99;
+            $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
+
+            if ($isPaidWithPoints) {
+                $user->decrement('community_points', $pointsCost);
+                \App\Models\PointTransaction::create([
+                    'user_id'        => $user->id,
+                    'points'         => -$pointsCost,
+                    'action_type'    => 'listing_boost_bump',
+                    'description'    => "Redeemed {$pointsCost} points for Instant Bump on listing: {$listing->title}",
+                    'reference_type' => Listing::class,
+                    'reference_id'   => $listing->id,
+                ]);
+            }
+
+            \App\Models\ListingPromotion::create([
+                'listing_id'            => $listing->id,
+                'user_id'               => $userId,
+                'promotion_package_id'  => $bumpPkg?->id,
+                'type'                  => 'bump_up',
+                'price_paid'            => $isPaidWithPoints ? 0.00 : $priceCost,
+                'points_spent'          => $isPaidWithPoints ? $pointsCost : 0,
+                'payment_method'        => $isPaidWithPoints ? 'points' : 'card',
+                'payment_status'        => 'completed',
+                'transaction_reference' => $isPaidWithPoints ? ('BT-POINTS-' . strtoupper(uniqid())) : ('BT-STRIPE-' . strtoupper(uniqid())),
+                'starts_at'             => $now,
+                'expires_at'            => null,
+                'is_active'             => true,
+            ]);
+        }
 
         // Save dynamic category attributes if provided
         if (!empty($validated['attributes']) && is_array($validated['attributes'])) {
@@ -446,7 +573,7 @@ class ListingService
         return [null, null];
     }
 
-    private function transformListing(Listing $listing, ?float $refLat, ?float $refLng, ?string $selectedCity): array
+    public function transformListing(Listing $listing, ?float $refLat = null, ?float $refLng = null, ?string $selectedCity = null): array
     {
         $dist = $this->calculateDistance($listing, $refLat, $refLng, $selectedCity);
 
@@ -488,6 +615,32 @@ class ListingService
             ],
         ];
 
+        $isSponsored = $listing->isSponsored();
+        $isFeatured  = $listing->isFeatured();
+        $isBumped    = $listing->isBumped();
+
+        $badge = null;
+        $badgeType = null;
+        $badgeIcon = null;
+
+        if ($isSponsored) {
+            $badge = 'SPONSORED';
+            $badgeType = 'sponsored';
+            $badgeIcon = 'bi-rocket-takeoff-fill';
+        } elseif ($isFeatured) {
+            $badge = 'FEATURED';
+            $badgeType = 'featured';
+            $badgeIcon = 'bi-star-fill';
+        } elseif ($isBumped) {
+            $badge = 'BUMPED';
+            $badgeType = 'bumped';
+            $badgeIcon = 'bi-arrow-up-circle-fill';
+        } elseif ($listing->views_count > 400) {
+            $badge = 'TRENDING';
+            $badgeType = 'trending';
+            $badgeIcon = 'bi-lightning-fill';
+        }
+
         return [
             'id'                  => $listing->id,
             'user_id'             => $listing->user_id,
@@ -509,15 +662,21 @@ class ListingService
             'neighbourhood'       => $listing->location_name,
             'postal_code_prefix'  => $listing->postal_code ?? '',
             'distance_km'         => $dist,
-            'posted_at'           => $listing->created_at->diffForHumans(),
-            'posted_date'         => $listing->created_at->format('F j, Y'),
+            'posted_at'           => ($listing->bumped_at ?? $listing->created_at)->diffForHumans(),
+            'posted_date'         => ($listing->bumped_at ?? $listing->created_at)->format('F j, Y'),
+            'bumped_at'           => $listing->bumped_at?->toISOString(),
+            'created_at'          => $listing->created_at?->toISOString(),
             'condition'           => $listing->condition,
             'condition_label'     => $listing->condition ? ucwords(str_replace('_', ' ', $listing->condition)) : '',
             'delivery'            => $listing->condition ? 'both' : 'pickup',
             'seller_type'         => $sellerType,
             'seller_type_label'   => $sellerTypeLabel,
-            'badge'               => $listing->is_sponsored ? 'SPONSORED' : ($listing->is_featured ? 'FEATURED' : ($listing->views_count > 400 ? 'TRENDING' : null)),
-            'badge_type'          => $listing->is_sponsored ? 'sponsored' : ($listing->is_featured ? 'featured' : ($listing->views_count > 400 ? 'trending' : null)),
+            'badge'               => $badge,
+            'badge_type'          => $badgeType,
+            'badge_icon'          => $badgeIcon,
+            'is_featured'         => $isFeatured,
+            'is_sponsored'        => $isSponsored,
+            'is_bumped'           => $isBumped,
             'can_buy_now'         => false,
             'views_count'         => $listing->views_count,
             'photos_count'        => count($gallery) ?: 1,

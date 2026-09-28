@@ -133,6 +133,11 @@ class User extends Authenticatable
         return $this->hasMany(UserVerification::class);
     }
 
+    public function listingPromotions()
+    {
+        return $this->hasMany(ListingPromotion::class);
+    }
+
     public function profile()
     {
         return $this->hasOne(UserProfile::class);

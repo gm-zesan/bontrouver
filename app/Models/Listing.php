@@ -30,6 +30,9 @@ class Listing extends Model
         'status',
         'is_featured',
         'is_sponsored',
+        'featured_until',
+        'sponsored_until',
+        'bumped_at',
         'views_count',
         'published_at',
         'expires_at',
@@ -40,6 +43,9 @@ class Listing extends Model
         'status' => ListingStatus::class,
         'is_featured' => 'boolean',
         'is_sponsored' => 'boolean',
+        'featured_until' => 'datetime',
+        'sponsored_until' => 'datetime',
+        'bumped_at' => 'datetime',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'published_at' => 'datetime',
@@ -96,12 +102,68 @@ class Listing extends Model
         return $this->morphMany(Report::class, 'reportable');
     }
 
+    public function promotions()
+    {
+        return $this->hasMany(ListingPromotion::class);
+    }
+
+    public function activePromotions()
+    {
+        return $this->hasMany(ListingPromotion::class)->active();
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->is_featured && ($this->featured_until === null || $this->featured_until->isFuture());
+    }
+
+    public function isSponsored(): bool
+    {
+        return $this->is_sponsored && ($this->sponsored_until === null || $this->sponsored_until->isFuture());
+    }
+
+    public function isBumped(): bool
+    {
+        return $this->bumped_at !== null && $this->bumped_at->gt(now()->subDays(3));
+    }
+
     /**
      * Scope active listings.
      */
     public function scopeActive($query)
     {
         return $query->where('status', \App\Enums\ListingStatus::ACTIVE);
+    }
+
+    /**
+     * Scope active featured listings.
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true)
+            ->where(function ($q) {
+                $q->whereNull('featured_until')->orWhere('featured_until', '>=', now());
+            });
+    }
+
+    /**
+     * Scope active sponsored listings.
+     */
+    public function scopeSponsored($query)
+    {
+        return $query->where('is_sponsored', true)
+            ->where(function ($q) {
+                $q->whereNull('sponsored_until')->orWhere('sponsored_until', '>=', now());
+            });
+    }
+
+    /**
+     * Scope recently bumped listings.
+     */
+    public function scopeBumped($query)
+    {
+        return $query->whereNotNull('bumped_at')
+            ->orderByDesc('bumped_at');
     }
 
     /**

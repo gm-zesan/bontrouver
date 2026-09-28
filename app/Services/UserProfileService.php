@@ -33,7 +33,7 @@ class UserProfileService
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,
                 'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
-                'status' => $item->status,
+                'status' => $item->status instanceof \App\Enums\ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
                 'featured' => (bool) $item->is_featured,
             ];
         })->toArray();

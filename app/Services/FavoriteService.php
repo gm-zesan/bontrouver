@@ -32,7 +32,7 @@ class FavoriteService
                 'seller_name' => $listing->user->name ?? 'Unknown',
                 'seller_verified' => $listing->user->is_verified ?? false,
                 'image' => $listing->primaryImage->image_path ?? asset('images/placeholder.jpg'),
-                'status' => $listing->status,
+                'status' => $listing->status instanceof \App\Enums\ListingStatus ? $listing->status->value : (string) ($listing->status ?? 'active'),
                 'is_featured' => $listing->is_featured,
             ];
         })->filter()->toArray();

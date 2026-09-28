@@ -400,3 +400,65 @@ Polymorphic table for users reporting listings, messages, or other users.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `[reportable_type, reportable_id]`, `status`*
+
+---
+
+## 8. MONETIZATION & ADVERTISING
+
+### `promotion_packages`
+Catalog of listing boost options, CAD pricing, and point redemption rates.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `name` (VARCHAR 255)
+- `slug` (VARCHAR 255, UNIQUE)
+- `type` (VARCHAR 50) - 'sponsored', 'featured', 'bump_up'
+- `badge_text` (VARCHAR 50, NULLABLE)
+- `badge_color` (VARCHAR 30) - Default: '#2563eb'
+- `badge_icon` (VARCHAR 50, NULLABLE)
+- `price` (DECIMAL 8,2) - CAD currency
+- `point_cost` (INT, NULLABLE) - Community points to redeem
+- `duration_days` (INT) - 0 for instant 1-time bump
+- `description` (TEXT, NULLABLE)
+- `features` (JSON, NULLABLE)
+- `is_active` (BOOLEAN) - Default: true
+- `sort_order` (INT) - Default: 0
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+
+### `listing_promotions`
+Ledger and active state for listing boosts purchased via CAD or Points.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `listing_id` (FK -> listings.id, CASCADE DELETE)
+- `user_id` (FK -> users.id, CASCADE DELETE)
+- `promotion_package_id` (FK -> promotion_packages.id, SET NULL)
+- `type` (VARCHAR 50) - 'sponsored', 'featured', 'bump_up'
+- `price_paid` (DECIMAL 8,2) - Default: 0.00
+- `points_spent` (INT) - Default: 0
+- `payment_method` (VARCHAR 50) - 'stripe', 'points', 'free_tier', 'admin'
+- `payment_status` (VARCHAR 50) - 'pending', 'completed', 'failed'
+- `transaction_reference` (VARCHAR 255, NULLABLE)
+- `starts_at` (TIMESTAMP, NULLABLE)
+- `expires_at` (TIMESTAMP, NULLABLE)
+- `is_active` (BOOLEAN) - Default: true
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[listing_id, is_active]`, `[user_id, is_active]`, `type`*
+
+### `banner_ads`
+Geo-targeted Canadian sponsor banners and Google AdSense units.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `title` (VARCHAR 255)
+- `position` (VARCHAR 50) - 'search_sidebar', 'listing_detail_bottom', 'homepage_leaderboard', 'community_sidebar'
+- `image_path` (VARCHAR 500, NULLABLE)
+- `target_url` (VARCHAR 500, NULLABLE)
+- `html_code` (TEXT, NULLABLE) - Raw Google AdSense or embed script
+- `city` (VARCHAR 100, NULLABLE) - Canadian city targeting
+- `province` (VARCHAR 10, NULLABLE) - Province targeting
+- `is_active` (BOOLEAN) - Default: true
+- `sort_order` (INT) - Default: 0
+- `impressions_count` (BIGINT, UNSIGNED) - Default: 0
+- `clicks_count` (BIGINT, UNSIGNED) - Default: 0
+- `starts_at` (TIMESTAMP, NULLABLE)
+- `expires_at` (TIMESTAMP, NULLABLE)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[position, is_active]`, `city`*

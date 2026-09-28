@@ -212,11 +212,6 @@
                                         <i class="bi bi-check2 me-1"></i>
                                         <span>Used — Good</span>
                                     </label>
-                                    <label class="condition-pill">
-                                        <input type="radio" name="condition" value="For Parts / Not Working" onchange="updateConditionPreview('For Parts / Not Working')">
-                                        <i class="bi bi-wrench me-1"></i>
-                                        <span>For Parts / Repair</span>
-                                    </label>
                                 </div>
                             </div>
 
@@ -434,34 +429,6 @@
                                 </div>
                             </div>
 
-                            <!-- Contact Preferences -->
-                            <div class="mb-4">
-                                <label class="form-label-custom">Buyer Contact Preferences</label>
-                                <div class="contact-pref-group">
-                                    <label class="contact-pref-row">
-                                        <input type="checkbox" name="contact_preference[]" value="chat" checked>
-                                        <div class="pref-info">
-                                            <span class="pref-title"><i class="bi bi-chat-dots-fill text-success me-2"></i> Bontrouver Marketplace Chat</span>
-                                            <span class="pref-sub">Recommended — Safe, instant, and keeps your private contact details protected.</span>
-                                        </div>
-                                    </label>
-                                    <label class="contact-pref-row">
-                                        <input type="checkbox" name="contact_preference[]" value="phone">
-                                        <div class="pref-info">
-                                            <span class="pref-title"><i class="bi bi-telephone me-2 text-primary"></i> Phone Calls / SMS</span>
-                                            <span class="pref-sub">Allow verified buyers to view your phone number.</span>
-                                        </div>
-                                    </label>
-                                    <label class="contact-pref-row">
-                                        <input type="checkbox" name="contact_preference[]" value="email">
-                                        <div class="pref-info">
-                                            <span class="pref-title"><i class="bi bi-envelope me-2 text-info"></i> Email Notifications</span>
-                                            <span class="pref-sub">Forward incoming inquiries to your account email.</span>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
                             <!-- Step Navigation Footer -->
                             <div class="step-actions-footer mt-4">
                                 <button type="button" class="btn-step-prev" onclick="goToStep(3)">
@@ -522,32 +489,162 @@
                             </div>
 
                             <!-- Optional Promotion Upgrades -->
-                            <div class="promotions-card mb-4">
+                            <div class="promotions-card mb-4" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1.25rem;">
                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                     <div>
-                                        <h4 class="promo-title mb-0"><i class="bi bi-rocket-takeoff-fill text-warning me-2"></i> Promote Your Ad (Optional)</h4>
-                                        <p class="promo-sub mb-0">Get up to 10x more views and sell faster.</p>
+                                        <h4 class="promo-title mb-0 text-white fw-bold"><i class="bi bi-rocket-takeoff-fill text-warning me-2"></i> Boost Your Listing (Optional)</h4>
+                                        <p class="promo-sub mb-0 text-muted small">Get up to 10x more buyer views, priority search placement, and sell faster.</p>
                                     </div>
-                                    <span class="badge bg-warning-subtle text-warning">Optional</span>
+                                    <span class="badge bg-warning text-dark fw-bold px-2 py-1">Optional Upgrades</span>
                                 </div>
 
-                                <div class="promo-options-list">
-                                    <label class="promo-item">
-                                        <input type="checkbox" name="promotions[]" value="featured">
-                                        <div class="promo-info">
-                                            <div class="promo-name"><i class="bi bi-star-fill text-warning me-1"></i> Featured Ad Badge</div>
-                                            <div class="promo-desc">Highlighted in top hero carousel and category headers.</div>
+                                <div class="promo-options-list d-flex flex-column gap-2">
+                                    <label class="promo-item p-3 rounded-3 d-flex align-items-center justify-content-between cursor-pointer" style="background: rgba(13,36,60,0.6); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <input class="form-check-input mt-0 promo-checkbox" type="checkbox" name="promotions[]" value="sponsored" id="promo_post_sponsored" data-price="9.99" data-points="300" onchange="updatePostPromoTotal()">
+                                            <div class="promo-info">
+                                                <div class="promo-name text-white fw-bold d-flex align-items-center gap-2">
+                                                    <i class="bi bi-rocket-takeoff-fill text-warning"></i>
+                                                    <span>Sponsored Spotlight</span>
+                                                    <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; font-size: 0.7rem; border: 1px solid rgba(245, 158, 11, 0.3);">7 DAYS • TOP HERO SLIDER</span>
+                                                </div>
+                                                <div class="promo-desc text-muted small mt-1">Pinned to the top hero slider on homepage & top rank across Canadian search.</div>
+                                            </div>
                                         </div>
-                                        <div class="promo-price">$4.99</div>
-                                    </label>
-                                    <label class="promo-item">
-                                        <input type="checkbox" name="promotions[]" value="urgent">
-                                        <div class="promo-info">
-                                            <div class="promo-name"><i class="bi bi-lightning-charge-fill text-danger me-1"></i> Urgent Sale Flag</div>
-                                            <div class="promo-desc">Draw immediate attention from active buyers.</div>
+                                        <div class="text-end">
+                                            <div class="promo-price text-warning fw-bold fs-6">$9.99 CAD</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">or 300 pts</div>
                                         </div>
-                                        <div class="promo-price">$2.99</div>
                                     </label>
+
+                                    <label class="promo-item p-3 rounded-3 d-flex align-items-center justify-content-between cursor-pointer" style="background: rgba(13,36,60,0.6); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <input class="form-check-input mt-0 promo-checkbox" type="checkbox" name="promotions[]" value="featured" id="promo_post_featured" data-price="4.99" data-points="150" onchange="updatePostPromoTotal()">
+                                            <div class="promo-info">
+                                                <div class="promo-name text-white fw-bold d-flex align-items-center gap-2">
+                                                    <i class="bi bi-star-fill text-primary"></i>
+                                                    <span>Featured Ad Badge</span>
+                                                    <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; font-size: 0.7rem; border: 1px solid rgba(59, 130, 246, 0.3);">7 DAYS • FEATURED GRID</span>
+                                                </div>
+                                                <div class="promo-desc text-muted small mt-1">Highlighted verified badge & prioritized placement in category search feeds.</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="promo-price text-primary fw-bold fs-6" style="color: #60A5FA !important;">$4.99 CAD</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">or 150 pts</div>
+                                        </div>
+                                    </label>
+
+                                    <label class="promo-item p-3 rounded-3 d-flex align-items-center justify-content-between cursor-pointer" style="background: rgba(13,36,60,0.6); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s ease;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <input class="form-check-input mt-0 promo-checkbox" type="checkbox" name="promotions[]" value="bump_up" id="promo_post_bump" data-price="1.99" data-points="60" onchange="updatePostPromoTotal()">
+                                            <div class="promo-info">
+                                                <div class="promo-name text-white fw-bold d-flex align-items-center gap-2">
+                                                    <i class="bi bi-arrow-up-circle-fill text-success"></i>
+                                                    <span>Instant Bump-Up</span>
+                                                    <span class="badge" style="background: rgba(73, 209, 125, 0.15); color: #49D17D; font-size: 0.7rem; border: 1px solid rgba(73, 209, 125, 0.3);">INSTANT REFRESH</span>
+                                                </div>
+                                                <div class="promo-desc text-muted small mt-1">Push your listing immediately to the #1 spot in search results.</div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="promo-price text-success fw-bold fs-6">$1.99 CAD</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">or 60 pts</div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- CONDITIONAL PAYMENT CHECKOUT FOR POST UPGRADES -->
+                                <div id="postPromoCheckoutBox" class="mt-4 pt-3 border-top border-secondary border-opacity-25" style="display: none;">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h5 class="text-white fw-bold mb-0 fs-6">
+                                            <i class="bi bi-credit-card-2-front-fill text-success me-2"></i> Select Payment Method
+                                        </h5>
+                                        <div class="badge bg-dark border border-secondary border-opacity-50 text-white px-3 py-2">
+                                            Total: <span id="postPromoTotalDisplay" class="text-success fw-bold">$0.00 CAD</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Method Choice Tabs -->
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-sm-6">
+                                            <label class="p-2.5 rounded-3 d-flex align-items-center gap-2 border w-100 cursor-pointer text-white" id="methodTabCard" style="background: rgba(73, 209, 125, 0.1); border-color: #49D17D !important; padding: 0.75rem 1rem;">
+                                                <input type="radio" name="payment_method" value="card" checked onchange="togglePostPaymentMethod('card')" class="form-check-input mt-0">
+                                                <i class="bi bi-credit-card text-success fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold small">Pay with Card / CAD ($)</div>
+                                                    <div class="text-muted" style="font-size: 0.7rem;">Stripe Secure Checkout</div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="p-2.5 rounded-3 d-flex align-items-center gap-2 border w-100 cursor-pointer text-white" id="methodTabPoints" style="background: rgba(13,36,60,0.6); border-color: rgba(255,255,255,0.08); padding: 0.75rem 1rem;">
+                                                <input type="radio" name="payment_method" value="points" onchange="togglePostPaymentMethod('points')" class="form-check-input mt-0">
+                                                <i class="bi bi-coin text-warning fs-5"></i>
+                                                <div>
+                                                    <div class="fw-semibold small">Community Points</div>
+                                                    <div class="text-muted" style="font-size: 0.7rem;">Balance: <strong class="text-warning">{{ auth()->user()?->community_points ?? 0 }} pts</strong></div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stripe Card Details Container -->
+                                    <div id="postStripeCardFields" class="p-3 rounded-3 mb-3" style="background: rgba(6, 24, 43, 0.7); border: 1px solid rgba(255,255,255,0.08);">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <span class="small fw-semibold text-white"><i class="bi bi-shield-lock-fill text-success me-1"></i> Credit or Debit Card</span>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="badge bg-secondary bg-opacity-25 text-white" style="font-size: 0.65rem;">VISA</span>
+                                                <span class="badge bg-secondary bg-opacity-25 text-white" style="font-size: 0.65rem;">MASTERCARD</span>
+                                                <span class="badge bg-secondary bg-opacity-25 text-white" style="font-size: 0.65rem;">AMEX</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2">
+                                            <div class="col-12">
+                                                <label class="form-label-custom small mb-1">Cardholder Name</label>
+                                                <input type="text" name="stripe_cardholder_name" id="postCardholderName" class="form-control form-control-custom py-2" placeholder="Full name as on card" value="{{ auth()->user()?->name }}">
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label-custom small mb-1">Card Number</label>
+                                                <div class="position-relative">
+                                                    <input type="text" name="stripe_card_number" id="postCardNumber" class="form-control form-control-custom py-2 pe-5 font-monospace" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="formatCardNumber(this)">
+                                                    <i class="bi bi-credit-card-2-front position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label-custom small mb-1">Expiry Date</label>
+                                                <input type="text" name="stripe_card_expiry" id="postCardExpiry" class="form-control form-control-custom py-2 font-monospace" placeholder="MM/YY" maxlength="5" oninput="formatCardExpiry(this)">
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="form-label-custom small mb-1">CVC / CVV</label>
+                                                <input type="password" name="stripe_card_cvc" id="postCardCvc" class="form-control form-control-custom py-2 font-monospace" placeholder="•••" maxlength="4">
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="form-label-custom small mb-1">Postal Code</label>
+                                                <input type="text" name="stripe_postal_code" id="postCardPostal" class="form-control form-control-custom py-2 text-uppercase font-monospace" placeholder="A1A 1A1" maxlength="7">
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-between mt-3 pt-2 border-top border-secondary border-opacity-25 text-muted" style="font-size: 0.72rem;">
+                                            <span><i class="bi bi-lock-fill text-success me-1"></i> 256-Bit SSL Encrypted</span>
+                                            <span>Powered by <strong>Stripe Canada</strong></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Points Redemption Summary Box -->
+                                    <div id="postPointsFields" class="p-3 rounded-3 mb-3 text-center" style="display: none; background: rgba(6, 24, 43, 0.7); border: 1px solid rgba(245, 158, 11, 0.2);">
+                                        <div class="text-warning mb-2"><i class="bi bi-coin fs-3"></i></div>
+                                        <div class="text-white fw-semibold small">Redeeming Community Points</div>
+                                        <div class="text-muted small mt-1">
+                                            Cost: <strong class="text-warning" id="postPointsCostDisplay">0 pts</strong> • Your Balance: <strong class="text-white">{{ auth()->user()?->community_points ?? 0 }} pts</strong>
+                                        </div>
+                                        @if((auth()->user()?->community_points ?? 0) < 60)
+                                            <div class="text-danger small mt-2">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> You do not have enough community points for these upgrades. Please select Card payment.
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 
@@ -1069,6 +1166,17 @@ function handlePriceTypeChange(type) {
 
 function updateConditionPreview(val) {
     postAdState.condition = val;
+
+    // Update active class on condition pills
+    document.querySelectorAll('#conditionPillsRow .condition-pill').forEach(pill => {
+        const radio = pill.querySelector('input');
+        if (radio && radio.value === val) {
+            pill.classList.add('active');
+        } else {
+            pill.classList.remove('active');
+        }
+    });
+
     const tag = document.getElementById('prevConditionTag');
     if (tag) {
         tag.innerHTML = `<i class="bi bi-tag-fill me-1"></i> ${val}`;
@@ -1267,6 +1375,90 @@ function populateReviewSummary() {
 }
 
 /**
+ * Step 5 Promotion Calculation & Stripe Payment Handlers
+ */
+function updatePostPromoTotal() {
+    const checkboxes = document.querySelectorAll('.promo-checkbox:checked');
+    let totalCad = 0;
+    let totalPts = 0;
+
+    checkboxes.forEach(cb => {
+        totalCad += parseFloat(cb.getAttribute('data-price') || 0);
+        totalPts += parseInt(cb.getAttribute('data-points') || 0);
+    });
+
+    const checkoutBox = document.getElementById('postPromoCheckoutBox');
+    const totalDisplay = document.getElementById('postPromoTotalDisplay');
+    const pointsDisplay = document.getElementById('postPointsCostDisplay');
+    const publishBtn = document.getElementById('btnPublishAd');
+    const btnText = publishBtn.querySelector('.btn-text');
+
+    if (checkboxes.length > 0 && totalCad > 0) {
+        if (checkoutBox) checkoutBox.style.display = 'block';
+        if (totalDisplay) totalDisplay.textContent = '$' + totalCad.toFixed(2) + ' CAD';
+        if (pointsDisplay) pointsDisplay.textContent = totalPts + ' pts';
+
+        const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'card';
+        if (selectedMethod === 'points') {
+            btnText.innerHTML = `<i class="bi bi-coin me-2"></i> Redeem ${totalPts} pts & Publish Ad`;
+        } else {
+            btnText.innerHTML = `<i class="bi bi-shield-lock-fill me-2"></i> Pay $${totalCad.toFixed(2)} CAD & Publish`;
+        }
+    } else {
+        if (checkoutBox) checkoutBox.style.display = 'none';
+        btnText.innerHTML = `<i class="bi bi-check2-circle me-2"></i> Publish Ad (Free)`;
+    }
+}
+
+function togglePostPaymentMethod(method) {
+    const cardFields = document.getElementById('postStripeCardFields');
+    const pointsFields = document.getElementById('postPointsFields');
+    const tabCard = document.getElementById('methodTabCard');
+    const tabPoints = document.getElementById('methodTabPoints');
+
+    if (method === 'points') {
+        if (cardFields) cardFields.style.display = 'none';
+        if (pointsFields) pointsFields.style.display = 'block';
+        if (tabCard) {
+            tabCard.style.background = 'rgba(13,36,60,0.6)';
+            tabCard.style.borderColor = 'rgba(255,255,255,0.08)';
+        }
+        if (tabPoints) {
+            tabPoints.style.background = 'rgba(245, 158, 11, 0.1)';
+            tabPoints.style.borderColor = '#F59E0B';
+        }
+    } else {
+        if (cardFields) cardFields.style.display = 'block';
+        if (pointsFields) pointsFields.style.display = 'none';
+        if (tabCard) {
+            tabCard.style.background = 'rgba(73, 209, 125, 0.1)';
+            tabCard.style.borderColor = '#49D17D';
+        }
+        if (tabPoints) {
+            tabPoints.style.background = 'rgba(13,36,60,0.6)';
+            tabPoints.style.borderColor = 'rgba(255,255,255,0.08)';
+        }
+    }
+
+    updatePostPromoTotal();
+}
+
+function formatCardNumber(input) {
+    let value = input.value.replace(/\D/g, '');
+    let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+    input.value = formatted.substring(0, 19);
+}
+
+function formatCardExpiry(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        input.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    } else {
+        input.value = value;
+    }
+}
+
+/**
  * Publish Form Submission
  */
 function handleFormSubmit(e) {
@@ -1277,6 +1469,33 @@ function handleFormSubmit(e) {
     if (!termsCheck.checked) {
         alert('Please agree to the Terms of Use and Posting Guidelines.');
         return;
+    }
+
+    // Validate promotions payment if upgrades selected
+    const selectedPromos = document.querySelectorAll('.promo-checkbox:checked');
+    if (selectedPromos.length > 0) {
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'card';
+        if (paymentMethod === 'card') {
+            const cardNum = document.getElementById('postCardNumber')?.value.replace(/\s+/g, '') || '';
+            const cardExp = document.getElementById('postCardExpiry')?.value || '';
+            const cardCvc = document.getElementById('postCardCvc')?.value || '';
+
+            if (!cardNum || cardNum.length < 13) {
+                alert('Please enter a valid card number for your selected promotion upgrades.');
+                document.getElementById('postCardNumber')?.focus();
+                return;
+            }
+            if (!cardExp || cardExp.length < 4) {
+                alert('Please enter a valid card expiry date (MM/YY).');
+                document.getElementById('postCardExpiry')?.focus();
+                return;
+            }
+            if (!cardCvc || cardCvc.length < 3) {
+                alert('Please enter the 3 or 4-digit CVC/CVV security code.');
+                document.getElementById('postCardCvc')?.focus();
+                return;
+            }
+        }
     }
 
     const submitBtn = document.getElementById('btnPublishAd');

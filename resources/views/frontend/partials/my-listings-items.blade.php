@@ -23,12 +23,16 @@
                              style="width: 100%; height: 100%; object-fit: cover; display: block;"
                              onerror="this.src='https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=400&q=80'">
                         @if(!empty($item['sponsored']))
-                            <span class="listing-manage-featured-badge" style="background: var(--brand-purple, #6f42c1); color: white;">
-                                SPONSORED
+                            <span class="listing-manage-featured-badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: #06182B;">
+                                <i class="bi bi-rocket-takeoff-fill me-0.5"></i> SPONSORED
                             </span>
                         @elseif(!empty($item['featured']))
-                            <span class="listing-manage-featured-badge">
-                                FEATURED
+                            <span class="listing-manage-featured-badge" style="background: linear-gradient(135deg, #3B82F6, #1D4ED8); color: #FFFFFF;">
+                                <i class="bi bi-star-fill me-0.5"></i> FEATURED
+                            </span>
+                        @elseif(!empty($item['is_bumped']))
+                            <span class="listing-manage-featured-badge" style="background: linear-gradient(135deg, #10B981, #047857); color: #FFFFFF;">
+                                <i class="bi bi-arrow-up-circle-fill me-0.5"></i> BUMPED
                             </span>
                         @endif
                     </div>
@@ -154,11 +158,9 @@
                                 <span>Edit</span>
                             </a>
                             <!-- Promote Button -->
-                            @if(empty($item['featured']) && empty($item['sponsored']))
-                                <button type="button" class="btn-manage-icon icon-promote" onclick="openPromoteModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}')" title="Promote Listing">
-                                    <i class="bi bi-rocket-takeoff text-info"></i>
-                                </button>
-                            @endif
+                            <button type="button" class="btn-manage-icon icon-promote" onclick="openPromoteModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}', {{ !empty($item['is_sponsored']) ? 'true' : 'false' }}, {{ !empty($item['is_featured']) ? 'true' : 'false' }}, {{ !empty($item['is_bumped']) ? 'true' : 'false' }})" title="Boost & Promote Listing">
+                                <i class="bi bi-rocket-takeoff text-info"></i>
+                            </button>
                             <!-- Pause Button -->
                             <button type="button" class="btn-manage-icon icon-pause" onclick="openPauseModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}', 'active')" title="Pause Listing">
                                 <i class="bi bi-pause-circle text-warning"></i>

@@ -375,6 +375,37 @@
                     <aside class="listing-sidebar-col">
                         <div class="sidebar-sticky-wrapper">
 
+                            @if(Auth::check() && Auth::id() == ($listing['user_id'] ?? null))
+                                <!-- Owner Management & Boost Banner Card -->
+                                <div class="sidebar-card mb-3 p-3 shadow-sm border border-warning" style="background: linear-gradient(145deg, #0f2742 0%, #081d33 100%); border-radius: 14px;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="badge bg-warning text-dark fw-bold px-2 py-1">
+                                            <i class="bi bi-person-check-fill me-1"></i> Your Listing
+                                        </span>
+                                        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">
+                                            {{ ucfirst($listing['status'] ?? 'Active') }}
+                                        </span>
+                                    </div>
+                                    <p class="text-white-50 small mb-3">
+                                        Boost views by up to 10x with Top Placement, Featured Blue Badge, or Instant Search Bump.
+                                    </p>
+                                    <div class="d-flex flex-column gap-2">
+                                        <a href="{{ route('listings.promote.show', $listing['id']) }}" class="btn btn-warning text-dark fw-bold py-2 w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                                            <i class="bi bi-rocket-takeoff-fill fs-5"></i>
+                                            <span>Promote & Boost Ad</span>
+                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ url('/post-ad?edit=' . $listing['id']) }}" class="btn btn-outline-light btn-sm flex-grow-1 py-1.5 rounded-3 d-flex align-items-center justify-content-center gap-1">
+                                                <i class="bi bi-pencil"></i> Edit Ad
+                                            </a>
+                                            <a href="{{ route('listings.my') }}" class="btn btn-outline-light btn-sm flex-grow-1 py-1.5 rounded-3 d-flex align-items-center justify-content-center gap-1">
+                                                <i class="bi bi-grid"></i> My Listings
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             <!-- 1. Primary Action & Price Box -->
                             <div class="sidebar-card sidebar-action-card shadow-sm">
                                 <!-- Price and Type Badge -->
@@ -406,11 +437,18 @@
 
                                 <!-- Primary CTA Buttons -->
                                 <div class="sidebar-buttons-group">
-                                    <button type="button" class="btn-message-seller-primary" onclick="openMessageModal()"
-                                        id="sidebarMessageBtn">
-                                        <i class="bi bi-chat-dots-fill"></i>
-                                        <span>Message Seller</span>
-                                    </button>
+                                    @if(Auth::check() && Auth::id() == ($listing['user_id'] ?? null))
+                                        <a href="{{ route('listings.promote.show', $listing['id']) }}" class="btn-message-seller-primary text-decoration-none d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;">
+                                            <i class="bi bi-rocket-takeoff-fill me-2"></i>
+                                            <span>Promote & Boost Ad</span>
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn-message-seller-primary" onclick="openMessageModal()"
+                                            id="sidebarMessageBtn">
+                                            <i class="bi bi-chat-dots-fill"></i>
+                                            <span>Message Seller</span>
+                                        </button>
+                                    @endif
 
                                     @if(!empty($listing['can_buy_now']))
                                         <button type="button" class="btn-buy-now-accent" onclick="initiateBuyNow()"
@@ -575,6 +613,39 @@
                             @endforeach
                         </div>
                     </section>
+                @endif
+
+                {{-- 6. CANADIAN SPONSOR BANNER / ADSENSE (listing_detail_bottom) --}}
+                @php
+                    $detailBanners = \App\Models\BannerAd::active()->forPosition('listing_detail_bottom')->take(1)->get();
+                @endphp
+                @if($detailBanners->isNotEmpty())
+                    <div class="mt-5">
+                        @foreach($detailBanners as $dBanner)
+                            @php $dBanner->recordImpression(); @endphp
+                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                                <div class="px-3 py-2 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                    <span class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Sponsored Partner</span>
+                                    <span class="text-muted small" style="font-size: 11px;">Verified Canadian Advertiser</span>
+                                </div>
+                                @if(!empty($dBanner->html_code))
+                                    <div class="p-3">
+                                        {!! $dBanner->html_code !!}
+                                    </div>
+                                @elseif(!empty($dBanner->image_path))
+                                    <a href="{{ $dBanner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                                        <img src="{{ $dBanner->image_path }}" alt="{{ $dBanner->title }}" class="w-100 object-fit-cover" style="max-height: 220px;">
+                                        <div class="p-3 bg-light d-flex align-items-center justify-content-between">
+                                            <div class="fw-semibold text-dark">{{ $dBanner->title }}</div>
+                                            @if($dBanner->target_url)
+                                                <span class="btn btn-sm btn-outline-primary rounded-pill px-3">Learn More <i class="bi bi-arrow-right ms-1"></i></span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 @endif
 
             @endif {{-- End if $listing --}}

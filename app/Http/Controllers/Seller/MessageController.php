@@ -70,7 +70,7 @@ class MessageController extends Controller
                     'title' => $listing->title ?? 'Deleted Listing',
                     'price' => isset($listing->price) ? '$' . number_format($listing->price, 2) : '',
                     'image' => $listing->primaryImage->image_path ?? asset('images/placeholder.jpg'),
-                    'status' => $listing->status ?? 'Deleted',
+                    'status' => $listing ? ($listing->status instanceof \App\Enums\ListingStatus ? $listing->status->value : (string) ($listing->status ?? 'active')) : 'Deleted',
                 ],
                 'last_message' => $lastMessagePreview,
                 'last_time' => $lastMessage ? $lastMessage->created_at->diffForHumans() : '',

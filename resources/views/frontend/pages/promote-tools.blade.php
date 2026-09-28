@@ -9,7 +9,7 @@
         </span>
         <h1 class="static-hero-title">Tools to Promote & Sell Faster</h1>
         <p class="static-hero-desc">
-            Get up to 10x more views and inquiries. Upgrade your listings with Top Ad placement, Urgent ribbons, Daily Bumps, and Homepage Highlights.
+            Get up to 10x more views and inquiries. Upgrade your listings with Sponsored Spotlight, Featured Highlight, and Instant Search Bumps.
         </p>
         <div class="d-flex align-items-center justify-content-center gap-3 flex-wrap mt-3">
             <a href="{{ route('listings.my') }}" class="hero-btn-primary">
@@ -49,12 +49,12 @@
             <div class="col-md-6 col-lg-3">
                 <div class="static-card">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <span class="badge bg-danger text-white fw-bold px-2 py-1">URGENT</span>
-                        <span class="text-secondary small fw-semibold">High Contrast</span>
+                        <span class="badge bg-primary text-white fw-bold px-2 py-1">FEATURED</span>
+                        <span class="text-secondary small fw-semibold">Distinct Blue</span>
                     </div>
-                    <h3 class="static-card-title">Urgent Deal Ribbon</h3>
+                    <h3 class="static-card-title">Featured Highlight</h3>
                     <p class="static-card-text">
-                        Adds an eye-catching badge signalling you are motivated to sell fast. Drives quick buyer inquiries and immediate offers.
+                        Adds a distinguished blue verified badge and highlighted card border, placing your ad directly above standard search listings.
                     </p>
                 </div>
             </div>
@@ -113,7 +113,7 @@
                     <div class="static-step-number mx-auto">2</div>
                     <h3 class="static-card-title">Select Boost Options</h3>
                     <p class="static-card-text">
-                        Click <strong>Promote Ad</strong> and select Top Ad, Urgent Ribbon, Daily Bump, or a money-saving bundle package.
+                        Click <strong>Promote Ad</strong> and select Top Ad, Featured Highlight, Daily Bump, or a money-saving bundle package.
                     </p>
                 </div>
             </div>

@@ -138,7 +138,7 @@ class StaticPageController extends Controller
     {
         return view('frontend.pages.promote-tools', [
             'title' => 'Promote Your Ads | Boost Visibility & Sell Faster',
-            'metaDescription' => 'Discover Top Ad placements, Urgent ribbons, Homepage Highlights, and Daily Bumps to get up to 10x more inquiries on Bontrouver.',
+            'metaDescription' => 'Discover Sponsored Spotlight placements, Featured Highlight badges, and Instant Bumps to get up to 10x more inquiries on Bontrouver.',
         ]);
     }
 

@@ -268,6 +268,47 @@
     </section>
 
     {{-- =========================================================================
+         Banner Slot 1: Top Leaderboard Partner Banner (Under Featured Listings)
+         ========================================================================= --}}
+    @php
+        $topBanner = \App\Models\BannerAd::active()
+            ->where(function($q) {
+                $q->where('position', 'homepage_top')->orWhere('position', 'homepage_leaderboard');
+            })
+            ->orderBy('sort_order')
+            ->first();
+    @endphp
+    @if($topBanner)
+        @php $topBanner->recordImpression(); @endphp
+        <section class="py-3">
+            <div class="container-xl">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success bg-opacity-10 text-success fw-bold text-uppercase px-2 py-0.5" style="font-size: 9px; letter-spacing: 0.5px;">
+                                <i class="bi bi-shield-check me-1"></i> Canadian Partner
+                            </span>
+                            @if($topBanner->city)
+                                <span class="text-muted small" style="font-size: 11px;">• {{ $topBanner->city }}{{ $topBanner->province ? ', ' . $topBanner->province : '' }}</span>
+                            @endif
+                        </div>
+                        <i class="bi bi-info-circle text-muted" style="font-size: 11px;" title="Verified Canadian Sponsor"></i>
+                    </div>
+                    @if(!empty($topBanner->html_code))
+                        <div class="p-3 text-center">
+                            {!! $topBanner->html_code !!}
+                        </div>
+                    @elseif(!empty($topBanner->image_url))
+                        <a href="{{ $topBanner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                            <img src="{{ $topBanner->image_url }}" alt="{{ $topBanner->title }}" class="w-100 object-fit-cover" style="max-height: 160px;" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80';">
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
+
+    {{-- =========================================================================
          Part 6: Interactive Smart Alert Builder Card
          ========================================================================= --}}
     <section class="smart-alert-section">
@@ -379,6 +420,43 @@
             @endif
         </div>
     </section>
+
+    {{-- =========================================================================
+         Banner Slot 2: Mid-Homepage Community Partner Banner
+         ========================================================================= --}}
+    @php
+        $midBanner = \App\Models\BannerAd::active()->where('position', 'homepage_middle')->orderBy('sort_order')->first()
+            ?? \App\Models\BannerAd::active()->where('position', 'homepage_leaderboard')->orderBy('sort_order')->skip(1)->first();
+    @endphp
+    @if($midBanner)
+        @php $midBanner->recordImpression(); @endphp
+        <section class="py-3">
+            <div class="container-xl">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold text-uppercase px-2 py-0.5" style="font-size: 9px; letter-spacing: 0.5px;">
+                                <i class="bi bi-star-fill me-1"></i> Featured Canadian Partner
+                            </span>
+                            @if($midBanner->city)
+                                <span class="text-muted small" style="font-size: 11px;">• {{ $midBanner->city }}{{ $midBanner->province ? ', ' . $midBanner->province : '' }}</span>
+                            @endif
+                        </div>
+                        <i class="bi bi-info-circle text-muted" style="font-size: 11px;" title="Verified Canadian Sponsor"></i>
+                    </div>
+                    @if(!empty($midBanner->html_code))
+                        <div class="p-3 text-center">
+                            {!! $midBanner->html_code !!}
+                        </div>
+                    @elseif(!empty($midBanner->image_url))
+                        <a href="{{ $midBanner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                            <img src="{{ $midBanner->image_url }}" alt="{{ $midBanner->title }}" class="w-100 object-fit-cover" style="max-height: 160px;" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80';">
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- =========================================================================
          Part 8: Browse by Location Section
@@ -708,6 +786,43 @@
             </div>
         </div>
     </section>
+
+    {{-- =========================================================================
+         Banner Slot 3: Lower-Homepage Verified Partner Showcase Banner
+         ========================================================================= --}}
+    @php
+        $bottomBanner = \App\Models\BannerAd::active()->where('position', 'homepage_bottom')->orderBy('sort_order')->first()
+            ?? \App\Models\BannerAd::active()->where('position', 'homepage_leaderboard')->orderBy('sort_order')->skip(2)->first();
+    @endphp
+    @if($bottomBanner)
+        @php $bottomBanner->recordImpression(); @endphp
+        <section class="py-3">
+            <div class="container-xl">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="px-3 py-1 bg-light border-bottom d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning bg-opacity-10 text-dark fw-bold text-uppercase px-2 py-0.5" style="font-size: 9px; letter-spacing: 0.5px;">
+                                <i class="bi bi-award-fill text-warning me-1"></i> Canadian Business Network
+                            </span>
+                            @if($bottomBanner->city)
+                                <span class="text-muted small" style="font-size: 11px;">• {{ $bottomBanner->city }}{{ $bottomBanner->province ? ', ' . $bottomBanner->province : '' }}</span>
+                            @endif
+                        </div>
+                        <i class="bi bi-info-circle text-muted" style="font-size: 11px;" title="Verified Canadian Sponsor"></i>
+                    </div>
+                    @if(!empty($bottomBanner->html_code))
+                        <div class="p-3 text-center">
+                            {!! $bottomBanner->html_code !!}
+                        </div>
+                    @elseif(!empty($bottomBanner->image_url))
+                        <a href="{{ $bottomBanner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                            <img src="{{ $bottomBanner->image_url }}" alt="{{ $bottomBanner->title }}" class="w-100 object-fit-cover" style="max-height: 160px;" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80';">
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- =========================================================================
          Part 12: Seller CTA Section (Post Your Ad Banner)

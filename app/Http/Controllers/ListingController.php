@@ -93,6 +93,16 @@ class ListingController extends Controller
         $listing     = $this->listingService->findByIdOrSlug($idOrSlug, $allListings);
 
         if (!$listing) {
+            $directModel = is_numeric($idOrSlug)
+                ? Listing::with(['category', 'primaryImage', 'images', 'user', 'attributes.categoryAttribute'])->find((int)$idOrSlug)
+                : Listing::with(['category', 'primaryImage', 'images', 'user', 'attributes.categoryAttribute'])->where('slug', $idOrSlug)->first();
+
+            if ($directModel) {
+                $listing = $this->listingService->transformListing($directModel);
+            }
+        }
+
+        if (!$listing) {
             return view('frontend.listing-detail', [
                 'listing'        => null,
                 'categories'     => $categories,

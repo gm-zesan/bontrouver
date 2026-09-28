@@ -411,7 +411,24 @@
                             </div>
                         </div>
 
-                        {{-- 7. COMMUNITY MEMBER TIER & TRUST FILTER --}}
+                        {{-- 7. PROMOTED ADS FILTER --}}
+                        <div class="filter-section" id="boostFilterSection">
+                            <div class="filter-section-title">Promoted Ads</div>
+                            <div class="filter-options-list">
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="badge_filter" value="featured" onchange="triggerLiveFilter()">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> Featured Ads</span>
+                                </label>
+                                <label class="custom-filter-checkbox">
+                                    <input type="checkbox" name="badge_filter" value="sponsored" onchange="triggerLiveFilter()">
+                                    <span class="checkbox-box"></span>
+                                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> Sponsored Spotlights</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        {{-- 8. COMMUNITY MEMBER TIER & TRUST FILTER --}}
                         <div class="filter-section" id="memberTierFilterSection">
                             <div class="filter-section-title">Community Trust & Tier</div>
                             <div class="filter-options-list">
@@ -435,6 +452,38 @@
 
                     </div>
                 </div>
+
+                @php
+                    $sidebarBanners = \App\Models\BannerAd::active()->forPosition('search_sidebar')->take(2)->get();
+                @endphp
+                @if($sidebarBanners->isNotEmpty())
+                    <div class="mt-3 d-flex flex-column gap-3">
+                        @foreach($sidebarBanners as $banner)
+                            @php $banner->recordImpression(); @endphp
+                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
+                                <div class="px-2 py-1 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                    <span class="text-uppercase text-muted fw-bold" style="font-size: 9px; letter-spacing: 0.5px;">Sponsored Ad</span>
+                                    <i class="bi bi-info-circle text-muted" style="font-size: 10px;" title="Canadian Verified Sponsor"></i>
+                                </div>
+                                @if(!empty($banner->html_code))
+                                    <div class="p-2">
+                                        {!! $banner->html_code !!}
+                                    </div>
+                                @elseif(!empty($banner->image_path))
+                                    <a href="{{ $banner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                                        <img src="{{ $banner->image_path }}" alt="{{ $banner->title }}" class="w-100 object-fit-cover" style="max-height: 250px;">
+                                        <div class="p-2">
+                                            <div class="fw-semibold text-dark small text-truncate">{{ $banner->title }}</div>
+                                            @if($banner->target_url)
+                                                <span class="text-primary small" style="font-size: 11px;">Visit Sponsor <i class="bi bi-arrow-right"></i></span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </aside>
 
             <!-- =========================================================
@@ -541,6 +590,9 @@
 
                                 @if(!empty($item['badge']))
                                     <span class="listing-status-badge badge-{{ $item['badge_type'] ?? 'featured' }}">
+                                        @if(!empty($item['badge_icon']))
+                                            <i class="bi {{ $item['badge_icon'] }} me-1"></i>
+                                        @endif
                                         {{ $item['badge'] }}
                                     </span>
                                 @endif
@@ -855,6 +907,23 @@
             </div>
         </div>
 
+        {{-- Mobile Promoted Filter --}}
+        <div class="mobile-filter-group" id="mobileBoostGroup">
+            <label class="mobile-group-label">Promoted Ads</label>
+            <div class="filter-options-list">
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_badge_filter" value="featured" onchange="syncMobileBadgeFilter()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> Featured Ads</span>
+                </label>
+                <label class="custom-filter-checkbox">
+                    <input type="checkbox" name="m_badge_filter" value="sponsored" onchange="syncMobileBadgeFilter()">
+                    <span class="checkbox-box"></span>
+                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> Sponsored Spotlights</span>
+                </label>
+            </div>
+        </div>
+
         {{-- Mobile Member Tier & Trust Filter --}}
         <div class="mobile-filter-group" id="mobileMemberTierGroup">
             <label class="mobile-group-label">Community Trust & Tier</label>
@@ -1006,7 +1075,8 @@
         const locationVal = (document.getElementById('filterLocation')?.value || '').toLowerCase().trim();
 
         // Selected checkboxes for generic filters
-        const selectedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked')).map(c => c.value);
+        const selectedConditions = Array.from(document.querySelectorAll('input[name="condition"]:checked, input[name="m_condition"]:checked')).map(c => c.value);
+        const selectedBadgeFilters = Array.from(document.querySelectorAll('input[name="badge_filter"]:checked, input[name="m_badge_filter"]:checked')).map(c => c.value);
 
         // Selected Housing facets
         const selectedPropTypes = Array.from(document.querySelectorAll('input[name="h_prop_type"]:checked')).map(c => c.value);
@@ -1211,6 +1281,17 @@
                 }
             }
 
+            if (selectedBadgeFilters.length > 0) {
+                const matchBadge = selectedBadgeFilters.some(b => {
+                    if (b === 'featured') return item.is_featured;
+                    if (b === 'sponsored') return item.is_sponsored;
+                    return false;
+                });
+                if (!matchBadge) {
+                    return false;
+                }
+            }
+
             return true;
         });
 
@@ -1221,6 +1302,15 @@
             filtered.sort((a, b) => b.price - a.price);
         } else if (sortOption === 'distance') {
             filtered.sort((a, b) => (a.distance_km || 0) - (b.distance_km || 0));
+        } else {
+            // Default chronological: Sponsored first, then Featured, then Bumped / Recent
+            filtered.sort((a, b) => {
+                if (b.is_sponsored !== a.is_sponsored) return (b.is_sponsored ? 1 : 0) - (a.is_sponsored ? 1 : 0);
+                if (b.is_featured !== a.is_featured) return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
+                const bTime = new Date(b.bumped_at || b.created_at || b.posted_date || 0).getTime();
+                const aTime = new Date(a.bumped_at || a.created_at || a.posted_date || 0).getTime();
+                return bTime - aTime;
+            });
         }
 
         // Update DOM stream & Count
@@ -1282,11 +1372,10 @@
             sortOption,
             radiusVal
         });
-    }
-
     function createListingRowHTML(item) {
         const specsHTML = (item.specs_pills || []).map(s => `<span class="spec-tag">${s}</span>`).join('');
-        const badgeHTML = item.badge ? `<span class="listing-status-badge badge-${item.badge_type || 'featured'}">${item.badge}</span>` : '';
+        const badgeIconHTML = item.badge_icon ? `<i class="bi ${item.badge_icon} me-1"></i>` : '';
+        const badgeHTML = item.badge ? `<span class="listing-status-badge badge-${item.badge_type || 'featured'}">${badgeIconHTML}${item.badge}</span>` : '';
         const distanceHTML = item.distance_km ? `<span class="listing-dot">•</span><span class="listing-distance">${item.distance_km} km away</span>` : '';
         const sellerLabel = item.seller_type_label || (item.seller && item.seller.type ? item.seller.type : null);
         const sellerHTML = sellerLabel ? `
@@ -1982,6 +2071,14 @@
     function syncMobileCondition() {
         const mobileChecked = Array.from(document.querySelectorAll('input[name="m_condition"]:checked')).map(c => c.value);
         document.querySelectorAll('input[name="condition"]').forEach(cb => {
+            cb.checked = mobileChecked.includes(cb.value);
+        });
+        triggerLiveFilter();
+    }
+
+    function syncMobileBadgeFilter() {
+        const mobileChecked = Array.from(document.querySelectorAll('input[name="m_badge_filter"]:checked')).map(c => c.value);
+        document.querySelectorAll('input[name="badge_filter"]').forEach(cb => {
             cb.checked = mobileChecked.includes(cb.value);
         });
         triggerLiveFilter();

@@ -92,7 +92,26 @@
             </a>
         </li>
 
-        <!-- 4. Settings -->
+        <!-- 4. Monetization & Revenue -->
+        <li class="category-li">
+            <span class="link_names">Monetization & Revenue</span>
+        </li>
+        <li>
+            <a href="{{ route('admin.promotions.index') }}"
+                class="{{ request()->routeIs('admin.promotions.*') ? 'active-focus' : '' }}">
+                <i class="ri-rocket-line"></i>
+                <span class="link_names">Promotions & Boosts</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.banners.index') }}"
+                class="{{ request()->routeIs('admin.banners.*') ? 'active-focus' : '' }}">
+                <i class="ri-advertisement-line"></i>
+                <span class="link_names">Banner Ads & AdSense</span>
+            </a>
+        </li>
+
+        <!-- 5. Settings -->
         <li class="category-li">
             <span class="link_names">System</span>
         </li>
@@ -103,6 +122,5 @@
             </a>
         </li>
     </ul>
-
 
 </div>

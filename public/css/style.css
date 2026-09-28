@@ -1656,10 +1656,6 @@ body {
     color: #06182B;
 }
 
-.listing-badge.badge-urgent {
-    background-color: #F43F5E;
-    color: #FFFFFF;
-}
 
 /* Top-Right Floating Favorite Button */
 .btn-listing-favorite {
@@ -4678,19 +4674,39 @@ svg {
     z-index: 2;
 }
 
-.badge-featured {
-    background-color: var(--color-primary);
+.badge-sponsored {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
     color: #041221;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.badge-featured {
+    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+
+.badge-bumped,
+.badge-bump_up {
+    background: linear-gradient(135deg, #10B981 0%, #047857 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.badge-trending {
+    background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+    color: #FFFFFF;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
 }
 
 .badge-verified {
     background-color: #38BDF8;
     color: #041221;
-}
-
-.badge-urgent {
-    background-color: #EF4444;
-    color: #FFFFFF;
 }
 
 .badge-price_drop {
@@ -5730,10 +5746,6 @@ svg {
     color: #FFFFFF;
 }
 
-.gallery-badge-wrap .badge-urgent {
-    background-color: #EF4444;
-    color: #FFFFFF;
-}
 
 .btn-gallery-fullscreen {
     position: absolute;

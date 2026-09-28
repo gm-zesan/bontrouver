@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             VerificationSeeder::class,
             SearchQuerySeeder::class,
             SiteSettingSeeder::class,
+            MonetizationSeeder::class,
         ]);
     }
 }

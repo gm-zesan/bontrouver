@@ -230,7 +230,7 @@
                     </div>
 
                     <!-- Action Card -->
-                    <div class="static-card h-auto">
+                    <div class="static-card h-auto mb-4">
                         <div>
                             <h4 class="section-heading fs-5 mb-3">Join this Meetup</h4>
 
@@ -273,8 +273,6 @@
                                         <div class="text-center mt-3">
                                             <small class="text-white-50">The host will review your profile before approving.</small>
                                         </div>
-
-
                                     @endif
                                 @endif
                             @else
@@ -288,6 +286,41 @@
                             @endauth
                         </div>
                     </div>
+
+                    <!-- Sponsored Community Banners -->
+                    @php
+                        $communityDetailBanners = \App\Models\BannerAd::active()->forPosition('community_sidebar')->orderBy('sort_order')->take(2)->get();
+                    @endphp
+                    @if($communityDetailBanners->isNotEmpty())
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($communityDetailBanners as $banner)
+                                @php $banner->recordImpression(); @endphp
+                                <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
+                                    <div class="px-3 py-1.5 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                        <span class="text-uppercase text-muted fw-bold" style="font-size: 9.5px; letter-spacing: 0.5px;">Sponsored Partner</span>
+                                        <i class="bi bi-info-circle text-muted" style="font-size: 11px;" title="Verified Canadian Sponsor"></i>
+                                    </div>
+                                    @if(!empty($banner->html_code))
+                                        <div class="p-3">
+                                            {!! $banner->html_code !!}
+                                        </div>
+                                    @elseif(!empty($banner->image_url))
+                                        <a href="{{ $banner->target_url ?? '#' }}" target="_blank" rel="noopener sponsored" class="d-block text-decoration-none">
+                                            <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}" class="w-100 object-fit-cover" style="max-height: 220px;">
+                                            <div class="p-3">
+                                                <div class="fw-semibold text-dark small mb-1">{{ $banner->title }}</div>
+                                                @if($banner->target_url)
+                                                    <span class="text-primary small fw-medium" style="font-size: 11.5px;">
+                                                        Learn More <i class="bi bi-arrow-right ms-1"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
 

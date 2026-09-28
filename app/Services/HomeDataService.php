@@ -47,13 +47,56 @@ class HomeDataService
             $base->where('city', 'like', "%{$city}%");
         }
 
-        $models = (clone $base)->where('is_sponsored', true)->orderByDesc('views_count')->limit(4)->get();
+        // 1. Sponsored listings in the selected city (ordered by recency)
+        $models = (clone $base)->sponsored()->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(4)->get();
 
-        if ($models->isEmpty()) {
-            $models = (clone $base)->orderByDesc('views_count')->limit(4)->get();
+        // 2. If fewer than 4, supplement with active sponsored listings nationwide
+        if ($models->count() < 4) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement = Listing::with(['category', 'primaryImage'])
+                ->where('status', 'active')
+                ->sponsored()
+                ->whereNotIn('id', $existingIds)
+                ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
+                ->limit(4 - count($existingIds))
+                ->get();
+            $models = $models->merge($supplement);
         }
-        if ($models->isEmpty()) {
-            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByDesc('views_count')->limit(4)->get();
+
+        // 3. If still fewer than 4, supplement with featured listings
+        if ($models->count() < 4) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement = (clone $base)->featured()
+                ->whereNotIn('id', $existingIds)
+                ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
+                ->limit(4 - count($existingIds))
+                ->get();
+            $models = $models->merge($supplement);
+        }
+
+        // 4. If still fewer than 4, supplement with nationwide featured listings
+        if ($models->count() < 4) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement = Listing::with(['category', 'primaryImage'])
+                ->where('status', 'active')
+                ->featured()
+                ->whereNotIn('id', $existingIds)
+                ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
+                ->limit(4 - count($existingIds))
+                ->get();
+            $models = $models->merge($supplement);
+        }
+
+        // 5. Fallback to latest active listings
+        if ($models->count() < 4) {
+            $existingIds = $models->pluck('id')->toArray();
+            $supplement = Listing::with(['category', 'primaryImage'])
+                ->where('status', 'active')
+                ->whereNotIn('id', $existingIds)
+                ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
+                ->limit(4 - count($existingIds))
+                ->get();
+            $models = $models->merge($supplement);
         }
 
         return $models->map(fn (Listing $l) => [
@@ -78,40 +121,59 @@ class HomeDataService
             $base->where('city', 'like', "%{$city}%");
         }
 
-        $models = (clone $base)->orderByDesc('views_count')->limit(8)->get();
+        $models = (clone $base)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
 
         if ($models->isEmpty() && $city) {
-            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByDesc('views_count')->limit(8)->get();
+            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
         }
 
-        return $models->map(fn (Listing $l) => [
-            'id'          => $l->id,
-            'slug'        => $l->slug,
-            'title'       => $l->title,
-            'price'       => '$' . number_format((float) $l->price, 2),
-            'photos_count'=> $l->images()->count(),
-            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
-            'posted_at'   => $l->created_at->diffForHumans(),
-            'category'    => $l->category->name ?? '',
-            'badge'       => $l->is_sponsored ? 'SPONSORED' : ($l->is_featured ? 'FEATURED' : ($l->views_count > 400 ? 'TRENDING' : null)),
-            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
-            'alt'         => $l->title,
-            'url'         => url('/listing/' . $l->slug),
-        ]);
+        return $models->map(function (Listing $l) {
+            $badge = null;
+            $badgeType = null;
+            if ($l->isSponsored()) {
+                $badge = 'SPONSORED';
+                $badgeType = 'sponsored';
+            } elseif ($l->isFeatured()) {
+                $badge = 'FEATURED';
+                $badgeType = 'featured';
+            } elseif ($l->isBumped()) {
+                $badge = 'BUMPED';
+                $badgeType = 'bumped';
+            } elseif ($l->views_count > 400) {
+                $badge = 'TRENDING';
+                $badgeType = 'trending';
+            }
+
+            return [
+                'id'          => $l->id,
+                'slug'        => $l->slug,
+                'title'       => $l->title,
+                'price'       => '$' . number_format((float) $l->price, 2),
+                'photos_count'=> $l->images()->count(),
+                'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+                'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
+                'category'    => $l->category->name ?? '',
+                'badge'       => $badge,
+                'badge_type'  => $badgeType,
+                'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+                'alt'         => $l->title,
+                'url'         => url('/listing/' . $l->slug),
+            ];
+        });
     }
 
     public function getFeaturedListings(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active')->where('is_featured', true);
+        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active')->featured();
         if ($city) {
             $base->where('city', 'like', "%{$city}%");
         }
 
-        $models = (clone $base)->orderByDesc('created_at')->limit(8)->get();
+        $models = (clone $base)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
 
         if ($models->count() < 6) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->where('is_featured', true)->whereNotIn('id', $existingIds)->orderByDesc('created_at')->limit(8 - count($existingIds))->get();
+            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->featured()->whereNotIn('id', $existingIds)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8 - count($existingIds))->get();
             $models      = $models->merge($supplement);
         }
         if ($models->count() < 4) {
@@ -127,9 +189,10 @@ class HomeDataService
             'price'       => '$' . number_format((float) $l->price, 2),
             'photos_count'=> $l->images()->count(),
             'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
-            'posted_at'   => $l->created_at->diffForHumans(),
+            'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
             'category'    => $l->category->name ?? '',
             'badge'       => 'FEATURED',
+            'badge_type'  => 'featured',
             'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
             'alt'         => $l->title,
             'url'         => url('/listing/' . $l->slug),

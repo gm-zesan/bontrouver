@@ -138,14 +138,40 @@ Instead of a separate business directory, every user in the marketplace is provi
 
 ---
 
-## 7. Implementation & Database Mapping Reference
+## 7. Platform Income & Monetization Architecture
+
+### Overview
+Bon Trouver utilizes a hybrid Canadian marketplace monetization model designed for both commercial power-sellers and community members. It generates revenue through 3 primary pillars while preserving an authentic mutual aid reputation loop.
+
+### Core Revenue Streams
+
+1. **Featured & Sponsored Listings (Promotions & Boosts)**:
+   - **🚀 Sponsored Spotlight**: Maximum exposure on homepage hero carousel and pinned at the top of Canadian search results (`$9.99 CAD` or `300 pts` for 7 days).
+   - **⭐ Featured Highlight**: Distinct blue verified badge and highlighted card border with top placement (`$4.99 CAD` or `150 pts` for 7 days).
+   - **⚡ Instant Bump-Up**: 1-click execution that resets the listing's chronological position to the #1 spot in search results (`$1.99 CAD` or `60 pts`).
+   - **Dual-Currency Unlock**: Users can pay directly with Canadian credit card (CAD $) or redeem earned Community Points (pts).
+
+2. **Freemium Listing Quotas & High-Volume Sellers**:
+   - Configurable free listing limit per user (default: `5` active free ads).
+   - High-volume sellers, auto dealers, and property managers upgrade their accounts or purchase listing bundles for unlimited active ad capacity.
+
+3. **Banner Advertising & Google AdSense / Programmatic**:
+   - Dedicated Canadian sponsor slots across `search_sidebar`, `listing_detail_bottom`, `homepage_leaderboard`, and `community_sidebar`.
+   - Geo-targeted by Canadian city and province with real-time impression and CTR tracking.
+   - Raw embed support for Google AdSense, media networks, or local Canadian business banner creatives.
+
+---
+
+## 8. Implementation & Database Mapping Reference
 
 | Requirement Module | Database Tables / Models | Seeder Reference |
 | :--- | :--- | :--- |
 | **Location & Ads** | `listings`, `listing_images`, `listing_attributes` | `ListingSeeder.php` |
 | **Smart Alerts** | `smart_alerts`, `smart_alert_attributes` | `SmartAlertSeeder.php` |
 | **Reputation & Reviews** | `users`, `reviews`, `transactions` | `UserSeeder.php`, `ReviewSeeder.php`, `TransactionSeeder.php` |
-| **Points & Tiers** | `member_tiers`, `point_transactions` | `MemberTierSeeder.php`, `PointTransactionSeeder.php` |
+| **Points & Tiers** | `member_tiers`, `point_transactions`, `point_rules` | `MemberTierSeeder.php`, `PointTransactionSeeder.php` |
 | **Companionship** | `companionship_requests`, `companionship_attendees` | `CompanionshipSeeder.php` |
 | **Messaging & Inquiries** | `conversations`, `messages` | `ConversationSeeder.php` |
-| **User Profiles** | `users`, `user_profiles`, `user_galleries` (Planned) | TBD |
+| **User Profiles** | `users`, `user_profiles`, `user_galleries` | `UserSeeder.php` |
+| **Monetization & Ads** | `promotion_packages`, `listing_promotions`, `banner_ads` | `MonetizationSeeder.php` |
+| **Platform Settings** | `site_settings` | `SiteSettingSeeder.php` |

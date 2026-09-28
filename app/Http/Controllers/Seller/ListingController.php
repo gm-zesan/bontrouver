@@ -14,7 +14,8 @@ class ListingController extends Controller
 {
     public function __construct(
         private readonly SellerListingService $listingService,
-        private readonly PointService $pointService
+        private readonly PointService $pointService,
+        private readonly \App\Services\MonetizationService $monetizationService
     ) {}
 
     /**
@@ -65,15 +66,27 @@ class ListingController extends Controller
             ], 422);
         }
 
-        // TODO: Move the actual DB update into the service in a later refactor
-        // if needed, but since it was just mocking an update with no DB call in SellerDashboardController,
-        // we'll keep the same behavior.
+        $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
+
+        if ($status === 'renewed') {
+            $listing->status = \App\Enums\ListingStatus::ACTIVE;
+            $listing->created_at = now();
+            $listing->published_at = now();
+            $listing->bumped_at = now();
+            $listing->save();
+        } elseif ($status === 'deleted') {
+            $listing->delete();
+        } else {
+            $enumStatus = \App\Enums\ListingStatus::tryFrom($status) ?? \App\Enums\ListingStatus::ACTIVE;
+            $listing->status = $enumStatus;
+            $listing->save();
+        }
 
         $messages = [
             'sold' => 'Listing marked as sold successfully.',
             'paused' => 'Listing paused and temporarily hidden from search.',
             'active' => 'Listing activated and visible to buyers.',
-            'renewed' => 'Listing renewed successfully for 30 days.',
+            'renewed' => 'Listing renewed and bumped to the top of search!',
             'deleted' => 'Listing removed permanently.',
         ];
 
@@ -89,7 +102,9 @@ class ListingController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        // Mocking the delete response as DB implementation is not fully provided yet.
+        $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
+        $listing->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'Listing removed permanently.'
@@ -97,49 +112,107 @@ class ListingController extends Controller
     }
 
     /**
-     * Promote a listing using community points.
+     * Promote a listing using community points or boost package.
      */
     public function promote(Request $request, $id)
     {
         $validated = $request->validate([
-            'type' => 'required|in:featured,sponsored',
+            'type' => 'required|in:featured,sponsored,bump_up,bump',
         ]);
 
+        $type = $validated['type'] === 'bump' ? 'bump_up' : $validated['type'];
         $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
         $user = Auth::user();
 
-        if ($validated['type'] === 'featured' && $listing->is_featured) {
-            return response()->json(['success' => false, 'message' => 'Listing is already featured.'], 400);
+        // Enforce active cooldowns
+        if ($type === 'sponsored' && $listing->is_sponsored && $listing->sponsored_until && $listing->sponsored_until->isFuture()) {
+            return response()->json([
+                'success' => false,
+                'message' => "This listing is already Sponsored until " . $listing->sponsored_until->format('M d, Y') . ". You cannot boost again until the current duration ends."
+            ], 422);
         }
 
-        if ($validated['type'] === 'sponsored' && $listing->is_sponsored) {
-            return response()->json(['success' => false, 'message' => 'Listing is already sponsored.'], 400);
+        if ($type === 'featured' && $listing->is_featured && $listing->featured_until && $listing->featured_until->isFuture()) {
+            return response()->json([
+                'success' => false,
+                'message' => "This listing is already Featured until " . $listing->featured_until->format('M d, Y') . ". You cannot boost again until the current duration ends."
+            ], 422);
         }
 
-        $cost = $validated['type'] === 'featured'
-            ? PointService::getRulePoints('featured_promotion', 'spend', 100)
-            : PointService::getRulePoints('sponsored_promotion', 'spend', 300);
+        if ($type === 'bump_up' && $listing->bumped_at && $listing->bumped_at->isToday()) {
+            return response()->json([
+                'success' => false,
+                'message' => "This listing was already Bumped today. You can bump it again tomorrow."
+            ], 422);
+        }
+
+        // Check if matching promotion package exists
+        $package = \App\Models\PromotionPackage::where('type', $type)->where('is_active', true)->first();
+
+        if ($package) {
+            try {
+                $promotion = $this->monetizationService->promoteListing(
+                    listing: $listing,
+                    package: $package,
+                    user: $user,
+                    paymentMethod: 'points'
+                );
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "Listing successfully boosted with {$package->name}!",
+                    'badge' => strtoupper($type === 'bump_up' ? 'BUMPED' : $type),
+                    'promotion' => $promotion,
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 400);
+            }
+        }
+
+        // Direct fallback point calculation if package not seeded
+        $pointCosts = [
+            'featured' => 150,
+            'sponsored' => 300,
+            'bump_up' => 60,
+        ];
+        $cost = $pointCosts[$type] ?? 100;
+
+        if ($user->community_points < $cost) {
+            return response()->json([
+                'success' => false,
+                'message' => "Insufficient points. You have {$user->community_points} pts, but {$cost} pts are required."
+            ], 400);
+        }
 
         try {
             $this->pointService->spendPoints(
                 $user,
                 $cost,
-                'listing_promotion',
-                "Spent points for {$validated['type']} promotion",
+                'listing_boost_' . $type,
+                "Spent {$cost} points for {$type} boost",
                 $listing
             );
 
-            if ($validated['type'] === 'featured') {
+            $now = now();
+            if ($type === 'featured') {
                 $listing->is_featured = true;
-            } else {
+                $listing->featured_until = $now->copy()->addDays(7);
+            } elseif ($type === 'sponsored') {
                 $listing->is_sponsored = true;
+                $listing->sponsored_until = $now->copy()->addDays(7);
+            } elseif ($type === 'bump_up') {
+                $listing->bumped_at = $now;
+                $listing->created_at = $now;
             }
             $listing->save();
 
             return response()->json([
                 'success' => true,
-                'message' => "Listing successfully promoted to " . ucfirst($validated['type']) . "!",
-                'badge' => strtoupper($validated['type'])
+                'message' => "Listing successfully boosted with " . ucfirst(str_replace('_', ' ', $type)) . "!",
+                'badge' => strtoupper($type === 'bump_up' ? 'BUMPED' : $type)
             ]);
             
         } catch (\Exception $e) {

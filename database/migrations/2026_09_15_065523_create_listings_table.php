@@ -36,6 +36,9 @@ return new class extends Migration
             $table->string('status', 50)->default('draft'); // draft, pending_review, active, paused, sold, expired, rejected
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_sponsored')->default(false);
+            $table->timestamp('featured_until')->nullable();
+            $table->timestamp('sponsored_until')->nullable();
+            $table->timestamp('bumped_at')->nullable();
             $table->integer('views_count')->default(0);
             
             $table->timestamp('published_at')->nullable();
@@ -46,6 +49,7 @@ return new class extends Migration
             $table->index('status');
             $table->index('is_featured');
             $table->index('is_sponsored');
+            $table->index('bumped_at');
             $table->index('city');
             $table->index('province');
             $table->index(['latitude', 'longitude']);

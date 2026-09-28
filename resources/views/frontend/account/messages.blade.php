@@ -2,221 +2,312 @@
 
 @section('account_content')
                 <!-- Messaging Card Container -->
-                <div class="dark-surface-card overflow-hidden" 
-                     style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; min-height: 600px; height: calc(100vh - 260px); max-height: 750px;">
+<!-- Scoped Messaging Container Styles -->
+<style>
+    .chat-layout-wrapper {
+        background: #0D243C;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        height: 700px;
+        max-height: calc(100vh - 200px);
+        min-height: 540px;
+        display: flex;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .chat-threads-col {
+        width: 340px;
+        min-width: 280px;
+        max-width: 360px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0D243C;
+        flex-shrink: 0;
+    }
+
+    .chat-view-col {
+        flex: 1 1 0%;
+        min-width: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #081D33;
+        position: relative;
+    }
+
+    .chat-header-bar {
+        flex-shrink: 0;
+        padding: 12px 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0D243C;
+        z-index: 5;
+    }
+
+    .chat-messages-stream {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .chat-input-bar {
+        flex-shrink: 0;
+        padding: 14px 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: #0D243C;
+        position: relative;
+        z-index: 10;
+    }
+
+    .conversation-item.active-thread {
+        background: rgba(73, 209, 125, 0.12) !important;
+        border-color: rgba(73, 209, 125, 0.35) !important;
+    }
+
+    .conversation-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    @media (max-width: 767.98px) {
+        .chat-layout-wrapper {
+            height: calc(100vh - 170px);
+            min-height: 480px;
+        }
+        .chat-threads-col {
+            width: 100%;
+            max-width: 100%;
+            border-right: none;
+        }
+    }
+</style>
+
+<!-- Messaging Main Container -->
+<div class="dark-surface-card chat-layout-wrapper">
+    
+    <!-- Panel 1: Conversations List -->
+    <div class="chat-threads-col {{ request()->has('c') ? 'd-none d-md-flex' : 'd-flex' }}" id="conversationsListPanel">
+        
+        <!-- Search Conversations Bar -->
+        <div class="p-3 border-bottom border-secondary border-opacity-10 flex-shrink-0">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text dark-search-addon" style="background: #081D33; border-color: rgba(255,255,255,0.08);">
+                    <i class="bi bi-search text-secondary"></i>
+                </span>
+                <input type="text" 
+                       class="form-control dark-filter-input border-start-0" 
+                       id="chatSearchInput" 
+                       placeholder="Search conversations..."
+                       style="font-size: 0.84rem; background: #081D33 !important;">
+            </div>
+        </div>
+
+        <!-- List of Threads -->
+        <div class="overflow-auto flex-grow-1 p-2" id="threadsList" style="overflow-x: hidden !important;">
+            @forelse($conversations as $conv)
+                @php $isActive = ($activeConversation && $activeConversation['id'] == $conv['id']); @endphp
+                <a href="{{ url('/messages?c=' . $conv['id']) }}" 
+                   class="d-flex align-items-center gap-2 p-2 p-lg-3 rounded-3 text-decoration-none mb-1 conversation-item {{ $isActive ? 'active-thread' : '' }}"
+                   data-name="{{ strtolower($conv['user']['name']) }}"
+                   data-item="{{ strtolower($conv['listing']['title']) }}"
+                   style="background: {{ $isActive ? 'rgba(73, 209, 125, 0.08)' : 'transparent' }}; border: 1px solid {{ $isActive ? 'rgba(73, 209, 125, 0.3)' : 'transparent' }}; transition: background 0.15s ease; max-width: 100%; overflow: hidden;">
                     
-                    <div class="row g-0 h-100">
-                        
-                        <!-- Panel 1: Conversations List -->
-                        <div class="col-12 col-md-5 col-lg-4 border-end border-secondary border-opacity-10 d-flex flex-column h-100 {{ request()->has('c') ? 'd-none d-md-flex' : 'd-flex' }}" id="conversationsListPanel">
-                            
-                            <!-- Search Conversations Bar -->
-                            <div class="p-3 border-bottom border-secondary border-opacity-10">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text dark-search-addon" style="background: #081D33; border-color: rgba(255,255,255,0.08);">
-                                        <i class="bi bi-search text-secondary"></i>
-                                    </span>
-                                    <input type="text" 
-                                           class="form-control dark-filter-input border-start-0" 
-                                           id="chatSearchInput" 
-                                           placeholder="Search conversations..."
-                                           style="font-size: 0.82rem;">
-                                </div>
-                            </div>
-
-                            <!-- List of Threads -->
-                            <div class="overflow-auto flex-grow-1 p-2" id="threadsList" style="overflow-x: hidden !important;">
-                                @forelse($conversations as $conv)
-                                    @php $isActive = ($activeConversation && $activeConversation['id'] == $conv['id']); @endphp
-                                    <a href="{{ url('/messages?c=' . $conv['id']) }}" 
-                                       class="d-flex align-items-center gap-2 p-2 p-lg-3 rounded-3 text-decoration-none mb-1 conversation-item {{ $isActive ? 'active-thread' : '' }}"
-                                       data-name="{{ strtolower($conv['user']['name']) }}"
-                                       data-item="{{ strtolower($conv['listing']['title']) }}"
-                                       style="background: {{ $isActive ? 'rgba(73, 209, 125, 0.08)' : 'transparent' }}; border: 1px solid {{ $isActive ? 'rgba(73, 209, 125, 0.3)' : 'transparent' }}; transition: background 0.15s ease; max-width: 100%; overflow: hidden;">
-                                        
-                                        <!-- User Avatar -->
-                                        <div class="position-relative flex-shrink-0" style="width: 42px; height: 42px;">
-                                            <img src="{{ $conv['user']['avatar'] }}" 
-                                                 alt="{{ $conv['user']['name'] }}" 
-                                                 class="rounded-circle object-fit-cover w-100 h-100" 
-                                                 style="border: 1.5px solid rgba(255,255,255,0.1);">
-                                            @if($conv['user']['online'])
-                                                <span class="position-absolute bottom-0 end-0 bg-success border border-dark rounded-circle" style="width: 10px; height: 10px;"></span>
-                                            @endif
-                                        </div>
-
-                                        <!-- Thread Content -->
-                                        <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">
-                                            <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
-                                                <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.86rem;">
-                                                    {{ $conv['user']['name'] }}
-                                                </h6>
-                                                <span class="text-secondary small flex-shrink-0" style="font-size: 0.7rem;">{{ $conv['last_time'] }}</span>
-                                            </div>
-
-                                            @if(!empty($conv['listing']['id']) && ($conv['listing']['title'] ?? '') !== 'Deleted Listing')
-                                                <div class="small text-secondary text-truncate mb-1 d-block" style="font-size: 0.74rem;">
-                                                    <i class="bi bi-tag-fill me-1 opacity-75"></i>{{ $conv['listing']['title'] }}
-                                                </div>
-                                            @endif
-
-                                            <div class="d-flex align-items-center justify-content-between gap-1">
-                                                <p class="small text-secondary mb-0 text-truncate" style="font-size: 0.76rem;">
-                                                    {{ $conv['last_message'] }}
-                                                </p>
-                                                @if(!empty($conv['unread']))
-                                                    <span class="badge bg-danger rounded-circle p-1 flex-shrink-0" style="width: 8px; height: 8px;" title="Unread message"></span>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                    </a>
-                                @empty
-                                    <div class="text-center p-4 text-secondary small">
-                                        No conversations yet.
-                                    </div>
-                                @endforelse
-                            </div>
-
-                        </div>
-
-                        <!-- Panel 2: Active Chat View -->
-                        <div class="col-12 col-md-7 col-lg-8 d-flex flex-column h-100 {{ request()->has('c') ? 'd-flex' : 'd-none d-md-flex' }}" id="chatPanel" style="background: #081D33;">
-                            @if($activeConversation)
-                            <!-- Chat Top Bar & Member Info -->
-                            <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex align-items-center justify-content-between gap-2" style="background: #0D243C;">
-                                <div class="d-flex align-items-center gap-3 min-w-0">
-                                    <!-- Mobile Back to threads list -->
-                                    <a href="{{ url('/messages') }}" class="btn btn-sm btn-dark d-md-none text-secondary">
-                                        <i class="bi bi-chevron-left"></i>
-                                    </a>
-
-                                    @if(!empty($activeConversation['user']['avatar']))
-                                        <img src="{{ $activeConversation['user']['avatar'] }}" 
-                                             alt="{{ $activeConversation['user']['name'] ?? 'User' }}" 
-                                             class="rounded-circle object-fit-cover flex-shrink-0" 
-                                             style="width: 42px; height: 42px; border: 1.5px solid rgba(255,255,255,0.1);">
-                                    @else
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-dark fw-bold"
-                                             style="width: 42px; height: 42px; background: #49D17D; font-size: 0.9rem;">
-                                            {{ strtoupper(substr($activeConversation['user']['name'] ?? 'U', 0, 1)) }}
-                                        </div>
-                                    @endif
-                                    
-                                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.92rem;">
-                                                {{ $activeConversation['user']['name'] ?? 'User' }}
-                                            </h6>
-                                            @if(!empty($activeConversation['user']['verified']))
-                                                <span class="badge bg-success-subtle text-success border border-success border-opacity-25" style="font-size: 0.68rem; padding: 2px 6px;">
-                                                    <i class="bi bi-shield-check me-1"></i> Verified
-                                                </span>
-                                            @endif
-                                            @if(!empty($activeConversation['user']['member_tier']))
-                                                @php $chatTier = $activeConversation['user']['member_tier']; @endphp
-                                                <span class="badge {{ $chatTier['badge_class'] ?? 'bg-secondary' }} border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
-                                                    <span class="me-0.5">{{ $chatTier['icon'] }}</span> {{ $chatTier['name'] }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <span class="small text-secondary" style="font-size: 0.75rem;">
-                                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                @if(!empty($activeConversation['user']['id']))
-                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                                        <a href="{{ route('profile.view', ['id' => $activeConversation['user']['id']]) }}" target="_blank" class="btn btn-sm btn-theme-outline-secondary rounded-pill px-2.5 py-1 text-nowrap d-inline-flex align-items-center gap-1" style="font-size: 0.75rem;">
-                                            <i class="bi bi-person-circle"></i>
-                                            <span class="d-none d-sm-inline">View Profile</span>
-                                        </a>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <!-- Messages Stream Box -->
-                            <div class="p-3 p-md-4 overflow-auto flex-grow-1 d-flex flex-column gap-3" id="messagesStream">
-                                
-                                <!-- Safety Tip Pill -->
-                                <div class="text-center my-2">
-                                    <span class="badge bg-dark border border-secondary border-opacity-25 text-secondary px-3 py-2 rounded-pill small" style="font-size: 0.75rem;">
-                                        <i class="bi bi-shield-lock-fill text-success me-1"></i> Always meet in a public place. Never send advance deposits.
-                                    </span>
-                                </div>
-
-                                @foreach($activeConversation['messages'] as $msg)
-                                    @php $isMe = ($msg['sender'] === 'me'); @endphp
-                                    <div class="d-flex flex-column {{ $isMe ? 'align-items-end' : 'align-items-start' }} mb-2">
-                                        <div class="p-3 rounded-4 message-bubble {{ $isMe ? 'my-bubble' : 'their-bubble' }}" 
-                                             style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; {{ $isMe ? 'background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;' : 'background: #0D243C; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;' }}">
-                                            @if(!empty($msg['attachments']))
-                                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                                    @foreach($msg['attachments'] as $att)
-                                                        @if($att['type'] === 'image')
-                                                            <div class="position-relative d-inline-block">
-                                                                <a href="javascript:void(0)" onclick="openImageModal('{{ $att['url'] }}')">
-                                                                    <img src="{{ $att['url'] }}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
-                                                                </a>
-                                                                <a href="{{ $att['url'] }}" download class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
-                                                                    <i class="bi bi-download" style="font-size: 0.7rem;"></i>
-                                                                </a>
-                                                            </div>
-                                                        @else
-                                                            <div class="p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2">
-                                                                <i class="bi bi-file-earmark-fill fs-4"></i>
-                                                                <a href="{{ $att['url'] }}" download class="text-decoration-none text-reset fw-bold" style="font-size: 0.8rem;">Download Attachment</a>
-                                                            </div>
-                                                        @endif
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                            @if(!empty($msg['text']))
-                                                <div class="text-break mt-1">{{ $msg['text'] }}</div>
-                                            @endif
-                                        </div>
-                                        <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">{{ $msg['time'] }}</span>
-                                    </div>
-                                @endforeach
-
-                            </div>
-
-                            <!-- Bottom Input & Send Box -->
-                            <div class="p-3 border-top border-secondary border-opacity-10" style="background: #0D243C;">
-                                <div id="attachmentPreview" class="d-none mb-2 p-2 bg-dark rounded border border-secondary border-opacity-25 d-flex gap-2 overflow-x-auto" style="max-width: 100%; white-space: nowrap;">
-                                    <!-- Previews will be injected here via JS -->
-                                </div>
-                                <form id="chatSendForm" onsubmit="event.preventDefault(); sendChatMessage();" enctype="multipart/form-data">
-                                    <div class="input-group align-items-center">
-                                        <button class="btn btn-dark text-secondary border-0 px-3" type="button" onclick="document.getElementById('chatAttachment').click();" style="background: #081D33;">
-                                            <i class="bi bi-images"></i>
-                                        </button>
-                                        <input type="file" id="chatAttachment" class="d-none" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx" onchange="handleAttachmentSelect(this)">
-                                        <input type="text" 
-                                               class="form-control dark-filter-input border-0 py-2" 
-                                               id="chatInput" 
-                                               placeholder="Type your message to {{ $activeConversation['user']['name'] }}..." 
-                                               autocomplete="off"
-                                               style="background: #081D33 !important; font-size: 0.88rem;">
-                                        <button class="btn btn-theme-primary px-4 d-inline-flex align-items-center gap-1 fw-semibold" type="submit" id="btnSendMessage">
-                                            <span>Send</span>
-                                            <i class="bi bi-send-fill ms-1"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                            @else
-                                <div class="d-flex flex-column align-items-center justify-content-center h-100 text-secondary">
-                                    <i class="bi bi-chat-square-text mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
-                                    <h5 class="text-white opacity-75">No Conversation Selected</h5>
-                                    <p class="small">Select a conversation from the left to start messaging.</p>
-                                </div>
-                            @endif
-                        </div>
-
+                    <!-- User Avatar -->
+                    <div class="position-relative flex-shrink-0" style="width: 42px; height: 42px;">
+                        <img src="{{ $conv['user']['avatar'] }}" 
+                             alt="{{ $conv['user']['name'] }}" 
+                             class="rounded-circle object-fit-cover w-100 h-100" 
+                             style="border: 1.5px solid rgba(255,255,255,0.1);"
+                             onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'">
+                        @if($conv['user']['online'])
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-dark rounded-circle" style="width: 10px; height: 10px;"></span>
+                        @endif
                     </div>
 
+                    <!-- Thread Content -->
+                    <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">
+                        <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                            <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.88rem;">
+                                {{ $conv['user']['name'] }}
+                            </h6>
+                            <span class="text-secondary small flex-shrink-0" style="font-size: 0.7rem;">{{ $conv['last_time'] }}</span>
+                        </div>
+
+                        @if(!empty($conv['listing']['id']) && ($conv['listing']['title'] ?? '') !== 'Deleted Listing')
+                            <div class="small text-secondary text-truncate mb-1 d-block" style="font-size: 0.74rem;">
+                                <i class="bi bi-tag-fill me-1 opacity-75 text-success"></i>{{ $conv['listing']['title'] }}
+                            </div>
+                        @endif
+
+                        <div class="d-flex align-items-center justify-content-between gap-1">
+                            <p class="small text-secondary mb-0 text-truncate" style="font-size: 0.76rem;">
+                                {{ $conv['last_message'] }}
+                            </p>
+                            @if(!empty($conv['unread']))
+                                <span class="badge bg-danger rounded-circle p-1 flex-shrink-0" style="width: 8px; height: 8px;" title="Unread message"></span>
+                            @endif
+                        </div>
+                    </div>
+
+                </a>
+            @empty
+                <div class="text-center p-4 text-secondary small">
+                    <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>
+                    No conversations yet.
                 </div>
+            @endforelse
+        </div>
+
+    </div>
+
+    <!-- Panel 2: Active Chat View -->
+    <div class="chat-view-col {{ request()->has('c') ? 'd-flex' : 'd-none d-md-flex' }}" id="chatPanel">
+        @if($activeConversation)
+        <!-- Chat Top Bar & Member Info -->
+        <div class="chat-header-bar d-flex align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-3 min-w-0">
+                <!-- Mobile Back to threads list -->
+                <a href="{{ url('/messages') }}" class="btn btn-sm btn-dark d-md-none text-secondary">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+
+                @if(!empty($activeConversation['user']['avatar']))
+                    <img src="{{ $activeConversation['user']['avatar'] }}" 
+                         alt="{{ $activeConversation['user']['name'] ?? 'User' }}" 
+                         class="rounded-circle object-fit-cover flex-shrink-0" 
+                         style="width: 42px; height: 42px; border: 1.5px solid rgba(255,255,255,0.1);"
+                         onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'">
+                @else
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-dark fw-bold"
+                         style="width: 42px; height: 42px; background: #49D17D; font-size: 0.9rem;">
+                        {{ strtoupper(substr($activeConversation['user']['name'] ?? 'U', 0, 1)) }}
+                    </div>
+                @endif
+                
+                <div class="overflow-hidden">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 0.94rem;">
+                            {{ $activeConversation['user']['name'] ?? 'User' }}
+                        </h6>
+                        @if(!empty($activeConversation['user']['verified']))
+                            <span class="badge bg-success-subtle text-success border border-success border-opacity-25" style="font-size: 0.68rem; padding: 2px 6px;">
+                                <i class="bi bi-shield-check me-1"></i> Verified
+                            </span>
+                        @endif
+                        @if(!empty($activeConversation['user']['member_tier']))
+                            @php $chatTier = $activeConversation['user']['member_tier']; @endphp
+                            <span class="badge {{ $chatTier['badge_class'] ?? 'bg-secondary' }} border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill" style="font-size: 0.68rem;">
+                                <span class="me-0.5">{{ $chatTier['icon'] }}</span> {{ $chatTier['name'] }}
+                            </span>
+                        @endif
+                    </div>
+                    <span class="small text-secondary text-truncate d-block" style="font-size: 0.75rem;">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $activeConversation['user']['location'] ?? 'Canada' }} • {{ !empty($activeConversation['user']['online']) ? 'Online now' : 'Active recently' }}
+                    </span>
+                </div>
+            </div>
+
+            @if(!empty($activeConversation['user']['id']))
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <a href="{{ route('profile.view', ['id' => $activeConversation['user']['id']]) }}" target="_blank" class="btn btn-sm btn-theme-outline-secondary rounded-pill px-3 py-1 text-nowrap d-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="d-none d-sm-inline">Profile</span>
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        <!-- Messages Stream Box -->
+        <div class="chat-messages-stream" id="messagesStream">
+            
+            <!-- Safety Tip Pill -->
+            <div class="text-center my-1">
+                <span class="badge bg-dark border border-secondary border-opacity-25 text-secondary px-3 py-1.5 rounded-pill small" style="font-size: 0.75rem;">
+                    <i class="bi bi-shield-lock-fill text-success me-1"></i> Always meet in a public place. Never send advance deposits.
+                </span>
+            </div>
+
+            @foreach($activeConversation['messages'] as $msg)
+                @php $isMe = ($msg['sender'] === 'me'); @endphp
+                <div class="d-flex flex-column {{ $isMe ? 'align-items-end' : 'align-items-start' }} mb-1">
+                    <div class="p-3 rounded-4 message-bubble {{ $isMe ? 'my-bubble' : 'their-bubble' }}" 
+                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; {{ $isMe ? 'background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;' : 'background: #0D243C; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;' }}">
+                        @if(!empty($msg['attachments']))
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                @foreach($msg['attachments'] as $att)
+                                    @if($att['type'] === 'image')
+                                        <div class="position-relative d-inline-block">
+                                            <a href="javascript:void(0)" onclick="openImageModal('{{ $att['url'] }}')">
+                                                <img src="{{ $att['url'] }}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                                            </a>
+                                            <a href="{{ $att['url'] }}" download class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
+                                                <i class="bi bi-download" style="font-size: 0.7rem;"></i>
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2">
+                                            <i class="bi bi-file-earmark-fill fs-4"></i>
+                                            <a href="{{ $att['url'] }}" download class="text-decoration-none text-reset fw-bold" style="font-size: 0.8rem;">Download Attachment</a>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                        @if(!empty($msg['text']))
+                            <div class="text-break">{{ $msg['text'] }}</div>
+                        @endif
+                    </div>
+                    <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">{{ $msg['time'] }}</span>
+                </div>
+            @endforeach
+
+        </div>
+
+        <!-- Bottom Input & Send Box (Guaranteed Pinned) -->
+        <div class="chat-input-bar" id="chatInputBar">
+            <div id="attachmentPreview" class="d-none mb-2 p-2 bg-dark rounded border border-secondary border-opacity-25 d-flex gap-2 overflow-x-auto" style="max-width: 100%; white-space: nowrap;">
+                <!-- Previews will be injected here via JS -->
+            </div>
+            <form id="chatSendForm" onsubmit="event.preventDefault(); sendChatMessage();" enctype="multipart/form-data" class="m-0">
+                <div class="input-group align-items-center">
+                    <button class="btn btn-dark text-secondary border-0 px-3 d-flex align-items-center justify-content-center" type="button" onclick="document.getElementById('chatAttachment').click();" style="background: #081D33; height: 46px;" title="Attach photos or documents">
+                        <i class="bi bi-paperclip fs-5"></i>
+                    </button>
+                    <input type="file" id="chatAttachment" class="d-none" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx" onchange="handleAttachmentSelect(this)">
+                    <input type="text" 
+                           class="form-control dark-filter-input border-0 px-3" 
+                           id="chatInput" 
+                           placeholder="Type your message to {{ $activeConversation['user']['name'] }}..." 
+                           autocomplete="off"
+                           style="background: #081D33 !important; font-size: 0.9rem; height: 46px; color: #FFFFFF !important;">
+                    <button class="btn btn-theme-primary px-4 d-inline-flex align-items-center gap-2 fw-semibold shadow-sm" type="submit" id="btnSendMessage" style="height: 46px;">
+                        <span>Send</span>
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        @else
+            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-secondary p-4 text-center">
+                <div class="rounded-circle p-4 mb-3" style="background: #0D243C; border: 1px solid rgba(255,255,255,0.08);">
+                    <i class="bi bi-chat-square-dots-fill text-success" style="font-size: 2.5rem;"></i>
+                </div>
+                <h5 class="text-white fw-bold mb-1">No Conversation Selected</h5>
+                <p class="small text-secondary mb-3" style="max-width: 320px;">Select a conversation from the left thread list or contact a seller on any listing to start chatting.</p>
+                <a href="{{ route('listings.index') }}" class="btn btn-theme-primary btn-sm px-4 py-2 rounded-pill">
+                    <i class="bi bi-search me-1"></i> Browse Marketplace
+                </a>
+            </div>
+        @endif
+    </div>
+
+</div>
 
 <!-- Full Screen Image Modal -->
 <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
