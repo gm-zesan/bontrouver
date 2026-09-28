@@ -72,7 +72,6 @@ class PromotionController extends Controller
             ->get();
 
         $quotaSettings = [
-            'free_listing_limit_per_user' => (int) site_setting('free_listing_limit_per_user', 5),
             'enable_listing_promotions' => (bool) site_setting('enable_listing_promotions', true),
             'auto_approve_listings' => (bool) site_setting('auto_approve_listings', true),
         ];
@@ -131,27 +130,96 @@ class PromotionController extends Controller
     }
 
     /**
-     * Update marketplace freemium listing quota and rules.
+     * Update marketplace policy and listing rules.
      */
     public function updateQuota(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'free_listing_limit_per_user' => ['required', 'integer', 'min:0'],
             'enable_listing_promotions' => ['nullable', 'boolean'],
             'auto_approve_listings' => ['nullable', 'boolean'],
         ]);
 
-        \App\Models\SiteSetting::set('free_listing_limit_per_user', $validated['free_listing_limit_per_user'], 'marketplace', 'number');
         \App\Models\SiteSetting::set('enable_listing_promotions', $request->boolean('enable_listing_promotions') ? '1' : '0', 'marketplace', 'boolean');
         \App\Models\SiteSetting::set('auto_approve_listings', $request->boolean('auto_approve_listings') ? '1' : '0', 'marketplace', 'boolean');
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Marketplace listing quota rules updated successfully.',
+                'message' => 'Marketplace policy rules updated successfully.',
             ]);
         }
 
-        return redirect()->route('admin.promotions.index')->with('success', 'Marketplace listing quota rules updated successfully.');
+        return redirect()->route('admin.promotions.index')->with('success', 'Marketplace policy rules updated successfully.');
+    }
+
+    /**
+     * Export listing promotions and revenue transactions ledger as a CSV file.
+     */
+    public function exportCsv(Request $request): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $query = ListingPromotion::with(['listing', 'user', 'package'])->latest();
+
+        if ($request->filled('type') && $request->type !== 'all') {
+            $query->where('type', $request->type);
+        }
+        if ($request->filled('payment_method') && $request->payment_method !== 'all') {
+            $query->where('payment_method', $request->payment_method);
+        }
+        if ($request->filled('payment_status') && $request->payment_status !== 'all') {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('transaction_reference', 'like', "%{$s}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%"))
+                    ->orWhereHas('listing', fn ($lq) => $lq->where('title', 'like', "%{$s}%"));
+            });
+        }
+
+        $promotions = $query->get();
+        $filename = 'bontrouver_boost_revenue_' . now()->format('Y-m-d_His') . '.csv';
+
+        return response()->streamDownload(function () use ($promotions) {
+            $handle = fopen('php://output', 'w');
+            fputs($handle, "\xEF\xBB\xBF"); // UTF-8 BOM
+            fputcsv($handle, [
+                'Transaction Ref',
+                'Date',
+                'Seller Name',
+                'Seller Email',
+                'Listing Title',
+                'Package Name',
+                'Type',
+                'Payment Method',
+                'CAD Paid ($)',
+                'Points Redeemed',
+                'Payment Status',
+                'Active Status',
+                'Expires At'
+            ]);
+
+            foreach ($promotions as $promo) {
+                fputcsv($handle, [
+                    $promo->transaction_reference ?? ('BT-' . $promo->id),
+                    $promo->created_at?->format('Y-m-d H:i:s') ?? '',
+                    $promo->user?->name ?? 'N/A',
+                    $promo->user?->email ?? 'N/A',
+                    $promo->listing?->title ?? 'N/A',
+                    $promo->package?->name ?? ucfirst($promo->type),
+                    ucfirst(str_replace('_', ' ', $promo->type)),
+                    ucfirst($promo->payment_method),
+                    number_format((float)$promo->price_paid, 2),
+                    (int)$promo->points_spent,
+                    ucfirst($promo->payment_status),
+                    $promo->is_active ? 'Active' : 'Expired',
+                    $promo->expires_at?->format('Y-m-d H:i:s') ?? 'N/A',
+                ]);
+            }
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 }

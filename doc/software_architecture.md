@@ -252,7 +252,12 @@ app/
 │   └── SearchQuery.php
 │
 ├── Notifications/
-│   └── SmartAlertTriggered.php
+│   ├── SmartAlertMatched.php
+│   ├── ListingBoostActivated.php
+│   ├── MeetupJoinRequested.php
+│   ├── MeetupAttendeeStatusUpdated.php
+│   ├── MeetupCancelled.php
+│   └── MemberTierUpgraded.php
 │
 ├── Observers/
 │   └── ListingObserver.php
@@ -267,6 +272,7 @@ app/
     ├── LocationService.php
     ├── AdminLocationService.php
     ├── AdminDashboardService.php
+    ├── AdminNotificationService.php
     ├── ListingService.php
     ├── ListingSearchService.php
     ├── ReputationService.php

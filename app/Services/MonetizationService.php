@@ -15,27 +15,12 @@ use Illuminate\Validation\ValidationException;
 class MonetizationService
 {
     /**
-     * Check if a user can create a free listing or has reached their free quota limit.
+     * Check if a user can create a listing.
+     * All listings on Bon Trouver are 100% free and unlimited.
      */
-    public function canCreateFreeListing(User $user): bool
+    public function canCreateFreeListing(?User $user = null): bool
     {
-        // Admins and dealers have unrestricted quotas
-        if ($user->isAdmin() || $user->is_dealer) {
-            return true;
-        }
-
-        $limit = (int) site_setting('free_listing_limit_per_user', 5);
-
-        // If limit is 0 or negative, quota is unlimited
-        if ($limit <= 0) {
-            return true;
-        }
-
-        $activeListingCount = $user->listings()
-            ->whereIn('status', [\App\Enums\ListingStatus::ACTIVE, \App\Enums\ListingStatus::PENDING_REVIEW])
-            ->count();
-
-        return $activeListingCount < $limit;
+        return true;
     }
 
     /**

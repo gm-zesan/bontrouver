@@ -168,6 +168,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Listing Promotions & Revenue Management Hub
     Route::prefix('promotions')->name('promotions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PromotionController::class, 'index'])->name('index');
+        Route::get('/export-csv', [\App\Http\Controllers\Admin\PromotionController::class, 'exportCsv'])->name('export-csv');
         Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PromotionController::class, 'updatePackage'])->name('packages.update');
         Route::put('/quota', [\App\Http\Controllers\Admin\PromotionController::class, 'updateQuota'])->name('quota.update');
     });
@@ -186,6 +187,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('meetups/{meetup}/update-status', [\App\Http\Controllers\Admin\MeetupController::class, 'updateStatus'])->name('meetups.updateStatus');
     Route::post('meetups/bulk', [\App\Http\Controllers\Admin\MeetupController::class, 'bulkAction'])->name('meetups.bulk');
     Route::delete('meetups/{meetup}/attendees/{attendee}', [\App\Http\Controllers\Admin\MeetupController::class, 'removeAttendee'])->name('meetups.attendees.remove');
+
+    // Dedicated Admin Notifications & Safety Queue Hub
+    Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
 
     // Safety & Abuse Reports Moderation Queue
     Route::resource('reports', \App\Http\Controllers\Admin\ReportController::class)->only(['index', 'show']);

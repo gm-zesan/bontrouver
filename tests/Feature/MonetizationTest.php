@@ -241,16 +241,14 @@ class MonetizationTest extends TestCase
         $this->assertDatabaseMissing('banner_ads', ['id' => $banner->id]);
     }
 
-    public function test_quota_service_checks_free_listing_limits(): void
+    public function test_all_listings_are_unlimited_and_free_for_all_users(): void
     {
-        SiteSetting::set('free_listing_limit_per_user', 2, 'marketplace', 'number');
-
         $monetizationService = app(MonetizationService::class);
 
-        // User currently has 1 active listing, limit is 2 -> can create
+        // Standard user has free listing access
         $this->assertTrue($monetizationService->canCreateFreeListing($this->user));
 
-        // Create 2nd active listing
+        // Create multiple active listings
         Listing::create([
             'user_id' => $this->user->id,
             'category_id' => $this->category->id,
@@ -262,23 +260,20 @@ class MonetizationTest extends TestCase
             'status' => ListingStatus::ACTIVE,
         ]);
 
-        // Now user has 2 listings, limit is 2 -> cannot create 3rd free listing
-        $this->assertFalse($monetizationService->canCreateFreeListing($this->user));
-
-        // Admin is unrestricted
+        // User can still create unlimited listings
+        $this->assertTrue($monetizationService->canCreateFreeListing($this->user));
         $this->assertTrue($monetizationService->canCreateFreeListing($this->admin));
     }
 
-    public function test_admin_can_update_marketplace_quota_settings(): void
+    public function test_admin_can_update_marketplace_policy_settings(): void
     {
         $response = $this->actingAs($this->admin)->put(route('admin.promotions.quota.update'), [
-            'free_listing_limit_per_user' => 8,
             'enable_listing_promotions' => '1',
             'auto_approve_listings' => '0',
         ]);
 
         $response->assertRedirect(route('admin.promotions.index'));
-        $this->assertEquals(8, (int) SiteSetting::get('free_listing_limit_per_user'));
+        $this->assertTrue(SiteSetting::get('enable_listing_promotions'));
         $this->assertFalse(SiteSetting::get('auto_approve_listings'));
     }
 

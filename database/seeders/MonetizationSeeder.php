@@ -86,24 +86,14 @@ class MonetizationSeeder extends Seeder
             );
         }
 
-        // 2. Listing Quota Site Settings
-        SiteSetting::updateOrCreate(
-            ['key' => 'free_listing_limit_per_user'],
-            [
-                'value' => '5',
-                'group' => 'marketplace',
-                'type' => 'number',
-                'description' => 'Maximum number of free active listings allowed per standard member before requiring paid promotion or listing upgrade.',
-            ]
-        );
-
+        // 2. Marketplace Policy Site Settings
         SiteSetting::updateOrCreate(
             ['key' => 'enable_listing_promotions'],
             [
                 'value' => '1',
                 'group' => 'marketplace',
                 'type' => 'boolean',
-                'description' => 'Global master switch to enable paid promotions, featured badges, and point redemptions.',
+                'description' => 'Global master switch to enable optional paid promotions, featured badges, and point redemptions.',
             ]
         );
 

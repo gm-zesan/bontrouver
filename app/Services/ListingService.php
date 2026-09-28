@@ -378,7 +378,7 @@ class ListingService
                 ]);
             }
 
-            \App\Models\ListingPromotion::create([
+            $promo = \App\Models\ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $featPkg?->id,
@@ -392,6 +392,12 @@ class ListingService
                 'expires_at'            => $now->copy()->addDays($featPkg?->duration_days ?? 7),
                 'is_active'             => true,
             ]);
+
+            if ($user && $featPkg) {
+                try {
+                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $featPkg, $promo));
+                } catch (\Throwable $e) {}
+            }
         }
 
         if ($isSponsored) {
@@ -412,7 +418,7 @@ class ListingService
                 ]);
             }
 
-            \App\Models\ListingPromotion::create([
+            $promo = \App\Models\ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $sponPkg?->id,
@@ -426,6 +432,12 @@ class ListingService
                 'expires_at'            => $now->copy()->addDays($sponPkg?->duration_days ?? 7),
                 'is_active'             => true,
             ]);
+
+            if ($user && $sponPkg) {
+                try {
+                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $sponPkg, $promo));
+                } catch (\Throwable $e) {}
+            }
         }
 
         if ($isBumped) {
@@ -446,7 +458,7 @@ class ListingService
                 ]);
             }
 
-            \App\Models\ListingPromotion::create([
+            $promo = \App\Models\ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $bumpPkg?->id,
@@ -460,6 +472,12 @@ class ListingService
                 'expires_at'            => null,
                 'is_active'             => true,
             ]);
+
+            if ($user && $bumpPkg) {
+                try {
+                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $bumpPkg, $promo));
+                } catch (\Throwable $e) {}
+            }
         }
 
         // If paid with Card (Stripe), initiate Stripe checkout session for seamless payment

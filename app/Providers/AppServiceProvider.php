@@ -47,5 +47,10 @@ class AppServiceProvider extends ServiceProvider
                 'currentLocationLabel'  => $label ?: 'All Canada',
             ]);
         });
+
+        View::composer('admin.includes.header', function ($view) {
+            $adminNotifications = app(\App\Services\AdminNotificationService::class)->getImportantNotifications();
+            $view->with('adminNotifications', $adminNotifications);
+        });
     }
 }

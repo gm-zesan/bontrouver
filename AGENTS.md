@@ -204,10 +204,15 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Methods: `SiteSetting::get(string $key, mixed $default = null)`, `SiteSetting::set(string $key, mixed $value, string $group = 'general', string $type = 'string')`, `SiteSetting::getAllGrouped()`, `SiteSetting::flushCache()`
 - Helpers: `site_setting(string $key, mixed $default = null)`
 
+### AdminNotificationService & Notifications Hub (`App\Services\AdminNotificationService`, `App\Http\Controllers\Admin\NotificationController`)
+- Aggregates high-priority admin alerts strictly for User Safety Reports and Canadian ID Verifications.
+- Integrated directly into the top navbar notification bell dropdown (`admin.includes.header`) with dynamic count badges and 1-click jump links.
+- Dedicated moderation hub at `/admin/notifications` (`notifications.index`) with category switcher tabs (All, Reports, Verifications), status filter (Pending, Resolved), search, pagination, and direct inspection links.
+
 ### StripeService & Monetization (`App\Services\StripeService`, `App\Services\MonetizationService`)
-- Real-time Stripe API charges & PaymentIntents (`createPaymentIntent`, `chargeCard`, `verifyWebhookSignature`).
-- Internal platform notifications: `ListingBoostActivated` dispatched upon boost activation.
-- Webhook Listener: `POST /webhook/stripe` (`App\Http\Controllers\StripeWebhookController`).
+- Real-time Stripe API charges, Checkout Sessions & PaymentIntents (`createCheckoutSession`, `createPaymentIntent`, `chargeCard`, `verifyWebhookSignature`).
+- Internal platform notifications: `ListingBoostActivated` dispatched upon boost activation to the user's database notification feed (`/notifications`).
+- Admin Revenue Hub: `/admin/promotions` with 30-day ApexCharts CAD revenue area chart, Boost tier share donut chart, package pricing & policy manager, live transaction audit ledger, and CSV ledger export (`GET /admin/promotions/export-csv`).
 
 ---
 

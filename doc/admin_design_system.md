@@ -177,3 +177,18 @@ window.showWarningModal("Selection Required", "Please select at least one item f
 window.showToast("Changes saved successfully.", false, "Success");
 window.showToast("An unexpected error occurred.", true, "Error");
 ```
+
+---
+
+## 5. Top Navbar, Important Admin Alerts Dropdown & Dedicated Notifications Hub
+- **Priority Bell Indicator**: Positioned in top navbar (`header.blade.php`), displays live badge count of items requiring immediate moderation action (`unresolved_reports + pending_verifications`).
+- **Data-Driven Dropdown**: Fed via `AdminNotificationService.php` with 2 core safety channels:
+  1. 🚨 **Safety Reports**: Unreviewed abuse/scam reports requiring moderator action (`/admin/reports`).
+  2. 🪪 **ID Verifications**: Canadian identity documents awaiting badge approval (`/admin/verifications`).
+- **Category Summary Chips**: Fast 1-click jump filters to individual moderation queues.
+- **Dedicated Notifications Hub (`/admin/notifications`)**:
+  - Full-featured notification center with metric cards (Urgent Actions, Safety Reports, ID Verifications, Moderated Archive).
+  - Category switcher tabs (All, Safety Reports, ID Verifications) with live counters.
+  - Status filter (Pending, Resolved, All) and live search bar.
+  - Paginated table with context preview, applicant/reporter metadata, and 1-click inspection actions.
+  - Accessible via sidebar navigation and dropdown footer link.

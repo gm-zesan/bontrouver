@@ -146,7 +146,7 @@
         </div>
     </div>
 
-    <!-- Freemium Listing Quota & Marketplace Rules -->
+    <!-- Marketplace & Monetization Policy (All Listings 100% Free) -->
     <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
         <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
@@ -154,12 +154,12 @@
                     <i class="ri-equalizer-line fs-5"></i>
                 </div>
                 <div>
-                    <h6 class="fw-bold mb-0 text-dark">Freemium Listing Quota & Marketplace Rules</h6>
-                    <small class="text-muted">Configure member posting capacity, monetization switches, and moderation approval thresholds</small>
+                    <h6 class="fw-bold mb-0 text-dark">Marketplace &amp; Monetization Policy</h6>
+                    <small class="text-muted">All listings on Bon Trouver are 100% free and unlimited. Configure boost monetization and moderation switches.</small>
                 </div>
             </div>
-            <span class="badge bg-light text-secondary border px-3 py-1 font-monospace" style="font-size: 11px;">
-                GROUP: MARKETPLACE
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 font-monospace" style="font-size: 11px;">
+                <i class="ri-checkbox-circle-fill me-1"></i> FREE UNLIMITED LISTINGS
             </span>
         </div>
         <div class="card-body p-4">
@@ -168,49 +168,20 @@
                 @method('PUT')
 
                 <div class="row g-4">
-                    {{-- 1. Free Listing Quota Limit --}}
-                    <div class="col-12 col-lg-4">
+                    {{-- 1. Monetization & Boosts Master Switch --}}
+                    <div class="col-12 col-lg-6">
                         <div class="border rounded-3 p-3 bg-light bg-opacity-50 h-100 d-flex flex-column justify-content-between" style="border-color: #e2e8f0 !important;">
                             <div>
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <label class="form-label small fw-semibold text-dark mb-0">
-                                        <i class="ri-shopping-bag-3-line text-primary me-1"></i> Free Active Listing Quota
-                                    </label>
-                                    <span class="badge bg-primary-subtle text-primary" style="font-size: 11px;">Per User</span>
-                                </div>
-                                <p class="text-muted small mb-3" style="font-size: 12px; line-height: 1.4;">
-                                    Max free active listings a standard member can maintain simultaneously.
-                                </p>
-                            </div>
-                            <div>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white text-muted border-end-0" style="border-color: #cbd5e1;">
-                                        <i class="ri-numbers-line"></i>
-                                    </span>
-                                    <input type="number" name="free_listing_limit_per_user" class="form-control" value="{{ $quotaSettings['free_listing_limit_per_user'] ?? 5 }}" min="0" required style="border-color: #cbd5e1; height: 38px; font-weight: 600;">
-                                    <span class="input-group-text bg-white text-muted small" style="border-color: #cbd5e1;">ads</span>
-                                </div>
-                                <div class="form-text small text-muted mt-1" style="font-size: 11px;">
-                                    <i class="ri-information-line text-info me-1"></i> Set to <strong>0</strong> for unlimited free listings.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 2. Monetization & Boosts Master Switch --}}
-                    <div class="col-12 col-lg-4">
-                        <div class="border rounded-3 p-3 bg-light bg-opacity-50 h-100 d-flex flex-column justify-content-between" style="border-color: #e2e8f0 !important;">
-                            <div>
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <label class="form-label small fw-semibold text-dark mb-0">
-                                        <i class="ri-rocket-line text-info me-1"></i> Listing Boosts &amp; Points
+                                        <i class="ri-rocket-line text-info me-1"></i> Listing Boosts &amp; Points Monetization
                                     </label>
                                     <span class="badge {{ !empty($quotaSettings['enable_listing_promotions']) ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border' }}" id="badge_promotions_status" style="font-size: 11px;">
                                         {{ !empty($quotaSettings['enable_listing_promotions']) ? 'Enabled' : 'Disabled' }}
                                     </span>
                                 </div>
                                 <p class="text-muted small mb-3" style="font-size: 12px; line-height: 1.4;">
-                                    Allow sellers to purchase paid boosts (CAD $) and redeem community aid points.
+                                    Allow sellers to purchase optional paid boosts (Sponsored, Featured, Bump-Up) and redeem community points.
                                 </p>
                             </div>
                             <div class="pt-2">
@@ -221,14 +192,14 @@
                                     <input class="form-check-input mt-0 ms-2" type="checkbox" name="enable_listing_promotions" id="enable_listing_promotions" value="1" {{ !empty($quotaSettings['enable_listing_promotions']) ? 'checked' : '' }} onchange="updateSwitchLabel(this, 'label_promotions_switch', 'badge_promotions_status', 'Monetization Active', 'Monetization Inactive')">
                                 </div>
                                 <div class="form-text small text-muted mt-1" style="font-size: 11px;">
-                                    Disabling temporarily hides all boost buttons from sellers.
+                                    Disabling temporarily hides all boost purchase options from sellers.
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- 3. Auto-Approval Moderation Policy --}}
-                    <div class="col-12 col-lg-4">
+                    {{-- 2. Auto-Approval Moderation Policy --}}
+                    <div class="col-12 col-lg-6">
                         <div class="border rounded-3 p-3 bg-light bg-opacity-50 h-100 d-flex flex-column justify-content-between" style="border-color: #e2e8f0 !important;">
                             <div>
                                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -240,7 +211,7 @@
                                     </span>
                                 </div>
                                 <p class="text-muted small mb-3" style="font-size: 12px; line-height: 1.4;">
-                                    Instantly publish new ads or hold in review queue for admin verification.
+                                    Instantly publish new classified ads or hold them in the moderation review queue for safety review.
                                 </p>
                             </div>
                             <div class="pt-2">
@@ -251,7 +222,7 @@
                                     <input class="form-check-input mt-0 ms-2" type="checkbox" name="auto_approve_listings" id="auto_approve_listings" value="1" {{ !empty($quotaSettings['auto_approve_listings']) ? 'checked' : '' }} onchange="updateSwitchLabel(this, 'label_approval_switch', 'badge_approval_status', 'Auto-Publish Active', 'Hold For Review', 'Instant Publish', 'Moderated')">
                                 </div>
                                 <div class="form-text small text-muted mt-1" style="font-size: 11px;">
-                                    When disabled, ads require approval in Listings manager.
+                                    When disabled, ads require manual approval in the Listings manager before appearing publicly.
                                 </div>
                             </div>
                         </div>
@@ -264,7 +235,7 @@
                         <i class="ri-shield-keyhole-line me-1 text-primary"></i> Changes apply immediately to all active members across Canada.
                     </div>
                     <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-1 shadow-sm" id="btnSaveQuota" style="height: 36px; font-weight: 500; font-size: 13px;">
-                        <i class="ri-save-line"></i> Save Quota Rules
+                        <i class="ri-save-line"></i> Save Policy Rules
                     </button>
                 </div>
             </form>
@@ -326,6 +297,11 @@
             <div>
                 <h6 class="fw-bold mb-0 text-dark"><i class="ri-file-list-3-line me-2 text-primary"></i>Listing Boost Audit & Transaction History</h6>
                 <small class="text-muted">Search, sort, and review all listing promotion purchases across Canada</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('admin.promotions.export-csv') }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 shadow-sm px-3" style="height: 34px; font-weight: 500; font-size: 13px;">
+                    <i class="ri-file-excel-2-line"></i> Export Revenue CSV
+                </a>
             </div>
         </div>
         <div class="card-body p-4">

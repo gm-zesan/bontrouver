@@ -23,15 +23,110 @@
         </div>
 
         <div class="d-flex align-items-center gap-3">
-            {{-- Notification Bell --}}
-            <div class="dropdown">
-                <a href="#" class="text-decoration-none position-relative text-secondary d-flex align-items-center justify-content-center"
-                   style="width: 34px; height: 34px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                    <i class="ri-notification-3-line" style="font-size: 18px;"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px;">
-                        3
-                    </span>
+            {{-- Important Admin Notifications Bell Dropdown --}}
+            @php
+                $notifData = $adminNotifications ?? [
+                    'urgent_count' => 0,
+                    'total_count' => 0,
+                    'items' => [],
+                    'stats' => ['unresolved_reports' => 0, 'pending_verifications' => 0]
+                ];
+                $urgentCount = $notifData['urgent_count'] ?? 0;
+                $notifItems = $notifData['items'] ?? [];
+            @endphp
+            <div class="dropdown position-relative">
+                <a href="javascript:void(0)" 
+                   class="dropdown-toggle text-decoration-none position-relative text-secondary d-flex align-items-center justify-content-center header-action-btn"
+                   id="adminNotificationDropdownBtn"
+                   data-bs-toggle="dropdown" 
+                   data-bs-auto-close="outside"
+                   aria-expanded="false"
+                   title="Important Alerts & Safety Queue"
+                   style="width: 34px; height: 34px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; transition: all 0.2s ease;">
+                    <i class="ri-notification-3-line" style="font-size: 18px; color: {{ $urgentCount > 0 ? '#ef4444' : '#64748b' }};"></i>
+                    @if($urgentCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white" 
+                              style="font-size: 9.5px; padding: 2px 5px; box-shadow: 0 0 0 1px #fff;">
+                            {{ $urgentCount > 99 ? '99+' : $urgentCount }}
+                        </span>
+                    @endif
                 </a>
+
+                <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0" 
+                     aria-labelledby="adminNotificationDropdownBtn"
+                     style="min-width: 360px; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.15), 0 4px 6px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px #e2e8f0; margin-top: 8px !important;">
+                    
+                    {{-- Dropdown Header --}}
+                    <div class="px-3 py-2 border-bottom d-flex align-items-center justify-content-between" style="background-color: #f8fafc;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-dark" style="font-size: 13.5px;">
+                                <i class="ri-notification-badge-line text-danger me-1"></i> Priority Alerts
+                            </span>
+                            @if($urgentCount > 0)
+                                <span class="badge bg-danger text-white rounded-pill px-2 py-0" style="font-size: 10px;">
+                                    {{ $urgentCount }} Action Required
+                                </span>
+                            @endif
+                        </div>
+                        <span class="text-muted small" style="font-size: 11px;">Admin Safety</span>
+                    </div>
+
+                    {{-- Category Summary Chips --}}
+                    <div class="px-3 py-2 bg-light border-bottom d-flex align-items-center justify-content-start gap-2" style="font-size: 11.5px;">
+                        <a href="{{ route('admin.reports.index') }}" class="text-decoration-none badge {{ ($notifData['stats']['unresolved_reports'] ?? 0) > 0 ? 'bg-danger-subtle text-danger border border-danger-subtle' : 'bg-white text-muted border' }} px-2 py-1 rounded">
+                            <i class="ri-alarm-warning-line me-1"></i> {{ $notifData['stats']['unresolved_reports'] ?? 0 }} Reports
+                        </a>
+                        <a href="{{ route('admin.verifications.index') }}" class="text-decoration-none badge {{ ($notifData['stats']['pending_verifications'] ?? 0) > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-white text-muted border' }} px-2 py-1 rounded">
+                            <i class="ri-shield-user-line me-1"></i> {{ $notifData['stats']['pending_verifications'] ?? 0 }} ID Verifications
+                        </a>
+                    </div>
+
+                    {{-- Notifications List Items --}}
+                    <div class="notification-items-container" style="max-height: 340px; overflow-y: auto;">
+                        @forelse($notifItems as $item)
+                            <a href="{{ $item['url'] }}" 
+                               class="d-flex align-items-start gap-2 px-3 py-2 text-decoration-none border-bottom notification-item-row"
+                               style="transition: background-color 0.15s ease; color: inherit; background-color: {{ ($item['priority'] ?? '') === 'high' ? '#fff9f9' : '#ffffff' }};">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1 {{ $item['bg_class'] }}" 
+                                     style="width: 32px; height: 32px;">
+                                    <i class="{{ $item['icon'] }} fs-6"></i>
+                                </div>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <span class="badge {{ $item['badge_class'] }}" style="font-size: 10px; padding: 2px 6px;">
+                                            {{ $item['badge'] }}
+                                        </span>
+                                        <span class="text-muted" style="font-size: 10.5px;">{{ $item['time'] }}</span>
+                                    </div>
+                                    <h6 class="fw-semibold text-dark mb-0 text-truncate" style="font-size: 12.5px;">
+                                        {{ $item['title'] }}
+                                    </h6>
+                                    <p class="text-muted small mb-0 text-truncate" style="font-size: 11.5px; line-height: 1.35;">
+                                        {{ $item['message'] }}
+                                    </p>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="text-center py-4 px-3">
+                                <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px;">
+                                    <i class="ri-checkbox-circle-line fs-4"></i>
+                                </div>
+                                <h6 class="fw-semibold text-dark mb-1" style="font-size: 13px;">All Caught Up!</h6>
+                                <p class="text-muted small mb-0" style="font-size: 11.5px;">No urgent safety reports or pending moderation requests.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    {{-- Dropdown Footer --}}
+                    <div class="px-3 py-2 bg-light border-top d-flex align-items-center justify-content-between" style="font-size: 12px;">
+                        <a href="{{ route('admin.notifications.index') }}" class="text-primary fw-semibold text-decoration-none d-inline-flex align-items-center gap-1">
+                            <i class="ri-notification-3-line"></i> View All Notifications
+                        </a>
+                        <a href="{{ route('admin.reports.index') }}" class="text-danger text-decoration-none d-inline-flex align-items-center gap-1">
+                            Reports Queue <i class="ri-arrow-right-s-line"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
 
             {{-- Profile Dropdown (Construction Style) --}}

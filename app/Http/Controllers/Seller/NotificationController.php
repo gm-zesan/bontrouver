@@ -73,6 +73,12 @@ class NotificationController extends Controller
                 $body = $dbNotif->data['message'] ?? "Congratulations! You have unlocked {$tierName} and exclusive community privileges.";
                 $action_url = $dbNotif->data['action_url'] ?? route('account.points');
                 $action_label = $dbNotif->data['action_label'] ?? 'View Perks & Points';
+            } elseif ($type === 'ListingBoostActivated') {
+                $icon = $dbNotif->data['icon'] ?? 'bi-rocket-takeoff-fill text-warning';
+                $title = $dbNotif->data['title'] ?? '🚀 Boost Activated';
+                $body = $dbNotif->data['message'] ?? 'Your listing has been successfully upgraded.';
+                $action_url = $dbNotif->data['action_url'] ?? route('listings.show', $dbNotif->data['listing_id'] ?? 1);
+                $action_label = $dbNotif->data['action_label'] ?? 'View Boosted Listing';
             }
 
             $formatted = [

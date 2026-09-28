@@ -151,9 +151,9 @@ Bon Trouver utilizes a hybrid Canadian marketplace monetization model designed f
    - **⚡ Instant Bump-Up**: 1-click execution that resets the listing's chronological position to the #1 spot in search results (`$1.99 CAD` or `60 pts`).
    - **Dual-Currency Unlock**: Users can pay directly with Canadian credit card (CAD $) or redeem earned Community Points (pts).
 
-2. **Freemium Listing Quotas & High-Volume Sellers**:
-   - Configurable free listing limit per user (default: `5` active free ads).
-   - High-volume sellers, auto dealers, and property managers upgrade their accounts or purchase listing bundles for unlimited active ad capacity.
+2. **100% Free Unlimited Listings for All Members**:
+   - All standard listings across all categories, Canadian cities, and provinces are 100% free with unlimited posting capacity.
+   - Zero freemium barriers or listing quotas; monetization is strictly powered by voluntary listing boost upgrades (Sponsored, Featured, Bump-Up) and local sponsor banner advertising.
 
 3. **Banner Advertising & Google AdSense / Programmatic**:
    - Dedicated Canadian sponsor slots across `search_sidebar`, `listing_detail_bottom`, `homepage_leaderboard`, and `community_sidebar`.

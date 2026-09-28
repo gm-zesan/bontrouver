@@ -30,6 +30,12 @@
                 <span class="link_names">Dashboard</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('admin.notifications.index') }}" class="{{ Route::is('admin.notifications.*') ? ' active-focus' : '' }}">
+                <i class="ri-notification-3-line"></i>
+                <span class="link_names">Notifications & Alerts</span>
+            </a>
+        </li>
 
         <!-- 2. Marketplace Management -->
         <li class="category-li">
