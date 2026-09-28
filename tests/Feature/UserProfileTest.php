@@ -453,4 +453,82 @@ class UserProfileTest extends TestCase
         $dismissReport->refresh();
         $this->assertEquals('dismissed', $dismissReport->status);
     }
+
+    public function test_user_can_upload_cover_image_and_extended_profile_details(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $coverFile = UploadedFile::fake()->image('cover.jpg', 1200, 400);
+
+        $response = $this->actingAs($user)->post(route('settings.update'), [
+            'name'            => 'Boutique Montreal',
+            'about_text'      => 'We sell high-end vintage items.',
+            'website_url'     => 'https://boutiquemontreal.ca',
+            'social_links'    => [
+                'facebook'  => 'https://facebook.com/boutiquemtl',
+                'instagram' => 'https://instagram.com/boutiquemtl',
+            ],
+            'operating_hours' => [
+                'monday' => '9:00 - 18:00',
+                'friday' => '9:00 - 20:00',
+            ],
+            'cover_image'     => $coverFile,
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('user_profiles', [
+            'user_id'     => $user->id,
+            'about_text'  => 'We sell high-end vintage items.',
+            'website_url' => 'https://boutiquemontreal.ca',
+        ]);
+
+        $profile = $user->fresh()->profile;
+        $this->assertNotNull($profile->cover_image_path);
+        $this->assertEquals('9:00 - 18:00', $profile->operating_hours['monday'] ?? null);
+        $this->assertEquals('https://facebook.com/boutiquemtl', $profile->social_links['facebook'] ?? null);
+    }
+
+    public function test_user_can_upload_and_delete_gallery_photos(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $galleryFile1 = UploadedFile::fake()->image('gallery1.jpg');
+        $galleryFile2 = UploadedFile::fake()->image('gallery2.jpg');
+
+        $uploadResponse = $this->actingAs($user)->post(route('settings.update'), [
+            'name'           => $user->name,
+            'gallery_images' => [$galleryFile1, $galleryFile2],
+        ]);
+
+        $uploadResponse->assertRedirect();
+        $this->assertCount(2, $user->fresh()->gallery);
+
+        $firstPhoto = $user->fresh()->gallery->first();
+
+        // Delete photo
+        $deleteResponse = $this->actingAs($user)->delete(route('settings.gallery.destroy', $firstPhoto));
+        $deleteResponse->assertRedirect();
+
+        $this->assertDatabaseMissing('user_galleries', ['id' => $firstPhoto->id]);
+        $this->assertCount(1, $user->fresh()->gallery);
+    }
+
+    public function test_user_cannot_delete_another_users_gallery_photo(): void
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $photo = \App\Models\UserGallery::create([
+            'user_id'    => $user1->id,
+            'image_path' => '/storage/galleries/test.jpg',
+            'sort_order' => 1,
+        ]);
+
+        $response = $this->actingAs($user2)->delete(route('settings.gallery.destroy', $photo));
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('user_galleries', ['id' => $photo->id]);
+    }
 }

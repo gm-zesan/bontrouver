@@ -6,9 +6,19 @@
             <!-- Left: Logo & Desktop Categories Mega-Menu -->
             <div class="d-flex align-items-center gap-2 gap-lg-3">
                 <!-- Logo -->
-                <a href="{{ url('/') }}" class="brand-logo" aria-label="Bontrouver Homepage">
-                    <span>BON<span class="accent">TROUVER</span></span>
-                </a>
+                @php
+                    $headerLogo = site_setting('site_logo_dark') ?? site_setting('site_logo_light');
+                    $siteBrandName = site_setting('site_name', 'Bontrouver');
+                @endphp
+                @if($headerLogo && Storage::disk('public')->exists($headerLogo))
+                    <a href="{{ url('/') }}" class="brand-logo d-inline-flex align-items-center" aria-label="{{ $siteBrandName }} Homepage">
+                        <img src="{{ Storage::url($headerLogo) }}" alt="{{ $siteBrandName }}" class="header-logo-img" style="max-height: 38px; width: auto; object-fit: contain;">
+                    </a>
+                @else
+                    <a href="{{ url('/') }}" class="brand-logo" aria-label="{{ $siteBrandName }} Homepage">
+                        <span>BON<span class="accent">TROUVER</span></span>
+                    </a>
+                @endif
 
                 <!-- Categories Mega-Dropdown (Desktop >= 992px) -->
                 <div class="desktop-categories-dropdown d-none d-lg-block" id="desktopCategoriesDropdown">

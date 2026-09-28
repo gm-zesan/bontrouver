@@ -5,12 +5,29 @@
         <div class="footer-main-grid">
             <!-- Column 1: Brand Info -->
             <div class="footer-brand-col">
-                <a href="{{ url('/') }}" class="brand-logo footer-logo" aria-label="Bontrouver Homepage">
-                    <span>BON<span class="accent">TROUVER</span></span>
-                </a>
+                @php
+                    $footerLogo = site_setting('site_logo_light') ?? site_setting('site_logo_dark');
+                    $siteBrandName = site_setting('site_name', 'Bontrouver');
+                    $siteTagline = site_setting('site_tagline', 'A local marketplace to buy, sell, discover, and connect with your community.');
+                    $socialTwitter = site_setting('social_twitter', 'https://twitter.com/bontrouver');
+                    $socialFacebook = site_setting('social_facebook', 'https://facebook.com/bontrouver');
+                    $socialInstagram = site_setting('social_instagram', 'https://instagram.com/bontrouver');
+                    $socialLinkedIn = site_setting('social_linkedin', 'https://linkedin.com/company/bontrouver');
+                    $footerCopyright = site_setting('footer_copyright', '© ' . date('Y') . ' ' . $siteBrandName . '. All rights reserved.');
+                @endphp
+
+                @if($footerLogo && Storage::disk('public')->exists($footerLogo))
+                    <a href="{{ url('/') }}" class="brand-logo footer-logo mb-2 d-inline-block" aria-label="{{ $siteBrandName }} Homepage">
+                        <img src="{{ Storage::url($footerLogo) }}" alt="{{ $siteBrandName }}" style="max-height: 36px; width: auto; object-fit: contain;">
+                    </a>
+                @else
+                    <a href="{{ url('/') }}" class="brand-logo footer-logo" aria-label="{{ $siteBrandName }} Homepage">
+                        <span>BON<span class="accent">TROUVER</span></span>
+                    </a>
+                @endif
                 
                 <p class="footer-brand-desc">
-                    A local marketplace to buy, sell, discover, and connect with your community.
+                    {{ $siteTagline }}
                 </p>
 
                 <!-- Location Moniker -->
@@ -22,11 +39,11 @@
 
             <!-- Column 2: BONTROUVER (Company) -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Bontrouver</h3>
+                <h3 class="footer-col-title">{{ $siteBrandName }}</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ url('/about') }}" class="footer-link">About</a></li>
                     <li><a href="{{ url('/member-benefits') }}" class="footer-link">Member Benefits</a></li>
-                    <li><a href="{{ url('/advertise') }}" class="footer-link">Advertise on Bontrouver</a></li>
+                    <li><a href="{{ url('/advertise') }}" class="footer-link">Advertise on {{ $siteBrandName }}</a></li>
                 </ul>
             </div>
 
@@ -56,7 +73,7 @@
                 <h3 class="footer-col-title">Support</h3>
                 <ul class="footer-links-list">
                     <li><a href="{{ url('/community-connect') }}" class="footer-link">Community Connect</a></li>
-                    <li><a href="{{ url('/fr') }}" class="footer-link">Bontrouver en Français</a></li>
+                    <li><a href="{{ url('/fr') }}" class="footer-link">{{ $siteBrandName }} en Français</a></li>
                     <li><a href="{{ url('/accessibility') }}" class="footer-link">Accessibility</a></li>
                 </ul>
             </div>
@@ -65,25 +82,33 @@
         <!-- Social Media Links (At the bottom, centered) -->
         <div class="footer-bottom-social">
             <div class="footer-social-links" aria-label="Social media channels">
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Facebook">
-                    <i class="bi bi-facebook" aria-hidden="true"></i>
-                </a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on Instagram">
-                    <i class="bi bi-instagram" aria-hidden="true"></i>
-                </a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow Bontrouver on X (formerly Twitter)">
-                    <i class="bi bi-twitter-x" aria-hidden="true"></i>
-                </a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Subscribe to Bontrouver on YouTube">
-                    <i class="bi bi-youtube" aria-hidden="true"></i>
-                </a>
+                @if($socialFacebook)
+                    <a href="{{ $socialFacebook }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on Facebook">
+                        <i class="bi bi-facebook" aria-hidden="true"></i>
+                    </a>
+                @endif
+                @if($socialInstagram)
+                    <a href="{{ $socialInstagram }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on Instagram">
+                        <i class="bi bi-instagram" aria-hidden="true"></i>
+                    </a>
+                @endif
+                @if($socialTwitter)
+                    <a href="{{ $socialTwitter }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on X">
+                        <i class="bi bi-twitter-x" aria-hidden="true"></i>
+                    </a>
+                @endif
+                @if($socialLinkedIn)
+                    <a href="{{ $socialLinkedIn }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on LinkedIn">
+                        <i class="bi bi-linkedin" aria-hidden="true"></i>
+                    </a>
+                @endif
             </div>
         </div>
 
         <!-- Bottom Footer Bar (Copyright & Legal) -->
         <div class="footer-bottom-bar">
             <div class="footer-copyright">
-                © {{ date('Y') }} Bontrouver. All rights reserved.
+                {{ $footerCopyright }}
             </div>
 
             <ul class="footer-legal-links" aria-label="Legal terms and conditions">

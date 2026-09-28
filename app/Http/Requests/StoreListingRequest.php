@@ -30,7 +30,7 @@ class StoreListingRequest extends FormRequest
             'show_approximate_location'  => ['nullable', 'boolean'],
             'delivery_options'           => ['nullable', 'array'],
             'contact_preference'         => ['nullable', 'array'],
-            'images'                     => ['nullable', 'array', 'max:10'],
+            'images'                     => ['nullable', 'array', 'max:' . site_setting('max_images_per_listing', 10)],
             'attributes'                 => ['nullable', 'array'],
             'promotions'                 => ['nullable', 'array'],
         ];

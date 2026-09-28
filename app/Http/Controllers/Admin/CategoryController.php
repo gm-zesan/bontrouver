@@ -81,7 +81,7 @@ class CategoryController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $attrBtn = '<a href="' . route('admin.categories.attributes.index', $row->id) . '" class="btn btn-sm btn-light border" style="padding: 4px 8px; background: #fff;" title="Manage Custom Attributes & Schema">
-                        <i class="ri-settings-5-line text-info" style="font-size: 14px;"></i>
+                        <i class="ri-equalizer-line text-primary" style="font-size: 14px;"></i>
                     </a>';
 
                     return '<div class="action-btn d-flex align-items-center justify-content-end gap-1">'

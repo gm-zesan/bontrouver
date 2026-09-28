@@ -271,6 +271,59 @@
                             </div>
                         </form>
                     </div>
+
+                    {{-- Public Storefront & Extended Profile Details --}}
+                    <div class="service-desc-box p-4 mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                            <h6 class="fw-bold mb-0" style="font-size: 15px; color: #1e293b;">Public Storefront & Profile Information</h6>
+                            <a href="{{ route('user.profile', $user->id) }}" target="_blank" class="btn btn-sm btn-outline-primary" style="font-size: 12px; border-radius: 6px;">
+                                <i class="ri-external-link-line me-1"></i> View Live Profile
+                            </a>
+                        </div>
+
+                        {{-- Cover Banner --}}
+                        @if(optional($user->profile)->cover_image_path)
+                            <div class="mb-3 rounded-3 overflow-hidden border" style="height: 120px; background: url('{{ $user->profile->cover_image_path }}') center/cover no-repeat;"></div>
+                        @endif
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <span class="text-muted small d-block">Bio Catchphrase:</span>
+                                <span class="fw-medium text-dark small">{{ $user->bio ?: 'None set' }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <span class="text-muted small d-block">Website:</span>
+                                @if(optional($user->profile)->website_url)
+                                    <a href="{{ $user->profile->website_url }}" target="_blank" class="small text-primary text-decoration-none">{{ $user->profile->website_url }}</a>
+                                @else
+                                    <span class="small text-muted">None set</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        @if(optional($user->profile)->about_text)
+                            <div class="mb-3">
+                                <span class="text-muted small d-block mb-1">About Section:</span>
+                                <div class="p-3 bg-light rounded small text-dark border" style="line-height: 1.6;">
+                                    {!! nl2br(e($user->profile->about_text)) !!}
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Photo Gallery Preview --}}
+                        @if(optional($user->gallery)->count() > 0)
+                            <div class="mt-3 pt-3 border-top">
+                                <span class="text-muted small d-block mb-2">Ambiance / Photo Gallery ({{ $user->gallery->count() }} photos):</span>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    @foreach($user->gallery as $galImg)
+                                        <a href="{{ $galImg->image_path }}" target="_blank">
+                                            <img src="{{ $galImg->image_path }}" class="rounded border object-fit-cover shadow-sm" style="width: 70px; height: 70px;">
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Listings Tab --}}

@@ -145,6 +145,8 @@ class UserController extends Controller
             'reportsGiven',
         ]);
 
+        $user->loadMissing(['profile', 'gallery']);
+
         $conversationsCount = \App\Models\Conversation::where('buyer_id', $user->id)
             ->orWhere('seller_id', $user->id)
             ->count();

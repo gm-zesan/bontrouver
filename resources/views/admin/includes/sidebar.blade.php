@@ -97,7 +97,7 @@
             <span class="link_names">System</span>
         </li>
         <li>
-            <a href="#" class="">
+            <a href="{{ route('admin.settings.index') }}" class="{{ Route::is('admin.settings.*') ? ' active-focus' : '' }}">
                 <i class="ri-settings-4-line"></i>
                 <span class="link_names">Site Settings</span>
             </a>

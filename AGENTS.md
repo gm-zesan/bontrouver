@@ -182,6 +182,11 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Fields: `query`, `hits_count`, `results_count`, `last_searched_at`
 - Methods: `SearchQuery::recordSearch(string $query, int $resultsCount)`, `SearchQuery::getTrendingKeywords(int $limit = 8)`
 
+### SiteSetting (`App\Models\SiteSetting`)
+- Fields: `key`, `value`, `group`, `type`, `description`
+- Methods: `SiteSetting::get(string $key, mixed $default = null)`, `SiteSetting::set(string $key, mixed $value, string $group = 'general', string $type = 'string')`, `SiteSetting::getAllGrouped()`, `SiteSetting::flushCache()`
+- Helpers: `site_setting(string $key, mixed $default = null)`
+
 ---
 
 ## 3. Code Standards & Development Rules

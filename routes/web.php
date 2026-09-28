@@ -102,6 +102,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings/edit', [SettingsController::class, 'index'])->name('profile.edit');
     Route::get('/account/points', [SettingsController::class, 'pointsLedger'])->name('account.points');
     Route::patch('/settings/auth', [SettingsController::class, 'updateAuth'])->name('profile.update');
+    Route::delete('/settings/gallery/{gallery}', [SettingsController::class, 'deleteGalleryPhoto'])->name('settings.gallery.destroy');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
 
     // 5. Canadian Identity Document Verification Center
@@ -198,6 +199,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'showProvince'])->name('provinces.show');
         Route::put('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'updateProvince'])->name('provinces.update');
         Route::post('/provinces/{province}/toggle-active', [\App\Http\Controllers\Admin\LocationController::class, 'toggleProvinceActive'])->name('provinces.toggleActive');
+    });
+
+    // Platform & Site Settings Management Hub
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('index');
+        Route::put('/', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('update');
     });
 });
 

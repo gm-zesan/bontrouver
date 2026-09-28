@@ -320,11 +320,11 @@ class ListingService
             'location_name' => $validated['neighbourhood'] ?? null,
             'latitude'      => $latitude,
             'longitude'     => $longitude,
-            'status'        => 'active',
+            'status'        => site_setting('auto_approve_listings', true) ? 'active' : 'pending_review',
             'views_count'   => 0,
             'is_featured'   => !empty($validated['promotions']['featured']),
             'is_sponsored'  => false,
-            'published_at'  => now(),
+            'published_at'  => site_setting('auto_approve_listings', true) ? now() : null,
         ]);
 
         // Save dynamic category attributes if provided

@@ -5,22 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')</title>
-    <meta name="description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
+    @php
+        $siteName = site_setting('site_name', 'Bon Trouver');
+        $defaultMetaTitle = site_setting('meta_title', 'Bon Trouver — Canadian Classifieds & Local Community Hub');
+        $defaultMetaDesc = site_setting('meta_description', 'Buy, sell, rent, and discover deals, jobs, services, and mutual aid meetups across Canadian cities on Bon Trouver.');
+        $defaultMetaKeywords = site_setting('meta_keywords', 'classifieds canada, canadian marketplace, buy sell montreal, toronto rentals, vancouver cars, calgary jobs, canadian community');
+        $geoRegion = site_setting('geo_region', 'CA');
+        $geoPlacename = site_setting('geo_placename', 'Canada');
+        $geoPosition = site_setting('geo_position', '45.5017;-73.5673');
+        $geoIcbm = str_replace(';', ', ', $geoPosition);
+        $siteFavicon = site_setting('site_favicon');
+        $siteOgImage = site_setting('og_default_image');
+        $resolvedOgImage = $siteOgImage ? Storage::url($siteOgImage) : url('/images/hero/hero-1.jpg');
+    @endphp
 
-    <!-- Open Graph / Facebook -->
+    <title>@yield('title', $title ?? $defaultMetaTitle)</title>
+    <meta name="description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
+    <meta name="keywords" content="@yield('meta_keywords', $defaultMetaKeywords)">
+    <link rel="canonical" href="@yield('canonical_url', request()->url())">
+
+    <!-- Canadian Regional Geo Tags -->
+    <meta name="geo.region" content="@yield('geo_region', $geoRegion)">
+    <meta name="geo.placename" content="@yield('geo_placename', $geoPlacename)">
+    <meta name="geo.position" content="@yield('geo_position', $geoPosition)">
+    <meta name="ICBM" content="@yield('geo_icbm', $geoIcbm)">
+    <meta name="coverage" content="Canada">
+    <meta name="target_country" content="ca">
+    <meta name="distribution" content="Global">
+    <meta name="rating" content="general">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow')">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ $siteFavicon ? Storage::url($siteFavicon) : asset('favicon.ico') }}">
+
+    <!-- Open Graph / Facebook (Canada Locale) -->
+    <meta property="og:site_name" content="{{ $siteName }}">
     <meta property="og:type" content="@yield('og_type', $ogType ?? 'website')">
-    <meta property="og:url" content="{{ request()->url() }}">
-    <meta property="og:title" content="@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')">
-    <meta property="og:description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
-    <meta property="og:image" content="@yield('og_image', $ogImage ?? asset('images/og-default.png'))">
+    <meta property="og:url" content="@yield('canonical_url', request()->url())">
+    <meta property="og:title" content="@yield('title', $title ?? $defaultMetaTitle)">
+    <meta property="og:description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
+    <meta property="og:image" content="@yield('og_image', $ogImage ?? $resolvedOgImage)">
+    <meta property="og:locale" content="en_CA">
+    <meta property="og:locale:alternate" content="fr_CA">
 
-    <!-- Twitter -->
+    <!-- Twitter Card -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request()->url() }}">
-    <meta property="twitter:title" content="@yield('title', $title ?? 'Bontrouver | Canadian Classifieds & Local Marketplace')">
-    <meta property="twitter:description" content="@yield('meta_description', $metaDescription ?? 'Buy, sell, and discover deals locally across Canada on Bontrouver.')">
-    <meta property="twitter:image" content="@yield('og_image', $ogImage ?? asset('images/og-default.png'))">
+    <meta property="twitter:url" content="@yield('canonical_url', request()->url())">
+    <meta property="twitter:title" content="@yield('title', $title ?? $defaultMetaTitle)">
+    <meta property="twitter:description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
+    <meta property="twitter:image" content="@yield('og_image', $ogImage ?? $resolvedOgImage)">
+
+    <!-- Canadian Marketplace Schema Markup (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+        "&#64;context": "https://schema.org",
+        "&#64;type": "WebSite",
+        "name": "{{ $siteName }}",
+        "url": "{{ url('/') }}",
+        "description": "{{ $defaultMetaDesc }}",
+        "inLanguage": ["en-CA", "fr-CA"],
+        "areaServed": {
+            "&#64;type": "Country",
+            "name": "Canada",
+            "identifier": "CA"
+        },
+        "potentialAction": {
+            "&#64;type": "SearchAction",
+            "target": "{{ url('/search') }}?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

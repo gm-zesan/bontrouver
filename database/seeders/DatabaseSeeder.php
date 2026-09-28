@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PointTransactionSeeder::class,
             VerificationSeeder::class,
             SearchQuerySeeder::class,
+            SiteSettingSeeder::class,
         ]);
     }
 }

@@ -119,6 +119,14 @@
                                 <i class="ri-node-tree"></i>
                             </button>
                         </div>
+
+                        {{-- Add Category Button (Temporarily Hidden from UI, functionality preserved) --}}
+                        <div class="border-start ps-2 d-none">
+                            <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm px-3" onclick="openCreateCategoryModal()" style="height: 34px; font-weight: 500;">
+                                <i class="ri-add-line fs-6"></i>
+                                <span>Add Category</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

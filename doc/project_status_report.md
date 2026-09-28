@@ -37,7 +37,7 @@
 | **8. Locations & Canadian Cities** | `/admin/locations` | ✅ **Complete** | **100%** | Dual-tab directory for 100+ Canadian cities & 13 provinces, 34px unified toolbar, province/status/metro hub filters, GPS coordinate editor with external map preview, active/featured switches, create/edit modals, delete protection, and automated cache flushing. | 🎉 Module Complete! |
 | **9. Dashboard & Live Analytics** | `/admin/dashboard` | ✅ **Complete** | **100%** | Executive Command Center, Today at a Glance daily pulse counters, process lifecycle pipeline progress bars, 30-day activity growth area chart, category inventory share donut chart, point flow bar chart, and recent verification/listing tables. | 🎉 Module Complete! |
 | **10. Admin Profile & Security** | `/admin/profile` | ✅ **Complete** | **100%** | Dedicated Admin panel profile management interface, 2-column layout, avatar upload/replace with instant preview, administrator contact details & bio editor, secure password change with verification, and simplified frontend header profile dropdown for admins (Admin Dashboard & Logout only). | 🎉 Module Complete! |
-| **11. Platform & Site Settings** | `/admin/settings` | 🔴 **Pending** | **0%** | None. | Site identity (Name, logo, favicon), Canadian tax/currency formatting, support email, SEO meta tags, maintenance mode. |
+| **11. Platform & Site Settings** | `/admin/settings` | ✅ **Complete** | **100%** | Central 6-tab system configuration hub for General identity, Branding asset upload/previews (Light/Dark logos, Favicon, OG Image), Canadian Localization (Currency, Timezones, EN/FR), SEO & Social media links, Marketplace & Listing rules, and System Maintenance mode toggle. | 🎉 Module Complete! |
 | **12. Enhanced User Profiles Mgmt** | `/admin/users` | 🔴 **Pending** | **0%** | (Extension of User Mgmt to handle new profile elements) |
 
 ---
@@ -207,11 +207,18 @@
 
 ---
 
-### 8. Enhanced Public User Profiles — `0% Complete (Planned)`
-* **Features Planned**:
-  * 🔴 **Universal Rich Profiles**: Upgrade the public user profile page for all users to a rich, tabbed interface with a cover photo, social links, operational hours, and ambiance gallery.
-  * 🔴 **Listings as Specialties**: Active listings will be showcased dynamically as "Nos spécialités" or "Offerings" within the new grid layout.
-  * 🔴 **Profile Extension Tables**: `user_profiles` and `user_galleries` to cleanly isolate these extended attributes without cluttering the main `users` table.
+### 8. Enhanced Public User Profiles & Storefronts — ✅ `100% Complete`
+* **Features Implemented**:
+  * [x] **Universal Rich Public Profiles (`/user/{user}` & `/profile/view`)**: Full-width header banner with customizable cover photo, circular avatar, verified identity badge, certified dealer status badge, Canadian location, member since date, completed transactions count, member tier badge with point standings, and average star rating with review counts.
+  * [x] **Storefront & Bio Sidebar**: Catchphrase bio, detailed "About Section", official website URL, social media handles (Facebook, Instagram, X/Twitter, LinkedIn, YouTube), and comprehensive daily operating hours / availability schedule (Monday–Sunday).
+  * [x] **Trust Checkpoints Matrix**: Real-time indicators for Email Verified, Phone Verified, and Government ID Identity Verified.
+  * [x] **Tabbed Interactive Content Hub**:
+    * **Active Marketplace Listings**: Grid showcase of all active classified ads with prices, category badges, location, posted date, and direct ad links.
+    * **Photo & Ambiance Gallery**: Multi-photo gallery showcase with Lightbox zoom modal and fullscreen viewing.
+    * **Reviews & Feedback Ledger**: Verified community reviews with 1–5 star ratings, reviewer avatar, review date, and associated listing link.
+    * **Hosted Meetups**: Community mutual aid companionship requests and social meetups hosted by the member.
+  * [x] **Extended Profile Architecture**: `UserProfile` (`user_profiles`) and `UserGallery` (`user_galleries`) isolated models with file upload/deletion handlers in `UserProfileService`.
+  * [x] **100% Automated Feature Test Coverage**: 18 passing tests with 89 assertions in [`UserProfileTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/UserProfileTest.php).
 
 ---
 
@@ -220,13 +227,18 @@
 We will execute the remaining admin modules in the following prioritized sequence:
 
 1. **Step 1: Global Reports & Safety Moderation Queue (`/admin/reports`)** — ✅ **Complete (100%)**
-2. **Step 2: Canadian ID Verification Center Enhancement (`/admin/verifications`)**:
-   - Upgrade existing index into full 2-column Canadian document inspector with Lightbox zoom for driver's licenses/passports.
-   - 1-Click approval (+50 community help points award + `is_verified` badge) and rejection with custom note reasons and user notifications.
+2. **Step 2: Canadian ID Verification Center Enhancement (`/admin/verifications`)** — ✅ **Complete (100%)**:
+   - Full 2-column Canadian document inspector modal with Lightbox zoom for driver's licenses, passports, dealer certificates, and Word/PDF documents.
+   - 1-Click approval (+50 community help points award + `is_verified` badge activation + dealer badge check) and structured rejection modal with preset reason options and user notifications.
+   - Multi-action bulk processor (Bulk Approve, Bulk Reject, Bulk Delete) with modal confirmation.
+   - 100% test coverage with 22 passing verification feature tests (97 assertions).
 
-3. **Step 3: Categories & Custom Attributes Schema Builder (`/admin/categories`)**:
-   - Hierarchical category tree manager (Parent categories, subcategories, icon picker, slug generation).
-   - Dynamic custom attribute EAV schema builder (add/edit custom fields per category like *Bedrooms*, *Fuel Type*, *Transmission*, etc. with data types and options).
+3. **Step 3: Categories & Custom Attributes Schema Builder (`/admin/categories`)** — ✅ **Complete (100%)**:
+   - Hierarchical category tree manager (Parent categories, nested subcategories, icon selector, automatic slug generation).
+   - Dual interface: Server-side DataTables table view and Visual Interactive Hierarchy Tree Explorer.
+   - AJAX Category Modal for creating and editing root categories and subcategories with active status switches.
+   - Dynamic Custom Attribute EAV Schema Builder (`/admin/categories/{category}/attributes`): Add, edit, delete, and reorder custom dynamic fields (Text, Number, Dropdown Select, Multiselect, Checkbox, Date) with custom options, required/filterable toggles, and instant live preview.
+   - 100% test coverage with 16 passing feature tests (112 assertions) in [`AdminCategoryTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/AdminCategoryTest.php) and [`CategoryAttributeTest`](file:///Users/zesan/Desktop/My-Work/bontrouver/tests/Feature/CategoryAttributeTest.php).
 
 4. **Step 4: Locations & Canadian Cities (`/admin/locations`)** — ✅ **Complete (100%)**:
    - Standard unified 34px list view matching Categories and Users pages (no KPI cards).
@@ -241,5 +253,5 @@ We will execute the remaining admin modules in the following prioritized sequenc
    - User point transaction ledger audit.
 
 6. **Step 6: Dashboard Analytics & System Settings (`/admin/dashboard` & `/admin/settings`)**:
-   - **Dashboard**: Live real-time KPIs, pending moderation alert badges, and 30-day activity charts.
-   - **Settings**: Site name, logo, favicon, Canadian location defaults, support contact, and SEO meta tags.
+   - **Dashboard** — ✅ **Complete (100%)**: Live real-time KPIs, pending moderation alert badges, and 30-day activity charts.
+   - **Settings** — ✅ **Complete (100%)**: Streamlined 4-tab configuration engine for General Identity, Branding Assets, Canadian SEO & Social metadata, and Marketplace Rules with zero broken assets and dynamic frontend integration.

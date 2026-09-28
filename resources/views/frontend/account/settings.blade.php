@@ -316,9 +316,15 @@
                 <h6 class="text-white fw-bold mb-3 small">Current Gallery Photos ({{ $user->gallery->count() }})</h6>
                 <div class="row g-3">
                     @foreach($user->gallery as $img)
-                        <div class="col-4 col-md-3 col-lg-2 position-relative">
+                        <div class="col-4 col-md-3 col-lg-2 position-relative group-gallery-item">
                             <img src="{{ $img->image_path }}" class="img-fluid rounded-3 object-fit-cover w-100 shadow-sm" style="height: 100px; border: 1px solid rgba(255,255,255,0.1);">
-                            <!-- Delete form would go here, maybe a small X button -->
+                            <form method="POST" action="{{ route('settings.gallery.destroy', $img->id) }}" class="position-absolute top-0 end-0 m-1" onsubmit="return confirm('Are you sure you want to remove this photo from your gallery?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm p-0 rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 24px; height: 24px; font-size: 11px;" title="Remove Photo">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
                         </div>
                     @endforeach
                 </div>

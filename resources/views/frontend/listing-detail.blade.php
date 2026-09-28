@@ -1,9 +1,62 @@
 @extends('frontend.layouts.app')
 
-@section('title', ($listing ? $listing['title'] . ' - Bontrouver' : 'Listing Unavailable - Bontrouver'))
-@section('meta_description', Str::limit(strip_tags($listing['description'] ?? 'Check out this listing on Bontrouver'), 155))
+@php
+    $listingCity = $listing['city'] ?? ($listing['location'] ?? 'Canada');
+    $listingProv = $listing['province'] ?? '';
+    $listingRegion = !empty($listing['province_code']) ? 'CA-' . $listing['province_code'] : 'CA';
+    $listingPlace = $listingCity . (!empty($listingProv) ? ', ' . $listingProv : '') . ', Canada';
+    $rawPrice = $listing['price'] ?? 0;
+@endphp
+
+@section('title', ($listing ? $listing['title'] . ' | ' . $listingCity . ' - ' . site_setting('site_name', 'Bon Trouver') : 'Listing Unavailable - ' . site_setting('site_name', 'Bon Trouver')))
+@section('meta_description', Str::limit(strip_tags($listing['description'] ?? ('Find ' . ($listing['title'] ?? 'classifieds') . ' in ' . $listingPlace . ' on Bon Trouver Canada.')), 155))
+@section('meta_keywords', ($listing['title'] ?? '') . ', ' . ($listing['category_name'] ?? '') . ', ' . $listingCity . ', ' . $listingProv . ', Canada classifieds, buy and sell canada')
+@section('geo_region', $listingRegion)
+@section('geo_placename', $listingPlace)
+@if(!empty($listing['latitude']) && !empty($listing['longitude']))
+@section('geo_position', $listing['latitude'] . ';' . $listing['longitude'])
+@section('geo_icbm', $listing['latitude'] . ', ' . $listing['longitude'])
+@endif
 @section('og_type', 'product')
-@section('og_image', !empty($listing['images'][0]['url']) ? $listing['images'][0]['url'] : asset('images/og-default.png'))
+@section('og_image', !empty($listing['images'][0]['url']) ? $listing['images'][0]['url'] : (!empty($listing['image']) ? $listing['image'] : asset('images/hero/hero-1.jpg')))
+
+@push('custom-script')
+@if($listing)
+<script type="application/ld+json">
+{
+    "@@context": "https://schema.org/",
+    "@@type": "Product",
+    "name": "{{ addslashes($listing['title']) }}",
+    "image": "{{ !empty($listing['images'][0]['url']) ? $listing['images'][0]['url'] : (!empty($listing['image']) ? $listing['image'] : url('/images/hero/hero-1.jpg')) }}",
+    "description": "{{ addslashes(Str::limit(strip_tags($listing['description'] ?? ''), 250)) }}",
+    "category": "{{ addslashes($listing['category_name'] ?? 'Classifieds') }}",
+    "offers": {
+        "@@type": "Offer",
+        "url": "{{ url()->current() }}",
+        "priceCurrency": "CAD",
+        "price": "{{ $rawPrice }}",
+        "priceValidUntil": "{{ now()->addDays(60)->toDateString() }}",
+        "itemCondition": "https://schema.org/UsedCondition",
+        "availability": "https://schema.org/InStock",
+        "seller": {
+            "@@type": "Person",
+            "name": "{{ addslashes($listing['seller']['name'] ?? 'Seller') }}"
+        },
+        "areaServed": {
+            "@@type": "Place",
+            "name": "{{ addslashes($listingPlace) }}",
+            "address": {
+                "@@type": "PostalAddress",
+                "addressLocality": "{{ addslashes($listingCity) }}",
+                "addressRegion": "{{ addslashes($listingProv) }}",
+                "addressCountry": "CA"
+            }
+        }
+    }
+}
+</script>
+@endif
+@endpush
 
 @section('content')
     <div class="listing-detail-page">

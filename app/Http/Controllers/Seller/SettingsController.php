@@ -152,6 +152,26 @@ class SettingsController extends Controller
     }
 
     /**
+     * Delete a single photo from the user's ambiance gallery.
+     */
+    public function deleteGalleryPhoto(Request $request, \App\Models\UserGallery $gallery): RedirectResponse
+    {
+        if ($gallery->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Remove from disk if stored locally
+        if (str_starts_with($gallery->image_path, '/storage/')) {
+            $relative = str_replace('/storage/', '', $gallery->image_path);
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($relative);
+        }
+
+        $gallery->delete();
+
+        return redirect()->back()->with('status', 'Gallery photo removed successfully.');
+    }
+
+    /**
      * Delete the user's account.
      */
     public function destroy(Request $request): RedirectResponse
