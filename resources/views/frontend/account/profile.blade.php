@@ -48,7 +48,7 @@
                 <div style="height: 150px; width: 100%; background: linear-gradient(135deg, #081D33 0%, #153A61 100%);"></div>
             @endif
 
-            <div class="p-4 p-md-4 position-relative" style="margin-top: -60px;">
+            <div class="p-4 p-md-4 position-relative">
                 <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-4">
                     <div class="d-flex align-items-end gap-3 gap-md-4 min-w-0">
                         <!-- Large Avatar -->
@@ -56,10 +56,10 @@
                             @if($user->avatar)
                                 <img src="{{ $user->avatar }}" alt="{{ $user->name }}"
                                     class="rounded-circle object-fit-cover shadow-lg bg-dark"
-                                    style="width: 120px; height: 120px; border: 4px solid #0D243C;">
+                                    style="width: 140px; height: 140px; border: 4px solid #0D243C;">
                             @else
                                 <div class="rounded-circle shadow-lg d-flex align-items-center justify-content-center text-dark fw-bold"
-                                    style="width: 120px; height: 120px; background: #49D17D; border: 4px solid #0D243C; font-size: 3rem;">
+                                    style="width: 140px; height: 140px; background: #49D17D; border: 4px solid #0D243C; font-size: 3rem;">
                                     {{ substr($user->name ?? 'U', 0, 1) }}
                                 </div>
                             @endif
@@ -84,7 +84,7 @@
                                 @endif
                             </div>
 
-                            <div class="d-flex align-items-center gap-2 text-secondary small mb-3 flex-wrap"
+                            <div class="d-flex align-items-center gap-2 text-secondary small mb-2 flex-wrap"
                                 style="font-size: 0.85rem;">
                                 <span><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $userLocation }}</span>
                                 <span>•</span>
@@ -116,7 +116,7 @@
                             </div>
 
                             @if(!empty($user->bio) || !empty($user->profile?->about_text))
-                                <div class="text-secondary small mt-3 mb-0" style="max-width: 650px; line-height: 1.5;">
+                                <div class="text-secondary small mt-2 mb-0" style="max-width: 650px; line-height: 1.5;">
                                     {{ $user->profile?->about_text ?? $user->bio }}
                                 </div>
                             @endif
@@ -153,38 +153,41 @@
 
         <div class="row g-4">
 
-            <!-- RIGHT COLUMN: Tabs and Content -->
+            <!-- Tabs and Content -->
             <div class="col-12">
                 <!-- 2. Profile Tabs Navigation -->
-                <div class="dark-surface-card p-3 mb-4 rounded-4"
-                    style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="dark-surface-card p-2 p-md-3 mb-4 rounded-4"
+                    style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
                     <ul class="nav nav-pills gap-2 flex-wrap" id="profileTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-pill px-4 py-2 small fw-semibold" id="listings-tab"
+                            <button class="nav-link profile-tab-pill active rounded-pill px-4 py-2 small fw-semibold" id="listings-tab"
                                 data-bs-toggle="pill" data-bs-target="#listings-content" type="button" role="tab">
                                 <i class="bi bi-collection-play me-1"></i> Active Listings
-                                ({{ count($userListings ?? []) }})
+                                <span class="profile-tab-badge ms-1">({{ count($userListings ?? []) }})</span>
                             </button>
                         </li>
                         @if(optional($user->gallery)->count() > 0)
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="gallery-tab"
+                                <button class="nav-link profile-tab-pill rounded-pill px-4 py-2 small fw-semibold" id="gallery-tab"
                                     data-bs-toggle="pill" data-bs-target="#gallery-content" type="button" role="tab">
-                                    <i class="bi bi-images me-1"></i> Photo Gallery ({{ $user->gallery->count() }})
+                                    <i class="bi bi-images me-1"></i> Photo Gallery 
+                                    <span class="profile-tab-badge ms-1">({{ $user->gallery->count() }})</span>
                                 </button>
                             </li>
                         @endif
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="reviews-tab"
+                            <button class="nav-link profile-tab-pill rounded-pill px-4 py-2 small fw-semibold" id="reviews-tab"
                                 data-bs-toggle="pill" data-bs-target="#reviews-content" type="button" role="tab">
-                                <i class="bi bi-star me-1"></i> Reviews & Feedback ({{ count($reviews ?? []) }})
+                                <i class="bi bi-star me-1"></i> Reviews &amp; Feedback 
+                                <span class="profile-tab-badge ms-1">({{ count($reviews ?? []) }})</span>
                             </button>
                         </li>
                         @if(isset($hostedMeetups) && $hostedMeetups->count() > 0)
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill px-4 py-2 small fw-semibold" id="meetups-tab"
+                                <button class="nav-link profile-tab-pill rounded-pill px-4 py-2 small fw-semibold" id="meetups-tab"
                                     data-bs-toggle="pill" data-bs-target="#meetups-content" type="button" role="tab">
-                                    <i class="bi bi-people me-1"></i> Hosted Meetups ({{ $hostedMeetups->count() }})
+                                    <i class="bi bi-people me-1"></i> Hosted Meetups 
+                                    <span class="profile-tab-badge ms-1">({{ $hostedMeetups->count() }})</span>
                                 </button>
                             </li>
                         @endif
@@ -519,7 +522,7 @@
                 <script>
                     function submitUserReport() {
                         @guest
-                                    if (typeof showToast === 'function') {
+                                                                                                    if (typeof showToast === 'function') {
                                 showToast('Please log in to submit a moderation report.', 'warning');
                             } else {
                                 alert('Please log in to submit a moderation report.');
@@ -528,7 +531,7 @@
                             return;
                         @endguest
 
-                            const reasonEl = document.getElementById('reportUserReason');
+                                                                            const reasonEl = document.getElementById('reportUserReason');
                         const detailsEl = document.getElementById('reportUserDetails');
                         const submitBtn = document.getElementById('submitUserReportBtn');
                         const modalEl = document.getElementById('reportUserModal');
@@ -595,4 +598,58 @@
                     }
                 </script>
             @endif
+
+    <style>
+        /* Profile Tabs Navigation - Bon Trouver Theme */
+        #profileTabs .profile-tab-pill {
+            background: rgba(255, 255, 255, 0.04) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: #94A3B8 !important;
+            font-size: 0.88rem;
+            letter-spacing: 0.2px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        #profileTabs .profile-tab-pill:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #FFFFFF !important;
+            border-color: rgba(73, 209, 125, 0.35) !important;
+            transform: translateY(-1px);
+        }
+
+        #profileTabs .profile-tab-pill.active {
+            background: linear-gradient(135deg, #49D17D 0%, #34D399 100%) !important;
+            color: #06182B !important;
+            border-color: #49D17D !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 15px rgba(73, 209, 125, 0.35) !important;
+        }
+
+        #profileTabs .profile-tab-pill.active i {
+            color: #06182B !important;
+        }
+
+        #profileTabs .profile-tab-pill .profile-tab-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.08);
+            color: #94A3B8;
+            padding: 1px 7px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #profileTabs .profile-tab-pill:hover .profile-tab-badge {
+            color: #FFFFFF;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        #profileTabs .profile-tab-pill.active .profile-tab-badge {
+            background: rgba(6, 24, 43, 0.2) !important;
+            color: #06182B !important;
+            font-weight: 700;
+        }
+    </style>
 @endsection

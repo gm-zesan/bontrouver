@@ -92,7 +92,7 @@
         </div>
 
         <!-- 3. Listings Container & Cards -->
-        <div id="listingsListContainer" class="d-flex flex-column gap-3 mt-4 pt-1">
+        <div id="listingsListContainer" class="d-flex flex-column gap-3 mt-3 pt-1">
             @include('frontend.partials.my-listings-items', ['listings' => $listings])
         </div>
 

@@ -8,7 +8,7 @@
 
 <div class="account-sidebar-dark card border-0 rounded-4 mb-4">
     <!-- User Avatar & Identity Header -->
-    <div class="card-body p-4 text-center border-bottom border-secondary border-opacity-25">
+    <div class="card-body px-4 py-2 border-bottom border-secondary border-opacity-25 d-flex align-items-center gap-3">
         <a href="{{ route('profile.view') }}" class="text-decoration-none d-inline-block position-relative mb-2">
             @if(Auth::user()->avatar ?? false)
                 <img src="{{ Auth::user()->avatar }}" alt="{{ Auth::user()->name }}"
@@ -21,14 +21,16 @@
                 </div>
             @endif
         </a>
-        <h6 class="fw-bold text-white mb-0 text-truncate">
-            <a href="{{ route('profile.view') }}" class="text-decoration-none text-white hover-brand-green">
-                {{ Auth::user()->name ?? 'Marketplace User' }}
-            </a>
-        </h6>
-        <div class="small text-secondary mb-2 mt-1">
-            <span><i
-                    class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?: (Auth::user()->city ? (Auth::user()->city . (Auth::user()->province ? ', ' . Auth::user()->province : '')) : 'Canada') }}</span>
+        <div>
+            <h6 class="fw-bold text-white mb-0 text-truncate">
+                <a href="{{ route('profile.view') }}" class="text-decoration-none text-white hover-brand-green">
+                    {{ Auth::user()->name ?? 'Marketplace User' }}
+                </a>
+            </h6>
+            <div class="small text-secondary mb-2 mt-1">
+                <span><i
+                        class="bi bi-geo-alt-fill text-danger me-1"></i>{{ Auth::user()->location ?: (Auth::user()->city ? (Auth::user()->city . (Auth::user()->province ? ', ' . Auth::user()->province : '')) : 'Canada') }}</span>
+            </div>
         </div>
 
     </div>
@@ -95,7 +97,9 @@
                 class="account-dark-nav-item {{ $currentRoute === 'points' ? 'active' : '' }}">
                 <i class="bi bi-coin"></i>
                 <span class="flex-grow-1">Points & Standing</span>
-                <span class="badge bg-success-subtle text-success rounded-pill">{{ number_format(Auth::user()->community_points ?? 0) }} pts</span>
+                <span
+                    class="badge bg-success-subtle text-success rounded-pill">{{ number_format(Auth::user()->community_points ?? 0) }}
+                    pts</span>
             </a>
 
             <a href="{{ url('/settings') }}"

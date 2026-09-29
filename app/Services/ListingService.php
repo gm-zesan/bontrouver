@@ -329,13 +329,32 @@ class ListingService
         $isBumped = false;
 
         if (is_array($promotions)) {
-            $isFeatured = in_array('featured', $promotions) || !empty($promotions['featured']);
-            $isSponsored = in_array('sponsored', $promotions) || !empty($promotions['sponsored']);
-            $isBumped = in_array('bump_up', $promotions) || in_array('bump', $promotions) || !empty($promotions['bump_up']) || !empty($promotions['bump']);
+            foreach ($promotions as $k => $v) {
+                $identifier = is_numeric($k) ? $v : $k;
+                if (is_numeric($identifier)) {
+                    $pkg = PromotionPackage::find((int)$identifier);
+                    if ($pkg) {
+                        if ($pkg->type === 'featured') $isFeatured = true;
+                        if ($pkg->type === 'sponsored') $isSponsored = true;
+                        if ($pkg->type === 'bump_up') $isBumped = true;
+                    }
+                } elseif (is_string($identifier)) {
+                    if ($identifier === 'featured' && !empty($v)) $isFeatured = true;
+                    elseif ($identifier === 'sponsored' && !empty($v)) $isSponsored = true;
+                    elseif (in_array($identifier, ['bump_up', 'bump']) && !empty($v)) $isBumped = true;
+                }
+            }
         } elseif (is_string($promotions)) {
             $isFeatured = $promotions === 'featured';
             $isSponsored = $promotions === 'sponsored';
             $isBumped = in_array($promotions, ['bump_up', 'bump']);
+        } elseif (is_numeric($promotions)) {
+            $pkg = PromotionPackage::find((int)$promotions);
+            if ($pkg) {
+                if ($pkg->type === 'featured') $isFeatured = true;
+                if ($pkg->type === 'sponsored') $isSponsored = true;
+                if ($pkg->type === 'bump_up') $isBumped = true;
+            }
         }
 
         $now = now();

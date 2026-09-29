@@ -1,5 +1,5 @@
 @foreach($listings as $item)
-    <div class="dark-surface-card listing-manage-card mb-3" 
+    <div class="dark-surface-card listing-manage-card" 
          data-id="{{ $item['id'] }}" 
          data-status="{{ $item['status'] }}" 
          data-category="{{ $item['category'] }}" 
