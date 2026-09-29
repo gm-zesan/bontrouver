@@ -79,14 +79,35 @@ class ListingPromotionController extends Controller
             abort(403, 'Unauthorized to promote this listing.');
         }
 
-        $package = PromotionPackage::findOrFail($request->validated('package_id'));
+        $packageIds = $request->input('package_ids');
+        if (empty($packageIds) && $request->input('package_id')) {
+            $packageIds = [$request->input('package_id')];
+        }
+
+        if (empty($packageIds)) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Please select at least one promotion package.'], 422);
+            }
+            return back()->with('error', 'Please select at least one promotion package.');
+        }
+
+        $packages = PromotionPackage::whereIn('id', (array) $packageIds)->get();
+        if ($packages->isEmpty()) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Selected promotion packages not found.'], 422);
+            }
+            return back()->with('error', 'Selected promotion packages not found.');
+        }
+
         $paymentMethod = $request->validated('payment_method');
 
         // 1. Stripe Card Checkout (Redirected Hosted Page)
         if ($paymentMethod === 'stripe') {
+            $packageIdsList = $packages->pluck('id')->toArray();
             $successUrl = route('listings.promote.success', [
                 'listing' => $listing->id,
-                'package_id' => $package->id,
+                'package_ids' => implode(',', $packageIdsList),
+                'package_id' => $packageIdsList[0],
             ]);
             $cancelUrl = route('listings.promote.show', [
                 'listing' => $listing->id,
@@ -95,7 +116,7 @@ class ListingPromotionController extends Controller
 
             $session = $this->stripeService->createCheckoutSession(
                 listing: $listing,
-                package: $package,
+                package: $packages->all(),
                 user: auth()->user(),
                 successUrl: $successUrl,
                 cancelUrl: $cancelUrl
@@ -123,20 +144,33 @@ class ListingPromotionController extends Controller
         }
 
         // 2. Points Redemption
-        $promotion = $this->monetizationService->promoteListing(
-            listing: $listing,
-            package: $package,
-            user: auth()->user(),
-            paymentMethod: $paymentMethod
-        );
+        $totalPoints = $packages->sum('point_cost');
+        if (auth()->user()->community_points < $totalPoints) {
+            $err = "You have " . auth()->user()->community_points . " points, but {$totalPoints} points are required.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $err], 422);
+            }
+            throw \Illuminate\Validation\ValidationException::withMessages(['points' => $err]);
+        }
 
-        $message = "Listing successfully boosted with {$package->name}!";
+        $promotions = [];
+        foreach ($packages as $pkg) {
+            $promotions[] = $this->monetizationService->promoteListing(
+                listing: $listing,
+                package: $pkg,
+                user: auth()->user(),
+                paymentMethod: $paymentMethod
+            );
+        }
+
+        $names = $packages->pluck('name')->join(', ');
+        $message = "Listing successfully boosted with {$names}!";
 
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => $message,
-                'promotion' => $promotion,
+                'promotions' => $promotions,
                 'listing' => $listing->fresh(),
             ]);
         }
@@ -155,16 +189,8 @@ class ListingPromotionController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $packageId = $request->get('package_id');
         $sessionId = $request->get('session_id');
-
-        $package = PromotionPackage::find($packageId);
-        if (!$package) {
-            return redirect()->route('listings.show', $listing->slug ?? $listing->id)
-                ->with('error', 'Promotion package not found.');
-        }
-
-        // Verify session status
+        $session = null;
         if ($sessionId) {
             $session = $this->stripeService->retrieveCheckoutSession($sessionId);
             if (!$session || ($session['payment_status'] !== 'paid' && ($session['status'] ?? '') !== 'complete')) {
@@ -173,24 +199,60 @@ class ListingPromotionController extends Controller
             }
         }
 
-        // Apply promotion if not already recorded for this session
-        $existing = \App\Models\ListingPromotion::where('transaction_reference', 'BT-STRIPE-' . ($sessionId ?? ''))->first();
-        if (!$existing) {
-            try {
-                $this->monetizationService->promoteListing(
-                    listing: $listing,
-                    package: $package,
-                    user: auth()->user(),
-                    paymentMethod: 'stripe',
-                    transactionRef: 'BT-STRIPE-' . ($sessionId ?? strtoupper(uniqid()))
-                );
-            } catch (\Illuminate\Validation\ValidationException $e) {
-                // If already active or cooldown in effect, ignore
+        // Collect all package IDs (from request or Stripe session metadata)
+        $rawPackageIds = $request->get('package_ids')
+            ?? ($session['metadata']['package_ids'] ?? null)
+            ?? $request->get('package_id')
+            ?? ($session['metadata']['package_id'] ?? null);
+
+        $packageIds = is_array($rawPackageIds)
+            ? $rawPackageIds
+            : array_filter(explode(',', (string) $rawPackageIds));
+
+        $packages = PromotionPackage::whereIn('id', $packageIds)->get();
+        if ($packages->isEmpty() && $request->get('package_id')) {
+            $single = PromotionPackage::find($request->get('package_id'));
+            if ($single) {
+                $packages = collect([$single]);
             }
         }
 
+        if ($packages->isEmpty()) {
+            return redirect()->route('listings.show', $listing->slug ?? $listing->id)
+                ->with('error', 'Promotion package not found.');
+        }
+
+        // Apply all promotions if not already recorded
+        $appliedNames = [];
+        foreach ($packages as $pkg) {
+            $txRef = 'BT-STRIPE-' . ($sessionId ? ($sessionId . '-' . $pkg->id) : strtoupper(uniqid()));
+            $existing = \App\Models\ListingPromotion::where('listing_id', $listing->id)
+                ->where('promotion_package_id', $pkg->id)
+                ->where('transaction_reference', 'LIKE', 'BT-STRIPE-' . ($sessionId ?? 'NOTFOUND') . '%')
+                ->first();
+
+            if (!$existing) {
+                try {
+                    $this->monetizationService->promoteListing(
+                        listing: $listing,
+                        package: $pkg,
+                        user: auth()->user(),
+                        paymentMethod: 'stripe',
+                        transactionRef: $txRef
+                    );
+                    $appliedNames[] = $pkg->name;
+                } catch (\Illuminate\Validation\ValidationException $e) {
+                    // If already active or cooldown in effect, ignore
+                }
+            } else {
+                $appliedNames[] = $pkg->name;
+            }
+        }
+
+        $namesStr = !empty($appliedNames) ? implode(', ', $appliedNames) : $packages->pluck('name')->join(', ');
+
         return redirect()->route('listings.show', $listing->slug ?? $listing->id)
-            ->with('success', "🎉 Payment successful! Your listing \"{$listing->title}\" has been upgraded with {$package->name}.");
+            ->with('success', "🎉 Payment successful! Your listing \"{$listing->title}\" has been upgraded with {$namesStr}.");
     }
 
     /**

@@ -485,28 +485,32 @@ class ListingService
         }
 
         // If paid with Card (Stripe), initiate Stripe checkout session for seamless payment
-        $selectedPkg = null;
+        $selectedPackages = [];
         if ($isSponsored) {
-            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
                 ['type' => 'sponsored'],
                 ['name' => 'Sponsored Spotlight', 'slug' => 'sponsored-spotlight', 'price' => 9.99, 'point_cost' => 300, 'duration_days' => 7, 'is_active' => true]
             );
-        } elseif ($isFeatured) {
-            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+        }
+        if ($isFeatured) {
+            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
                 ['type' => 'featured'],
                 ['name' => 'Featured Highlight', 'slug' => 'featured-highlight', 'price' => 4.99, 'point_cost' => 150, 'duration_days' => 7, 'is_active' => true]
             );
-        } elseif ($isBumped) {
-            $selectedPkg = \App\Models\PromotionPackage::firstOrCreate(
+        }
+        if ($isBumped) {
+            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
                 ['type' => 'bump_up'],
                 ['name' => 'Instant Bump-Up', 'slug' => 'instant-bump-up', 'price' => 1.99, 'point_cost' => 60, 'duration_days' => 1, 'is_active' => true]
             );
         }
 
-        if ($paymentMethod === 'card' && $selectedPkg) {
+        if ($paymentMethod === 'card' && !empty($selectedPackages)) {
+            $packageIds = array_map(fn($p) => $p->id, $selectedPackages);
             $successUrl = route('listings.promote.success', [
                 'listing' => $listing->id,
-                'package_id' => $selectedPkg->id,
+                'package_ids' => implode(',', $packageIds),
+                'package_id' => $selectedPackages[0]->id,
             ]);
             $cancelUrl = route('listings.show', [
                 'idOrSlug' => $listing->slug ?? $listing->id,
@@ -515,7 +519,7 @@ class ListingService
 
             $session = $this->stripeService->createCheckoutSession(
                 listing: $listing,
-                package: $selectedPkg,
+                package: $selectedPackages,
                 user: $user,
                 successUrl: $successUrl,
                 cancelUrl: $cancelUrl

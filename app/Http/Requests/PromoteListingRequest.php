@@ -14,7 +14,9 @@ class PromoteListingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'package_id' => ['required', 'exists:promotion_packages,id'],
+            'package_id' => ['nullable', 'exists:promotion_packages,id'],
+            'package_ids' => ['nullable', 'array'],
+            'package_ids.*' => ['exists:promotion_packages,id'],
             'payment_method' => ['required', 'in:stripe,points'],
             'card_token' => ['nullable', 'string'],
         ];

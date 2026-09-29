@@ -103,6 +103,18 @@ class StripeCheckoutTest extends TestCase
         $this->assertStringContainsString('promote/success', $response->headers->get('Location'));
     }
 
+    public function test_store_multi_package_selection_redirects_to_stripe(): void
+    {
+        $response = $this->actingAs($this->user)->post(route('listings.promote.store', $this->listing->id), [
+            'package_ids' => [$this->sponsoredPkg->id, $this->featuredPkg->id],
+            'payment_method' => 'stripe',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertStringContainsString('promote/success', $response->headers->get('Location'));
+        $this->assertStringContainsString('package_ids=' . urlencode("{$this->sponsoredPkg->id},{$this->featuredPkg->id}"), $response->headers->get('Location'));
+    }
+
     public function test_stripe_checkout_success_activates_promotion(): void
     {
         $response = $this->actingAs($this->user)->get(route('listings.promote.success', [
@@ -172,4 +184,32 @@ class StripeCheckoutTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(['status' => 'success']);
     }
+
+    public function test_stripe_checkout_success_activates_multiple_promotions(): void
+    {
+        $response = $this->actingAs($this->user)->get(route('listings.promote.success', [
+            'listing' => $this->listing->id,
+            'package_ids' => "{$this->sponsoredPkg->id},{$this->featuredPkg->id}",
+            'session_id' => 'cs_sim_multi_test123',
+        ]));
+
+        $response->assertRedirect(route('listings.show', $this->listing->slug));
+        $response->assertSessionHas('success');
+
+        $this->listing->refresh();
+        $this->assertTrue($this->listing->is_sponsored);
+        $this->assertTrue($this->listing->is_featured);
+
+        $this->assertDatabaseHas('listing_promotions', [
+            'listing_id' => $this->listing->id,
+            'type' => 'sponsored',
+            'payment_status' => 'completed',
+        ]);
+        $this->assertDatabaseHas('listing_promotions', [
+            'listing_id' => $this->listing->id,
+            'type' => 'featured',
+            'payment_status' => 'completed',
+        ]);
+    }
 }
+

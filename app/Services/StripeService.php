@@ -40,11 +40,38 @@ class StripeService
      */
     public function createCheckoutSession(
         \App\Models\Listing $listing,
-        \App\Models\PromotionPackage $package,
+        \App\Models\PromotionPackage|array $package,
         \App\Models\User $user,
         string $successUrl,
         string $cancelUrl
     ): array {
+        $packages = is_array($package) ? array_values(array_filter($package)) : [$package];
+        if (empty($packages)) {
+            return ['success' => false, 'error' => 'No promotion package selected.'];
+        }
+
+        $lineItems = [];
+        $packageIds = [];
+        $boostTypes = [];
+
+        foreach ($packages as $pkg) {
+            if (!$pkg) continue;
+            $packageIds[] = (string) $pkg->id;
+            $boostTypes[] = $pkg->type;
+            $durationStr = $pkg->duration_days ? " ({$pkg->duration_days} Days)" : "";
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'cad',
+                    'product_data' => [
+                        'name' => "Bon Trouver - {$pkg->name}",
+                        'description' => "Boost for listing: {$listing->title}{$durationStr}",
+                    ],
+                    'unit_amount' => (int) round($pkg->price * 100),
+                ],
+                'quantity' => 1,
+            ];
+        }
+
         if (app()->runningUnitTests() || app()->environment('testing')) {
             $simulatedSessionId = 'cs_sim_' . bin2hex(random_bytes(14));
             $delimiter = str_contains($successUrl, '?') ? '&' : '?';
@@ -72,24 +99,14 @@ class StripeService
                     'cancel_url' => $cancelUrl,
                     'customer_email' => $user->email,
                     'mode' => 'payment',
-                    'line_items' => [
-                        [
-                            'price_data' => [
-                                'currency' => 'cad',
-                                'product_data' => [
-                                    'name' => "Bon Trouver - {$package->name}",
-                                    'description' => "Boost for listing: {$listing->title} ({$package->duration_days} Days)",
-                                ],
-                                'unit_amount' => (int) round($package->price * 100),
-                            ],
-                            'quantity' => 1,
-                        ],
-                    ],
+                    'line_items' => $lineItems,
                     'metadata' => [
                         'listing_id' => (string) $listing->id,
-                        'package_id' => (string) $package->id,
+                        'package_ids' => implode(',', $packageIds),
+                        'package_id' => (string) ($packageIds[0] ?? ''),
                         'user_id' => (string) $user->id,
-                        'boost_type' => $package->type,
+                        'boost_types' => implode(',', $boostTypes),
+                        'boost_type' => $boostTypes[0] ?? '',
                     ],
                 ]);
 

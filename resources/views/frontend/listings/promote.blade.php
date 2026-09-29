@@ -128,15 +128,20 @@
                                 <div class="col-12 col-md-6 col-xl-4">
                                     <div class="card h-100 p-3 rounded-4 dark-pkg-card position-relative transition {{ $isAlreadyActive ? 'opacity-50 pointer-disabled' : 'cursor-pointer' }}"
                                         id="card_pkg_{{ $pkg->id }}" @if(!$isAlreadyActive)
-                                            onclick="selectPackage({{ $pkg->id }}, {{ $pkg->price }}, {{ $pkg->point_cost ?? 0 }}, '{{ addslashes($pkg->name) }}', '{{ $pkg->type }}')"
+                                            onclick="togglePackageCard({{ $pkg->id }})"
                                         @endif
                                         style="background: #0D243C; border: 2px solid rgba(255, 255, 255, 0.08); border-radius: 16px;">
 
                                         @if(!$isAlreadyActive)
-                                            <input type="radio" name="package_id" value="{{ $pkg->id }}"
-                                                id="radio_pkg_{{ $pkg->id }}"
-                                                {{ $loop->first ? 'checked' : '' }}
-                                                class="form-check-input position-absolute top-0 end-0 m-3" style="cursor: pointer;">
+                                            <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center">
+                                                <input type="checkbox" name="package_ids[]" value="{{ $pkg->id }}"
+                                                    id="checkbox_pkg_{{ $pkg->id }}"
+                                                    {{ $loop->first ? 'checked' : '' }}
+                                                    class="form-check-input pkg-checkbox m-0"
+                                                    style="cursor: pointer; width: 1.35rem; height: 1.35rem;"
+                                                    onclick="event.stopPropagation();"
+                                                    onchange="updatePackageSelection()">
+                                            </div>
                                         @else
                                             <span class="position-absolute top-0 end-0 m-3 badge bg-warning text-dark fw-bold"
                                                 style="font-size: 0.72rem;">
@@ -248,7 +253,7 @@
                             <div
                                 class="border-top border-secondary border-opacity-10 pt-3 mt-2 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                                 <div>
-                                    <span class="text-secondary small d-block" style="font-size: 0.8rem;">Selected Boost:</span>
+                                    <span class="text-secondary small d-block" style="font-size: 0.8rem;">Selected Boosts:</span>
                                     <div class="d-flex align-items-baseline gap-2">
                                         <span class="fw-bold text-white fs-5"
                                             id="summary_plan_name">{{ $packages->first()?->name ?? 'Standard Boost' }}</span>
@@ -303,6 +308,21 @@
                 box-shadow: 0 0 0 1px #49D17D, 0 10px 25px -5px rgba(73, 209, 125, 0.2);
             }
 
+            .pkg-checkbox {
+                background-color: #081D33;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                transition: all 0.2s ease;
+            }
+
+            .pkg-checkbox:checked {
+                background-color: #49D17D;
+                border-color: #49D17D;
+            }
+
+            .pkg-checkbox:focus {
+                box-shadow: 0 0 0 0.25rem rgba(73, 209, 125, 0.25);
+            }
+
             .pointer-disabled {
                 pointer-events: none;
                 cursor: not-allowed;
@@ -320,24 +340,25 @@
 
     @push('scripts')
         <script>
-            let currentPrice = {{ $packages->first()?->price ?? 0 }};
-            let currentPointCost = {{ $packages->first()?->point_cost ?? 0 }};
-            let currentPlanName = "{{ addslashes($packages->first()?->name ?? '') }}";
+            const packagesData = {
+                @foreach($packages as $pkg)
+                    {{ $pkg->id }}: {
+                        id: {{ $pkg->id }},
+                        price: {{ (float) $pkg->price }},
+                        pointCost: {{ (int) ($pkg->point_cost ?? 0) }},
+                        name: "{{ addslashes($pkg->name) }}",
+                        type: "{{ $pkg->type }}"
+                    },
+                @endforeach
+            };
+
             const userPoints = {{ (int) $user->community_points }};
 
-            function selectPackage(id, price, pointCost, name, type) {
-                document.querySelectorAll('.dark-pkg-card').forEach(card => card.classList.remove('selected'));
-                const targetCard = document.getElementById(`card_pkg_${id}`);
-                if (targetCard) targetCard.classList.add('selected');
-
-                const radio = document.getElementById(`radio_pkg_${id}`);
-                if (radio) radio.checked = true;
-
-                currentPrice = price;
-                currentPointCost = pointCost;
-                currentPlanName = name;
-
-                updateSummary();
+            function togglePackageCard(id) {
+                const cb = document.getElementById(`checkbox_pkg_${id}`);
+                if (!cb) return;
+                cb.checked = !cb.checked;
+                updatePackageSelection();
             }
 
             function updatePaymentMethod(method) {
@@ -352,11 +373,32 @@
                     if (cardPoints) cardPoints.style.borderColor = '#F59E0B';
                 }
 
-                updateSummary();
+                updatePackageSelection();
             }
 
-            function updateSummary() {
-                const isPoints = document.getElementById('method_points').checked;
+            function updatePackageSelection() {
+                let selectedIds = [];
+                let totalPrice = 0;
+                let totalPoints = 0;
+                let selectedNames = [];
+
+                document.querySelectorAll('input[name="package_ids[]"]').forEach(cb => {
+                    const id = parseInt(cb.value);
+                    const card = document.getElementById(`card_pkg_${id}`);
+                    if (cb.checked) {
+                        selectedIds.push(id);
+                        if (card) card.classList.add('selected');
+                        if (packagesData[id]) {
+                            totalPrice += packagesData[id].price;
+                            totalPoints += packagesData[id].pointCost;
+                            selectedNames.push(packagesData[id].name);
+                        }
+                    } else {
+                        if (card) card.classList.remove('selected');
+                    }
+                });
+
+                const isPoints = document.getElementById('method_points')?.checked;
                 const summaryCost = document.getElementById('summary_cost');
                 const summaryPlanName = document.getElementById('summary_plan_name');
                 const warningBox = document.getElementById('points_warning');
@@ -365,37 +407,56 @@
                 const submitBtnText = document.getElementById('btn_submit_boost_text');
                 const submitBtnIcon = document.getElementById('btn_submit_boost_icon');
 
-                if (summaryPlanName) summaryPlanName.innerText = currentPlanName;
+                if (selectedIds.length === 0) {
+                    if (summaryPlanName) summaryPlanName.innerText = 'No Boost Selected';
+                    if (summaryCost) {
+                        summaryCost.innerText = isPoints ? '0 pts' : '$0.00 CAD';
+                        summaryCost.className = 'fw-bold text-secondary fs-5';
+                    }
+                    if (submitBtnText) submitBtnText.innerText = 'Select at Least 1 Boost';
+                    if (submitBtn) submitBtn.disabled = true;
+                    if (warningBox) {
+                        warningBox.classList.remove('d-none');
+                        warningText.innerText = 'Please select at least one boost package to proceed.';
+                    }
+                    return;
+                }
+
+                if (summaryPlanName) {
+                    summaryPlanName.innerText = selectedNames.length > 2 
+                        ? `${selectedNames.length} Boost Packages (${selectedNames.slice(0, 2).join(' + ')}...)`
+                        : selectedNames.join(' + ');
+                }
 
                 if (isPoints) {
                     if (summaryCost) {
-                        summaryCost.innerText = `${currentPointCost} pts`;
+                        summaryCost.innerText = `${totalPoints.toLocaleString()} pts`;
                         summaryCost.className = 'fw-bold text-warning fs-5';
                     }
-                    if (submitBtnText) submitBtnText.innerText = 'Activate Boost with Points';
+                    if (submitBtnText) submitBtnText.innerText = `Activate Boosts with Points (${totalPoints.toLocaleString()} pts)`;
                     if (submitBtnIcon) submitBtnIcon.className = 'bi bi-award-fill fs-5 text-warning';
 
-                    if (currentPointCost <= 0) {
+                    if (totalPoints <= 0) {
                         warningBox.classList.remove('d-none');
-                        warningText.innerText = 'This package cannot be redeemed with points.';
-                        submitBtn.disabled = true;
-                    } else if (userPoints < currentPointCost) {
+                        warningText.innerText = 'The selected packages cannot be redeemed with points.';
+                        if (submitBtn) submitBtn.disabled = true;
+                    } else if (userPoints < totalPoints) {
                         warningBox.classList.remove('d-none');
-                        warningText.innerText = `You have ${userPoints} pts, but ${currentPointCost} pts are required to redeem this package.`;
-                        submitBtn.disabled = true;
+                        warningText.innerText = `You have ${userPoints.toLocaleString()} pts, but ${totalPoints.toLocaleString()} pts are required to redeem the selected packages.`;
+                        if (submitBtn) submitBtn.disabled = true;
                     } else {
                         warningBox.classList.add('d-none');
-                        submitBtn.disabled = false;
+                        if (submitBtn) submitBtn.disabled = false;
                     }
                 } else {
                     if (summaryCost) {
-                        summaryCost.innerText = `$${parseFloat(currentPrice).toFixed(2)} CAD`;
+                        summaryCost.innerText = `$${totalPrice.toFixed(2)} CAD`;
                         summaryCost.className = 'fw-bold text-success fs-5';
                     }
-                    if (submitBtnText) submitBtnText.innerText = `Proceed to Stripe Checkout ($${parseFloat(currentPrice).toFixed(2)})`;
+                    if (submitBtnText) submitBtnText.innerText = `Proceed to Stripe Checkout ($${totalPrice.toFixed(2)} CAD)`;
                     if (submitBtnIcon) submitBtnIcon.className = 'bi bi-shield-lock-fill fs-5';
                     warningBox.classList.add('d-none');
-                    submitBtn.disabled = false;
+                    if (submitBtn) submitBtn.disabled = false;
                 }
             }
 
@@ -408,17 +469,15 @@
                 if (btn) btn.disabled = true;
                 if (btnText) {
                     btnText.innerHTML = isPoints 
-                        ? '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Activating Boost...' 
+                        ? '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Activating Boosts...' 
                         : '<span class="spinner-border spinner-border-sm me-2" role="status"></span> Redirecting to Stripe...';
                 }
             });
 
-            // Initial selection of first available package
+            // Initial load calculation
             document.addEventListener('DOMContentLoaded', () => {
-                const firstAvailable = document.querySelector('.dark-pkg-card:not(.pointer-disabled)');
-                if (firstAvailable) {
-                    firstAvailable.click();
-                } else {
+                const availableCheckboxes = document.querySelectorAll('input[name="package_ids[]"]');
+                if (availableCheckboxes.length === 0) {
                     const submitBtn = document.getElementById('btn_submit_boost');
                     if (submitBtn) {
                         submitBtn.disabled = true;
@@ -427,7 +486,9 @@
                     const summaryPlanName = document.getElementById('summary_plan_name');
                     if (summaryPlanName) summaryPlanName.innerText = 'All Boosts Active';
                     const summaryCost = document.getElementById('summary_cost');
-                    if (summaryCost) summaryCost.innerText = '$0.00';
+                    if (summaryCost) summaryCost.innerText = '$0.00 CAD';
+                } else {
+                    updatePackageSelection();
                 }
             });
         </script>
