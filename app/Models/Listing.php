@@ -140,6 +140,11 @@ class Listing extends Model
         return $this->hasMany(ListingPromotion::class)->active();
     }
 
+    public function views()
+    {
+        return $this->hasMany(ListingView::class);
+    }
+
     public function isFeatured(): bool
     {
         return $this->is_featured && ($this->featured_until === null || $this->featured_until->isFuture());

@@ -127,7 +127,7 @@
                     </div>
 
                     <!-- Performance Stats Widget (Clean pill container) -->
-                    <div class="px-3 py-2 rounded-3" style="background: #081D33; border: 1px solid rgba(255, 255, 255, 0.08);">
+                    <div class="px-3 py-2 rounded-3" style="background: #081D33; border: 1px solid rgba(255, 255, 255, 0.08); {{ $item['status'] !== 'draft' ? 'cursor: pointer;' : '' }}" @if($item['status'] !== 'draft') onclick="openAnalyticsModal({{ $item['id'] }})" title="Click to view detailed analytics" @endif>
                         @if($item['status'] === 'draft')
                             <span class="text-secondary small fst-italic" style="font-size: 0.78rem;">Draft</span>
                         @else
@@ -152,6 +152,10 @@
                     <div class="d-flex align-items-center gap-2 flex-nowrap">
                         
                         @if($item['status'] === 'active' || $item['status'] === 'attention')
+                            <!-- Analytics Button -->
+                            <button type="button" class="btn-manage-icon icon-analytics" onclick="openAnalyticsModal({{ $item['id'] }})" title="View Performance & Analytics">
+                                <i class="bi bi-graph-up-arrow text-primary"></i>
+                            </button>
                             <!-- Edit Button -->
                             <a href="{{ route('listings.edit', $item['id']) }}" class="btn-manage-edit" title="Edit Listing">
                                 <i class="bi bi-pencil"></i>

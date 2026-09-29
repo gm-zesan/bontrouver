@@ -79,6 +79,24 @@ class NotificationController extends Controller
                 $body = $dbNotif->data['message'] ?? 'Your listing has been successfully upgraded.';
                 $action_url = $dbNotif->data['action_url'] ?? route('listings.show', $dbNotif->data['listing_id'] ?? 1);
                 $action_label = $dbNotif->data['action_label'] ?? 'View Boosted Listing';
+            } elseif ($type === 'ListingBoostExpired') {
+                $icon = $dbNotif->data['icon'] ?? 'bi-arrow-repeat text-warning';
+                $title = $dbNotif->data['title'] ?? '⌛ Boost Expired';
+                $body = $dbNotif->data['message'] ?? 'Your listing promotion has expired. Re-boost today!';
+                $action_url = $dbNotif->data['action_url'] ?? (isset($dbNotif->data['listing_id']) ? route('listings.promote.show', $dbNotif->data['listing_id']) : '#');
+                $action_label = $dbNotif->data['action_label'] ?? 'Re-Boost Listing';
+            } elseif ($type === 'ListingBoostExpiringSoon') {
+                $icon = $dbNotif->data['icon'] ?? 'bi-hourglass-split text-info';
+                $title = $dbNotif->data['title'] ?? '⏰ Boost Expiring in 24h';
+                $body = $dbNotif->data['message'] ?? 'Your listing promotion is expiring soon.';
+                $action_url = $dbNotif->data['action_url'] ?? (isset($dbNotif->data['listing_id']) ? route('listings.promote.show', $dbNotif->data['listing_id']) : '#');
+                $action_label = $dbNotif->data['action_label'] ?? 'Extend Boost Now';
+            } elseif ($type === 'ListingExpired') {
+                $icon = $dbNotif->data['icon'] ?? 'bi-archive text-secondary';
+                $title = $dbNotif->data['title'] ?? '📦 Listing Expired';
+                $body = $dbNotif->data['message'] ?? 'Your listing has expired.';
+                $action_url = $dbNotif->data['action_url'] ?? route('my-listings');
+                $action_label = $dbNotif->data['action_label'] ?? 'Manage Listings';
             }
 
             $formatted = [

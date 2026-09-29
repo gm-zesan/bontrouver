@@ -29,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
         // Policy registrations
         Gate::policy(CompanionshipRequest::class, CompanionshipRequestPolicy::class);
 
+        // Event Listeners
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\ListingCreated::class,
+            \App\Listeners\EvaluateSmartAlerts::class
+        );
+
         View::composer('*', function ($view) {
             $request = request();
             $city = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');

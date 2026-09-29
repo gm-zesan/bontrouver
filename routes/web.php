@@ -78,6 +78,7 @@ Route::middleware(['auth'])->group(function () {
     // 2. My Listings Management
     Route::get('/my-listings', [SellerListingController::class, 'index'])->name('listings.my');
     Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
+    Route::get('/my-listings/{id}/analytics', [SellerListingController::class, 'analytics'])->name('listings.my.analytics');
     Route::post('/my-listings/{id}/promote', [SellerListingController::class, 'promote'])->name('listings.my.promote');
     Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
 

@@ -18,7 +18,8 @@ class ListingController extends Controller
     public function __construct(
         private readonly SellerListingService $listingService,
         private readonly PointService $pointService,
-        private readonly MonetizationService $monetizationService
+        private readonly MonetizationService $monetizationService,
+        private readonly \App\Services\ListingAnalyticsService $analyticsService
     ) {}
 
     /**
@@ -224,5 +225,22 @@ class ListingController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /**
+     * Get real-time performance analytics and chart data for a seller's listing.
+     */
+    public function analytics(Request $request, $id)
+    {
+        $user = Auth::user();
+        $listing = Listing::where('user_id', $user->id)->findOrFail($id);
+        $days = (int) $request->query('days', 14);
+
+        $analytics = $this->analyticsService->getListingPerformance($listing, $days);
+
+        return response()->json([
+            'success' => true,
+            'data' => $analytics,
+        ]);
     }
 }

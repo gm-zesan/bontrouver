@@ -90,6 +90,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->primaryImage()` → `hasOne(ListingImage::class)->where('is_primary', true)`
 - `$listing->attributes()` → `hasMany(ListingAttribute::class)`
 - `$listing->favorites()` → `hasMany(Favorite::class)`
+- `$listing->views()` → `hasMany(ListingView::class)`
 - `$listing->conversations()` → `hasMany(Conversation::class)`
 - `$listing->transactions()` → `hasMany(Transaction::class)`
 - `$listing->reports()` → `morphMany(Report::class, 'reportable')`
@@ -101,9 +102,25 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Scopes: `scopeActive()`, `scopeFeatured()`, `scopeSponsored()`, `scopeBumped()`, `scopeWithinRadius()`
 - Helpers: `$listing->isFeatured()`, `$listing->isSponsored()`, `$listing->isBumped()`
 
+### ListingView (`App\Models\ListingView`)
+- `$view->listing()` → `belongsTo(Listing::class)`
+- `$view->user()` → `belongsTo(User::class)`
+- Fields: `listing_id`, `user_id`, `ip_address`, `user_agent`, `referer`, `viewed_date` (date)
+
 ### ListingImage (`App\Models\ListingImage`)
 - `$image->listing()` → `belongsTo(Listing::class)`
 - Accessor: `$image->url` (returns clean absolute URL with fallback)
+
+### ImageOptimizationService & WebP Compression (`App\Services\ImageOptimizationService`)
+- Automated image conversion to lightweight, compressed WebP format (85% quality, EXIF orientation correction, max dimension scaling).
+- Batch artisan command: `php artisan listings:convert-images-webp`.
+
+### ListingAnalyticsService (`App\Services\ListingAnalyticsService`)
+- Aggregates unique daily listing views, saves, inquiries, and engagement rates for seller dashboard.
+- Interactive modal with ApexCharts daily views trend line at `/my-listings/{id}/analytics`.
+
+### Scheduled Expiry Command (`App\Console\Commands\CheckListingAndPromotionExpiry`)
+- Hourly cron job `php artisan listings:check-expiry`: deactivates expired boosts, sends 24h expiration warning notifications, and marks stale listings expired with instant internal database alerts.
 
 ### ListingAttribute (`App\Models\ListingAttribute`)
 - `$listingAttr->listing()` → `belongsTo(Listing::class)`

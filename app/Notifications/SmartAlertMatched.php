@@ -6,10 +6,9 @@ use App\Models\Listing;
 use App\Models\SmartAlert;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SmartAlertMatched extends Notification implements ShouldQueue
+class SmartAlertMatched extends Notification
 {
     use Queueable;
 
@@ -22,7 +21,7 @@ class SmartAlertMatched extends Notification implements ShouldQueue
     ) {}
 
     /**
-     * Get the notification's delivery channels.
+     * Get the notification's delivery channels (Internal Database Notification Only).
      *
      * @return array<int, string>
      */
@@ -32,21 +31,7 @@ class SmartAlertMatched extends Notification implements ShouldQueue
             return [];
         }
 
-        return ['database']; // For MVP, only database. Later can add 'mail'.
-    }
-
-    /**
-     * Get the mail representation of the notification.
-     */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-                    ->subject('New match for your Smart Alert: ' . $this->alert->name)
-                    ->line('A new listing matches your alert criteria.')
-                    ->line('Listing: ' . $this->listing->title)
-                    ->line('Price: $' . number_format($this->listing->price, 2))
-                    ->action('View Listing', url('/listing/' . $this->listing->slug))
-                    ->line('Thank you for using Bon Trouver!');
+        return ['database'];
     }
 
     /**
@@ -56,13 +41,24 @@ class SmartAlertMatched extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
+        $priceFormatted = '$' . number_format($this->listing->price, 2) . ' CAD';
+        $location = trim(($this->listing->city ?? '') . ', ' . ($this->listing->province ?? ''));
+
         return [
+            'type' => 'smart_alert_matched',
             'alert_id' => $this->alert->id,
             'alert_name' => $this->alert->name,
             'listing_id' => $this->listing->id,
             'listing_title' => $this->listing->title,
             'listing_slug' => $this->listing->slug,
             'price' => $this->listing->price,
+            'price_formatted' => $priceFormatted,
+            'location' => $location,
+            'title' => "🔔 Smart Alert Match: {$this->alert->name}",
+            'message' => "A new listing \"{$this->listing->title}\" ({$priceFormatted} in {$location}) matches your \"{$this->alert->name}\" search criteria.",
+            'action_url' => route('listings.show', $this->listing->slug ?? $this->listing->id),
+            'action_label' => 'View New Listing',
+            'icon' => 'bi-search-heart text-success',
         ];
     }
 }

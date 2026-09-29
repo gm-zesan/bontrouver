@@ -4,13 +4,9 @@ namespace App\Listeners;
 
 use App\Events\ListingCreated;
 use App\Services\SmartAlertService;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class EvaluateSmartAlerts implements ShouldQueue
+class EvaluateSmartAlerts
 {
-    use InteractsWithQueue;
-
     /**
      * Create the event listener.
      */

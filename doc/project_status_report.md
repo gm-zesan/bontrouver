@@ -21,6 +21,9 @@
 | **6. Favorites & Saved Ads** | ✅ **Complete** | **100%** | `FavoriteController`, `Favorite`, AJAX toggle & bulk actions |
 | **7. Reputation, Points & Member Tiers** | ✅ **Complete** | **100%** | `MemberTier`, `PointTransaction`, `Review`, `Transaction` |
 | **8. Enhanced Public User Profiles** | ✅ **Complete** | **100%** | `UserProfile`, `UserGallery`, Responsive Storefront Showcase, Operating Hours, Gallery Lightbox |
+| **9. Image Optimization & WebP Conversion** | ✅ **Complete** | **100%** | `ImageOptimizationService`, auto-rotation, dimension clamping, 85% WebP compression, `listings:convert-images-webp` |
+| **10. Seller Performance & Analytics Hub** | ✅ **Complete** | **100%** | `ListingAnalyticsService`, `ListingView`, `/my-listings/{id}/analytics`, ApexCharts 14-day traffic trend modal |
+| **11. Scheduled Expiry & Cron Automation** | ✅ **Complete** | **100%** | `CheckListingAndPromotionExpiry`, hourly cron, 24h warning alerts, `ListingBoostExpired`, `ListingExpired` |
 
 ---
 

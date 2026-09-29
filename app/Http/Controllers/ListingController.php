@@ -22,7 +22,8 @@ class ListingController extends Controller
 {
     public function __construct(
         private readonly ListingService $listingService,
-        private readonly ListingSearchService $searchService
+        private readonly ListingSearchService $searchService,
+        private readonly \App\Services\ListingAnalyticsService $analyticsService
     ) {}
 
     /**
@@ -126,6 +127,12 @@ class ListingController extends Controller
                 $activeSubcategory = $sub;
                 break;
             }
+        }
+
+        // Record unique view analytics
+        $listingModel = Listing::find($listing['id']);
+        if ($listingModel) {
+            $this->analyticsService->recordView($listingModel, $request);
         }
 
         return view('frontend.listing-detail', [

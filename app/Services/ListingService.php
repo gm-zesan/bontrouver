@@ -29,7 +29,8 @@ class ListingService
     public function __construct(
         private readonly LocationService $locationService,
         private readonly PointService $pointService,
-        private readonly StripeService $stripeService
+        private readonly StripeService $stripeService,
+        private readonly ImageOptimizationService $imageOptimizationService
     ) {}
 
     public function getLastCheckoutUrl(): ?string
@@ -565,11 +566,10 @@ class ListingService
                 $imgPath = null;
 
                 if ($img instanceof \Illuminate\Http\UploadedFile) {
-                    $saved = $img->store('listings', 'public');
-                    $imgPath = '/storage/' . $saved;
+                    $imgPath = $this->imageOptimizationService->optimizeUploadedFile($img, 'listings');
                 } elseif (is_string($img) && !empty(trim($img))) {
                     if (str_starts_with($img, 'data:image')) {
-                        $imgPath = $this->storeBase64Image($img);
+                        $imgPath = $this->imageOptimizationService->optimizeBase64Image($img, 'listings');
                     } else {
                         $imgPath = trim($img);
                     }
@@ -679,11 +679,10 @@ class ListingService
             foreach ($validated['images'] as $img) {
                 $imgPath = null;
                 if ($img instanceof \Illuminate\Http\UploadedFile) {
-                    $saved = $img->store('listings', 'public');
-                    $imgPath = '/storage/' . $saved;
+                    $imgPath = $this->imageOptimizationService->optimizeUploadedFile($img, 'listings');
                 } elseif (is_string($img) && !empty(trim($img))) {
                     if (str_starts_with($img, 'data:image')) {
-                        $imgPath = $this->storeBase64Image($img);
+                        $imgPath = $this->imageOptimizationService->optimizeBase64Image($img, 'listings');
                     } else {
                         $imgPath = trim($img);
                     }
@@ -713,26 +712,7 @@ class ListingService
      */
     private function storeBase64Image(string $base64String): ?string
     {
-        try {
-            if (preg_match('/^data:image\/(\w+);base64,/', $base64String, $type)) {
-                $data = substr($base64String, strpos($base64String, ',') + 1);
-                $ext  = strtolower($type[1]);
-                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
-                    $ext = 'jpg';
-                }
-                $decoded = base64_decode($data);
-                if ($decoded === false) {
-                    return null;
-                }
-                $fileName = 'listings/' . Str::random(32) . '.' . $ext;
-                \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $decoded);
-                return '/storage/' . $fileName;
-            }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed storing base64 image: ' . $e->getMessage());
-        }
-
-        return null;
+        return $this->imageOptimizationService->optimizeBase64Image($base64String, 'listings');
     }
 
     // ─── Private ───────────────────────────────────────────────────────────────
