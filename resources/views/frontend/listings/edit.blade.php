@@ -381,13 +381,13 @@
                             <!-- Card Image -->
                             <div class="prev-image-box">
                                 @php
-                                    $coverImg = $listing->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80';
+                                    $coverImg = $listing->primary_image_url;
                                 @endphp
                                 <img src="{{ $coverImg }}" 
                                      alt="Listing Preview" 
                                      id="prevCoverImage" 
                                      class="prev-image"
-                                     onerror="this.src='https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80'">
+                                     onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                                 <div class="prev-badge-pill" id="prevBadgePill">
                                     <i class="bi bi-check-circle-fill me-1"></i> EDIT PREVIEW
                                 </div>

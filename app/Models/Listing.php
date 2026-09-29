@@ -77,6 +77,34 @@ class Listing extends Model
         return $this->hasOne(ListingImage::class)->where('is_primary', true);
     }
 
+    /**
+     * Get the primary image URL or fallback to brand placeholder.
+     */
+    public function getPrimaryImageUrlAttribute(): string
+    {
+        if ($this->relationLoaded('primaryImage') && $this->primaryImage && !empty($this->primaryImage->image_path)) {
+            return $this->primaryImage->url;
+        }
+
+        if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
+            $first = $this->images->first();
+            if ($first && !empty($first->image_path)) {
+                return $first->url;
+            }
+        }
+
+        if ($this->primaryImage && !empty($this->primaryImage->image_path)) {
+            return $this->primaryImage->url;
+        }
+
+        $firstImage = $this->images()->first();
+        if ($firstImage && !empty($firstImage->image_path)) {
+            return $firstImage->url;
+        }
+
+        return asset('images/no-image.svg');
+    }
+
     public function attributes()
     {
         return $this->hasMany(ListingAttribute::class);

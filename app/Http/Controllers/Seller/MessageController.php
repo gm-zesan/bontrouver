@@ -70,7 +70,7 @@ class MessageController extends Controller
                     'id' => $listing->id ?? null,
                     'title' => $listing->title ?? 'Deleted Listing',
                     'price' => isset($listing->price) ? '$' . number_format($listing->price, 2) : '',
-                    'image' => $listing->primaryImage->image_path ?? asset('images/placeholder.jpg'),
+                    'image' => $listing ? $listing->primary_image_url : asset('images/no-image.svg'),
                     'status' => $listing ? ($listing->status instanceof ListingStatus ? $listing->status->value : (string) ($listing->status ?? 'active')) : 'Deleted',
                 ],
                 'last_message' => $lastMessagePreview,

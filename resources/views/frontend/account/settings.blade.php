@@ -132,14 +132,11 @@
                                 @if(optional($user->profile)->cover_image_path)
                                     <img id="coverPreview" src="{{ $user->profile->cover_image_path }}" alt="Cover"
                                         class="rounded-3 object-fit-cover shadow"
-                                        style="width: 120px; height: 72px; border: 1px solid rgba(255,255,255,0.1);">
+                                        style="width: 120px; height: 72px; border: 1px solid rgba(255,255,255,0.1);"
+                                        onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                                 @else
-                                    <div id="coverPlaceholder" class="rounded-3 shadow d-flex align-items-center justify-content-center text-secondary"
-                                        style="width: 120px; height: 72px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);">
-                                        <i class="bi bi-image fs-3"></i>
-                                    </div>
-                                    <img id="coverPreview" src="" alt="Cover Preview"
-                                        class="rounded-3 object-fit-cover shadow d-none"
+                                    <img id="coverPreview" src="{{ asset('images/no-image.svg') }}" alt="Cover Preview"
+                                        class="rounded-3 object-fit-cover shadow"
                                         style="width: 120px; height: 72px; border: 1px solid rgba(255,255,255,0.1);">
                                 @endif
                             </div>

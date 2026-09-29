@@ -229,7 +229,7 @@
                         <div>
                             {{-- User Header Card --}}
                             <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
-                                <img src="" id="inspectorUserAvatar" class="rounded-circle object-fit-cover shadow-sm" style="width: 48px; height: 48px;" onerror="this.src='https://placehold.co/80x80?text=U'">
+                                <img src="" id="inspectorUserAvatar" class="rounded-circle object-fit-cover shadow-sm" style="width: 48px; height: 48px;" onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.svg') }}'">
                                 <div class="min-w-0">
                                     <div class="d-flex align-items-center gap-2">
                                         <h6 class="fw-bold text-dark mb-0 text-truncate" id="inspectorUserName">-</h6>
@@ -607,7 +607,7 @@
                         // User profile snapshot
                         $('#inspectorUserName').text(u.name || 'Unknown User');
                         $('#inspectorUserEmail').text(u.email || 'N/A');
-                        $('#inspectorUserAvatar').attr('src', u.avatar || 'https://placehold.co/80x80?text=U');
+                        $('#inspectorUserAvatar').attr('src', u.avatar || '{{ asset('images/default-avatar.svg') }}');
                         $('#inspectorUserLocation').text(u.city + (u.province ? ', ' + u.province : ''));
                         
                         if (u.is_verified) {

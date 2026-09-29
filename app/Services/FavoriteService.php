@@ -32,7 +32,7 @@ class FavoriteService
                 'views' => $listing->views_count ?? 0,
                 'seller_name' => $listing->user->name ?? 'Unknown',
                 'seller_verified' => $listing->user->is_verified ?? false,
-                'image' => $listing->primaryImage->image_path ?? asset('images/placeholder.jpg'),
+                'image' => $listing->primary_image_url,
                 'status' => $listing->status instanceof ListingStatus ? $listing->status->value : (string) ($listing->status ?? 'active'),
                 'is_featured' => $listing->is_featured,
             ];

@@ -50,7 +50,7 @@ class SellerListingService
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,
                 'messages' => $item->messages ?? 0,
-                'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
+                'image' => $item->primary_image_url,
                 'featured' => $isFeatured,
                 'sponsored' => $isSponsored,
                 'is_featured' => $isFeatured,

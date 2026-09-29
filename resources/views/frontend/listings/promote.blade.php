@@ -46,17 +46,10 @@
                     <div class="p-3 rounded-4 mb-4"
                         style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);">
                         <div class="d-flex align-items-center gap-3">
-                            @if($listing->primaryImage)
-                                <img src="{{ $listing->primaryImage->image_path }}" alt="{{ $listing->title }}"
-                                    class="rounded-3 object-fit-cover flex-shrink-0"
-                                    style="width: 80px; height: 80px; border: 1px solid rgba(255,255,255,0.08);"
-                                    onerror="this.src='https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=300&q=80'">
-                            @else
-                                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
-                                    style="width: 80px; height: 80px; background: #081D33; border: 1px solid rgba(255,255,255,0.08);">
-                                    <i class="bi bi-image text-secondary fs-3"></i>
-                                </div>
-                            @endif
+                            <img src="{{ $listing->primary_image_url }}" alt="{{ $listing->title }}"
+                                class="rounded-3 object-fit-cover flex-shrink-0"
+                                style="width: 80px; height: 80px; border: 1px solid rgba(255,255,255,0.08);"
+                                onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                             <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">
                                 <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                     <span

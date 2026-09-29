@@ -67,15 +67,13 @@ class ReportController extends Controller
                     }
 
                     if ($reportable instanceof Listing) {
-                        $img = $reportable->primaryImage 
-                            ? (str_starts_with($reportable->primaryImage->image_path, 'http') ? $reportable->primaryImage->image_path : asset('storage/' . $reportable->primaryImage->image_path))
-                            : asset('frontend/images/placeholder.jpg');
+                        $img = $reportable->primary_image_url;
                         $url = route('admin.listings.show', $reportable->id);
                         $title = e($reportable->title);
                         $price = $reportable->price_type === 'free' ? 'FREE' : '$' . number_format($reportable->price, 2);
 
                         return '<div class="d-flex align-items-center">
-                            <img src="' . $img . '" class="rounded-2 me-2 object-fit-cover shadow-xs" style="width: 36px; height: 36px;" onerror="this.src=\'https://placehold.co/60x60?text=Ad\'">
+                            <img src="' . $img . '" class="rounded-2 me-2 object-fit-cover shadow-xs" style="width: 36px; height: 36px;" onerror="this.onerror=null; this.src=\'' . asset('images/no-image.svg') . '\'">
                             <div class="d-flex flex-column min-w-0">
                                 <span class="badge bg-primary-subtle text-primary border mb-0.5" style="font-size: 10px; width: fit-content;">Listing</span>
                                 <a href="' . $url . '" class="fw-semibold text-dark text-decoration-none text-truncate" style="font-size: 12.5px; max-width: 180px;">' . $title . '</a>

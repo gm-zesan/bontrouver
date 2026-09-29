@@ -97,11 +97,13 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->activePromotions()` → `hasMany(ListingPromotion::class)->active()`
 - Enums & Casts: `status` (`App\Enums\ListingStatus`: `DRAFT`, `PENDING_REVIEW`, `ACTIVE`, `PAUSED`, `SOLD`, `EXPIRED`, `REJECTED`)
 - Flags & Boosts: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel), `featured_until`, `sponsored_until`, `bumped_at` (bump to top)
+- Accessor: `$listing->primary_image_url` (returns primary image URL or fallback to `/images/no-image.svg`)
 - Scopes: `scopeActive()`, `scopeFeatured()`, `scopeSponsored()`, `scopeBumped()`, `scopeWithinRadius()`
 - Helpers: `$listing->isFeatured()`, `$listing->isSponsored()`, `$listing->isBumped()`
 
 ### ListingImage (`App\Models\ListingImage`)
 - `$image->listing()` → `belongsTo(Listing::class)`
+- Accessor: `$image->url` (returns clean absolute URL with fallback)
 
 ### ListingAttribute (`App\Models\ListingAttribute`)
 - `$listingAttr->listing()` → `belongsTo(Listing::class)`

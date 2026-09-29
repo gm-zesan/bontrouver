@@ -783,7 +783,7 @@ class ListingService
         $derived         = $this->deriveAttributes($rawAttrs, $subSlug, $subName, $listing);
         $specsPills      = $this->buildSpecsPills($derived, $listing, $subName);
         $gallery         = $this->buildGallery($listing);
-        $primaryImg      = $listing->primaryImage->image_path ?? ($gallery[0] ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80');
+        $primaryImg      = $listing->primary_image_url ?? ($gallery[0] ?? asset('images/no-image.svg'));
 
         $isDealer        = (bool) ($listing->user?->is_dealer ?? false);
         $sellerType      = $isDealer ? 'dealer' : 'private';

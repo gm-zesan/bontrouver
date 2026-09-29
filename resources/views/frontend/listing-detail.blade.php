@@ -137,7 +137,7 @@
                 @php
                     $gallery = !empty($listing['gallery']) ? $listing['gallery'] : (!empty($listing['image']) ? [$listing['image']] : []);
                     if (empty($gallery)) {
-                        $gallery = ['https://via.placeholder.com/800x600?text=No+Image'];
+                        $gallery = [asset('images/no-image.svg')];
                     }
                     $totalPhotos = count($gallery);
                 @endphp

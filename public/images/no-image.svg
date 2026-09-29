@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E243A"/>
+      <stop offset="50%" stop-color="#081A2D"/>
+      <stop offset="100%" stop-color="#04101E"/>
+    </linearGradient>
+
+    <!-- Subtle Radial Glow -->
+    <radialGradient id="centerGlow" cx="50%" cy="42%" r="45%">
+      <stop offset="0%" stop-color="#49D17D" stop-opacity="0.12"/>
+      <stop offset="60%" stop-color="#49D17D" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#49D17D" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Icon Gradient -->
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#49D17D"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+
+    <!-- Badge Background Gradient -->
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.08)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bgGrad)"/>
+  <rect width="800" height="500" fill="url(#centerGlow)"/>
+
+  <!-- Subtle Decorative Geometric Elements -->
+  <circle cx="400" cy="200" r="140" fill="none" stroke="rgba(255, 255, 255, 0.03)" stroke-width="2" stroke-dasharray="6,6"/>
+  <circle cx="400" cy="200" r="100" fill="none" stroke="rgba(73, 209, 125, 0.08)" stroke-width="1.5"/>
+
+  <!-- Central Glassmorphic Card Container for Icon -->
+  <g transform="translate(340, 140)">
+    <rect width="120" height="120" rx="24" fill="url(#badgeGrad)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5" />
+    
+    <!-- Image / Camera Icon -->
+    <g transform="translate(32, 32)">
+      <!-- Outer Landscape Frame -->
+      <rect x="0" y="4" width="56" height="46" rx="8" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Mountain / Landscape Hill 1 -->
+      <path d="M6 42 L22 24 L34 36" fill="none" stroke="#49D17D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Mountain / Landscape Hill 2 -->
+      <path d="M28 36 L38 27 L50 40" fill="none" stroke="#64748B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Sun/Circle -->
+      <circle cx="40" cy="16" r="4.5" fill="#F59E0B"/>
+      <!-- Subtle No-Image Slash / Accent Dot -->
+      <circle cx="12" cy="14" r="2.5" fill="#49D17D"/>
+    </g>
+  </g>
+
+  <!-- Brand Typography -->
+  <g text-anchor="middle">
+    <!-- Brand Title -->
+    <text x="400" y="310" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="700" fill="#F8FAFC" letter-spacing="0.5">
+      Bon <tspan fill="#49D17D">Trouver</tspan>
+    </text>
+
+    <!-- Subtitle / Status -->
+    <text x="400" y="342" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="500" fill="#94A3B8" letter-spacing="0.3">
+      No Photo Available
+    </text>
+  </g>
+
+  <!-- Subtle Outer Border inside canvas -->
+  <rect x="1" y="1" width="798" height="498" rx="0" fill="none" stroke="rgba(255, 255, 255, 0.06)" stroke-width="2"/>
+</svg>

@@ -33,7 +33,7 @@ class UserProfileService
                 'posted_at' => $item->created_at->diffForHumans(),
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,
-                'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
+                'image' => $item->primary_image_url,
                 'status' => $item->status instanceof ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
                 'featured' => (bool) $item->is_featured,
             ];

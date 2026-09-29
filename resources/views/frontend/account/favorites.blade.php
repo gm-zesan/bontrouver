@@ -55,7 +55,7 @@
                                         style="height: 190px; background: #081D33; overflow: hidden;">
                                         <img src="{{ $fav['image'] }}" alt="{{ $fav['title'] }}"
                                             class="w-100 h-100 object-fit-cover d-block"
-                                            onerror="this.src='https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=600&q=80'">
+                                            onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
 
                                         @if(!empty($fav['is_featured']))
                                             <span

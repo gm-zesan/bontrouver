@@ -108,7 +108,7 @@ class HomeDataService
             'currency'    => 'CAD',
             'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
             'description' => Str::limit($l->description, 150),
-            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+            'image'       => $l->primary_image_url,
             'alt'         => $l->title,
             'url'         => url('/listing/' . $l->slug),
         ]);
@@ -155,7 +155,7 @@ class HomeDataService
                 'category'    => $l->category->name ?? '',
                 'badge'       => $badge,
                 'badge_type'  => $badgeType,
-                'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+                'image'       => $l->primary_image_url,
                 'alt'         => $l->title,
                 'url'         => url('/listing/' . $l->slug),
             ];
@@ -193,7 +193,7 @@ class HomeDataService
             'category'    => $l->category->name ?? '',
             'badge'       => 'FEATURED',
             'badge_type'  => 'featured',
-            'image'       => $l->primaryImage->image_path ?? 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80',
+            'image'       => $l->primary_image_url,
             'alt'         => $l->title,
             'url'         => url('/listing/' . $l->slug),
         ]);
@@ -340,7 +340,7 @@ class HomeDataService
             foreach ($listings->isNotEmpty() ? $listings : collect($fallbackItems) as $entry) {
                 $isModel = $entry instanceof Listing;
                 $items[] = [
-                    'image' => $isModel ? ($entry->primaryImage?->image_path ?? 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80') : 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80',
+                    'image' => $isModel ? $entry->primary_image_url : asset('images/no-image.svg'),
                     'label' => $isModel ? Str::limit($entry->title, 18) : $entry['name'],
                     'alt'   => $isModel ? $entry->title : $entry['name'],
                     'url'   => $isModel ? url('/listing/' . $entry->slug) : url('/category/' . $cat['slug'] . '?sub=' . $entry['slug']),

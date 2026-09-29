@@ -21,7 +21,7 @@
                              alt="{{ $item['title'] }}" 
                              class="w-100 h-100 object-fit-cover d-block"
                              style="width: 100%; height: 100%; object-fit: cover; display: block;"
-                             onerror="this.src='https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?auto=format&fit=crop&w=400&q=80'">
+                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                         @if(!empty($item['sponsored']))
                             <span class="listing-manage-featured-badge" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: #06182B;">
                                 <i class="bi bi-rocket-takeoff-fill me-0.5"></i> SPONSORED

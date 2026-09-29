@@ -11,7 +11,7 @@
     $photosCount = $listing['photos_count'] ?? $listing['images_count'] ?? null;
     $location = $listing['location'] ?? '';
     $postedAt = $listing['posted_at'] ?? $listing['time'] ?? '';
-    $image = $listing['image'] ?? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80';
+    $image = !empty($listing['image']) ? $listing['image'] : asset('images/no-image.svg');
     $alt = $listing['alt'] ?? $title;
     $badge = $listing['badge'] ?? ($featured ? 'FEATURED' : null);
     $badgeClass = $badge ? 'badge-' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $badge)) : '';
@@ -29,7 +29,8 @@
                  width="400" 
                  height="300" 
                  loading="lazy" 
-                 decoding="async">
+                 decoding="async"
+                 onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
         </a>
 
         <!-- Optional Top-Left Badge -->

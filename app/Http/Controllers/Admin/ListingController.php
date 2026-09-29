@@ -38,15 +38,13 @@ class ListingController extends Controller
                     return '<div class="form-check m-0"><input class="form-check-input listing-checkbox border-secondary" type="checkbox" value="' . $row->id . '"></div>';
                 })
                 ->editColumn('title', function ($row) {
-                    $imgUrl = $row->primaryImage 
-                        ? (str_starts_with($row->primaryImage->image_path, 'http') ? $row->primaryImage->image_path : asset('storage/' . $row->primaryImage->image_path))
-                        : asset('frontend/images/placeholder.jpg');
+                    $imgUrl = $row->primary_image_url;
 
                     $title = e($row->title);
                     $showUrl = route('admin.listings.show', $row->id);
 
                     $html = '<div class="d-flex align-items-center">';
-                    $html .= '<img src="' . $imgUrl . '" class="rounded-2 me-2 object-fit-cover shadow-sm" style="width: 44px; height: 44px;" onerror="this.src=\'https://placehold.co/80x80?text=Ad\'">';
+                    $html .= '<img src="' . $imgUrl . '" class="rounded-2 me-2 object-fit-cover shadow-sm" style="width: 44px; height: 44px;" onerror="this.onerror=null; this.src=\'' . asset('images/no-image.svg') . '\'">';
                     $html .= '<div class="d-flex flex-column">';
                     $html .= '<a href="' . $showUrl . '" class="fw-semibold text-dark text-decoration-none" style="font-size: 13.5px;">' . $title . '</a>';
                     $html .= '<span class="text-muted small">' . e($row->city ?? 'Canada') . ($row->province ? ', ' . e($row->province) : '') . '</span>';

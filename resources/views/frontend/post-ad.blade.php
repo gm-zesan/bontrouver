@@ -769,8 +769,9 @@
                             <div class="preview-listing-card" id="liveListingPreviewCard">
                                 <!-- Card Image -->
                                 <div class="prev-image-box">
-                                    <img src="https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80"
-                                        alt="Listing Preview" id="prevCoverImage" class="prev-image">
+                                    <img src="{{ asset('images/no-image.svg') }}"
+                                        alt="Listing Preview" id="prevCoverImage" class="prev-image"
+                                        onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                     <div class="prev-badge-pill" id="prevBadgePill">
                                         <i class="bi bi-star-fill me-1"></i> PREVIEW
                                     </div>
@@ -1692,7 +1693,7 @@
             if (postAdState.images.length === 0) {
                 grid.style.display = 'none';
                 countText.innerHTML = `<i class="bi bi-image me-1"></i> 0 of 10 photos added`;
-                prevCover.src = 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80';
+                prevCover.src = '{{ asset('images/no-image.svg') }}';
                 prevCount.innerHTML = `<i class="bi bi-camera-fill me-1"></i> <span>0 Photos</span>`;
                 return;
             }

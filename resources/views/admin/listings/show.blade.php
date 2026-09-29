@@ -12,17 +12,11 @@
                 <div class="text-center pb-3 border-bottom">
                     {{-- Primary Image Thumbnail --}}
                     <div class="mb-3 position-relative d-inline-block">
-                        @if($listing->primaryImage)
-                            <img src="{{ str_starts_with($listing->primaryImage->image_path, 'http') ? $listing->primaryImage->image_path : asset('storage/' . $listing->primaryImage->image_path) }}" 
-                                 alt="{{ $listing->title }}" 
-                                 class="rounded-3 object-fit-cover shadow-sm" 
-                                 style="width: 140px; height: 140px; border: 4px solid #f8fafc;"
-                                 onerror="this.src='https://placehold.co/140x140?text=Listing'">
-                        @else
-                            <div class="rounded-3 d-flex align-items-center justify-content-center text-muted shadow-sm mx-auto" style="width: 140px; height: 140px; background-color: #f1f5f9; font-size: 40px; border: 4px solid #f8fafc;">
-                                <i class="ri-image-line"></i>
-                            </div>
-                        @endif
+                        <img src="{{ $listing->primary_image_url }}" 
+                             alt="{{ $listing->title }}" 
+                             class="rounded-3 object-fit-cover shadow-sm" 
+                             style="width: 140px; height: 140px; border: 4px solid #f8fafc;"
+                             onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                     </div>
                     
                     <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">{{ $listing->title }}</h5>
@@ -326,7 +320,7 @@
                         </div>
                         @if($listing->images->isEmpty())
                             <div class="text-center py-5 text-muted">
-                                <i class="ri-image-2-line fs-1 mb-2 d-block text-secondary opacity-50"></i>
+                                <img src="{{ asset('images/no-image.svg') }}" alt="No Photo Available" style="width: 140px; height: 90px; object-fit: cover; border-radius: 8px; opacity: 0.85;" class="mb-3 d-block mx-auto">
                                 No photos uploaded for this listing.
                             </div>
                         @else
@@ -342,7 +336,7 @@
                                             <img src="{{ $fullUrl }}" 
                                                  class="w-100 h-100 object-fit-cover" 
                                                  alt="Listing photo #{{ $index + 1 }}"
-                                                 onerror="this.src='https://placehold.co/400x300?text=Photo+Unavailable'">
+                                                 onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                                             @if($img->is_primary)
                                                 <span class="position-absolute top-0 start-0 m-2 badge bg-success shadow-sm" style="font-size: 11px; padding: 5px 9px;">
                                                     <i class="ri-star-fill me-1"></i> Primary Photo

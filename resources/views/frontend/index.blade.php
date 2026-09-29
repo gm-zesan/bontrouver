@@ -728,8 +728,9 @@
                         <!-- 1. Floating Listing Preview (Top Left) -->
                         <div class="visual-node visual-node-listing">
                             <div class="visual-listing-thumb">
-                                <img src="{{ $whyUsListing['image'] ?? 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=160&q=80' }}"
-                                    alt="{{ $whyUsListing['title'] ?? 'Listing Preview' }}" class="listing-thumb-img" loading="lazy">
+                                <img src="{{ $whyUsListing['image'] ?? asset('images/no-image.svg') }}"
+                                    alt="{{ $whyUsListing['title'] ?? 'Listing Preview' }}" class="listing-thumb-img" loading="lazy"
+                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                             </div>
                             <div class="visual-listing-info">
                                 <div class="visual-listing-price">{{ $whyUsListing['price'] ?? '$1,299' }}</div>
@@ -885,8 +886,9 @@
 
                         <div class="seller-mockup-body">
                             <div class="seller-mockup-img-wrap">
-                                <img src="{{ $sellerCtaListing['image'] ?? 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=300&q=80' }}"
-                                    alt="{{ $sellerCtaListing['title'] ?? 'Listing preview' }}" class="seller-mockup-img" loading="lazy">
+                                <img src="{{ $sellerCtaListing['image'] ?? asset('images/no-image.svg') }}"
+                                    alt="{{ $sellerCtaListing['title'] ?? 'Listing preview' }}" class="seller-mockup-img" loading="lazy"
+                                    onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}'">
                             </div>
                             <div class="seller-mockup-info">
                                 <div class="seller-mockup-price">{{ $sellerCtaListing['price'] ?? '$450.00 CAD' }}</div>
