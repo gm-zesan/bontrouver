@@ -52,7 +52,7 @@ class ListingCreationTest extends TestCase
         $response = $this->actingAs($user)->postJson('/post-ad', []);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['title', 'category_slug', 'description', 'city', 'province', 'price_type']);
+            ->assertJsonValidationErrors(['title', 'category_id', 'description', 'city', 'province', 'price_type']);
     }
 
     public function test_listing_creates_successfully_with_only_required_fields(): void
@@ -104,8 +104,6 @@ class ListingCreationTest extends TestCase
             'price_type'        => 'fixed',
             'price'             => 499.99,
             'condition'         => 'like_new',
-            'delivery_options'  => ['pickup', 'shipping'],
-            'contact_preference'=> ['chat', 'email'],
             'promotions'        => ['featured' => true],
         ]);
 
@@ -240,7 +238,6 @@ class ListingCreationTest extends TestCase
                 'fuel-type'    => 'Hybrid',
                 'drivetrain'   => 'AWD',
             ],
-            'contact_preference'=> ['chat', 'phone'],
         ]);
 
         $response->assertStatus(200)->assertJson(['success' => true]);
@@ -328,7 +325,6 @@ class ListingCreationTest extends TestCase
             'price_type'        => 'free',
             'price'             => 0,
             'condition'         => 'good',
-            'delivery_options'  => ['pickup'],
         ]);
 
         $response->assertStatus(200)->assertJson(['success' => true]);

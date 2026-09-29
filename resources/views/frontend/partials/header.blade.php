@@ -200,7 +200,7 @@
                         aria-labelledby="locationDropdownBtn">
                         <!-- Compact Search & Auto-Detect -->
                         <div class="p-2 border-bottom border-white border-opacity-10">
-                            <div class="location-search-wrap position-relative mb-1.5">
+                            <div class="location-search-wrap position-relative mb-1">
                                 <i class="bi bi-search location-search-icon"></i>
                                 <input type="text" class="location-search-input w-100" id="locationFilterInput"
                                     placeholder="Search city..." onkeyup="filterLocationList(this.value)"
@@ -221,7 +221,7 @@
                                 class="location-dropdown-item {{ empty($currentSelectedCity) ? 'active' : '' }}"
                                 onclick="selectAppLocation('', 'All Canada')"
                                 data-city-name="all canada countrywide nationwide">
-                                <span class="location-item-title d-flex align-items-center gap-1.5">
+                                <span class="location-item-title d-flex align-items-center gap-2">
                                     <i class="bi bi-globe-americas text-primary" style="font-size: 0.8rem;"></i>
                                     &nbsp;&nbsp;
                                     <span> All Canada</span>
@@ -269,13 +269,13 @@
                         <ul class="dropdown-menu dropdown-menu-end dropdown-location-menu shadow-lg"
                             aria-labelledby="userMenuBtn">
                             @if(Auth::user()->isAdmin() || Auth::user()->isModerator())
-                                <li class="px-3 py-2.5 border-bottom border-secondary border-opacity-10 mb-1">
+                                <li class="px-3 py-2 border-bottom border-secondary border-opacity-10 mb-1">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
                                         <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
                                             {{ Auth::user()->name }}
                                         </div>
                                         <span class="badge bg-primary text-white font-monospace" style="font-size: 10px; padding: 2px 7px;">
-                                            <i class="bi bi-shield-check me-0.5"></i> {{ strtoupper(Auth::user()->role?->value ?? (string)Auth::user()->role) }}
+                                            <i class="bi bi-shield-check me-1"></i> {{ strtoupper(Auth::user()->role?->value ?? (string)Auth::user()->role) }}
                                         </span>
                                     </div>
                                     <div class="text-secondary small text-truncate mt-1" style="font-size: 0.75rem;">
@@ -299,7 +299,7 @@
                                     </form>
                                 </li>
                             @else
-                                <li class="px-3 py-2.5 border-bottom border-secondary border-opacity-10 mb-1">
+                                <li class="px-3 py-2 border-bottom border-secondary border-opacity-10 mb-1">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
                                         <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
                                             {{ Auth::user()->name }}
@@ -314,7 +314,7 @@
                                             {{ Auth::user()->email ?? 'Active Account' }}
                                         </div>
                                         <span class="text-success fw-bold font-monospace" style="font-size: 0.78rem;">
-                                            <i class="bi bi-coin me-0.5"></i>{{ number_format(Auth::user()->community_points ?? 0) }} pts
+                                            <i class="bi bi-coin me-1"></i>{{ number_format(Auth::user()->community_points ?? 0) }} pts
                                         </span>
                                     </div>
                                 </li>

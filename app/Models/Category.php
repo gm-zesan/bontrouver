@@ -74,25 +74,37 @@ class Category extends Model
     }
 
     /**
-     * Get the category tree hierarchically.
+     * Get the category tree hierarchically supporting arbitrary levels of depth.
      */
-    public static function getTree()
+    public static function getTree(): array
     {
-        // Eager load nested children up to 2 levels deep
-        $categories = self::whereNull('parent_id')
-            ->where('is_active', true)
+        $allCategories = self::where('is_active', true)
             ->orderBy('sort_order')
-            ->with(['children' => function($query) {
-                $query->where('is_active', true)->orderBy('sort_order')->with(['children' => function($q) {
-                    $q->where('is_active', true)->orderBy('sort_order');
-                }]);
-            }])
             ->get();
 
-        // Convert the collection to a keyed array by slug for easy access
+        $grouped = $allCategories->groupBy('parent_id');
+
+        $buildTree = function ($parentId) use (&$buildTree, $grouped) {
+            $branch = [];
+            $children = $grouped->get($parentId, collect());
+            foreach ($children as $category) {
+                $catArray = $category->toArray();
+                $nested = $buildTree($category->id);
+                $catArray['children'] = $nested;
+                $catArray['subcategories'] = $nested; // backward-compatibility alias
+                $branch[] = $catArray;
+            }
+            return $branch;
+        };
+
         $tree = [];
-        foreach ($categories as $category) {
-            $tree[$category->slug] = $category->toArray();
+        $roots = $grouped->get(null, $grouped->get('', collect()));
+        foreach ($roots as $root) {
+            $rootArray = $root->toArray();
+            $children = $buildTree($root->id);
+            $rootArray['children'] = $children;
+            $rootArray['subcategories'] = $children;
+            $tree[$root->slug] = $rootArray;
         }
 
         return $tree;

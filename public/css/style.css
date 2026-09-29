@@ -7265,6 +7265,35 @@ svg {
     display: flex;
 }
 
+/* Selected Category Breadcrumb Bar */
+.selected-category-breadcrumb-bar {
+    background: rgba(73, 209, 125, 0.08);
+    border: 1px solid rgba(73, 209, 125, 0.25);
+    border-radius: var(--radius-md);
+    padding: 0.625rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Category Dynamic Layers */
+.category-layer-block {
+    animation: fadeInSlideUp 0.22s ease-out;
+    background: #081D33;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.125rem 1.25rem;
+}
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Subcategory Chips */
 .subcategory-chips-wrap {
     display: flex;
@@ -7273,7 +7302,7 @@ svg {
 }
 
 .subcat-chip {
-    background: #081D33;
+    background: #0A243D;
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
     padding: 0.4375rem 0.875rem;
@@ -7282,11 +7311,16 @@ svg {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .subcat-chip:hover {
     border-color: var(--color-primary);
     color: #FFFFFF;
+    background: #0D2E4F;
+    transform: translateY(-1px);
 }
 
 .subcat-chip.active {
@@ -7294,6 +7328,7 @@ svg {
     border-color: var(--color-primary);
     color: #06182B;
     font-weight: 700;
+    box-shadow: 0 0 10px rgba(73, 209, 125, 0.35);
 }
 
 /* Price Type Pills */

@@ -141,7 +141,7 @@
                                                     </button>
                                                 </td>
                                                 <td class="text-end" style="padding-right: 16px;">
-                                                    <button type="button" class="btn btn-sm btn-light border px-2.5 py-1" onclick="openEditProvinceModal({{ $province->id }})" title="Edit Province" style="height: 30px;">
+                                                    <button type="button" class="btn btn-sm btn-light border px-2 py-1" onclick="openEditProvinceModal({{ $province->id }})" title="Edit Province" style="height: 30px;">
                                                         <i class="ri-edit-line text-primary me-1"></i> Edit
                                                     </button>
                                                 </td>
@@ -170,7 +170,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-3">
             <div class="modal-header bg-white border-bottom px-4 py-3">
-                <div class="d-flex align-items-center gap-2.5">
+                <div class="d-flex align-items-center gap-2">
                     <div class="rounded-circle p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                         <i class="ri-building-line fs-5"></i>
                     </div>
@@ -240,7 +240,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-sm btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveCity">
                         <i class="ri-save-line me-1"></i> Save City
@@ -256,7 +256,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-3">
             <div class="modal-header bg-white border-bottom px-4 py-3">
-                <div class="d-flex align-items-center gap-2.5">
+                <div class="d-flex align-items-center gap-2">
                     <div class="rounded-circle p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                         <i class="ri-map-pin-range-line fs-5"></i>
                     </div>
@@ -298,7 +298,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-sm btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveProvince">
                         <i class="ri-save-line me-1"></i> Save Changes

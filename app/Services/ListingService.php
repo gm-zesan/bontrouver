@@ -304,7 +304,10 @@ class ListingService
         $longitude = !empty($validated['longitude']) ? (float)$validated['longitude'] : ($cityModel?->longitude ?? -79.3832);
 
         $category = null;
-        if (!empty($validated['subcategory_slug'])) {
+        if (!empty($validated['category_id'])) {
+            $category = Category::find($validated['category_id']);
+        }
+        if (!$category && !empty($validated['subcategory_slug'])) {
             $category = Category::where('slug', $validated['subcategory_slug'])->first();
         }
         if (!$category && !empty($validated['category_slug'])) {
@@ -339,11 +342,12 @@ class ListingService
             'description'     => $validated['description'],
             'price'           => $validated['price'] ?? 0,
             'price_type'      => $validated['price_type'] ?? 'fixed',
+            'price_period'    => $validated['price_period'] ?? null,
             'condition'       => $validated['condition'] ?? 'used',
             'city'            => $cityModel?->name ?? $cityName,
             'province'        => $provinceCode,
             'postal_code'     => $validated['postal_code'] ?? null,
-            'location_name'   => $validated['neighbourhood'] ?? null,
+            'location_name'   => $validated['location_name'] ?? $validated['neighbourhood'] ?? null,
             'latitude'        => $latitude,
             'longitude'       => $longitude,
             'status'          => site_setting('auto_approve_listings', true) ? 'active' : 'pending_review',

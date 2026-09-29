@@ -14,7 +14,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Total Submissions</div>
                         <div class="fs-4 fw-bold text-dark mt-1">{{ number_format($stats['total'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-shield-user-line fs-5"></i>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Pending Review</div>
                         <div class="fs-4 fw-bold text-warning mt-1">{{ number_format($stats['pending'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-time-line fs-5"></i>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Approved & Verified</div>
                         <div class="fs-4 fw-bold text-success mt-1">{{ number_format($stats['approved'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-checkbox-circle-line fs-5"></i>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Rejected Submissions</div>
                         <div class="fs-4 fw-bold text-danger mt-1">{{ number_format($stats['rejected'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-close-circle-line fs-5"></i>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                     <div class="col-lg-7 p-4 bg-dark d-flex flex-column align-items-center justify-content-center border-end border-secondary border-opacity-25" style="min-height: 480px; background-color: #0c1a29 !important;">
                         <div class="d-flex justify-content-between align-items-center w-100 mb-2 px-2">
                             <span class="badge bg-secondary-subtle text-white border border-secondary border-opacity-25" id="inspectorDocTypeTag">Government Document</span>
-                            <div class="d-flex gap-1.5">
+                            <div class="d-flex gap-2">
                                 <a href="#" id="inspectorDownloadBtn" target="_blank" class="btn btn-sm btn-outline-light px-2 py-1" style="font-size: 11px;" download>
                                     <i class="ri-download-2-line me-1"></i> Download
                                 </a>
@@ -231,7 +231,7 @@
                             <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border mb-3">
                                 <img src="" id="inspectorUserAvatar" class="rounded-circle object-fit-cover shadow-sm" style="width: 48px; height: 48px;" onerror="this.src='https://placehold.co/80x80?text=U'">
                                 <div class="min-w-0">
-                                    <div class="d-flex align-items-center gap-1.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <h6 class="fw-bold text-dark mb-0 text-truncate" id="inspectorUserName">-</h6>
                                         <span id="inspectorVerifiedBadge"></span>
                                     </div>
@@ -266,7 +266,7 @@
                             {{-- Verification Trust Checkpoints --}}
                             <div class="p-3 rounded-3 bg-light border mb-3">
                                 <div class="text-uppercase text-muted fw-bold mb-2" style="font-size: 10.5px; letter-spacing: 0.05em;">Trust Checkpoints</div>
-                                <div class="d-flex flex-column gap-1.5 small">
+                                <div class="d-flex flex-column gap-2 small">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="text-dark"><i class="ri-mail-check-line me-1 text-primary"></i> Email Verified</span>
                                         <span id="checkpointEmailVerified">-</span>
@@ -340,7 +340,7 @@
                         <textarea class="form-control" id="reject_reason_text" name="reason" rows="3" required placeholder="Explain why the document was rejected..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger px-4" id="btnSubmitReject">
                         <i class="ri-close-line me-1"></i> Confirm Rejection

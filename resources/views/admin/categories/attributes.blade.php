@@ -9,7 +9,7 @@
         <div class="card border-0 shadow-sm rounded-3 mb-4 bg-white">
             <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-3 p-2.5 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                    <div class="rounded-3 p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
                         style="width: 48px; height: 48px;">
                         <i class="{{ $category->icon ?: 'ri-node-tree' }} fs-4"></i>
                     </div>
@@ -49,7 +49,7 @@
                     </a>
                     <button type="button" class="btn btn-sm btn-primary d-inline-flex align-items-center px-3"
                         style="height: 34px;" onclick="openCreateAttributeModal()">
-                        <i class="ri-add-line me-1.5"></i>
+                        <i class="ri-add-line me-1"></i>
                         <span class="fw-medium" style="font-size: 13px;">Add Custom Attribute</span>
                     </button>
                 </div>
@@ -96,7 +96,7 @@
                                                     <span class="fw-semibold text-dark"
                                                         style="font-size: 13.5px;">{{ $attr->name }}</span>
                                                     <span class="text-muted font-monospace"
-                                                        style="font-size: 11px;">key: <span class="badge bg-light text-secondary border font-monospace py-0.5 px-1.5">{{ $attr->slug }}</span></span>
+                                                        style="font-size: 11px;">key: <span class="badge bg-light text-secondary border font-monospace py-1 px-2">{{ $attr->slug }}</span></span>
                                                 </div>
                                             </td>
                                             <td>
@@ -251,7 +251,7 @@
                 {{-- Filter Sidebar Simulation Card --}}
                 <div class="card border-0 shadow-sm rounded-3">
                     <div
-                        class="card-header bg-light border-bottom d-flex justify-content-between align-items-center py-2.5 px-4">
+                        class="card-header bg-light border-bottom d-flex justify-content-between align-items-center py-2 px-4">
                         <div class="d-flex align-items-center gap-2">
                             <i class="ri-filter-3-line text-success"></i>
                             <span class="fw-bold text-dark small">Search Sidebar Filter Simulator</span>
@@ -265,7 +265,7 @@
                         @endphp
 
                         @if($filterableAttrs->count() > 0)
-                            <div class="d-flex flex-column gap-2.5">
+                            <div class="d-flex flex-column gap-2">
                                 @foreach($filterableAttrs as $fAttr)
                                     <div>
                                         <div class="fw-semibold text-dark small mb-1">{{ $fAttr->name }}</div>
@@ -309,7 +309,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-3">
                 <div class="modal-header bg-white border-bottom px-4 py-3">
-                    <div class="d-flex align-items-center gap-2.5">
+                    <div class="d-flex align-items-center gap-2">
                         <div class="rounded-circle p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
                             style="width: 36px; height: 36px;">
                             <i class="ri-equalizer-line fs-5"></i>
@@ -355,7 +355,7 @@
                                         style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
                                 </div>
                                 <div class="form-text mt-1 text-muted" style="font-size: 11px; line-height: 1.4;">
-                                    <i class="ri-information-line me-0.5 text-primary"></i> <strong>Key Rules:</strong> Lowercase letters, numbers, underscores (<code>_</code>) or dashes (<code>-</code>) only. No spaces.
+                                    <i class="ri-information-line me-1 text-primary"></i> <strong>Key Rules:</strong> Lowercase letters, numbers, underscores (<code>_</code>) or dashes (<code>-</code>) only. No spaces.
                                 </div>
                             </div>
 
@@ -384,7 +384,7 @@
                                         style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
                                 </div>
                                 <div class="form-text mt-1 text-muted" style="font-size: 11px;">
-                                    <i class="ri-magic-line me-0.5 text-primary"></i> Automatically set to next serial.
+                                    <i class="ri-magic-line me-1 text-primary"></i> Automatically set to next serial.
                                 </div>
                             </div>
 
@@ -438,7 +438,7 @@
                         </div>
                     </div>
 
-                    <div class="modal-footer bg-light border-top px-4 py-2.5">
+                    <div class="modal-footer bg-light border-top px-4 py-2">
                         <button type="button" class="btn btn-sm btn-light border px-3"
                             data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveAttribute">

@@ -14,7 +14,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Total Categories</div>
                         <div class="fs-4 fw-bold text-dark mt-1">{{ number_format($stats['total'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-node-tree fs-5"></i>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Main Root Categories</div>
                         <div class="fs-4 fw-bold text-success mt-1">{{ number_format($stats['root'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-folder-3-fill fs-5"></i>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Subcategories</div>
                         <div class="fs-4 fw-bold text-info mt-1">{{ number_format($stats['child'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-info-subtle text-info d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-info-subtle text-info d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-folders-line fs-5"></i>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Custom Attributes</div>
                         <div class="fs-4 fw-bold text-warning mt-1">{{ number_format($stats['total_attributes'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-equalizer-line fs-5"></i>
                     </div>
                 </div>
@@ -112,10 +112,10 @@
 
                         {{-- View Toggle (Table / Tree) --}}
                         <div class="btn-group border-start ps-2" role="group">
-                            <button type="button" class="btn btn-sm btn-primary active px-2.5" id="btnViewTable" title="Table View" style="height: 34px;">
+                            <button type="button" class="btn btn-sm btn-primary active px-2" id="btnViewTable" title="Table View" style="height: 34px;">
                                 <i class="ri-table-line"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light border px-2.5" id="btnViewTree" title="Visual Tree Explorer" style="height: 34px;">
+                            <button type="button" class="btn btn-sm btn-light border px-2" id="btnViewTree" title="Visual Tree Explorer" style="height: 34px;">
                                 <i class="ri-node-tree"></i>
                             </button>
                         </div>
@@ -163,9 +163,9 @@
                             @forelse($tree as $parentCat)
                                 <div class="accordion-item border rounded-3 mb-2 overflow-hidden shadow-xs">
                                     <h2 class="accordion-header" id="headingTree{{ $parentCat->id }}">
-                                        <div class="d-flex align-items-center justify-content-between px-3 py-2.5 bg-light bg-opacity-75">
+                                        <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light bg-opacity-75">
                                             <button class="accordion-button collapsed p-0 bg-transparent shadow-none d-flex align-items-center gap-2 flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTree{{ $parentCat->id }}" aria-expanded="false" aria-controls="collapseTree{{ $parentCat->id }}">
-                                                <div class="rounded-circle p-1.5 bg-white border text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <div class="rounded-circle p-1 bg-white border text-primary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
                                                     <i class="{{ $parentCat->icon_class }} fs-6"></i>
                                                 </div>
                                                 <div class="d-flex flex-column text-start">
@@ -177,7 +177,7 @@
                                                 </span>
                                             </button>
 
-                                            <div class="d-flex align-items-center gap-1.5 ms-3">
+                                            <div class="d-flex align-items-center gap-2 ms-3">
                                                 <a href="{{ route('admin.categories.attributes.index', $parentCat->id) }}" class="btn btn-sm btn-light border" style="padding: 4px 10px; font-size: 12px; background: #fff;" title="Manage Schema">
                                                     <i class="ri-equalizer-line text-primary me-1"></i> {{ $parentCat->attributes_count }} Attributes
                                                 </a>
@@ -189,7 +189,7 @@
                                             @if($parentCat->children && $parentCat->children->count() > 0)
                                                 <div class="list-group list-group-flush">
                                                     @foreach($parentCat->children as $child)
-                                                        <div class="list-group-item d-flex align-items-center justify-content-between px-4 py-2.5 hover-bg-light">
+                                                        <div class="list-group-item d-flex align-items-center justify-content-between px-4 py-2 hover-bg-light">
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <span class="text-muted ms-2 me-1">↳</span>
                                                                 <i class="{{ $child->icon_class }} text-secondary fs-6"></i>
@@ -206,7 +206,7 @@
                                                                 <span class="badge bg-light text-dark border" style="font-size: 11px;">
                                                                     {{ number_format($child->listings_count ?? 0) }} Ads
                                                                 </span>
-                                                                <a href="{{ route('admin.categories.attributes.index', $child->id) }}" class="btn btn-xs {{ $child->attributes_count > 0 ? 'btn-primary' : 'btn-outline-secondary' }} rounded-pill px-2.5 py-0.5" style="font-size: 11px;">
+                                                                <a href="{{ route('admin.categories.attributes.index', $child->id) }}" class="btn btn-xs {{ $child->attributes_count > 0 ? 'btn-primary' : 'btn-outline-secondary' }} rounded-pill px-2 py-1" style="font-size: 11px;">
                                                                     <i class="ri-equalizer-line me-1"></i> {{ $child->attributes_count ?? 0 }} Schema Fields
                                                                 </a>
                                                             </div>
@@ -240,7 +240,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg rounded-3">
             <div class="modal-header bg-white border-bottom px-4 py-3">
-                <div class="d-flex align-items-center gap-2.5">
+                <div class="d-flex align-items-center gap-2">
                     <div class="rounded-circle p-2 bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
                         <i class="ri-folder-add-line fs-5"></i>
                     </div>
@@ -317,7 +317,7 @@
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-sm btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveCategory">
                         <i class="ri-save-line me-1"></i> Save Category

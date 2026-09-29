@@ -47,7 +47,7 @@
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 font-monospace" style="font-size: 11px;">
                         <i class="ri-shield-user-line me-1"></i> {{ strtoupper($admin->role?->value ?? (is_string($admin->role) ? $admin->role : 'ADMIN')) }}
                     </span>
-                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style="font-size: 11px;">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">
                         <i class="ri-checkbox-circle-fill me-1"></i> Online
                     </span>
                 </div>
@@ -56,15 +56,15 @@
 
                 <div class="text-start">
                     <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-light">
-                        <span class="text-muted small"><i class="ri-phone-line me-1.5 text-primary"></i> Phone</span>
+                        <span class="text-muted small"><i class="ri-phone-line me-1 text-primary"></i> Phone</span>
                         <span class="text-dark small fw-medium">{{ $admin->phone ?: 'Not configured' }}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-light">
-                        <span class="text-muted small"><i class="ri-map-pin-line me-1.5 text-success"></i> Location</span>
+                        <span class="text-muted small"><i class="ri-map-pin-line me-1 text-success"></i> Location</span>
                         <span class="text-dark small fw-medium">{{ $admin->city ? ($admin->city . ', ' . ($admin->province ?? 'Canada')) : 'Canada' }}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between py-2">
-                        <span class="text-muted small"><i class="ri-calendar-line me-1.5 text-warning"></i> Joined</span>
+                        <span class="text-muted small"><i class="ri-calendar-line me-1 text-warning"></i> Joined</span>
                         <span class="text-dark small fw-medium">{{ $admin->created_at ? $admin->created_at->format('M Y') : 'Active' }}</span>
                     </div>
                 </div>

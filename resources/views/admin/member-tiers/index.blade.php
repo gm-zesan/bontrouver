@@ -197,7 +197,7 @@
                                                                 </span>
                                                             </div>
                                                             <div
-                                                                class="d-flex align-items-center justify-content-between mt-1.5">
+                                                                class="d-flex align-items-center justify-content-between mt-1">
                                                                 <span class="text-muted small" style="font-size: 11.5px;">Active
                                                                     Members:</span>
                                                                 <span class="fw-semibold text-primary small"
@@ -215,7 +215,7 @@
 
                                                         @if(!empty($tier['perks']))
                                                             <div>
-                                                                <span class="fw-semibold text-dark small d-block mb-1.5"
+                                                                <span class="fw-semibold text-dark small d-block mb-1"
                                                                     style="font-size: 11.5px;">
                                                                     Tier Perks & Benefits:
                                                                 </span>
@@ -223,7 +223,7 @@
                                                                     @foreach($tier['perks'] as $perk)
                                                                         <li class="d-flex align-items-start gap-1 text-muted"
                                                                             style="font-size: 11.5px;">
-                                                                            <i class="ri-check-line text-success mt-0.5"></i>
+                                                                            <i class="ri-check-line text-success mt-1"></i>
                                                                             <span>{{ $perk }}</span>
                                                                         </li>
                                                                     @endforeach
@@ -258,7 +258,7 @@
                                             </p>
                                         </div>
                                         <button type="submit"
-                                            class="btn btn-primary d-flex align-items-center gap-2 px-3.5 shadow-sm"
+                                            class="btn btn-primary d-flex align-items-center gap-2 px-3 shadow-sm"
                                             id="btnSaveRules" style="height: 36px; font-size: 13px; font-weight: 600;">
                                             <i class="ri-save-3-line fs-6"></i>
                                             <span>Save Configuration Changes</span>
@@ -270,7 +270,7 @@
                                         <div class="col-lg-6">
                                             <div class="card border rounded-3 h-100 shadow-sm overflow-hidden bg-white">
                                                 <div
-                                                    class="card-header bg-light border-bottom py-3 px-3.5 d-flex align-items-center justify-content-between">
+                                                    class="card-header bg-light border-bottom py-3 px-3 d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center"
                                                             style="width: 32px; height: 32px;">
@@ -299,7 +299,7 @@
                                                                         <span class="fw-bold text-dark"
                                                                             style="font-size: 13.5px;">{{ $earnRule['name'] }}</span>
                                                                         <span
-                                                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-pill"
+                                                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill"
                                                                             style="font-size: 10px; font-weight: 600;">
                                                                             {{ $earnRule['category'] }}
                                                                         </span>
@@ -334,7 +334,7 @@
                                         <div class="col-lg-6">
                                             <div class="card border rounded-3 h-100 shadow-sm overflow-hidden bg-white">
                                                 <div
-                                                    class="card-header bg-light border-bottom py-3 px-3.5 d-flex align-items-center justify-content-between">
+                                                    class="card-header bg-light border-bottom py-3 px-3 d-flex align-items-center justify-content-between">
                                                     <div class="d-flex align-items-center gap-2">
                                                         <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
                                                             style="width: 32px; height: 32px;">
@@ -363,7 +363,7 @@
                                                                         <span class="fw-bold text-dark"
                                                                             style="font-size: 13.5px;">{{ $spendRule['name'] }}</span>
                                                                         <span
-                                                                            class="badge bg-warning text-warning-emphasis border border-warning-subtle px-2 py-0.5 rounded-pill"
+                                                                            class="badge bg-warning text-warning-emphasis border border-warning-subtle px-2 py-1 rounded-pill"
                                                                             style="font-size: 10px; font-weight: 600;">
                                                                             {{ $spendRule['category'] }}
                                                                         </span>

@@ -156,22 +156,22 @@
                         {{-- Row 1: Core Profile & Activity --}}
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 active rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="manage-tab" data-bs-toggle="pill" data-bs-target="#manage" type="button" role="tab" aria-controls="manage" aria-selected="true">
-                                <i class="ri-settings-4-line me-1.5 fs-6"></i> Management
+                                <i class="ri-settings-4-line me-1 fs-6"></i> Management
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="listings-tab" data-bs-toggle="pill" data-bs-target="#listings" type="button" role="tab" aria-controls="listings" aria-selected="false">
-                                <i class="ri-article-line me-1.5 fs-6"></i> Listings <span class="badge bg-secondary-subtle text-secondary ms-1.5 rounded-pill" style="font-size: 10.5px;">{{ $listings->total() }}</span>
+                                <i class="ri-article-line me-1 fs-6"></i> Listings <span class="badge bg-secondary-subtle text-secondary ms-1 rounded-pill" style="font-size: 11px;">{{ $listings->total() }}</span>
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="meetups-tab" data-bs-toggle="pill" data-bs-target="#meetups" type="button" role="tab" aria-controls="meetups" aria-selected="false">
-                                <i class="ri-calendar-event-line me-1.5 fs-6"></i> Meetups
+                                <i class="ri-calendar-event-line me-1 fs-6"></i> Meetups
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="points-tab" data-bs-toggle="pill" data-bs-target="#points" type="button" role="tab" aria-controls="points" aria-selected="false">
-                                <i class="ri-coins-line me-1.5 fs-6"></i> Points Log <span class="badge bg-secondary-subtle text-secondary ms-1.5 rounded-pill" style="font-size: 10.5px;">{{ $pointTransactions->total() }}</span>
+                                <i class="ri-coins-line me-1 fs-6"></i> Points Log <span class="badge bg-secondary-subtle text-secondary ms-1 rounded-pill" style="font-size: 11px;">{{ $pointTransactions->total() }}</span>
                             </button>
                         </li>
 
@@ -183,26 +183,26 @@
                         {{-- Row 2: Trust, Comms & Moderation --}}
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="reviews-tab" data-bs-toggle="pill" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">
-                                <i class="ri-star-line me-1.5 fs-6"></i> Reviews
+                                <i class="ri-star-line me-1 fs-6"></i> Reviews
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="verification-tab" data-bs-toggle="pill" data-bs-target="#verification" type="button" role="tab" aria-controls="verification" aria-selected="false">
-                                <i class="ri-shield-check-line me-1.5 fs-6"></i> Verification
+                                <i class="ri-shield-check-line me-1 fs-6"></i> Verification
                                 @if($user->verifications()->where('status', 'pending')->exists())
-                                    <span class="badge bg-danger ms-1.5 rounded-pill" style="font-size: 10px;">New</span>
+                                    <span class="badge bg-danger ms-1 rounded-pill" style="font-size: 10px;">New</span>
                                 @endif
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="conversations-tab" data-bs-toggle="pill" data-bs-target="#conversations" type="button" role="tab" aria-controls="conversations" aria-selected="false">
-                                <i class="ri-chat-3-line me-1.5 fs-6"></i> Conversations <span class="badge bg-secondary-subtle text-secondary ms-1.5 rounded-pill" style="font-size: 10.5px;">{{ $conversations->total() }}</span>
+                                <i class="ri-chat-3-line me-1 fs-6"></i> Conversations <span class="badge bg-secondary-subtle text-secondary ms-1 rounded-pill" style="font-size: 11px;">{{ $conversations->total() }}</span>
                             </button>
                         </li>
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="reports-tab" data-bs-toggle="pill" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
-                                <i class="ri-flag-line me-1.5 fs-6"></i> Reports
-                                <span class="badge {{ $userReportsCount > 0 ? 'bg-danger text-white' : 'bg-secondary-subtle text-secondary' }} ms-1.5 rounded-pill" style="font-size: 10.5px;">{{ $userReportsCount }}</span>
+                                <i class="ri-flag-line me-1 fs-6"></i> Reports
+                                <span class="badge {{ $userReportsCount > 0 ? 'bg-danger text-white' : 'bg-secondary-subtle text-secondary' }} ms-1 rounded-pill" style="font-size: 11px;">{{ $userReportsCount }}</span>
                             </button>
                         </li>
                     </ul>
