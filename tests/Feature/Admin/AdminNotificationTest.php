@@ -152,10 +152,10 @@ class AdminNotificationTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('admin.notifications.index'));
 
         $response->assertStatus(200);
-        $response->assertSeeText('Priority Notifications & Moderation Hub');
+        $response->assertSeeText('Priority Notifications & Moderation Queue');
         $response->assertSeeText('Action Required');
-        $response->assertSeeText('Abuse & Safety Reports');
-        $response->assertSeeText('Pending ID Verifications');
+        $response->assertSeeText('Safety Reports');
+        $response->assertSeeText('ID Verifications');
         $response->assertSeeText('Seller asked for gift card payment.');
         $response->assertSeeText('DL-994821');
     }

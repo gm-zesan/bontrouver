@@ -14,7 +14,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Total Reports</div>
                         <div class="fs-4 fw-bold text-dark mt-1">{{ number_format($stats['total'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-flag-2-line fs-5"></i>
                     </div>
                 </div>
@@ -28,7 +28,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Pending Review</div>
                         <div class="fs-4 fw-bold text-warning mt-1">{{ number_format($stats['pending'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-warning-subtle text-warning d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-error-warning-line fs-5"></i>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Resolved Flags</div>
                         <div class="fs-4 fw-bold text-success mt-1">{{ number_format($stats['resolved'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-success-subtle text-success d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-checkbox-circle-line fs-5"></i>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                         <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em; font-size: 11px;">Dismissed Cases</div>
                         <div class="fs-4 fw-bold text-secondary mt-1">{{ number_format($stats['dismissed'] ?? 0) }}</div>
                     </div>
-                    <div class="rounded-3 p-2.5 bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                    <div class="rounded-3 p-2 bg-secondary-subtle text-secondary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
                         <i class="ri-close-circle-line fs-5"></i>
                     </div>
                 </div>
@@ -199,7 +199,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer bg-white border-top px-4 py-2.5 d-flex justify-content-between">
+            <div class="modal-footer bg-white border-top px-4 py-2 d-flex justify-content-between">
                 <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">Close</button>
                 <div class="d-flex align-items-center gap-2" id="inspectorActionButtons">
                     <button type="button" class="btn btn-outline-danger btn-sm px-3" id="btnInspectorDismiss">Dismiss Flag</button>
@@ -241,7 +241,7 @@
                         <textarea class="form-control" id="resolve_notes" name="notes" rows="3" placeholder="Explain the investigation outcome or justification..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-success px-4" id="btnSubmitResolve">
                         <i class="ri-check-line me-1"></i> Resolve Report
@@ -273,7 +273,7 @@
                         <textarea class="form-control" id="dismiss_notes" name="notes" rows="2" placeholder="Brief explanation why this report was dismissed..."></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light border-top px-4 py-2.5">
+                <div class="modal-footer bg-light border-top px-4 py-2">
                     <button type="button" class="btn btn-light border px-3" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-secondary px-4" id="btnSubmitDismiss">
                         <i class="ri-close-line me-1"></i> Dismiss Report
