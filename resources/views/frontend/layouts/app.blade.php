@@ -213,6 +213,9 @@
         </script>
     @endif
 
+    <!-- Global Bon Trouver Live Support Chat Widget -->
+    <x-support-chat-widget />
+
     @stack('scripts')
     @if ($errors->any())
         @php

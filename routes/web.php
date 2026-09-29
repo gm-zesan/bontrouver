@@ -8,6 +8,7 @@ use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\SupportChatController;
 
 use App\Http\Controllers\Seller\ListingController as SellerListingController;
 use App\Http\Controllers\Seller\ProfileController as SellerProfileController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Admin\CategoryAttributeController as AdminCategoryAttri
 use App\Http\Controllers\Admin\MemberTierController as AdminMemberTierController;
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\SupportManagementController as AdminSupportManagementController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +59,14 @@ Route::post('/api/location/set', [HomeController::class, 'setLocation'])->name('
 Route::post('/api/location/detect', [HomeController::class, 'detectLocation'])->name('location.detect');
 Route::get('/api/location/cities', [HomeController::class, 'getCities'])->name('location.cities');
 Route::get('/api/category-attributes/{categorySlug}', [ListingController::class, 'getCategoryAttributes'])->name('listings.category.attributes');
+
+// Support Chat Wizard API Endpoints
+Route::prefix('support-chat')->name('support-chat.')->group(function () {
+    Route::get('/init', [SupportChatController::class, 'init'])->name('init');
+    Route::get('/faqs', [SupportChatController::class, 'getFaqs'])->name('faqs');
+    Route::get('/messages/{conversation}', [SupportChatController::class, 'getMessages'])->name('messages');
+    Route::post('/messages/{conversation}/send', [SupportChatController::class, 'sendMessage'])->name('send');
+});
 
 // Stripe Payment Webhook
 Route::post('/webhook/stripe', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
@@ -244,6 +254,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/provinces/{province}', [AdminLocationController::class, 'showProvince'])->name('provinces.show');
         Route::put('/provinces/{province}', [AdminLocationController::class, 'updateProvince'])->name('provinces.update');
         Route::post('/provinces/{province}/toggle-active', [AdminLocationController::class, 'toggleProvinceActive'])->name('provinces.toggleActive');
+    });
+
+    // Live Support & Helpdesk Hub
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [AdminSupportManagementController::class, 'index'])->name('index');
+        Route::get('/inbox-poll', [AdminSupportManagementController::class, 'pollInbox'])->name('pollInbox');
+        Route::get('/{conversation}', [AdminSupportManagementController::class, 'show'])->name('show');
+        Route::post('/{conversation}/reply', [AdminSupportManagementController::class, 'reply'])->name('reply');
+        Route::post('/{conversation}/status', [AdminSupportManagementController::class, 'updateStatus'])->name('updateStatus');
+        Route::get('/{conversation}/poll', [AdminSupportManagementController::class, 'poll'])->name('poll');
     });
 
     // Platform & Site Settings Management Hub

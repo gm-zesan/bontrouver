@@ -64,7 +64,8 @@ class MessageService
                     $attachmentData[] = [
                         'path' => $path,
                         'type' => $type,
-                        'url' => \Illuminate\Support\Facades\Storage::url($path)
+                        'name' => $attachment->getClientOriginalName(),
+                        'url' => '/storage/' . ltrim($path, '/')
                     ];
                 }
             }

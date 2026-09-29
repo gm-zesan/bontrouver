@@ -157,9 +157,9 @@ class AdminProfileTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Admin Dashboard');
+        $response->assertSee('My Listings');
         $response->assertSee('Logout');
         $response->assertDontSee('Account Settings');
-        $response->assertDontSee('My Listings');
     }
 
     public function test_frontend_header_shows_full_dropdown_for_regular_user(): void

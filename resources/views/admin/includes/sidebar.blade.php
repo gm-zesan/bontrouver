@@ -91,6 +91,13 @@
             </a>
         </li>
         <li>
+            <a href="{{ route('admin.support.index') }}"
+                class="{{ request()->routeIs('admin.support.*') ? 'active-focus' : '' }}">
+                <i class="ri-customer-service-2-line"></i>
+                <span class="link_names">Live Support & Helpdesk</span>
+            </a>
+        </li>
+        <li>
             <a href="{{ route('admin.member-tiers.index') }}"
                 class="{{ request()->routeIs('admin.member-tiers.*') ? 'active-focus' : '' }}">
                 <i class="ri-medal-line"></i>

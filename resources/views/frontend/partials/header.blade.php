@@ -292,6 +292,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" href="{{ route('listings.my') }}">
+                                        <i class="bi bi-card-list me-2 text-info"></i> My Listings
+                                    </a>
+                                </li>
+                                <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>

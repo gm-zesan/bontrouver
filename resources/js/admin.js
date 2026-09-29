@@ -3,6 +3,8 @@
  * Fully decoupled from frontend scripts (zero dependencies on GSAP, ScrollTrigger, Lenis, or Swiper).
  */
 
+import './echo';
+
 function initAdmin() {
     // 1. Admin Sidebar Toggle Handler
     const sidebarToggleBtn = document.querySelector('#btn');

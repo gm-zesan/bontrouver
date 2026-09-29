@@ -25,6 +25,7 @@
 | **10. Seller Performance & Analytics Hub** | ✅ **Complete** | **100%** | `ListingAnalyticsService`, `ListingView`, `/my-listings/{id}/analytics`, ApexCharts 14-day traffic trend modal |
 | **11. Scheduled Expiry & Cron Automation** | ✅ **Complete** | **100%** | `CheckListingAndPromotionExpiry`, hourly cron, 24h warning alerts, `ListingBoostExpired`, `ListingExpired` |
 | **12. End-to-End User Journey & Monetization** | ✅ **Complete** | **100%** | `EndToEndUserJourneyTest`, Ad creation with Stripe card boost, real-time Smart Alert sync, Pause/Resume transitions, active boost cooldown locks, points redemption, and seller analytics |
+| **13. Live Support Chat Wizard & Helpdesk** | ✅ **Complete** | **100%** | `SupportConversation`, `SupportMessage`, `SupportChatService`, `SupportChatController`, `SupportManagementController`, `<x-support-chat-widget />`, Guest login gate with return URL, dual tabs (Live Chat + Instant FAQs), photo/PDF attachments, live 5s polling, Admin Helpdesk split workspace at `/admin/support`. |
 
 ---
 
@@ -44,6 +45,7 @@
 | **11. Promotions & Boosts** | `/admin/promotions` | ✅ **Complete** | **100%** | Monetization hub for Canadian listing boost packages (Sponsored Spotlight, Featured Highlight, Instant Bump-Up), CAD pricing & point cost manager, 30-Day ApexCharts gross CAD revenue area chart, Boost tier revenue share donut chart, Average Order Value (AOV) stats, Stripe service & webhook listener (`/webhook/stripe`), internal platform database notifications (`ListingBoostActivated`), boost transaction audit ledger, and CSV export (`/admin/promotions/export-csv`). | 🎉 Module Complete! |
 | **12. Banner Ads & AdSense** | `/admin/banners` | ✅ **Complete** | **100%** | Canadian local sponsor banners and Google AdSense ad slot manager, position targeting (Search sidebar, listing details, leaderboard), impression/click tracking, and CTR stats. | 🎉 Module Complete! |
 | **13. Platform & Site Settings** | `/admin/settings` | ✅ **Complete** | **100%** | Central 5-tab system configuration hub for General identity, Branding asset upload/previews (Light/Dark logos, Favicon, OG Image), Canadian SEO & Social media links, Marketplace & Listing rules, and System Maintenance mode toggle. | 🎉 Module Complete! |
+| **14. Live Support & Helpdesk Hub** | `/admin/support` | ✅ **Complete** | **100%** | Real-time Helpdesk & Support Inbox, live KPI cards (Total, Open, In Progress, Unread), search & status filters, split-screen conversation canvas, canned response templates, file uploads, status & priority switcher, and user identity dossier. | 🎉 Module Complete! |
 
 ---
 

@@ -142,7 +142,7 @@ select,
     ul.nav_list {
         padding: 10px 0;
         margin: 0;
-        height: calc(100% - 116px);
+        height: calc(100% - 56px);
         overflow-y: auto;
         overflow-x: hidden;
 
@@ -1724,12 +1724,12 @@ header {
     }
 }
 
-.role-input:checked + label .role-wrapper {
+.role-input:checked+label .role-wrapper {
     border-color: #49D17D !important;
     background-color: rgba(73, 209, 125, 0.05) !important;
 }
 
-.role-input:checked + label .check-icon {
+.role-input:checked+label .check-icon {
     opacity: 1 !important;
     transform: scale(1) !important;
 }

@@ -138,6 +138,16 @@ class User extends Authenticatable
         return $this->hasMany(ListingPromotion::class);
     }
 
+    public function supportConversations()
+    {
+        return $this->hasMany(SupportConversation::class);
+    }
+
+    public function supportMessages()
+    {
+        return $this->hasMany(SupportMessage::class, 'sender_id');
+    }
+
     public function profile()
     {
         return $this->hasOne(UserProfile::class);
@@ -172,25 +182,34 @@ class User extends Authenticatable
         return $latest ? $latest->status : 'none';
     }
 
-    public function getAvatarUrlAttribute(): ?string
+    public function getAvatarUrlAttribute(): string
     {
         if (empty($this->avatar)) {
-            return null;
+            return asset('images/default-avatar.svg');
         }
 
         if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://')) {
             return $this->avatar;
         }
 
-        if (str_starts_with($this->avatar, 'storage/')) {
-            return asset($this->avatar);
+        $cleanPath = ltrim($this->avatar, '/');
+
+        if (str_starts_with($cleanPath, 'storage/')) {
+            if (file_exists(public_path($cleanPath))) {
+                return asset($cleanPath);
+            }
+            return asset('images/default-avatar.svg');
         }
 
-        if (file_exists(public_path($this->avatar))) {
-            return asset($this->avatar);
+        if (file_exists(public_path($cleanPath))) {
+            return asset($cleanPath);
         }
 
-        return asset('storage/' . $this->avatar);
+        if (file_exists(public_path('storage/' . $cleanPath))) {
+            return asset('storage/' . $cleanPath);
+        }
+
+        return asset('images/default-avatar.svg');
     }
 
     // Computed attributes (Accessors)

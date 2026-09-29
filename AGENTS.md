@@ -223,6 +223,27 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Methods: `SiteSetting::get(string $key, mixed $default = null)`, `SiteSetting::set(string $key, mixed $value, string $group = 'general', string $type = 'string')`, `SiteSetting::getAllGrouped()`, `SiteSetting::flushCache()`
 - Helpers: `site_setting(string $key, mixed $default = null)`
 
+### SupportConversation (`App\Models\SupportConversation`)
+- `$conv->user()` → `belongsTo(User::class)`
+- `$conv->assignee()` → `belongsTo(User::class, 'assigned_to')`
+- `$conv->messages()` → `hasMany(SupportMessage::class)`
+- `$conv->latestMessage()` → `hasOne(SupportMessage::class)->latestOfMany()`
+- `$conv->unreadMessagesForAdmin()` → `hasMany(SupportMessage::class)->where('sender_type', 'user')->where('is_read', false)`
+- Columns: `user_id`, `subject` (nullable), `status` (`open`, `in_progress`, `resolved`, `closed`), `priority` (`normal`, `high`, `urgent`), `assigned_to`, `last_message_at`
+
+### SupportMessage (`App\Models\SupportMessage`)
+- `$msg->conversation()` → `belongsTo(SupportConversation::class, 'support_conversation_id')`
+- `$msg->sender()` → `belongsTo(User::class, 'sender_id')`
+- Accessors: `$msg->attachment_urls` (returns public storage URLs), `$msg->attachment_files` (returns array of structured metadata: `url`, `name`, `extension`, `is_image`, `is_pdf`, `is_doc`, `size_human`)
+- Columns: `support_conversation_id`, `sender_id`, `sender_type` (`user`, `admin`, `system`), `message`, `attachments` (json), `is_read`, `read_at`
+
+### SupportChatService & Admin Helpdesk Hub (`App\Services\SupportChatService`, `App\Http\Controllers\Admin\SupportManagementController`, `App\Http\Controllers\SupportChatController`)
+- Global floating chat wizard `<x-support-chat-widget />` pinned on every page with direct live chat, pre-send attachment previews, rich file cards, and image lightbox viewer.
+- Real-Time WebSocket Infrastructure: Powered by **Laravel Reverb** via `App\Events\SupportMessageSent` on channels `support.conversation.{id}`, `admin.support`, and `App.Models.User.{id}` for instant sub-millisecond bidirectional communication across both the floating widget and `/admin/support` desk.
+- Guest Protection: Unauthenticated visitors see a friendly login/registration gate with return URL redirect and browsable instant FAQ topics.
+- Authenticated Users: Instant conversation initiation with direct messaging, multi-file attachments (images, PDF, Word doc, Excel), and real-time WebSocket updates.
+- Admin Hub: `/admin/support` with live WebSocket stream, instant thread insertion and dynamic sidebar re-ordering, image lightbox modal, and direct downloads.
+
 ### AdminNotificationService & Notifications Hub (`App\Services\AdminNotificationService`, `App\Http\Controllers\Admin\NotificationController`)
 - Aggregates high-priority admin alerts strictly for User Safety Reports and Canadian ID Verifications.
 - Integrated directly into the top navbar notification bell dropdown (`admin.includes.header`) with dynamic count badges and 1-click jump links.

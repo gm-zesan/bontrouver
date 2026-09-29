@@ -241,19 +241,27 @@
                         @if(!empty($msg['attachments']))
                             <div class="d-flex flex-wrap gap-2 mb-2">
                                 @foreach($msg['attachments'] as $att)
-                                    @if($att['type'] === 'image')
-                                        <div class="position-relative d-inline-block">
-                                            <a href="javascript:void(0)" onclick="openImageModal('{{ $att['url'] }}')">
-                                                <img src="{{ $att['url'] }}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                                    @php
+                                        $attUrl = is_array($att) ? ($att['url'] ?? '') : (string) $att;
+                                        $attType = is_array($att) ? ($att['type'] ?? 'file') : 'file';
+                                        $attName = is_array($att) ? ($att['name'] ?? basename($attUrl)) : basename($attUrl);
+                                    @endphp
+                                    @if($attType === 'image')
+                                        <div class="position-relative d-inline-block rounded-3 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12); background: #081D33;">
+                                            <a href="javascript:void(0)" onclick="openImageModal('{{ $attUrl }}')">
+                                                <img src="{{ $attUrl }}" alt="{{ $attName }}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                             </a>
-                                            <a href="{{ $att['url'] }}" download class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
+                                            <a href="{{ $attUrl }}" download="{{ $attName }}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
                                                 <i class="bi bi-download" style="font-size: 0.7rem;"></i>
                                             </a>
                                         </div>
                                     @else
-                                        <div class="p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2">
-                                            <i class="bi bi-file-earmark-fill fs-4"></i>
-                                            <a href="{{ $att['url'] }}" download class="text-decoration-none text-reset fw-bold" style="font-size: 0.8rem;">Download Attachment</a>
+                                        <div class="p-2 bg-light bg-opacity-10 rounded-3 d-flex align-items-center gap-2 border border-white-10">
+                                            <i class="bi bi-file-earmark-fill fs-4 text-success"></i>
+                                            <div class="min-w-0 me-2">
+                                                <div class="text-white small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 180px;" title="{{ $attName }}">{{ $attName }}</div>
+                                            </div>
+                                            <a href="{{ $attUrl }}" download="{{ $attName }}" class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 0.75rem;">Download</a>
                                         </div>
                                     @endif
                                 @endforeach
@@ -459,19 +467,32 @@ function sendChatMessage() {
             if (stream) {
                 let attachmentHtml = '<div class="d-flex flex-wrap gap-2 mb-2">';
                 data.message.attachments.forEach(att => {
-                    if (att.type === 'image') {
+                    const attUrl = typeof att === 'string' ? att : (att.url || '');
+                    const safeUrl = resolveSafeUrl(attUrl);
+                    const attType = typeof att === 'object' && att.type ? att.type : (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(attUrl) ? 'image' : 'file');
+                    const attName = escapeHtml(typeof att === 'object' && att.name ? att.name : (attUrl.split('/').pop() || 'Attachment'));
+
+                    if (attType === 'image') {
                         attachmentHtml += `
-                            <div class="position-relative d-inline-block">
-                                <a href="javascript:void(0)" onclick="openImageModal('${att.url}')">
-                                    <img src="${att.url}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                            <div class="position-relative d-inline-block rounded-3 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12); background: #081D33;">
+                                <a href="javascript:void(0)" onclick="openImageModal('${safeUrl}')">
+                                    <img src="${safeUrl}" alt="${attName}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                 </a>
-                                <a href="${att.url}" download class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
+                                <a href="${safeUrl}" download="${attName}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
                                     <i class="bi bi-download" style="font-size: 0.7rem;"></i>
                                 </a>
                             </div>
                         `;
                     } else {
-                        attachmentHtml += `<div class="p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2"><i class="bi bi-file-earmark-fill fs-4"></i><a href="${att.url}" download class="text-decoration-none text-reset fw-bold" style="font-size: 0.8rem;">Download Attachment</a></div>`;
+                        attachmentHtml += `
+                            <div class="p-2 bg-light bg-opacity-10 rounded-3 d-flex align-items-center gap-2 border border-white-10">
+                                <i class="bi bi-file-earmark-fill fs-4 text-success"></i>
+                                <div class="min-w-0 me-2">
+                                    <div class="text-white small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 180px;" title="${attName}">${attName}</div>
+                                </div>
+                                <a href="${safeUrl}" download="${attName}" class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 0.75rem;">Download</a>
+                            </div>
+                        `;
                     }
                 });
                 attachmentHtml += '</div>';
@@ -492,6 +513,11 @@ function sendChatMessage() {
         }
     })
     .catch(() => {});
+}
+
+function resolveSafeUrl(url) {
+    if (!url) return '';
+    return url.replace(/^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/.*)$/i, '$1');
 }
 
 function escapeHtml(text) {
@@ -539,19 +565,32 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (e.attachments && e.attachments.length > 0) {
                             attachmentHtml = '<div class="d-flex flex-wrap gap-2 mb-2">';
                             e.attachments.forEach(att => {
-                                if (att.type === 'image') {
+                                const attUrl = typeof att === 'string' ? att : (att.url || '');
+                                const safeUrl = resolveSafeUrl(attUrl);
+                                const attType = typeof att === 'object' && att.type ? att.type : (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(attUrl) ? 'image' : 'file');
+                                const attName = escapeHtml(typeof att === 'object' && att.name ? att.name : (attUrl.split('/').pop() || 'Attachment'));
+
+                                if (attType === 'image') {
                                     attachmentHtml += `
-                                        <div class="position-relative d-inline-block">
-                                            <a href="javascript:void(0)" onclick="openImageModal('${att.url}')">
-                                                <img src="${att.url}" class="img-fluid rounded" style="max-height: 150px; object-fit: cover; border: 1px solid rgba(0,0,0,0.1);">
+                                        <div class="position-relative d-inline-block rounded-3 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12); background: #081D33;">
+                                            <a href="javascript:void(0)" onclick="openImageModal('${safeUrl}')">
+                                                <img src="${safeUrl}" alt="${attName}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                             </a>
-                                            <a href="${att.url}" download class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
+                                            <a href="${safeUrl}" download="${attName}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
                                                 <i class="bi bi-download" style="font-size: 0.7rem;"></i>
                                             </a>
                                         </div>
                                     `;
                                 } else {
-                                    attachmentHtml += `<div class="p-2 bg-light bg-opacity-10 rounded d-flex align-items-center gap-2"><i class="bi bi-file-earmark-fill fs-4"></i><a href="${att.url}" download class="text-decoration-none text-reset fw-bold" style="font-size: 0.8rem;">Download Attachment</a></div>`;
+                                    attachmentHtml += `
+                                        <div class="p-2 bg-light bg-opacity-10 rounded-3 d-flex align-items-center gap-2 border border-white-10">
+                                            <i class="bi bi-file-earmark-fill fs-4 text-success"></i>
+                                            <div class="min-w-0 me-2">
+                                                <div class="text-white small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 180px;" title="${attName}">${attName}</div>
+                                            </div>
+                                            <a href="${safeUrl}" download="${attName}" class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 0.75rem;">Download</a>
+                                        </div>
+                                    `;
                                 }
                             });
                             attachmentHtml += '</div>';

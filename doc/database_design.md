@@ -462,3 +462,35 @@ Geo-targeted Canadian sponsor banners and Google AdSense units.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `[position, is_active]`, `city`*
+
+---
+
+## 9. LIVE SUPPORT & HELPDESK
+
+### `support_conversations`
+Tracks live customer support sessions and helpdesk inquiries.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `user_id` (FK -> users.id, CASCADE DELETE)
+- `subject` (VARCHAR 255, NULLABLE) - Optional inquiry topic / tag
+- `status` (ENUM: 'open', 'in_progress', 'resolved', 'closed') - Default: 'open'
+- `priority` (ENUM: 'normal', 'high', 'urgent') - Default: 'normal'
+- `assigned_to` (FK -> users.id, NULLABLE, SET NULL) - Admin assigned to handle the ticket
+- `last_message_at` (TIMESTAMP, NULLABLE)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[user_id, status]`, `status`, `last_message_at`*
+
+### `support_messages`
+Real-time messages sent between users, administrators, and automated bot assistants.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `support_conversation_id` (FK -> support_conversations.id, CASCADE DELETE)
+- `sender_id` (FK -> users.id, CASCADE DELETE)
+- `sender_type` (ENUM: 'user', 'admin', 'system') - Default: 'user'
+- `message` (TEXT)
+- `attachments` (JSON, NULLABLE) - Array of uploaded image/PDF storage paths
+- `is_read` (BOOLEAN) - Default: false
+- `read_at` (TIMESTAMP, NULLABLE)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `[support_conversation_id, created_at]`, `[support_conversation_id, is_read]`*
+

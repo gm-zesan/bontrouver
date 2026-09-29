@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="supportBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06182B"/>
+      <stop offset="100%" stop-color="#0D243C"/>
+    </linearGradient>
+    <linearGradient id="supportAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#49D17D"/>
+      <stop offset="100%" stop-color="#22C55E"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="60" fill="url(#supportBg)"/>
+  <!-- Headset band -->
+  <path d="M38 60 A22 22 0 0 1 82 60" fill="none" stroke="url(#supportAccent)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Left earpiece -->
+  <rect x="34" y="52" width="10" height="20" rx="5" fill="url(#supportAccent)"/>
+  <!-- Right earpiece -->
+  <rect x="76" y="52" width="10" height="20" rx="5" fill="url(#supportAccent)"/>
+  <!-- Head -->
+  <circle cx="60" cy="56" r="14" fill="#FFFFFF" opacity="0.9"/>
+  <!-- Microphone arm -->
+  <path d="M78 68 C78 78, 68 84, 58 84" fill="none" stroke="url(#supportAccent)" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="56" cy="84" r="4" fill="url(#supportAccent)"/>
+  <!-- Base Shield / Badge Accent -->
+  <path d="M35 106 C35 90, 46 86, 60 86 C74 86, 85 90, 85 106 Z" fill="url(#supportAccent)" opacity="0.4"/>
+</svg>

@@ -249,7 +249,9 @@ app/
 │   ├── ListingPromotion.php
 │   ├── BannerAd.php
 │   ├── SiteSetting.php
-│   └── SearchQuery.php
+│   ├── SearchQuery.php
+│   ├── SupportConversation.php
+│   └── SupportMessage.php
 │
 ├── Notifications/
 │   ├── SmartAlertMatched.php
@@ -284,6 +286,7 @@ app/
     ├── VerificationService.php
     ├── MonetizationService.php
     ├── SiteSettingService.php
+    ├── SupportChatService.php
     └── CompanionshipService.php
 ```
 
