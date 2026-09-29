@@ -885,16 +885,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.authenticated) {
                 isAuthenticated = true;
                 currentConversationId = data.conversation.id;
-                
-                // Update Conversation ID badge
-                const idDisplay = document.getElementById('btConvIdDisplay');
-                if (idDisplay) idDisplay.innerText = data.conversation.id;
-
-                // Update Status
-                const badge = document.getElementById('btConvStatusBadge');
-                if (badge) {
-                    badge.innerHTML = `<i class="bi bi-circle-fill text-success" style="font-size: 5px;"></i> ${(data.conversation.status || 'OPEN').toUpperCase()}`;
-                }
 
                 // Render initial messages
                 renderMessages(data.messages || []);
@@ -1030,33 +1020,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         if (f.is_image) {
                             attachmentsHtml += `
-                                <div class="bt-attached-image-wrapper" title="${safeName}">
-                                    <img src="${safeUrl}" alt="${safeName}" class="bt-attached-img" onclick="openBtLightbox('${safeUrl}', '${safeName}')" loading="lazy" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
-                                    <div class="bt-attach-overlay">
-                                        <button type="button" class="bt-attach-btn" onclick="openBtLightbox('${safeUrl}', '${safeName}')" title="View Fullscreen"><i class="bi bi-arrows-fullscreen"></i></button>
-                                        <a href="${safeUrl}" download="${safeName}" class="bt-attach-btn" title="Download"><i class="bi bi-download"></i></a>
-                                    </div>
+                                <div class="position-relative d-inline-block rounded-3 overflow-hidden" style="border: 1px solid rgba(255,255,255,0.12); background: #081D33;">
+                                    <a href="javascript:void(0)" onclick="openBtLightbox('${safeUrl}', '${safeName}')">
+                                        <img src="${safeUrl}" alt="${safeName}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
+                                    </a>
+                                    <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;" title="Download">
+                                        <i class="bi bi-download" style="font-size: 0.7rem;"></i>
+                                    </a>
                                 </div>
                             `;
                         } else {
-                            let iconClass = 'bi-file-earmark-text text-secondary';
-                            if (f.is_pdf) iconClass = 'bi-file-earmark-pdf-fill text-danger';
-                            else if (f.is_doc) iconClass = 'bi-file-earmark-word-fill text-primary';
-                            else if (f.is_spreadsheet) iconClass = 'bi-file-earmark-excel-fill text-success';
-
                             attachmentsHtml += `
-                                <div class="bt-attached-file-card p-2 d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                        <i class="bi ${iconClass} fs-4 flex-shrink-0"></i>
-                                        <div class="min-w-0">
-                                            <div class="text-white small fw-semibold text-truncate" style="font-size: 0.78rem;" title="${safeName}">${safeName}</div>
-                                            <div class="text-white-50" style="font-size: 0.68rem;">${f.extension ? f.extension.toUpperCase() : 'FILE'} ${sizeStr}</div>
-                                        </div>
+                                <div class="p-2 bg-light bg-opacity-10 rounded-3 d-flex align-items-center gap-2 border border-white-10">
+                                    <i class="bi bi-file-earmark-fill fs-4 text-success"></i>
+                                    <div class="min-w-0 me-2">
+                                        <div class="text-white small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 180px;" title="${safeName}">${safeName}</div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                                        <a href="${safeUrl}" target="_blank" class="btn btn-sm btn-outline-light py-1 px-2" style="font-size: 0.7rem;" title="View file"><i class="bi bi-box-arrow-up-right"></i></a>
-                                        <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-success py-1 px-2" style="font-size: 0.7rem;" title="Download file"><i class="bi bi-download"></i></a>
-                                    </div>
+                                    <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-outline-light py-0 px-2" style="font-size: 0.75rem;">Download</a>
                                 </div>
                             `;
                         }
@@ -1322,26 +1302,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const refreshBtn = document.getElementById('btRefreshChatBtn');
-    if (refreshBtn) {
-        refreshBtn.addEventListener('click', function () {
-            const icon = this.querySelector('i');
-            if (icon) icon.classList.add('bi-spin');
-            if (currentConversationId) {
-                fetch(`/support-chat/messages/${currentConversationId}`, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-                })
-                .then(r => r.json())
-                .then(d => {
-                    if (icon) icon.classList.remove('bi-spin');
-                    if (d.messages) renderMessages(d.messages);
-                })
-                .catch(() => {
-                    if (icon) icon.classList.remove('bi-spin');
-                });
-            }
-        });
-    }
+
 
     // Global Lightbox Helpers
     window.openBtLightbox = function(url, title = 'Image View') {

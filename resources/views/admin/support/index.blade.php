@@ -231,32 +231,21 @@
                                                     <div class="mt-2 d-flex flex-column gap-2">
                                                         @foreach($files as $f)
                                                             @if($f['is_image'])
-                                                                <div class="position-relative rounded-3 overflow-hidden d-inline-block border shadow-sm bt-admin-attached-img-wrap" style="max-width: 240px; background: #000; cursor: pointer;">
-                                                                    <img src="{{ $f['url'] }}" alt="{{ $f['name'] }}" class="img-fluid d-block" style="max-height: 160px; object-fit: cover;" onclick="openAdminLightbox('{{ $f['url'] }}', '{{ addslashes($f['name']) }}')">
-                                                                    <div class="bt-admin-img-overlay">
-                                                                        <button type="button" class="btn btn-sm btn-light rounded-circle p-1" onclick="openAdminLightbox('{{ $f['url'] }}', '{{ addslashes($f['name']) }}')" title="View Image"><i class="ri-fullscreen-line"></i></button>
-                                                                        <a href="{{ $f['url'] }}" download="{{ $f['name'] }}" class="btn btn-sm btn-light rounded-circle p-1" title="Download"><i class="ri-download-2-line"></i></a>
-                                                                    </div>
+                                                                <div class="position-relative d-inline-block rounded-3 overflow-hidden shadow-sm" style="border: 1px solid rgba(0,0,0,0.1); background: #081D33;">
+                                                                    <a href="javascript:void(0)" onclick="openAdminLightbox('{{ $f['url'] }}', '{{ addslashes($f['name']) }}')">
+                                                                        <img src="{{ $f['url'] }}" alt="{{ $f['name'] }}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
+                                                                    </a>
+                                                                    <a href="{{ $f['url'] }}" download="{{ $f['name'] }}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7);" title="Download">
+                                                                        <i class="ri-download-2-line text-white" style="font-size: 0.75rem;"></i>
+                                                                    </a>
                                                                 </div>
                                                             @else
-                                                                @php
-                                                                    $icon = 'ri-file-text-line text-secondary';
-                                                                    if($f['is_pdf']) $icon = 'ri-file-pdf-fill text-danger';
-                                                                    elseif($f['is_doc']) $icon = 'ri-file-word-fill text-primary';
-                                                                    elseif($f['is_spreadsheet']) $icon = 'ri-file-excel-fill text-success';
-                                                                @endphp
-                                                                <div class="p-2 rounded-3 border d-flex align-items-center justify-content-between {{ $isAdmin ? 'bg-white text-dark' : 'bg-light text-dark' }}" style="max-width: 320px;">
-                                                                    <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                                                        <i class="{{ $icon }} fs-4 flex-shrink-0"></i>
-                                                                        <div class="min-w-0">
-                                                                            <div class="fw-semibold text-truncate small" style="font-size: 12px;" title="{{ $f['name'] }}">{{ $f['name'] }}</div>
-                                                                            <div class="text-muted" style="font-size: 10px;">{{ strtoupper($f['extension'] ?? 'FILE') }} {{ $f['size_human'] ? '('.$f['size_human'].')' : '' }}</div>
-                                                                        </div>
+                                                                <div class="p-2 {{ $isAdmin ? 'bg-white bg-opacity-20 text-white' : 'bg-light text-dark' }} rounded-3 d-flex align-items-center gap-2 border {{ $isAdmin ? 'border-white-20' : 'border-secondary border-opacity-10' }}" style="max-width: 260px;">
+                                                                    <i class="ri-file-text-fill fs-4 {{ $isAdmin ? 'text-white' : 'text-success' }}"></i>
+                                                                    <div class="min-w-0 me-2">
+                                                                        <div class="small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 150px;" title="{{ $f['name'] }}">{{ $f['name'] }}</div>
                                                                     </div>
-                                                                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                                                                        <a href="{{ $f['url'] }}" target="_blank" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;" title="View"><i class="ri-external-link-line"></i></a>
-                                                                        <a href="{{ $f['url'] }}" download="{{ $f['name'] }}" class="btn btn-sm btn-success py-0 px-2 text-white" style="font-size: 11px;" title="Download"><i class="ri-download-line"></i></a>
-                                                                    </div>
+                                                                    <a href="{{ $f['url'] }}" download="{{ $f['name'] }}" class="btn btn-sm {{ $isAdmin ? 'btn-outline-light' : 'btn-outline-secondary' }} py-0 px-2" style="font-size: 0.75rem;">Download</a>
                                                                 </div>
                                                             @endif
                                                         @endforeach
@@ -452,20 +441,21 @@
         </div>
     </div>
 
-    <!-- Admin Lightbox Modal -->
-    <div id="adminLightboxModal" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style="background: rgba(0,0,0,0.85); z-index: 99999; backdrop-filter: blur(6px);" onclick="if(event.target === this) closeAdminLightbox();">
-        <div class="bg-white rounded-4 shadow-lg overflow-hidden d-flex flex-column" style="max-width: 90vw; max-height: 90vh;">
-            <div class="p-2 border-bottom d-flex align-items-center justify-content-between bg-light">
-                <span id="adminLightboxTitle" class="fw-semibold small text-truncate px-2" style="max-width: 70%;">Image Preview</span>
-                <div class="d-flex align-items-center gap-2">
-                    <a id="adminLightboxDownloadBtn" href="#" download class="btn btn-sm btn-success py-1 px-3 text-white" style="font-size: 12px;">
+    <!-- Admin Full Screen Image Modal -->
+    <div class="modal fade" id="adminImagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-header border-0 pb-0 justify-content-end">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-0 position-relative">
+                    <img id="adminModalImagePreview" src="" class="img-fluid rounded shadow-lg" style="max-height: 85vh; object-fit: contain;">
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <a id="adminModalDownloadBtn" href="" download class="btn btn-primary px-4 rounded-pill shadow">
                         <i class="ri-download-2-line me-1"></i> Download
                     </a>
-                    <button type="button" class="btn-close me-1" onclick="closeAdminLightbox()"></button>
                 </div>
-            </div>
-            <div class="p-2 text-center overflow-auto bg-dark d-flex align-items-center justify-content-center">
-                <img id="adminLightboxImg" src="" alt="Full preview" class="img-fluid rounded-2" style="max-height: 75vh; object-fit: contain;">
             </div>
         </div>
     </div>
@@ -619,26 +609,25 @@
     <script>
         // Global Admin Lightbox Functions
         window.openAdminLightbox = function (url, title = 'Image Preview') {
-            const modal = document.getElementById('adminLightboxModal');
-            const img = document.getElementById('adminLightboxImg');
-            const titleEl = document.getElementById('adminLightboxTitle');
-            const dlBtn = document.getElementById('adminLightboxDownloadBtn');
-
-            if (modal && img) {
-                img.src = url;
-                if (titleEl) titleEl.innerText = title;
-                if (dlBtn) {
-                    dlBtn.href = url;
-                    dlBtn.setAttribute('download', title);
-                }
-                modal.classList.remove('d-none');
+            const img = document.getElementById('adminModalImagePreview');
+            const dlBtn = document.getElementById('adminModalDownloadBtn');
+            if (img) img.src = url;
+            if (dlBtn) {
+                dlBtn.href = url;
+                dlBtn.setAttribute('download', title || 'image');
+            }
+            const modalEl = document.getElementById('adminImagePreviewModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
             }
         };
 
         window.closeAdminLightbox = function () {
-            const modal = document.getElementById('adminLightboxModal');
-            if (modal) {
-                modal.classList.add('d-none');
+            const modalEl = document.getElementById('adminImagePreviewModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
             }
         };
 
@@ -705,36 +694,32 @@
 
                 selectedAdminFiles.forEach((file, index) => {
                     const itemEl = document.createElement('div');
-                    itemEl.className = 'bt-admin-attach-preview-item';
+                    itemEl.className = 'position-relative d-inline-block bg-white rounded p-1 border shadow-sm';
+                    itemEl.style.minWidth = '50px';
 
-                    const isImg = file.type.startsWith('image/');
-                    const sizeKb = (file.size / 1024).toFixed(0);
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0 d-flex align-items-center justify-content-center shadow';
+                    removeBtn.style.width = '18px';
+                    removeBtn.style.height = '18px';
+                    removeBtn.style.transform = 'translate(30%, -30%)';
+                    removeBtn.innerHTML = '<i class="ri-close-line" style="font-size: 11px;"></i>';
+                    removeBtn.onclick = () => removeAdminSelectedFile(index);
 
-                    if (isImg) {
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.className = 'rounded object-fit-cover';
+                        img.style.width = '50px';
+                        img.style.height = '50px';
                         const reader = new FileReader();
-                        reader.onload = e => {
-                            itemEl.innerHTML = `
-                                <img src="${e.target.result}" style="width: 26px; height: 26px; object-fit: cover; border-radius: 4px;" class="me-1">
-                                <span class="small text-truncate" style="max-width: 120px; font-size: 11px;">${escapeHtml(file.name)}</span>
-                                <span class="text-muted" style="font-size: 10px;">${sizeKb}KB</span>
-                                <button type="button" class="btn-close ms-1" style="font-size: 9px;" onclick="removeAdminSelectedFile(${index})"></button>
-                            `;
-                        };
+                        reader.onload = e => img.src = e.target.result;
                         reader.readAsDataURL(file);
+                        itemEl.appendChild(img);
                     } else {
-                        let icon = 'ri-file-text-line text-secondary';
-                        if (file.type.includes('pdf') || file.name.endsWith('.pdf')) icon = 'ri-file-pdf-fill text-danger';
-                        else if (file.name.match(/\.(doc|docx)$/i)) icon = 'ri-file-word-fill text-primary';
-                        else if (file.name.match(/\.(xls|xlsx|csv)$/i)) icon = 'ri-file-excel-fill text-success';
-
-                        itemEl.innerHTML = `
-                            <i class="${icon} fs-6 me-1"></i>
-                            <span class="small text-truncate" style="max-width: 120px; font-size: 11px;">${escapeHtml(file.name)}</span>
-                            <span class="text-muted" style="font-size: 10px;">${sizeKb}KB</span>
-                            <button type="button" class="btn-close ms-1" style="font-size: 9px;" onclick="removeAdminSelectedFile(${index})"></button>
-                        `;
+                        itemEl.innerHTML = `<div class="d-flex flex-column align-items-center justify-content-center text-dark" style="width: 50px; height: 50px;"><i class="ri-file-text-fill fs-4 text-success"></i></div>`;
                     }
 
+                    itemEl.appendChild(removeBtn);
                     attachPreviewList.appendChild(itemEl);
                 });
             }
@@ -874,33 +859,23 @@
 
                     if (f.is_image) {
                         html += `
-                            <div class="position-relative rounded-3 overflow-hidden d-inline-block border shadow-sm bt-admin-attached-img-wrap" style="max-width: 240px; background: #081D33; cursor: pointer;" title="${safeName}">
-                                <img src="${safeUrl}" alt="${safeName}" class="img-fluid d-block" style="max-height: 160px; object-fit: cover;" onclick="openAdminLightbox('${safeUrl}', '${safeName}')" loading="lazy" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
-                                <div class="bt-admin-img-overlay">
-                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-1" onclick="openAdminLightbox('${safeUrl}', '${safeName}')" title="View Image"><i class="ri-fullscreen-line"></i></button>
-                                    <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-light rounded-circle p-1" title="Download"><i class="ri-download-2-line"></i></a>
-                                </div>
+                            <div class="position-relative d-inline-block rounded-3 overflow-hidden shadow-sm" style="border: 1px solid rgba(0,0,0,0.1); background: #081D33;">
+                                <a href="javascript:void(0)" onclick="openAdminLightbox('${safeUrl}', '${safeName}')">
+                                    <img src="${safeUrl}" alt="${safeName}" class="img-fluid rounded-3" style="max-height: 160px; max-width: 220px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
+                                </a>
+                                <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 m-1 rounded-circle border border-secondary border-opacity-25 shadow-sm" style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7);" title="Download">
+                                    <i class="ri-download-2-line text-white" style="font-size: 0.75rem;"></i>
+                                </a>
                             </div>
                         `;
                     } else {
-                        let icon = 'ri-file-text-line text-secondary';
-                        if (f.is_pdf) icon = 'ri-file-pdf-fill text-danger';
-                        else if (f.is_doc) icon = 'ri-file-word-fill text-primary';
-                        else if (f.is_spreadsheet) icon = 'ri-file-excel-fill text-success';
-
                         html += `
-                            <div class="p-2 rounded-3 border d-flex align-items-center justify-content-between ${isAdmin ? 'bg-white text-dark' : 'bg-light text-dark'}" style="max-width: 320px;">
-                                <div class="d-flex align-items-center gap-2 text-truncate me-2">
-                                    <i class="${icon} fs-4 flex-shrink-0"></i>
-                                    <div class="min-w-0">
-                                        <div class="fw-semibold text-truncate small" style="font-size: 12px;" title="${safeName}">${safeName}</div>
-                                        <div class="text-muted" style="font-size: 10px;">${(f.extension || 'FILE').toUpperCase()} ${sizeStr}</div>
-                                    </div>
+                            <div class="p-2 ${isAdmin ? 'bg-white bg-opacity-20 text-white' : 'bg-light text-dark'} rounded-3 d-flex align-items-center gap-2 border ${isAdmin ? 'border-white-20' : 'border-secondary border-opacity-10'}" style="max-width: 260px;">
+                                <i class="ri-file-text-fill fs-4 ${isAdmin ? 'text-white' : 'text-success'}"></i>
+                                <div class="min-w-0 me-2">
+                                    <div class="small fw-semibold text-truncate" style="font-size: 0.8rem; max-width: 150px;" title="${safeName}">${safeName}</div>
                                 </div>
-                                <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                                    <a href="${safeUrl}" target="_blank" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;" title="View"><i class="ri-external-link-line"></i></a>
-                                    <a href="${safeUrl}" download="${safeName}" class="btn btn-sm btn-success py-0 px-2 text-white" style="font-size: 11px;" title="Download"><i class="ri-download-line"></i></a>
-                                </div>
+                                <a href="${safeUrl}" download="${safeName}" class="btn btn-sm ${isAdmin ? 'btn-outline-light' : 'btn-outline-secondary'} py-0 px-2" style="font-size: 0.75rem;">Download</a>
                             </div>
                         `;
                     }
