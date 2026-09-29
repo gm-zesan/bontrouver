@@ -2,15 +2,21 @@
 
 namespace App\Services;
 
+use App\Enums\ListingStatus;
+use App\Events\ListingCreated;
 use App\Models\Category;
+use App\Models\CategoryAttribute;
 use App\Models\City;
 use App\Models\Favorite;
 use App\Models\Listing;
-use App\Models\CategoryAttribute;
-use App\Events\ListingCreated;
+use App\Models\ListingPromotion;
+use App\Models\PointTransaction;
+use App\Models\PromotionPackage;
+use App\Models\User;
+use App\Notifications\ListingBoostActivated;
+use App\Services\PointService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use App\Services\PointService;
 
 /**
  * Owns all listing business logic: fetching, transformation,
@@ -315,7 +321,7 @@ class ListingService
         }
         $category ??= Category::first();
 
-        $userId = auth()->id() ?? \App\Models\User::first()?->id ?? 1;
+        $userId = auth()->id() ?? User::first()?->id ?? 1;
         $promotions = $validated['promotions'] ?? [];
         $isFeatured = false;
         $isSponsored = false;
@@ -360,19 +366,19 @@ class ListingService
             'published_at'    => site_setting('auto_approve_listings', true) ? $now : null,
         ]);
 
-        $user = auth()->user() ?? \App\Models\User::find($userId);
+        $user = auth()->user() ?? User::find($userId);
         $paymentMethod = ($validated['payment_method'] ?? 'card') === 'points' ? 'points' : 'card';
 
         // Record audit promotion if selected during posting
         if ($isFeatured) {
-            $featPkg = \App\Models\PromotionPackage::where('type', 'featured')->first();
+            $featPkg = PromotionPackage::where('type', 'featured')->first();
             $pointsCost = $featPkg?->point_cost ?? 150;
             $priceCost  = $featPkg?->price ?? 4.99;
             $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
 
             if ($isPaidWithPoints) {
                 $user->decrement('community_points', $pointsCost);
-                \App\Models\PointTransaction::create([
+                PointTransaction::create([
                     'user_id'        => $user->id,
                     'points'         => -$pointsCost,
                     'action_type'    => 'listing_boost_featured',
@@ -382,7 +388,7 @@ class ListingService
                 ]);
             }
 
-            $promo = \App\Models\ListingPromotion::create([
+            $promo = ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $featPkg?->id,
@@ -399,20 +405,20 @@ class ListingService
 
             if ($user && $featPkg) {
                 try {
-                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $featPkg, $promo));
+                    $user->notify(new ListingBoostActivated($listing, $featPkg, $promo));
                 } catch (\Throwable $e) {}
             }
         }
 
         if ($isSponsored) {
-            $sponPkg = \App\Models\PromotionPackage::where('type', 'sponsored')->first();
+            $sponPkg = PromotionPackage::where('type', 'sponsored')->first();
             $pointsCost = $sponPkg?->point_cost ?? 300;
             $priceCost  = $sponPkg?->price ?? 9.99;
             $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
 
             if ($isPaidWithPoints) {
                 $user->decrement('community_points', $pointsCost);
-                \App\Models\PointTransaction::create([
+                PointTransaction::create([
                     'user_id'        => $user->id,
                     'points'         => -$pointsCost,
                     'action_type'    => 'listing_boost_sponsored',
@@ -422,7 +428,7 @@ class ListingService
                 ]);
             }
 
-            $promo = \App\Models\ListingPromotion::create([
+            $promo = ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $sponPkg?->id,
@@ -439,20 +445,20 @@ class ListingService
 
             if ($user && $sponPkg) {
                 try {
-                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $sponPkg, $promo));
+                    $user->notify(new ListingBoostActivated($listing, $sponPkg, $promo));
                 } catch (\Throwable $e) {}
             }
         }
 
         if ($isBumped) {
-            $bumpPkg = \App\Models\PromotionPackage::where('type', 'bump_up')->first();
+            $bumpPkg = PromotionPackage::where('type', 'bump_up')->first();
             $pointsCost = $bumpPkg?->point_cost ?? 60;
             $priceCost  = $bumpPkg?->price ?? 1.99;
             $isPaidWithPoints = ($paymentMethod === 'points' && $user && $user->community_points >= $pointsCost);
 
             if ($isPaidWithPoints) {
                 $user->decrement('community_points', $pointsCost);
-                \App\Models\PointTransaction::create([
+                PointTransaction::create([
                     'user_id'        => $user->id,
                     'points'         => -$pointsCost,
                     'action_type'    => 'listing_boost_bump',
@@ -462,7 +468,7 @@ class ListingService
                 ]);
             }
 
-            $promo = \App\Models\ListingPromotion::create([
+            $promo = ListingPromotion::create([
                 'listing_id'            => $listing->id,
                 'user_id'               => $userId,
                 'promotion_package_id'  => $bumpPkg?->id,
@@ -479,7 +485,7 @@ class ListingService
 
             if ($user && $bumpPkg) {
                 try {
-                    $user->notify(new \App\Notifications\ListingBoostActivated($listing, $bumpPkg, $promo));
+                    $user->notify(new ListingBoostActivated($listing, $bumpPkg, $promo));
                 } catch (\Throwable $e) {}
             }
         }
@@ -487,19 +493,19 @@ class ListingService
         // If paid with Card (Stripe), initiate Stripe checkout session for seamless payment
         $selectedPackages = [];
         if ($isSponsored) {
-            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
+            $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'sponsored'],
                 ['name' => 'Sponsored Spotlight', 'slug' => 'sponsored-spotlight', 'price' => 9.99, 'point_cost' => 300, 'duration_days' => 7, 'is_active' => true]
             );
         }
         if ($isFeatured) {
-            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
+            $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'featured'],
                 ['name' => 'Featured Highlight', 'slug' => 'featured-highlight', 'price' => 4.99, 'point_cost' => 150, 'duration_days' => 7, 'is_active' => true]
             );
         }
         if ($isBumped) {
-            $selectedPackages[] = \App\Models\PromotionPackage::firstOrCreate(
+            $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'bump_up'],
                 ['name' => 'Instant Bump-Up', 'slug' => 'instant-bump-up', 'price' => 1.99, 'point_cost' => 60, 'duration_days' => 1, 'is_active' => true]
             );
@@ -586,6 +592,120 @@ class ListingService
         $this->pointService->checkTierProgression($listing->user);
 
         return $listing;
+    }
+
+    /**
+     * Update an existing listing.
+     */
+    public function update(Listing $listing, array $validated): Listing
+    {
+        $cityName     = trim($validated['city']);
+        $provinceCode = strtoupper(trim($validated['province']));
+
+        $cityModel = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
+            ->orWhere('name', 'like', "%{$cityName}%")
+            ->first();
+
+        $latitude  = !empty($validated['latitude']) ? (float)$validated['latitude'] : ($cityModel?->latitude ?? $listing->latitude ?? 43.6532);
+        $longitude = !empty($validated['longitude']) ? (float)$validated['longitude'] : ($cityModel?->longitude ?? $listing->longitude ?? -79.3832);
+
+        $category = null;
+        if (!empty($validated['category_id'])) {
+            $category = Category::find($validated['category_id']);
+        }
+        if (!$category && !empty($validated['subcategory_slug'])) {
+            $category = Category::where('slug', $validated['subcategory_slug'])->first();
+        }
+        if (!$category && !empty($validated['category_slug'])) {
+            $category = Category::where('slug', $validated['category_slug'])->first();
+        }
+
+        $updateData = [
+            'title'         => $validated['title'],
+            'description'   => $validated['description'],
+            'price'         => $validated['price'] ?? 0,
+            'price_type'    => $validated['price_type'] ?? 'fixed',
+            'price_period'  => $validated['price_period'] ?? null,
+            'condition'     => $validated['condition'] ?? 'used',
+            'city'          => $cityModel?->name ?? $cityName,
+            'province'      => $provinceCode,
+            'postal_code'   => $validated['postal_code'] ?? null,
+            'location_name' => $validated['location_name'] ?? $validated['neighbourhood'] ?? null,
+            'latitude'      => $latitude,
+            'longitude'     => $longitude,
+        ];
+
+        if ($category) {
+            $updateData['category_id'] = $category->id;
+        }
+        if ($cityModel) {
+            $updateData['city_id'] = $cityModel->id;
+        }
+
+        $listing->update($updateData);
+
+        // Update dynamic attributes if provided
+        if (isset($validated['attributes']) && is_array($validated['attributes'])) {
+            foreach ($validated['attributes'] as $attrKey => $attrVal) {
+                $cleanKey = (string)$attrKey;
+                $catAttr = is_numeric($cleanKey)
+                    ? CategoryAttribute::find((int)$cleanKey)
+                    : CategoryAttribute::where('slug', $cleanKey)
+                        ->orWhere('slug', str_replace('_', '-', $cleanKey))
+                        ->orWhere('slug', str_replace('-', '_', $cleanKey))
+                        ->first();
+
+                if ($catAttr) {
+                    if ($attrVal === null || $attrVal === '') {
+                        $listing->attributes()->where('category_attribute_id', $catAttr->id)->delete();
+                    } else {
+                        $listing->attributes()->updateOrCreate(
+                            ['category_attribute_id' => $catAttr->id],
+                            ['value' => is_array($attrVal) ? json_encode($attrVal) : (string)$attrVal]
+                        );
+                    }
+                }
+            }
+        }
+
+        // Handle deleted existing images
+        if (!empty($validated['deleted_images']) && is_array($validated['deleted_images'])) {
+            $listing->images()->whereIn('id', $validated['deleted_images'])->delete();
+        }
+
+        // Handle newly uploaded images
+        if (!empty($validated['images']) && is_array($validated['images'])) {
+            $currentMaxSort = $listing->images()->max('sort_order') ?? -1;
+            foreach ($validated['images'] as $img) {
+                $imgPath = null;
+                if ($img instanceof \Illuminate\Http\UploadedFile) {
+                    $saved = $img->store('listings', 'public');
+                    $imgPath = '/storage/' . $saved;
+                } elseif (is_string($img) && !empty(trim($img))) {
+                    if (str_starts_with($img, 'data:image')) {
+                        $imgPath = $this->storeBase64Image($img);
+                    } else {
+                        $imgPath = trim($img);
+                    }
+                }
+
+                if (!empty($imgPath)) {
+                    $currentMaxSort++;
+                    $listing->images()->create([
+                        'image_path' => $imgPath,
+                        'is_primary' => false,
+                        'sort_order' => $currentMaxSort,
+                    ]);
+                }
+            }
+        }
+
+        // Ensure at least one primary image exists if images exist
+        if ($listing->images()->count() > 0 && !$listing->images()->where('is_primary', true)->exists()) {
+            $listing->images()->orderBy('sort_order')->first()?->update(['is_primary' => true]);
+        }
+
+        return $listing->fresh(['images', 'attributes', 'category', 'city']);
     }
 
     /**
@@ -679,7 +799,7 @@ class ListingService
             'rating'           => round((float) ($seller?->rating ?? 0.0), 1),
             'reviews_count'    => (int) ($seller?->reviews_count ?? 0),
             'member_since'     => $seller?->created_at ? 'Member since ' . $seller->created_at->format('Y') : 'Member since ' . date('Y'),
-            'active_ads_count' => $seller ? $seller->listings()->where('status', \App\Enums\ListingStatus::ACTIVE)->count() : 0,
+            'active_ads_count' => $seller ? $seller->listings()->where('status', ListingStatus::ACTIVE)->count() : 0,
             'community_points' => (int) ($seller?->community_points ?? 0),
             'member_tier'      => $seller?->member_tier,
             'response_rate'    => '100%',

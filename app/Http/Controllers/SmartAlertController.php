@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSmartAlertRequest;
 use App\Models\Category;
+use App\Models\City;
 use App\Models\SmartAlert;
 use App\Services\SmartAlertService;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class SmartAlertController extends Controller
     public function create()
     {
         $categories = Category::whereNull('parent_id')->with('children')->get();
-        $citiesMap = \App\Models\City::getCitiesMap();
+        $citiesMap = City::getCitiesMap();
         return view('frontend.account.alerts.create', compact('categories', 'citiesMap'));
     }
 

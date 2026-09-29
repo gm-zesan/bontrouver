@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ListingStatus;
 use App\Models\User;
 use App\Models\CompanionshipRequest;
 use Illuminate\Http\UploadedFile;
@@ -33,7 +34,7 @@ class UserProfileService
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,
                 'image' => $item->primaryImage->image_path ?? asset('images/placeholder.jpg'),
-                'status' => $item->status instanceof \App\Enums\ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
+                'status' => $item->status instanceof ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
                 'featured' => (bool) $item->is_featured,
             ];
         })->toArray();

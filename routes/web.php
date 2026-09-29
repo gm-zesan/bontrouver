@@ -1,6 +1,14 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ListingController;
+use App\Http\Controllers\ListingPromotionController;
+use App\Http\Controllers\SmartAlertController;
+use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\StaticPageController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StripeWebhookController;
+
 use App\Http\Controllers\Seller\ListingController as SellerListingController;
 use App\Http\Controllers\Seller\ProfileController as SellerProfileController;
 use App\Http\Controllers\Seller\FavoriteController;
@@ -9,19 +17,24 @@ use App\Http\Controllers\Seller\NotificationController;
 use App\Http\Controllers\Seller\SettingsController;
 use App\Http\Controllers\Seller\MeetupController;
 use App\Http\Controllers\Seller\VerificationController;
-use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ListingPromotionController;
-use App\Http\Controllers\SmartAlertController;
-use App\Http\Controllers\CommunityController;
-use App\Http\Controllers\StaticPageController;
-
-use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\VerificationReviewController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ListingController as AdminListingController;
+use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
+use App\Http\Controllers\Admin\BannerAdController as AdminBannerAdController;
+use App\Http\Controllers\Admin\MeetupController as AdminMeetupController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CategoryAttributeController as AdminCategoryAttributeController;
+use App\Http\Controllers\Admin\MemberTierController as AdminMemberTierController;
+use App\Http\Controllers\Admin\LocationController as AdminLocationController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -36,66 +49,80 @@ Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->na
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/meetup/{id}', [CommunityController::class, 'show'])->name('community.show');
 
-// Public User / Seller Profiles & Own Profile
+// Public User / Seller Profiles
 Route::get('/user/{user}', [SellerProfileController::class, 'show'])->name('user.profile');
-Route::get('/profile', [SellerProfileController::class, 'show'])->name('profile.index');
-Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');
 
+// Location Switcher & Auto-Detect API
+Route::post('/api/location/set', [HomeController::class, 'setLocation'])->name('location.set');
+Route::post('/api/location/detect', [HomeController::class, 'detectLocation'])->name('location.detect');
+Route::get('/api/location/cities', [HomeController::class, 'getCities'])->name('location.cities');
+Route::get('/api/category-attributes/{categorySlug}', [ListingController::class, 'getCategoryAttributes'])->name('listings.category.attributes');
+
+// Stripe Payment Webhook
+Route::post('/webhook/stripe', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
+
+// =========================================================================
+// AUTHENTICATED USER & SELLER ACCOUNT ROUTES
+// =========================================================================
 Route::middleware(['auth'])->group(function () {
+    // 0. User Own Profile
+    Route::get('/profile', [SellerProfileController::class, 'show'])->name('profile.index');
+    Route::get('/profile/view', [SellerProfileController::class, 'show'])->name('profile.view');
+
+    // 1. Post & Edit Listings
+    Route::get('/post-ad', [ListingController::class, 'create'])->name('listings.create');
+    Route::post('/post-ad', [ListingController::class, 'store'])->name('listings.store');
+    Route::get('/listing/{listing}/edit', [ListingController::class, 'edit'])->name('listings.edit');
+    Route::put('/listing/{listing}', [ListingController::class, 'update'])->name('listings.update');
+
+    // 2. My Listings Management
+    Route::get('/my-listings', [SellerListingController::class, 'index'])->name('listings.my');
+    Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
+    Route::post('/my-listings/{id}/promote', [SellerListingController::class, 'promote'])->name('listings.my.promote');
+    Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
+
+    // 3. Listing Promotion & Boost Hub
+    Route::get('/listing/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show');
+    Route::post('/listing/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store');
+    Route::get('/listing/{listing}/promote/success', [ListingPromotionController::class, 'success'])->name('listings.promote.success');
+    Route::get('/listing/{listing}/promote/cancel', [ListingPromotionController::class, 'cancel'])->name('listings.promote.cancel');
+    Route::get('/listings/{listing}/promote', [ListingPromotionController::class, 'show']);
+
+    // 4. Community Meetups & Groups
     Route::get('/community/create', [CommunityController::class, 'create'])->name('community.create');
     Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
     Route::get('/community/{id}/edit', [CommunityController::class, 'edit'])->name('community.edit');
     Route::put('/community/{id}', [CommunityController::class, 'update'])->name('community.update');
     Route::delete('/community/{id}', [CommunityController::class, 'destroy'])->name('community.destroy');
     Route::post('/community/meetup/{id}/join', [CommunityController::class, 'requestToJoin'])->name('community.join');
-});
-// Location Switcher & Auto-Detect API
-Route::post('/api/location/set', [HomeController::class, 'setLocation'])->name('location.set');
-Route::post('/api/location/detect', [HomeController::class, 'detectLocation'])->name('location.detect');
-Route::get('/api/location/cities', [HomeController::class, 'getCities'])->name('location.cities');
+    Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
+    Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
 
-// Post an Ad / Create Listing Flow (Login Required)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/post-ad', [ListingController::class, 'create'])->name('listings.create');
-    Route::post('/post-ad', [ListingController::class, 'store'])->name('listings.store');
-});
-Route::get('/api/category-attributes/{categorySlug}', [ListingController::class, 'getCategoryAttributes'])->name('listings.category.attributes');
-
-// Seller & User Dashboard & Account Pages
-Route::middleware(['auth'])->group(function () {
-    // Redirect legacy dashboard routes to Settings
-    Route::get('/dashboard', fn() => redirect()->route('settings.index'))->name('dashboard');
-    Route::get('/seller/panel', fn() => redirect()->route('settings.index'))->name('seller.panel');
-
-    // My Listings
-    Route::get('/my-listings', [SellerListingController::class, 'index'])->name('listings.my');
-    Route::post('/my-listings/{id}/status', [SellerListingController::class, 'updateStatus'])->name('listings.my.status');
-    Route::post('/my-listings/{id}/promote', [SellerListingController::class, 'promote'])->name('listings.my.promote');
-    Route::delete('/my-listings/{id}', [SellerListingController::class, 'destroy'])->name('listings.my.destroy');
-
-    // Smart Alerts
+    // 5. Smart Alerts
     Route::get('/account/alerts', [SmartAlertController::class, 'index'])->name('account.alerts.index');
     Route::get('/account/alerts/create', [SmartAlertController::class, 'create'])->name('account.alerts.create');
     Route::post('/account/alerts', [SmartAlertController::class, 'store'])->name('account.alerts.store');
     Route::patch('/account/alerts/{alert}/toggle', [SmartAlertController::class, 'toggle'])->name('account.alerts.toggle');
     Route::delete('/account/alerts/{alert}', [SmartAlertController::class, 'destroy'])->name('account.alerts.destroy');
 
-    // 1. Favorites / Saved Ads
+    // 6. Favorites / Saved Ads
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
     Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
-    // 2. Messages / Inbox Conversations
+    // 7. Messages / Inbox Conversations
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::post('/messages/initiate', [MessageController::class, 'initiate'])->name('messages.initiate');
     Route::post('/messages/{conversationId}/reply', [MessageController::class, 'send'])->name('messages.send');
 
-    // 3. Notifications Center
+    // 8. Notifications Center
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('/notifications/delete', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 
-    // 4. Account Settings & Preferences
+    // 9. Account Settings & Preferences
+    Route::get('/dashboard', fn() => redirect()->route('settings.index'))->name('dashboard');
+    Route::get('/seller/panel', fn() => redirect()->route('settings.index'))->name('seller.panel');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'updateProfile'])->name('settings.update');
     Route::post('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
@@ -106,38 +133,22 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/settings/gallery/{gallery}', [SettingsController::class, 'deleteGalleryPhoto'])->name('settings.gallery.destroy');
     Route::delete('/settings/account', [SettingsController::class, 'destroy'])->name('profile.destroy');
 
-    // 5. Canadian Identity Document Verification Center
+    // 10. Canadian Identity Document Verification Center
     Route::get('/account/verification', [VerificationController::class, 'index'])->name('account.verification.index');
     Route::post('/account/verification/document', [VerificationController::class, 'store'])->name('verification.document.store');
 
-    // 6. Community Meetups Management
-    Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
-    Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
-    // 7. Community Abuse & Moderation Reporting
+    // 11. Safety & Moderation Reports
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
-
-    // 8. Listing Promotion & Boost Hub (Supports both /listing/{id}/promote and /listings/{id}/promote)
-    Route::get('/listing/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show');
-    Route::post('/listing/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store');
-    Route::get('/listing/{listing}/promote/success', [ListingPromotionController::class, 'success'])->name('listings.promote.success');
-    Route::get('/listing/{listing}/promote/cancel', [ListingPromotionController::class, 'cancel'])->name('listings.promote.cancel');
-    Route::get('/listings/{listing}/promote', [ListingPromotionController::class, 'show'])->name('listings.promote.show.alias');
-    Route::post('/listings/{listing}/promote', [ListingPromotionController::class, 'store'])->name('listings.promote.store.alias');
-    Route::get('/listings/{listing}/promote/success', [ListingPromotionController::class, 'success']);
-    Route::get('/listings/{listing}/promote/cancel', [ListingPromotionController::class, 'cancel']);
 });
-
-// Stripe Payment Webhook
-Route::post('/webhook/stripe', [\App\Http\Controllers\StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
 
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Admin Profile & Security Settings
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::put('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.updateInfo');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+    Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/info', [AdminProfileController::class, 'updateInfo'])->name('profile.updateInfo');
+    Route::put('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.updatePassword');
 
     // ID Verifications Center
     Route::get('/verifications', [VerificationReviewController::class, 'index'])->name('verifications.index');
@@ -147,97 +158,97 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/verifications/bulk', [VerificationReviewController::class, 'bulkAction'])->name('verifications.bulk');
 
     // User Management
-    Route::resource('users', UserController::class)->except(['create', 'store']);
-    Route::post('users/{user}/suspend', [UserController::class, 'toggleSuspend'])->name('users.suspend');
-    Route::post('users/assign-role', [UserController::class, 'assignRole'])->name('users.assignRole');
-    Route::post('users/{user}/notes', [UserController::class, 'updateNotes'])->name('users.notes');
-    Route::post('users/{user}/reports/{report}/resolve', [UserController::class, 'resolveReport'])->name('users.reports.resolve');
-    Route::post('users/{user}/reports/{report}/dismiss', [UserController::class, 'dismissReport'])->name('users.reports.dismiss');
-    Route::post('users/bulk', [UserController::class, 'bulkAction'])->name('users.bulk');
+    Route::resource('users', AdminUserController::class)->except(['create', 'store']);
+    Route::post('users/{user}/suspend', [AdminUserController::class, 'toggleSuspend'])->name('users.suspend');
+    Route::post('users/assign-role', [AdminUserController::class, 'assignRole'])->name('users.assignRole');
+    Route::post('users/{user}/notes', [AdminUserController::class, 'updateNotes'])->name('users.notes');
+    Route::post('users/{user}/reports/{report}/resolve', [AdminUserController::class, 'resolveReport'])->name('users.reports.resolve');
+    Route::post('users/{user}/reports/{report}/dismiss', [AdminUserController::class, 'dismissReport'])->name('users.reports.dismiss');
+    Route::post('users/bulk', [AdminUserController::class, 'bulkAction'])->name('users.bulk');
 
     // Listing Management
-    Route::resource('listings', \App\Http\Controllers\Admin\ListingController::class)->only(['index', 'show', 'destroy']);
-    Route::post('listings/{listing}/toggle-status', [\App\Http\Controllers\Admin\ListingController::class, 'toggleStatus'])->name('listings.toggleStatus');
-    Route::post('listings/{listing}/update-status', [\App\Http\Controllers\Admin\ListingController::class, 'updateStatus'])->name('listings.updateStatus');
-    Route::post('listings/{listing}/toggle-featured', [\App\Http\Controllers\Admin\ListingController::class, 'toggleFeatured'])->name('listings.toggleFeatured');
-    Route::post('listings/{listing}/toggle-sponsored', [\App\Http\Controllers\Admin\ListingController::class, 'toggleSponsored'])->name('listings.toggleSponsored');
-    Route::post('listings/{listing}/reports/{report}/resolve', [\App\Http\Controllers\Admin\ListingController::class, 'resolveReport'])->name('listings.reports.resolve');
-    Route::post('listings/{listing}/reports/{report}/dismiss', [\App\Http\Controllers\Admin\ListingController::class, 'dismissReport'])->name('listings.reports.dismiss');
-    Route::post('listings/bulk', [\App\Http\Controllers\Admin\ListingController::class, 'bulkAction'])->name('listings.bulk');
+    Route::resource('listings', AdminListingController::class)->only(['index', 'show', 'destroy']);
+    Route::post('listings/{listing}/toggle-status', [AdminListingController::class, 'toggleStatus'])->name('listings.toggleStatus');
+    Route::post('listings/{listing}/update-status', [AdminListingController::class, 'updateStatus'])->name('listings.updateStatus');
+    Route::post('listings/{listing}/toggle-featured', [AdminListingController::class, 'toggleFeatured'])->name('listings.toggleFeatured');
+    Route::post('listings/{listing}/toggle-sponsored', [AdminListingController::class, 'toggleSponsored'])->name('listings.toggleSponsored');
+    Route::post('listings/{listing}/reports/{report}/resolve', [AdminListingController::class, 'resolveReport'])->name('listings.reports.resolve');
+    Route::post('listings/{listing}/reports/{report}/dismiss', [AdminListingController::class, 'dismissReport'])->name('listings.reports.dismiss');
+    Route::post('listings/bulk', [AdminListingController::class, 'bulkAction'])->name('listings.bulk');
 
     // Listing Promotions & Revenue Management Hub
     Route::prefix('promotions')->name('promotions.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\PromotionController::class, 'index'])->name('index');
-        Route::get('/export-csv', [\App\Http\Controllers\Admin\PromotionController::class, 'exportCsv'])->name('export-csv');
-        Route::put('/packages/{package}', [\App\Http\Controllers\Admin\PromotionController::class, 'updatePackage'])->name('packages.update');
-        Route::put('/quota', [\App\Http\Controllers\Admin\PromotionController::class, 'updateQuota'])->name('quota.update');
+        Route::get('/', [AdminPromotionController::class, 'index'])->name('index');
+        Route::get('/export-csv', [AdminPromotionController::class, 'exportCsv'])->name('export-csv');
+        Route::put('/packages/{package}', [AdminPromotionController::class, 'updatePackage'])->name('packages.update');
+        Route::put('/quota', [AdminPromotionController::class, 'updateQuota'])->name('quota.update');
     });
 
     // Local Sponsor Banner Ads & AdSense Hub
     Route::prefix('banners')->name('banners.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\BannerAdController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\Admin\BannerAdController::class, 'store'])->name('store');
-        Route::put('/{banner}', [\App\Http\Controllers\Admin\BannerAdController::class, 'update'])->name('update');
-        Route::delete('/{banner}', [\App\Http\Controllers\Admin\BannerAdController::class, 'destroy'])->name('destroy');
-        Route::post('/{banner}/toggle', [\App\Http\Controllers\Admin\BannerAdController::class, 'toggleStatus'])->name('toggle');
+        Route::get('/', [AdminBannerAdController::class, 'index'])->name('index');
+        Route::post('/', [AdminBannerAdController::class, 'store'])->name('store');
+        Route::put('/{banner}', [AdminBannerAdController::class, 'update'])->name('update');
+        Route::delete('/{banner}', [AdminBannerAdController::class, 'destroy'])->name('destroy');
+        Route::post('/{banner}/toggle', [AdminBannerAdController::class, 'toggleStatus'])->name('toggle');
     });
 
     // Meetup Management
-    Route::resource('meetups', \App\Http\Controllers\Admin\MeetupController::class)->only(['index', 'show', 'destroy']);
-    Route::post('meetups/{meetup}/update-status', [\App\Http\Controllers\Admin\MeetupController::class, 'updateStatus'])->name('meetups.updateStatus');
-    Route::post('meetups/bulk', [\App\Http\Controllers\Admin\MeetupController::class, 'bulkAction'])->name('meetups.bulk');
-    Route::delete('meetups/{meetup}/attendees/{attendee}', [\App\Http\Controllers\Admin\MeetupController::class, 'removeAttendee'])->name('meetups.attendees.remove');
+    Route::resource('meetups', AdminMeetupController::class)->only(['index', 'show', 'destroy']);
+    Route::post('meetups/{meetup}/update-status', [AdminMeetupController::class, 'updateStatus'])->name('meetups.updateStatus');
+    Route::post('meetups/bulk', [AdminMeetupController::class, 'bulkAction'])->name('meetups.bulk');
+    Route::delete('meetups/{meetup}/attendees/{attendee}', [AdminMeetupController::class, 'removeAttendee'])->name('meetups.attendees.remove');
 
     // Dedicated Admin Notifications & Safety Queue Hub
-    Route::get('notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
 
     // Safety & Abuse Reports Moderation Queue
-    Route::resource('reports', \App\Http\Controllers\Admin\ReportController::class)->only(['index', 'show']);
-    Route::post('reports/{report}/resolve', [\App\Http\Controllers\Admin\ReportController::class, 'resolve'])->name('reports.resolve');
-    Route::post('reports/{report}/dismiss', [\App\Http\Controllers\Admin\ReportController::class, 'dismiss'])->name('reports.dismiss');
-    Route::post('reports/bulk', [\App\Http\Controllers\Admin\ReportController::class, 'bulkAction'])->name('reports.bulk');
+    Route::resource('reports', AdminReportController::class)->only(['index', 'show']);
+    Route::post('reports/{report}/resolve', [AdminReportController::class, 'resolve'])->name('reports.resolve');
+    Route::post('reports/{report}/dismiss', [AdminReportController::class, 'dismiss'])->name('reports.dismiss');
+    Route::post('reports/bulk', [AdminReportController::class, 'bulkAction'])->name('reports.bulk');
 
     // Category & Dynamic Custom Attribute Schema Management
-    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-    Route::post('categories/{category}/toggle-status', [\App\Http\Controllers\Admin\CategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
+    Route::resource('categories', AdminCategoryController::class);
+    Route::post('categories/{category}/toggle-status', [AdminCategoryController::class, 'toggleStatus'])->name('categories.toggleStatus');
 
     Route::prefix('categories/{category}/attributes')->name('categories.attributes.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'index'])->name('index');
-        Route::post('/', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'store'])->name('store');
-        Route::get('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'show'])->name('show');
-        Route::put('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'update'])->name('update');
-        Route::delete('/{attribute}', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'destroy'])->name('destroy');
-        Route::post('/{attribute}/toggle-status', [\App\Http\Controllers\Admin\CategoryAttributeController::class, 'toggleStatus'])->name('toggleStatus');
+        Route::get('/', [AdminCategoryAttributeController::class, 'index'])->name('index');
+        Route::post('/', [AdminCategoryAttributeController::class, 'store'])->name('store');
+        Route::get('/{attribute}', [AdminCategoryAttributeController::class, 'show'])->name('show');
+        Route::put('/{attribute}', [AdminCategoryAttributeController::class, 'update'])->name('update');
+        Route::delete('/{attribute}', [AdminCategoryAttributeController::class, 'destroy'])->name('destroy');
+        Route::post('/{attribute}/toggle-status', [AdminCategoryAttributeController::class, 'toggleStatus'])->name('toggleStatus');
     });
 
     // Member Tiers & Points Configuration
     Route::prefix('member-tiers')->name('member-tiers.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\MemberTierController::class, 'index'])->name('index');
-        Route::get('/{memberTier}', [\App\Http\Controllers\Admin\MemberTierController::class, 'show'])->name('show');
-        Route::put('/{memberTier}', [\App\Http\Controllers\Admin\MemberTierController::class, 'update'])->name('update');
-        Route::post('/adjust-points', [\App\Http\Controllers\Admin\MemberTierController::class, 'adjustPoints'])->name('adjustPoints');
-        Route::put('/rules/update', [\App\Http\Controllers\Admin\MemberTierController::class, 'updateRules'])->name('updateRules');
+        Route::get('/', [AdminMemberTierController::class, 'index'])->name('index');
+        Route::get('/{memberTier}', [AdminMemberTierController::class, 'show'])->name('show');
+        Route::put('/{memberTier}', [AdminMemberTierController::class, 'update'])->name('update');
+        Route::post('/adjust-points', [AdminMemberTierController::class, 'adjustPoints'])->name('adjustPoints');
+        Route::put('/rules/update', [AdminMemberTierController::class, 'updateRules'])->name('updateRules');
     });
 
     // Canadian Locations & Cities Management Hub
     Route::prefix('locations')->name('locations.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\LocationController::class, 'index'])->name('index');
-        Route::post('/cities', [\App\Http\Controllers\Admin\LocationController::class, 'storeCity'])->name('cities.store');
-        Route::get('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'showCity'])->name('cities.show');
-        Route::put('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'updateCity'])->name('cities.update');
-        Route::post('/cities/{city}/toggle-active', [\App\Http\Controllers\Admin\LocationController::class, 'toggleCityActive'])->name('cities.toggleActive');
-        Route::post('/cities/{city}/toggle-featured', [\App\Http\Controllers\Admin\LocationController::class, 'toggleCityFeatured'])->name('cities.toggleFeatured');
-        Route::delete('/cities/{city}', [\App\Http\Controllers\Admin\LocationController::class, 'destroyCity'])->name('cities.destroy');
+        Route::get('/', [AdminLocationController::class, 'index'])->name('index');
+        Route::post('/cities', [AdminLocationController::class, 'storeCity'])->name('cities.store');
+        Route::get('/cities/{city}', [AdminLocationController::class, 'showCity'])->name('cities.show');
+        Route::put('/cities/{city}', [AdminLocationController::class, 'updateCity'])->name('cities.update');
+        Route::post('/cities/{city}/toggle-active', [AdminLocationController::class, 'toggleCityActive'])->name('cities.toggleActive');
+        Route::post('/cities/{city}/toggle-featured', [AdminLocationController::class, 'toggleCityFeatured'])->name('cities.toggleFeatured');
+        Route::delete('/cities/{city}', [AdminLocationController::class, 'destroyCity'])->name('cities.destroy');
 
-        Route::get('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'showProvince'])->name('provinces.show');
-        Route::put('/provinces/{province}', [\App\Http\Controllers\Admin\LocationController::class, 'updateProvince'])->name('provinces.update');
-        Route::post('/provinces/{province}/toggle-active', [\App\Http\Controllers\Admin\LocationController::class, 'toggleProvinceActive'])->name('provinces.toggleActive');
+        Route::get('/provinces/{province}', [AdminLocationController::class, 'showProvince'])->name('provinces.show');
+        Route::put('/provinces/{province}', [AdminLocationController::class, 'updateProvince'])->name('provinces.update');
+        Route::post('/provinces/{province}/toggle-active', [AdminLocationController::class, 'toggleProvinceActive'])->name('provinces.toggleActive');
     });
 
     // Platform & Site Settings Management Hub
     Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('index');
-        Route::put('/', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('update');
+        Route::get('/', [AdminSettingController::class, 'index'])->name('index');
+        Route::put('/', [AdminSettingController::class, 'update'])->name('update');
     });
 });
 
@@ -258,4 +269,3 @@ Route::controller(StaticPageController::class)->group(function () {
 });
 
 require __DIR__ . '/auth.php';
-

@@ -92,6 +92,8 @@
     <!-- Custom Marketplace Styles -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ file_exists(public_path('css/style.css')) ? filemtime(public_path('css/style.css')) : time() }}">
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}?v={{ file_exists(public_path('css/responsive.css')) ? filemtime(public_path('css/responsive.css')) : time() }}">
+
+    @stack('styles')
 </head>
 <body class="d-flex flex-column min-vh-100">
 

@@ -151,9 +151,9 @@
                     <!-- Direct Single-Line Action Buttons -->
                     <div class="d-flex align-items-center gap-2 flex-nowrap">
                         
-                        @if($item['status'] === 'active' || $item['status'] === 'attention')
+                        @if($item['status'] === 'active' || $item['status'] === 'attention' || $item['status'] === 'paused')
                             <!-- Edit Button -->
-                            <a href="{{ url('/post-ad?edit=' . $item['id']) }}" class="btn-manage-edit" title="Edit Listing">
+                            <a href="{{ route('listings.edit', $item['id']) }}" class="btn-manage-edit" title="Edit Listing">
                                 <i class="bi bi-pencil"></i>
                                 <span>Edit</span>
                             </a>

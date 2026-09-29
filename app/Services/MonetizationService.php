@@ -8,8 +8,10 @@ use App\Models\ListingPromotion;
 use App\Models\PointTransaction;
 use App\Models\PromotionPackage;
 use App\Models\User;
+use App\Notifications\ListingBoostActivated;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class MonetizationService
@@ -122,9 +124,9 @@ class MonetizationService
 
             // Dispatch internal platform notification
             try {
-                $user->notify(new \App\Notifications\ListingBoostActivated($listing, $package, $promotion));
+                $user->notify(new ListingBoostActivated($listing, $package, $promotion));
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Could not dispatch boost notification', ['error' => $e->getMessage()]);
+                Log::warning('Could not dispatch boost notification', ['error' => $e->getMessage()]);
             }
 
             return $promotion;

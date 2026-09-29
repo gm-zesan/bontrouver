@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReportReason;
 use Illuminate\Database\Eloquent\Model;
 
 class Report extends Model
@@ -18,7 +19,7 @@ class Report extends Model
     ];
 
     protected $casts = [
-        'reason' => \App\Enums\ReportReason::class,
+        'reason' => ReportReason::class,
         'reviewed_at' => 'datetime',
     ];
 

@@ -6,6 +6,7 @@ use App\Enums\ListingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Listing;
+use App\Models\Report;
 use App\Services\AdminListingService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -184,7 +185,7 @@ class ListingController extends Controller
     /**
      * Resolve a moderation report on a listing.
      */
-    public function resolveReport(Listing $listing, \App\Models\Report $report)
+    public function resolveReport(Listing $listing, Report $report)
     {
         $this->listingService->resolveReport($report, auth()->id());
 
@@ -194,7 +195,7 @@ class ListingController extends Controller
     /**
      * Dismiss a moderation report on a listing.
      */
-    public function dismissReport(Listing $listing, \App\Models\Report $report)
+    public function dismissReport(Listing $listing, Report $report)
     {
         $this->listingService->dismissReport($report, auth()->id());
 

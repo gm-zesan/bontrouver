@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Province;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,7 +15,7 @@ class UpdateProvinceRequest extends FormRequest
 
     public function rules(): array
     {
-        $provinceId = $this->route('province') instanceof \App\Models\Province 
+        $provinceId = $this->route('province') instanceof Province 
             ? $this->route('province')->id 
             : $this->route('province');
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\CompanionshipType;
 use App\Http\Requests\JoinCompanionshipRequest;
 use App\Http\Requests\StoreCompanionshipRequest;
+use App\Http\Requests\UpdateCompanionshipRequest;
 use App\Models\CompanionshipRequest;
 use App\Services\CompanionshipService;
 use Illuminate\Http\RedirectResponse;
@@ -93,7 +94,7 @@ class CommunityController extends Controller
     /**
      * Update an existing meetup request.
      */
-    public function update(\App\Http\Requests\UpdateCompanionshipRequest $request, int $id): RedirectResponse
+    public function update(UpdateCompanionshipRequest $request, int $id): RedirectResponse
     {
         $meetup = $this->companionshipService->findForShow($id);
         

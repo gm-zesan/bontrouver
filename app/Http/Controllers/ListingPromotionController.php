@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PromoteListingRequest;
 use App\Models\Listing;
+use App\Models\ListingPromotion;
 use App\Models\PromotionPackage;
 use App\Services\MonetizationService;
+use App\Services\StripeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ class ListingPromotionController extends Controller
 {
     public function __construct(
         protected MonetizationService $monetizationService,
-        protected \App\Services\StripeService $stripeService
+        protected StripeService $stripeService
     ) {}
 
     /**
@@ -226,7 +228,7 @@ class ListingPromotionController extends Controller
         $appliedNames = [];
         foreach ($packages as $pkg) {
             $txRef = 'BT-STRIPE-' . ($sessionId ? ($sessionId . '-' . $pkg->id) : strtoupper(uniqid()));
-            $existing = \App\Models\ListingPromotion::where('listing_id', $listing->id)
+            $existing = ListingPromotion::where('listing_id', $listing->id)
                 ->where('promotion_package_id', $pkg->id)
                 ->where('transaction_reference', 'LIKE', 'BT-STRIPE-' . ($sessionId ?? 'NOTFOUND') . '%')
                 ->first();

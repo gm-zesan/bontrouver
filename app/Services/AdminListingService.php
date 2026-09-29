@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\ListingStatus;
+use App\Models\Category;
 use App\Models\Listing;
+use App\Models\Report;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +24,7 @@ class AdminListingService
         }
 
         if (!empty($filters['category_id'])) {
-            $cat = \App\Models\Category::with('children')->find($filters['category_id']);
+            $cat = Category::with('children')->find($filters['category_id']);
             if ($cat && $cat->children->isNotEmpty()) {
                 $categoryIds = $cat->children->pluck('id')->push($cat->id)->toArray();
                 $query->whereIn('category_id', $categoryIds);
@@ -128,7 +130,7 @@ class AdminListingService
     /**
      * Resolve a moderation report on a listing.
      */
-    public function resolveReport(\App\Models\Report $report, ?int $reviewerId = null): \App\Models\Report
+    public function resolveReport(Report $report, ?int $reviewerId = null): Report
     {
         $report->update([
             'status' => 'resolved',
@@ -141,7 +143,7 @@ class AdminListingService
     /**
      * Dismiss a moderation report on a listing.
      */
-    public function dismissReport(\App\Models\Report $report, ?int $reviewerId = null): \App\Models\Report
+    public function dismissReport(Report $report, ?int $reviewerId = null): Report
     {
         $report->update([
             'status' => 'dismissed',

@@ -8,6 +8,7 @@ use App\Models\PointTransaction;
 use App\Models\Review;
 use App\Models\Listing;
 use App\Models\CompanionshipRequest;
+use App\Notifications\MemberTierUpgraded;
 use Illuminate\Database\Eloquent\Model;
 
 class PointService
@@ -51,7 +52,7 @@ class PointService
         $newTier = $user->member_tier;
 
         if (($newTier['level'] ?? 1) > ($oldTier['level'] ?? 1)) {
-            $user->notify(new \App\Notifications\MemberTierUpgraded($newTier, $oldTier, $user->community_points));
+            $user->notify(new MemberTierUpgraded($newTier, $oldTier, $user->community_points));
             if (session()) {
                 session()->flash('tier_level_up', [
                     'tier' => $newTier,

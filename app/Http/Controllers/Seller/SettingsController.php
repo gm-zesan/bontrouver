@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Seller;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Http\Requests\UpdateUserProfileRequest;
+use App\Models\UserGallery;
 use App\Services\CategoryService;
 use App\Services\SellerListingService;
 use App\Services\UserProfileService;
@@ -12,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
@@ -154,7 +156,7 @@ class SettingsController extends Controller
     /**
      * Delete a single photo from the user's ambiance gallery.
      */
-    public function deleteGalleryPhoto(Request $request, \App\Models\UserGallery $gallery): RedirectResponse
+    public function deleteGalleryPhoto(Request $request, UserGallery $gallery): RedirectResponse
     {
         if ($gallery->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
@@ -163,7 +165,7 @@ class SettingsController extends Controller
         // Remove from disk if stored locally
         if (str_starts_with($gallery->image_path, '/storage/')) {
             $relative = str_replace('/storage/', '', $gallery->image_path);
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($relative);
+            Storage::disk('public')->delete($relative);
         }
 
         $gallery->delete();

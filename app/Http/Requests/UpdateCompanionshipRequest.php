@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\CompanionshipRequest;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCompanionshipRequest extends FormRequest
@@ -13,7 +14,7 @@ class UpdateCompanionshipRequest extends FormRequest
     {
         $meetup = $this->route('meetup') ?? $this->route('id');
         if (is_numeric($meetup)) {
-            $meetup = \App\Models\CompanionshipRequest::find($meetup);
+            $meetup = CompanionshipRequest::find($meetup);
         }
         
         return $meetup && $this->user()->can('update', $meetup);

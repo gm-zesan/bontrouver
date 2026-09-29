@@ -132,7 +132,7 @@ class Listing extends Model
      */
     public function scopeActive($query)
     {
-        return $query->where('status', \App\Enums\ListingStatus::ACTIVE);
+        return $query->where('status', ListingStatus::ACTIVE);
     }
 
     /**

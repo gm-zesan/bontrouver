@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers\Seller;
 
+use App\Enums\ListingStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Listing;
+use App\Models\PromotionPackage;
 use App\Services\CategoryService;
-use App\Services\SellerListingService;
+use App\Services\MonetizationService;
 use App\Services\PointService;
+use App\Services\SellerListingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Listing;
 
 class ListingController extends Controller
 {
     public function __construct(
         private readonly SellerListingService $listingService,
         private readonly PointService $pointService,
-        private readonly \App\Services\MonetizationService $monetizationService
+        private readonly MonetizationService $monetizationService
     ) {}
 
     /**
@@ -69,7 +72,7 @@ class ListingController extends Controller
         $listing = Listing::where('user_id', Auth::id())->findOrFail($id);
 
         if ($status === 'renewed') {
-            $listing->status = \App\Enums\ListingStatus::ACTIVE;
+            $listing->status = ListingStatus::ACTIVE;
             $listing->created_at = now();
             $listing->published_at = now();
             $listing->bumped_at = now();
@@ -77,7 +80,7 @@ class ListingController extends Controller
         } elseif ($status === 'deleted') {
             $listing->delete();
         } else {
-            $enumStatus = \App\Enums\ListingStatus::tryFrom($status) ?? \App\Enums\ListingStatus::ACTIVE;
+            $enumStatus = ListingStatus::tryFrom($status) ?? ListingStatus::ACTIVE;
             $listing->status = $enumStatus;
             $listing->save();
         }
@@ -147,7 +150,7 @@ class ListingController extends Controller
         }
 
         // Check if matching promotion package exists
-        $package = \App\Models\PromotionPackage::where('type', $type)->where('is_active', true)->first();
+        $package = PromotionPackage::where('type', $type)->where('is_active', true)->first();
 
         if ($package) {
             try {

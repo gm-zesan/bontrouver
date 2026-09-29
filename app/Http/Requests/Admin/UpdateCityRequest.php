@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\City;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,7 +15,7 @@ class UpdateCityRequest extends FormRequest
 
     public function rules(): array
     {
-        $cityId = $this->route('city') instanceof \App\Models\City 
+        $cityId = $this->route('city') instanceof City 
             ? $this->route('city')->id 
             : $this->route('city');
 

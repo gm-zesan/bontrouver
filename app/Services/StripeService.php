@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Listing;
+use App\Models\PromotionPackage;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -39,9 +42,9 @@ class StripeService
      * Create a Stripe Checkout Session for redirected hosted checkout.
      */
     public function createCheckoutSession(
-        \App\Models\Listing $listing,
-        \App\Models\PromotionPackage|array $package,
-        \App\Models\User $user,
+        Listing $listing,
+        PromotionPackage|array $package,
+        User $user,
         string $successUrl,
         string $cancelUrl
     ): array {

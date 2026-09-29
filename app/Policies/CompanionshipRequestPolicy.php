@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\CompanionshipAttendee;
 use App\Models\CompanionshipRequest;
 use App\Models\User;
 
@@ -51,7 +52,7 @@ class CompanionshipRequestPolicy
     /**
      * Only the specific attendee can cancel their own RSVP.
      */
-    public function cancelAttendance(User $user, \App\Models\CompanionshipAttendee $attendee): bool
+    public function cancelAttendance(User $user, CompanionshipAttendee $attendee): bool
     {
         return $attendee->user_id === $user->id;
     }

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Enums\UserRole;
+use App\Http\Controllers\Controller;
+use App\Models\Conversation;
+use App\Models\Report;
+use App\Models\User;
+use App\Models\UserVerification;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
@@ -147,7 +150,7 @@ class UserController extends Controller
 
         $user->loadMissing(['profile', 'gallery']);
 
-        $conversationsCount = \App\Models\Conversation::where('buyer_id', $user->id)
+        $conversationsCount = Conversation::where('buyer_id', $user->id)
             ->orWhere('seller_id', $user->id)
             ->count();
 
@@ -158,7 +161,7 @@ class UserController extends Controller
         $reviewsReceived = $user->reviewsReceived()->with('reviewer')->latest()->paginate(5, ['*'], 'reviews_received_page')->fragment('reviews');
         $reviewsGiven = $user->reviewsGiven()->with('reviewee')->latest()->paginate(5, ['*'], 'reviews_given_page')->fragment('reviews');
         $verifications = $user->verifications()->latest()->paginate(5, ['*'], 'verifications_page')->fragment('verification');
-        $conversations = \App\Models\Conversation::where('buyer_id', $user->id)
+        $conversations = Conversation::where('buyer_id', $user->id)
             ->orWhere('seller_id', $user->id)
             ->with(['buyer', 'seller', 'messages.sender', 'listing'])
             ->latest('updated_at')
@@ -248,7 +251,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function approveVerification(\App\Models\UserVerification $verification)
+    public function approveVerification(UserVerification $verification)
     {
         $verification->update([
             'status' => 'approved',
@@ -264,7 +267,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function rejectVerification(\App\Models\UserVerification $verification)
+    public function rejectVerification(UserVerification $verification)
     {
         $verification->update([
             'status' => 'rejected',
@@ -356,7 +359,7 @@ class UserController extends Controller
     /**
      * Resolve a moderation report filed against a user.
      */
-    public function resolveReport(Request $request, User $user, \App\Models\Report $report)
+    public function resolveReport(Request $request, User $user, Report $report)
     {
         $report->update([
             'status' => 'resolved',
@@ -370,7 +373,7 @@ class UserController extends Controller
     /**
      * Dismiss a moderation report filed against a user.
      */
-    public function dismissReport(Request $request, User $user, \App\Models\Report $report)
+    public function dismissReport(Request $request, User $user, Report $report)
     {
         $report->update([
             'status' => 'dismissed',

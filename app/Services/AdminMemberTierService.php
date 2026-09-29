@@ -6,6 +6,7 @@ use App\Models\MemberTier;
 use App\Models\PointRule;
 use App\Models\PointTransaction;
 use App\Models\User;
+use App\Notifications\MemberTierUpgraded;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -143,7 +144,7 @@ class AdminMemberTierService
             $newTier = $user->member_tier;
 
             if ($amount > 0 && ($newTier['level'] ?? 1) > ($oldTier['level'] ?? 1)) {
-                $user->notify(new \App\Notifications\MemberTierUpgraded($newTier, $oldTier, $newPoints));
+                $user->notify(new MemberTierUpgraded($newTier, $oldTier, $newPoints));
             }
 
             return $transaction;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ListingPromotion;
 use App\Models\PromotionPackage;
+use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -139,8 +140,8 @@ class PromotionController extends Controller
             'auto_approve_listings' => ['nullable', 'boolean'],
         ]);
 
-        \App\Models\SiteSetting::set('enable_listing_promotions', $request->boolean('enable_listing_promotions') ? '1' : '0', 'marketplace', 'boolean');
-        \App\Models\SiteSetting::set('auto_approve_listings', $request->boolean('auto_approve_listings') ? '1' : '0', 'marketplace', 'boolean');
+        SiteSetting::set('enable_listing_promotions', $request->boolean('enable_listing_promotions') ? '1' : '0', 'marketplace', 'boolean');
+        SiteSetting::set('auto_approve_listings', $request->boolean('auto_approve_listings') ? '1' : '0', 'marketplace', 'boolean');
 
         if ($request->wantsJson()) {
             return response()->json([

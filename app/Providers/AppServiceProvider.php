@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\City;
 use App\Models\CompanionshipRequest;
 use App\Policies\CompanionshipRequestPolicy;
+use App\Services\AdminNotificationService;
 use App\Services\CategoryService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -49,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('admin.includes.header', function ($view) {
-            $adminNotifications = app(\App\Services\AdminNotificationService::class)->getImportantNotifications();
+            $adminNotifications = app(AdminNotificationService::class)->getImportantNotifications();
             $view->with('adminNotifications', $adminNotifications);
         });
     }

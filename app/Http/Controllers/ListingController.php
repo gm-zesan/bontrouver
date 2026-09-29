@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreListingRequest;
+use App\Http\Requests\UpdateListingRequest;
 use App\Models\City;
+use App\Models\Listing;
 use App\Models\Province;
+use App\Models\SearchQuery;
 use App\Services\CategoryService;
 use App\Services\ListingSearchService;
 use App\Services\ListingService;
@@ -52,7 +55,7 @@ class ListingController extends Controller
         $listings = $this->listingService->getDatabaseListings($selectedCity, $radius, $sellerId, $sellerName);
 
         if (!empty($searchQuery)) {
-            \App\Models\SearchQuery::recordSearch($searchQuery, count($listings));
+            SearchQuery::recordSearch($searchQuery, count($listings));
         }
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -140,8 +143,12 @@ class ListingController extends Controller
     /**
      * Show the Post an Ad / Create Listing form.
      */
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
+        if ($request->filled('edit')) {
+            return $this->edit($request, $request->query('edit'));
+        }
+
         return view('frontend.post-ad', [
             'categories'          => CategoryService::getAll(),
             'provinces'           => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
@@ -182,6 +189,70 @@ class ListingController extends Controller
         return redirect()
             ->route('listings.show', $listing->id)
             ->with('success', 'Your ad is live and published successfully!');
+    }
+
+    /**
+     * Show the edit form for a listing.
+     */
+    public function edit(Request $request, mixed $listing): View
+    {
+        $listingModel = is_numeric($listing)
+            ? Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city'])->findOrFail((int)$listing)
+            : Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city'])->where('slug', (string)$listing)->firstOrFail();
+
+        if (auth()->id() !== $listingModel->user_id && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized to edit this listing.');
+        }
+
+        $categorySlug = $listingModel->category?->slug ?? '';
+        $parentCategory = $listingModel->category?->parent;
+        $mainCategorySlug = $parentCategory ? $parentCategory->slug : $categorySlug;
+        $subCategorySlug = $parentCategory ? $categorySlug : '';
+
+        return view('frontend.listings.edit', [
+            'listing'             => $listingModel,
+            'categories'          => CategoryService::getAll(),
+            'provinces'           => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
+            'citiesMap'           => City::getCitiesMap(),
+            'preselectedCategory' => $mainCategorySlug,
+            'preselectedSub'      => $subCategorySlug,
+            'breadcrumbs'         => [
+                ['title' => 'Home', 'url' => url('/')],
+                ['title' => 'My Listings', 'url' => route('listings.my')],
+                ['title' => 'Edit Listing', 'url' => '#'],
+            ],
+        ]);
+    }
+
+    /**
+     * Update an existing listing.
+     */
+    public function update(UpdateListingRequest $request, mixed $listing): JsonResponse|RedirectResponse
+    {
+        $listingModel = is_numeric($listing)
+            ? Listing::findOrFail((int)$listing)
+            : Listing::where('slug', (string)$listing)->firstOrFail();
+
+        if (auth()->id() !== $listingModel->user_id && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized to edit this listing.');
+        }
+
+        $updatedListing = $this->listingService->update($listingModel, $request->validated());
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success'      => true,
+                'message'      => 'Listing updated successfully!',
+                'listing_id'   => $updatedListing->id,
+                'listing_slug' => $updatedListing->slug,
+                'view_url'     => url('/listing/' . ($updatedListing->slug ?? $updatedListing->id)),
+                'manage_url'   => url('/my-listings'),
+            ]);
+        }
+
+        return redirect()
+            ->route('listings.show', $updatedListing->slug ?? $updatedListing->id)
+            ->with('success', 'Listing updated successfully!');
     }
 
     /**

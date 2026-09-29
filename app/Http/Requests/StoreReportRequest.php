@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ReportReason;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreReportRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class StoreReportRequest extends FormRequest
         return [
             'reportable_type' => ['required', 'string', 'in:listing,user,companionship,companionship_request'],
             'reportable_id' => ['required', 'integer'],
-            'reason' => ['required', 'string', new \Illuminate\Validation\Rules\Enum(\App\Enums\ReportReason::class)],
+            'reason' => ['required', 'string', new Enum(ReportReason::class)],
             'description' => ['nullable', 'string', 'max:1000'],
         ];
     }

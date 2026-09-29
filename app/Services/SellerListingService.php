@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ListingStatus;
 use App\Models\User;
 use App\Models\Message;
 use Illuminate\Support\Collection;
@@ -43,7 +44,7 @@ class SellerListingService
                 'price' => '$' . number_format($item->price, 2),
                 'category' => $item->category->name ?? 'Uncategorized',
                 'location' => $item->city . ', ' . $item->province,
-                'status' => $item->status instanceof \App\Enums\ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
+                'status' => $item->status instanceof ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
                 'posted_at' => ($item->bumped_at ?? $item->created_at)->diffForHumans(),
                 'created_at' => $item->created_at->format('Y-m-d'),
                 'views' => $item->views_count ?? 0,

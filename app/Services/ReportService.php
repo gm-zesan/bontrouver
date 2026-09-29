@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ReportReason;
 use App\Models\CompanionshipRequest;
 use App\Models\Listing;
 use App\Models\Report;
@@ -26,9 +27,9 @@ class ReportService
      *
      * @throws ValidationException
      */
-    public function submitReport(User $reporter, string $reportableType, int $reportableId, \App\Enums\ReportReason|string $reason, ?string $description = null): Report
+    public function submitReport(User $reporter, string $reportableType, int $reportableId, ReportReason|string $reason, ?string $description = null): Report
     {
-        $reasonEnum = $reason instanceof \App\Enums\ReportReason ? $reason : (\App\Enums\ReportReason::tryFrom($reason) ?? \App\Enums\ReportReason::OTHER);
+        $reasonEnum = $reason instanceof ReportReason ? $reason : (ReportReason::tryFrom($reason) ?? ReportReason::OTHER);
         $normalizedType = strtolower($reportableType);
         $modelClass = $this->typeMap[$normalizedType] ?? null;
 
