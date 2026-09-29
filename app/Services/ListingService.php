@@ -853,6 +853,8 @@ class ListingService
             'price_type'          => $listing->price_type,
             'price_type_label'    => ucfirst($listing->price_type),
             'currency'            => 'CAD',
+            'latitude'            => $listing->latitude ? (float) $listing->latitude : null,
+            'longitude'           => $listing->longitude ? (float) $listing->longitude : null,
             'location'            => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
             'neighbourhood'       => $listing->location_name,
             'postal_code_prefix'  => $listing->postal_code ?? '',

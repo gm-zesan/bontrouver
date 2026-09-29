@@ -3,6 +3,10 @@
 @section('title', $meetup->title . ' - Bontrouver Community')
 @section('meta_description', Str::limit(strip_tags($meetup->description ?? ''), 155))
 @section('og_type', 'article')
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+@endpush
+
 @section('content')
     <div class="py-5" style="min-height: 80vh;">
         <div class="container-xl">
@@ -152,20 +156,18 @@
                         @endif
 
                         <div class="mt-4 pt-4 border-top border-secondary border-opacity-10">
-                            <h4 class="section-heading fs-5 mb-3">Location Map</h4>
-                            <div class="rounded-4 overflow-hidden position-relative"
-                                style="height: 240px; background: #081D33;">
-                                <iframe src="https://maps.google.com/maps?q={{ urlencode($meetup->city . ', ' . $meetup->province . ', Canada') }}&t=&z=13&ie=UTF8&iwloc=&output=embed" class="w-100 h-100 opacity-75" style="border:0; pointer-events: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                <div class="position-absolute top-50 start-50 translate-middle">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow"
-                                        style="width: 48px; height: 48px; border: 3px solid white;">
-                                        <i class="bi bi-geo-alt-fill fs-5"></i>
-                                    </div>
-                                </div>
+                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                                <h4 class="section-heading fs-5 mb-0">Meetup Location & Area</h4>
+                                <a href="https://maps.google.com/?q={{ urlencode(($meetup->latitude && $meetup->longitude) ? ($meetup->latitude . ',' . $meetup->longitude) : ($meetup->city . ', ' . $meetup->province . ', Canada')) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 text-white border border-white border-opacity-25 shadow-sm" style="font-size: 0.78rem;">
+                                    <i class="bi bi-cursor-fill text-success me-1"></i> Get Directions
+                                </a>
+                            </div>
+                            <div class="rounded-4 overflow-hidden position-relative shadow-sm"
+                                style="height: 260px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
+                                <div id="communityMeetupLeafletMap" style="width: 100%; height: 100%; z-index: 1;"></div>
                             </div>
                             <div class="mt-2 text-white-50 small">
-                                <i class="bi bi-geo-alt me-1"></i> {{ $meetup->city }}, {{ $meetup->province }} - Location
-                                is approximate
+                                <i class="bi bi-geo-alt text-success me-1"></i> {{ $meetup->location_name ? $meetup->location_name . ' • ' : '' }}{{ $meetup->city }}, {{ $meetup->province }}
                             </div>
                         </div>
                     </div>
@@ -343,3 +345,51 @@
     @endif
     @endauth
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mapEl = document.getElementById('communityMeetupLeafletMap');
+    if (mapEl && typeof L !== 'undefined') {
+        const meetupLat = {{ !empty($meetup->latitude) ? (float)$meetup->latitude : 45.5017 }};
+        const meetupLng = {{ !empty($meetup->longitude) ? (float)$meetup->longitude : -73.5673 }};
+        const meetupTitle = @json($meetup->title ?? 'Meetup');
+        const meetupLocation = @json(($meetup->location_name ? $meetup->location_name . ', ' : '') . $meetup->city . ', ' . $meetup->province);
+
+        const meetupMap = L.map('communityMeetupLeafletMap', {
+            center: [meetupLat, meetupLng],
+            zoom: 13,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        }).addTo(meetupMap);
+
+        // Approximate Area Circle
+        L.circle([meetupLat, meetupLng], {
+            radius: 1000,
+            color: '#49D17D',
+            fillColor: '#49D17D',
+            fillOpacity: 0.15,
+            weight: 2,
+            dashArray: '5, 5'
+        }).addTo(meetupMap);
+
+        // Marker Pin
+        const pinIcon = L.divIcon({
+            className: 'meetup-map-pin',
+            html: '<div style="background: #49D17D; width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;"><i class="bi bi-people-fill" style="color: #06182B; font-size: 11px; transform: rotate(45deg);"></i></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24]
+        });
+
+        const marker = L.marker([meetupLat, meetupLng], { icon: pinIcon }).addTo(meetupMap);
+        marker.bindPopup(`<div style="font-family: inherit; font-size: 13px;"><b>${meetupTitle}</b><br><span style="color:#94A3B8; font-size: 11px;">${meetupLocation}</span></div>`).openPopup();
+    }
+});
+</script>
+@endpush

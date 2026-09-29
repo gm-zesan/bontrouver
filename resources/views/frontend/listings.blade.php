@@ -1,5 +1,244 @@
 @extends('frontend.layouts.app')
 
+@section('title', ($searchQuery ? 'Search results for "' . $searchQuery . '"' : ($selectedCity ? 'Classifieds in ' . $selectedCity : 'Browse Canadian Classifieds')) . ' - Bon Trouver')
+@section('meta_description', 'Discover local goods, vehicles, real estate, jobs, and services across Canadian cities on Bon Trouver.')
+
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+/* Map View Layout & Toggle Buttons */
+.map-view-toggle-group {
+    display: inline-flex;
+    background: rgba(13, 36, 60, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 3px;
+}
+.btn-view-mode {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    padding: 5px 12px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-view-mode:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.06);
+}
+.btn-view-mode.active {
+    background: #49D17D;
+    color: #06182B;
+    box-shadow: 0 2px 8px rgba(73, 209, 125, 0.35);
+}
+
+/* Listings Map Wrapper */
+.listings-map-wrapper {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #081D33;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+#listingsLeafletMap {
+    width: 100%;
+    height: 520px;
+    background: #081D33;
+    z-index: 1;
+}
+.map-floating-ctrl {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 999;
+    display: flex;
+    gap: 6px;
+}
+.map-floating-btn {
+    background: rgba(13, 36, 60, 0.92);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.map-floating-btn:hover {
+    background: #49D17D;
+    color: #06182B;
+    border-color: #49D17D;
+}
+
+/* Custom Leaflet Price Badges / Pin Markers */
+.leaflet-price-pin {
+    background: #0D243C;
+    border: 2px solid #49D17D;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transform: translate(-50%, -50%);
+}
+.leaflet-price-pin:hover, .leaflet-price-pin.active-marker {
+    transform: translate(-50%, -50%) scale(1.18);
+    background: #49D17D !important;
+    color: #06182B !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(73,209,125,0.6) !important;
+    z-index: 1000 !important;
+}
+.leaflet-price-pin.featured-pin {
+    border-color: #F59E0B;
+    color: #FBBF24;
+    background: #112A45;
+}
+.leaflet-price-pin.sponsored-pin {
+    border-color: #3B82F6;
+    color: #93C5FD;
+    background: #112A45;
+}
+
+/* Custom Leaflet Popup Card */
+.leaflet-popup-content-wrapper {
+    background: #0D243C !important;
+    color: #fff !important;
+    border-radius: 14px !important;
+    padding: 0 !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.55) !important;
+    overflow: hidden;
+}
+.leaflet-popup-content {
+    margin: 0 !important;
+    line-height: 1.4 !important;
+    width: 250px !important;
+}
+.leaflet-popup-tip {
+    background: #0D243C !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+}
+.leaflet-container a.leaflet-popup-close-button {
+    color: #fff !important;
+    padding: 6px !important;
+    top: 6px !important;
+    right: 6px !important;
+    background: rgba(0,0,0,0.4) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 14px !important;
+    z-index: 10 !important;
+}
+.map-popup-card {
+    display: flex;
+    flex-direction: column;
+}
+.map-popup-thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 135px;
+    background: #081D33;
+    overflow: hidden;
+}
+.map-popup-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.map-popup-thumb-wrap:hover .map-popup-thumb {
+    transform: scale(1.05);
+}
+.map-popup-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+.map-popup-badge-sponsored { background: #3B82F6; color: #fff; }
+.map-popup-badge-featured { background: #F59E0B; color: #000; }
+.map-popup-body {
+    padding: 12px;
+}
+.map-popup-price {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #49D17D;
+    line-height: 1.2;
+}
+.map-popup-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 4px 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.map-popup-loc {
+    font-size: 0.75rem;
+    color: #94A3B8;
+    margin-bottom: 10px;
+}
+.map-popup-btn {
+    display: block;
+    text-align: center;
+    background: #49D17D;
+    color: #06182B !important;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 7px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+.map-popup-btn:hover {
+    background: #3eb96d;
+    color: #06182B !important;
+}
+
+/* Split view styling */
+.split-view-active #listingsMapContainer {
+    height: 420px;
+    position: sticky;
+    top: 90px;
+    z-index: 10;
+}
+.split-view-active #listingsLeafletMap {
+    height: 375px;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="search-results-page">
 
@@ -531,18 +770,37 @@
                             </p>
                         </div>
 
-                        <!-- Desktop Sort By Dropdown -->
-                        <div class="desktop-sort-wrap d-none d-lg-flex align-items-center gap-2">
-                            <label for="desktopSortSelect" class="sort-label">Sort by:</label>
-                            <div class="sort-select-container">
-                                <select id="desktopSortSelect" class="desktop-sort-select" onchange="syncSort(this.value)">
-                                    <option value="recent">Most Recent</option>
-                                    <option value="price_asc">Price: Low to High</option>
-                                    <option value="price_desc">Price: High to Low</option>
-                                    <option value="distance">Distance</option>
-                                    <option value="relevance">Relevance</option>
-                                </select>
-                                <i class="bi bi-chevron-down sort-chevron"></i>
+                        <!-- View Mode Switcher & Sorting Toolbar -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <!-- View Mode Switcher -->
+                            <div class="map-view-toggle-group" role="group" aria-label="View layout mode">
+                                <button type="button" class="btn-view-mode active" id="btnModeList" onclick="switchViewMode('list')" title="List & Grid View">
+                                    <i class="bi bi-view-list"></i>
+                                    <span>List</span>
+                                </button>
+                                <button type="button" class="btn-view-mode" id="btnModeMap" onclick="switchViewMode('map')" title="Interactive OpenStreetMap View">
+                                    <i class="bi bi-map-fill"></i>
+                                    <span>Map</span>
+                                </button>
+                                <button type="button" class="btn-view-mode d-none d-xl-inline-flex" id="btnModeSplit" onclick="switchViewMode('split')" title="Split Side-by-Side View">
+                                    <i class="bi bi-layout-split"></i>
+                                    <span>Split</span>
+                                </button>
+                            </div>
+
+                            <!-- Desktop Sort By Dropdown -->
+                            <div class="desktop-sort-wrap d-none d-lg-flex align-items-center gap-2 ms-1">
+                                <label for="desktopSortSelect" class="sort-label">Sort by:</label>
+                                <div class="sort-select-container">
+                                    <select id="desktopSortSelect" class="desktop-sort-select" onchange="syncSort(this.value)">
+                                        <option value="recent">Most Recent</option>
+                                        <option value="price_asc">Price: Low to High</option>
+                                        <option value="price_desc">Price: High to Low</option>
+                                        <option value="distance">Distance</option>
+                                        <option value="relevance">Relevance</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down sort-chevron"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -554,6 +812,27 @@
                             <!-- Injected dynamically via JS -->
                         </div>
                         <button type="button" class="btn-clear-chips" onclick="resetAllFilters()">Clear All</button>
+                    </div>
+                </div>
+
+                <!-- Interactive Leaflet Map Container -->
+                <div class="listings-map-wrapper shadow-sm mb-4" id="listingsMapContainer" style="display: none;">
+                    <div class="map-floating-ctrl">
+                        <button type="button" class="map-floating-btn" onclick="recenterLeafletMap()" title="Center map on selected city">
+                            <i class="bi bi-crosshair me-1"></i> Recenter
+                        </button>
+                        <button type="button" class="map-floating-btn" onclick="locateUserOnMap()" title="Find listings near my device">
+                            <i class="bi bi-geo-alt me-1"></i> Near Me
+                        </button>
+                    </div>
+                    <div id="listingsLeafletMap"></div>
+                    <div class="map-bottom-legend d-flex align-items-center justify-content-between px-3 py-2 text-white-50 small" style="background: rgba(6, 24, 43, 0.95); border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem;">
+                        <div class="d-flex align-items-center gap-3">
+                            <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> Active Listings</span>
+                            <span><i class="bi bi-star-fill text-warning me-1" style="font-size: 0.7rem;"></i> Featured / Sponsored</span>
+                            <span class="d-none d-sm-inline"><i class="bi bi-circle text-info me-1" style="font-size: 0.7rem;"></i> Radius Range</span>
+                        </div>
+                        <span class="font-monospace text-muted" id="mapMarkersCountLabel">0 on map</span>
                     </div>
                 </div>
 
@@ -960,6 +1239,7 @@
 </div>
 
 @push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     // Master Live Filter Engine (Client-side fast feedback + URL syncing)
     let currentCategory = '{{ $categorySlug ?? '' }}';
@@ -970,7 +1250,16 @@
     // Master dataset
     const allListingsData = @json($listings);
     const allCategoriesData = @json($categories);
+    const canadianCitiesData = @json($canadianCities ?? []);
     const userFavoriteIds = @json($userFavoriteIds ?? []);
+
+    // Interactive Leaflet Map State Engine
+    let currentViewMode = 'list'; // 'list', 'map', 'split'
+    let leafletMap = null;
+    let mapMarkersLayer = null;
+    let mapRadiusCircle = null;
+    let userLocationMarker = null;
+    let lastFilteredListings = [...allListingsData];
 
     document.addEventListener('DOMContentLoaded', function () {
         // Parse initial URL query params and populate UI
@@ -1372,6 +1661,11 @@
             sortOption,
             radiusVal
         });
+
+        // Sync Leaflet OpenStreetMap markers and radius
+        updateLeafletMap(filtered);
+    }
+
     function createListingRowHTML(item) {
         const specsHTML = (item.specs_pills || []).map(s => `<span class="spec-tag">${s}</span>`).join('');
         const badgeIconHTML = item.badge_icon ? `<i class="bi ${item.badge_icon} me-1"></i>` : '';
@@ -2093,6 +2387,255 @@
         const desktopVerified = document.querySelector('input[name="verified_only"]');
         if (desktopVerified) desktopVerified.checked = mobileVerified;
         triggerLiveFilter();
+    }
+
+    // ==========================================
+    // LEAFLET OPENSTREETMAP ENGINE
+    // ==========================================
+    function switchViewMode(mode) {
+        currentViewMode = mode;
+
+        const btnList = document.getElementById('btnModeList');
+        const btnMap = document.getElementById('btnModeMap');
+        const btnSplit = document.getElementById('btnModeSplit');
+        const mapContainer = document.getElementById('listingsMapContainer');
+        const streamContainer = document.getElementById('listingsStreamContainer');
+        const emptyCard = document.getElementById('emptyResultsCard');
+        const searchResultsCol = document.querySelector('.search-results-container');
+
+        if (btnList) btnList.classList.toggle('active', mode === 'list');
+        if (btnMap) btnMap.classList.toggle('active', mode === 'map');
+        if (btnSplit) btnSplit.classList.toggle('active', mode === 'split');
+
+        if (searchResultsCol) {
+            searchResultsCol.classList.toggle('split-view-active', mode === 'split');
+        }
+
+        if (mode === 'list') {
+            if (mapContainer) mapContainer.style.display = 'none';
+            if (streamContainer && (!lastFilteredListings || lastFilteredListings.length > 0)) {
+                streamContainer.style.display = 'flex';
+            }
+        } else if (mode === 'map') {
+            if (mapContainer) mapContainer.style.display = 'block';
+            if (streamContainer) streamContainer.style.display = 'none';
+            if (emptyCard) emptyCard.style.display = 'none';
+            initOrRefreshLeafletMap();
+        } else if (mode === 'split') {
+            if (mapContainer) mapContainer.style.display = 'block';
+            if (streamContainer && (!lastFilteredListings || lastFilteredListings.length > 0)) {
+                streamContainer.style.display = 'flex';
+            }
+            initOrRefreshLeafletMap();
+        }
+    }
+
+    function initOrRefreshLeafletMap() {
+        if (!leafletMap) {
+            initLeafletMap();
+        } else {
+            setTimeout(() => {
+                leafletMap.invalidateSize();
+                updateLeafletMap(lastFilteredListings);
+            }, 150);
+        }
+    }
+
+    function initLeafletMap() {
+        const mapEl = document.getElementById('listingsLeafletMap');
+        if (!mapEl || typeof L === 'undefined') return;
+
+        // Default Canadian Center
+        const defaultCenter = [45.5017, -73.5673];
+        leafletMap = L.map('listingsLeafletMap', {
+            center: defaultCenter,
+            zoom: 11,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        // Standard OpenStreetMap Tile Layer
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        }).addTo(leafletMap);
+
+        mapMarkersLayer = L.layerGroup().addTo(leafletMap);
+
+        setTimeout(() => {
+            leafletMap.invalidateSize();
+            updateLeafletMap(lastFilteredListings);
+        }, 150);
+    }
+
+    function updateLeafletMap(listings) {
+        lastFilteredListings = listings || [];
+        const countLabel = document.getElementById('mapMarkersCountLabel');
+
+        if (!leafletMap || !mapMarkersLayer) {
+            if (countLabel) countLabel.textContent = `${lastFilteredListings.length} on map`;
+            return;
+        }
+
+        mapMarkersLayer.clearLayers();
+        if (mapRadiusCircle) {
+            leafletMap.removeLayer(mapRadiusCircle);
+            mapRadiusCircle = null;
+        }
+
+        const validCoords = [];
+        let cityCenterLat = null;
+        let cityCenterLng = null;
+
+        const locationVal = (document.getElementById('filterLocation')?.value || '').toLowerCase().trim();
+        const radiusVal = document.getElementById('filterRadiusSelect')?.value || document.getElementById('mobileFilterRadiusSelect')?.value || 'all';
+
+        // Check if selected location is a specific Canadian city
+        if (locationVal && locationVal !== 'all canada' && canadianCitiesData) {
+            for (const cName in canadianCitiesData) {
+                const cInfo = canadianCitiesData[cName];
+                if (cName.toLowerCase() === locationVal || (cInfo.name && cInfo.name.toLowerCase() === locationVal) || (cInfo.label && cInfo.label.toLowerCase() === locationVal)) {
+                    cityCenterLat = parseFloat(cInfo.latitude);
+                    cityCenterLng = parseFloat(cInfo.longitude);
+                    break;
+                }
+            }
+        }
+
+        // Draw Radius Circle if city resolved & radius is numeric
+        if (cityCenterLat && cityCenterLng && radiusVal !== 'all' && !isNaN(parseFloat(radiusVal))) {
+            const radiusInMeters = parseFloat(radiusVal) * 1000;
+            mapRadiusCircle = L.circle([cityCenterLat, cityCenterLng], {
+                radius: radiusInMeters,
+                color: '#49D17D',
+                fillColor: '#49D17D',
+                fillOpacity: 0.12,
+                weight: 2,
+                dashArray: '6, 6'
+            }).addTo(leafletMap);
+        }
+
+        listings.forEach((item, idx) => {
+            let lat = item.latitude;
+            let lng = item.longitude;
+
+            // Fallback to city coordinates if item lat/lng not direct
+            if ((!lat || !lng) && item.city && canadianCitiesData) {
+                for (const cName in canadianCitiesData) {
+                    if (cName.toLowerCase() === item.city.toLowerCase()) {
+                        lat = parseFloat(canadianCitiesData[cName].latitude) + (Math.sin(idx) * 0.012);
+                        lng = parseFloat(canadianCitiesData[cName].longitude) + (Math.cos(idx) * 0.012);
+                        break;
+                    }
+                }
+            }
+
+            if (!lat || !lng) return;
+            validCoords.push([lat, lng]);
+
+            // Custom Price Pill Icon
+            let pinClass = 'leaflet-price-pin';
+            let iconBadge = '';
+            if (item.is_sponsored) {
+                pinClass += ' sponsored-pin';
+                iconBadge = '<i class="bi bi-rocket-takeoff-fill"></i>';
+            } else if (item.is_featured) {
+                pinClass += ' featured-pin';
+                iconBadge = '<i class="bi bi-star-fill"></i>';
+            }
+
+            const priceText = item.price_formatted || (item.price ? '$' + item.price : 'Free');
+            const customIcon = L.divIcon({
+                className: 'custom-leaflet-marker',
+                html: `<div class="${pinClass}" id="map-pin-${item.id}">${iconBadge} ${priceText}</div>`,
+                iconSize: [80, 30],
+                iconAnchor: [40, 15]
+            });
+
+            // Create Marker
+            const marker = L.marker([lat, lng], { icon: customIcon });
+
+            // Popup Card Content
+            const badgeHTML = item.is_sponsored
+                ? `<span class="map-popup-badge map-popup-badge-sponsored"><i class="bi bi-rocket-takeoff-fill me-1"></i> Sponsored</span>`
+                : (item.is_featured ? `<span class="map-popup-badge map-popup-badge-featured"><i class="bi bi-star-fill me-1"></i> Featured</span>` : '');
+
+            const popupHTML = `
+                <div class="map-popup-card">
+                    <div class="map-popup-thumb-wrap">
+                        <img src="${item.image || '/images/no-image.svg'}" alt="${item.title}" class="map-popup-thumb" onerror="this.src='/images/no-image.svg'">
+                        ${badgeHTML}
+                    </div>
+                    <div class="map-popup-body">
+                        <div class="map-popup-price">${priceText}</div>
+                        <h4 class="map-popup-title" title="${item.title}">${item.title}</h4>
+                        <div class="map-popup-loc"><i class="bi bi-geo-alt me-1"></i> ${item.city || item.location}</div>
+                        <a href="${item.url}" class="map-popup-btn">View Listing <i class="bi bi-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupHTML, { maxWidth: 260, minWidth: 240, className: 'bontrouver-map-popup' });
+            mapMarkersLayer.addLayer(marker);
+        });
+
+        if (countLabel) {
+            countLabel.textContent = `${validCoords.length} on map`;
+        }
+
+        // Adjust bounds
+        if (validCoords.length > 0) {
+            if (cityCenterLat && cityCenterLng && mapRadiusCircle) {
+                leafletMap.fitBounds(mapRadiusCircle.getBounds(), { padding: [30, 30] });
+            } else if (validCoords.length === 1) {
+                leafletMap.setView(validCoords[0], 13);
+            } else {
+                const bounds = L.latLngBounds(validCoords);
+                leafletMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+            }
+        } else if (cityCenterLat && cityCenterLng) {
+            leafletMap.setView([cityCenterLat, cityCenterLng], 12);
+        }
+    }
+
+    function recenterLeafletMap() {
+        if (!leafletMap) return;
+        updateLeafletMap(lastFilteredListings);
+    }
+
+    function locateUserOnMap() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const userLat = pos.coords.latitude;
+                const userLng = pos.coords.longitude;
+
+                if (!leafletMap) initLeafletMap();
+
+                if (userLocationMarker) {
+                    leafletMap.removeLayer(userLocationMarker);
+                }
+
+                const userIcon = L.divIcon({
+                    className: 'user-geo-pulse',
+                    html: '<div style="width: 16px; height: 16px; background: #3B82F6; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 14px #3B82F6;"></div>',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+
+                userLocationMarker = L.marker([userLat, userLng], { icon: userIcon }).addTo(leafletMap);
+                userLocationMarker.bindPopup('<b>You are here</b><br>Searching nearby deals').openPopup();
+
+                leafletMap.setView([userLat, userLng], 13);
+            },
+            (err) => {
+                alert('Unable to retrieve your location. Please check browser permissions.');
+            }
+        );
     }
 </script>
 @endpush

@@ -1,5 +1,9 @@
 @extends('frontend.layouts.app', ['title' => 'Post an Ad | Create Listing - Bontrouver Canadian Classifieds', 'metaDescription' => 'Create and publish your listing on Bontrouver. Sell cars, electronics, real estate, furniture, or offer jobs and local services across Canada.'])
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+@endpush
+
 @section('content')
     <div class="post-ad-page-wrapper">
         <!-- Header Hero Banner / Page Intro -->
@@ -458,18 +462,42 @@
                                             <input type="number" step="any"
                                                 class="form-control form-control-custom py-2 font-monospace"
                                                 id="postLatitude" name="latitude" value="43.6532" placeholder="e.g. 43.6532"
-                                                oninput="saveDraftToStorage()">
+                                                oninput="handleManualCoordInput()">
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label-custom small mb-1">Longitude</label>
                                             <input type="number" step="any"
                                                 class="form-control form-control-custom py-2 font-monospace"
                                                 id="postLongitude" name="longitude" value="-79.3832"
-                                                placeholder="e.g. -79.3832" oninput="saveDraftToStorage()">
+                                                placeholder="e.g. -79.3832" oninput="handleManualCoordInput()">
                                         </div>
                                     </div>
                                     <div id="gpsStatusMessage" class="small mt-2"
                                         style="display: none; font-size: 0.78rem;"></div>
+
+                                    <!-- Interactive Leaflet Map Picker -->
+                                    <div class="mt-3 pt-3 border-top border-white border-opacity-10">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="small fw-semibold text-white d-flex align-items-center gap-1">
+                                                <i class="bi bi-pin-map-fill text-success"></i>
+                                                <span>Interactive Location Pin (Click map or drag pin to adjust)</span>
+                                            </div>
+                                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25" style="font-size: 0.72rem;">
+                                                <i class="bi bi-arrows-move me-1"></i> Draggable Pin
+                                            </span>
+                                        </div>
+                                        <div class="rounded-3 overflow-hidden position-relative shadow-sm" style="height: 250px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
+                                            <div id="postAdLeafletMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between text-secondary small mt-1" style="font-size: 0.76rem;">
+                                            <span><i class="bi bi-info-circle me-1"></i> Click anywhere on the map to place the pin.</span>
+                                            <span id="postAdCoordsDisplay" class="font-monospace text-white-50">43.6532, -79.3832</span>
+                                        </div>
+                                        <div id="mapSyncFeedback" class="small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2" style="display: none !important; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25); font-size: 0.8rem;">
+                                            <i class="bi bi-check2-circle text-success fs-6"></i>
+                                            <span id="mapSyncFeedbackText">Auto-synced: City, Province, Neighbourhood & Postal Code</span>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Step Navigation Footer -->
@@ -866,6 +894,7 @@
 @endsection
 
 @push('scripts')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         /**
          * Bontrouver Post an Ad Dynamic Client State & Schema Engine
@@ -936,6 +965,11 @@
             const fillEl = document.getElementById('stepperProgressFill');
             if (fillEl) fillEl.style.width = progressPercent + '%';
 
+            // If step 4 (Location), initialize/refresh Leaflet map
+            if (stepNumber === 4) {
+                initOrRefreshPostAdMap();
+            }
+
             // If step 5, update review summary
             if (stepNumber === 5) {
                 populateReviewSummary();
@@ -984,9 +1018,20 @@
                 // Proceed to location
             } else if (nextStep === 5) {
                 const cityInput = document.getElementById('cityInput');
-                if (!cityInput.value.trim()) {
+                const provSelect = document.getElementById('provinceSelect');
+                const lat = parseFloat(document.getElementById('postLatitude')?.value);
+                const lng = parseFloat(document.getElementById('postLongitude')?.value);
+
+                if (postAdState.isOutsideCanada || (!isNaN(lat) && !isNaN(lng) && !isPointInCanada(lat, lng))) {
+                    showError('err-city', 'Selected location is outside Canada. Please choose a location within Canada or click "Snap to Canada".');
+                    isValid = false;
+                } else if (!cityInput.value.trim()) {
                     showError('err-city', 'Please enter your city.');
                     cityInput.focus();
+                    isValid = false;
+                } else if (provSelect && !provSelect.value) {
+                    showError('err-city', 'Please select a Canadian province.');
+                    provSelect.focus();
                     isValid = false;
                 }
             }
@@ -1496,27 +1541,58 @@
             }
         }
 
+        const databaseProvinces = @json($provinces ?? []);
         const canadianCitiesMap = @json($canadianCities ?? $citiesMap ?? []);
+
+        // Dynamic Province lookup map populated directly from database
+        const dbProvinceLookup = {};
+        Object.entries(databaseProvinces).forEach(([code, name]) => {
+            const codeStr = String(code).toUpperCase();
+            dbProvinceLookup[codeStr.toLowerCase()] = codeStr;
+            dbProvinceLookup[String(name).toLowerCase()] = codeStr;
+            const norm = String(name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            dbProvinceLookup[norm] = codeStr;
+        });
+
+        // Dynamic City lookup by lowercase and accent-normalized name directly from database
+        const dbCitiesByName = {};
+        if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+            Object.values(canadianCitiesMap).forEach(c => {
+                if (c && c.name) {
+                    const low = String(c.name).toLowerCase();
+                    dbCitiesByName[low] = c;
+                    const norm = low.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    dbCitiesByName[norm] = c;
+                }
+            });
+        }
 
         function handleCityInput(val) {
             const trimmed = (val || '').trim();
-            if (canadianCitiesMap && canadianCitiesMap[trimmed]) {
-                const cInfo = canadianCitiesMap[trimmed];
+            const low = trimmed.toLowerCase();
+            const norm = low.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const cInfo = (canadianCitiesMap && canadianCitiesMap[trimmed]) 
+                || dbCitiesByName[low] 
+                || dbCitiesByName[norm];
+
+            if (cInfo) {
                 const provCode = cInfo.province;
                 const provSelect = document.getElementById('provinceSelect');
                 if (provSelect && provCode) {
                     provSelect.value = provCode;
+                    postAdState.province = provCode;
                 }
                 if (cInfo.latitude) {
                     const latEl = document.getElementById('postLatitude');
-                    if (latEl) latEl.value = cInfo.latitude;
+                    if (latEl) latEl.value = parseFloat(cInfo.latitude).toFixed(6);
                 }
                 if (cInfo.longitude) {
                     const lngEl = document.getElementById('postLongitude');
-                    if (lngEl) lngEl.value = cInfo.longitude;
+                    if (lngEl) lngEl.value = parseFloat(cInfo.longitude).toFixed(6);
                 }
             }
             updateLocationPreview();
+            syncPostAdMapCoordinates();
             saveDraftToStorage();
         }
 
@@ -1578,6 +1654,7 @@
                     }
                     if (btn) btn.disabled = false;
                     updateLocationPreview();
+                    syncPostAdMapCoordinates();
                     saveDraftToStorage();
                 },
                 (error) => {
@@ -2166,11 +2243,331 @@
 
             postAdState._isRestoring = false;
         }
+
+        // ==========================================
+        // INTERACTIVE LEAFLET LOCATION PICKER ENGINE
+        // ==========================================
+        let postAdLeafletMap = null;
+        let postAdMarker = null;
+
+        function initOrRefreshPostAdMap() {
+            if (!postAdLeafletMap) {
+                initPostAdLeafletMap();
+            } else {
+                setTimeout(() => {
+                    postAdLeafletMap.invalidateSize();
+                    syncPostAdMapCoordinates();
+                }, 150);
+            }
+        }
+
+        function initPostAdLeafletMap() {
+            const mapEl = document.getElementById('postAdLeafletMap');
+            if (!mapEl || typeof L === 'undefined') return;
+
+            let lat = parseFloat(document.getElementById('postLatitude')?.value) || 43.6532;
+            let lng = parseFloat(document.getElementById('postLongitude')?.value) || -79.3832;
+
+            postAdLeafletMap = L.map('postAdLeafletMap', {
+                center: [lat, lng],
+                zoom: 12,
+                zoomControl: true,
+                scrollWheelZoom: false
+            });
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+            }).addTo(postAdLeafletMap);
+
+            const pinIcon = L.divIcon({
+                className: 'post-ad-pin-icon',
+                html: '<div style="background: #49D17D; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;"><i class="bi bi-geo-alt-fill" style="color: #06182B; font-size: 13px; transform: rotate(45deg);"></i></div>',
+                iconSize: [26, 26],
+                iconAnchor: [13, 26]
+            });
+
+            postAdMarker = L.marker([lat, lng], {
+                draggable: true,
+                icon: pinIcon
+            }).addTo(postAdLeafletMap);
+
+            postAdMarker.bindPopup('<b>Location Pin</b><br><small>Drag to adjust exact location</small>');
+
+            // Drag end event
+            postAdMarker.on('dragend', function (e) {
+                const position = postAdMarker.getLatLng();
+                updatePostAdCoordinates(position.lat, position.lng);
+            });
+
+            // Map click event
+            postAdLeafletMap.on('click', function (e) {
+                postAdMarker.setLatLng(e.latlng);
+                updatePostAdCoordinates(e.latlng.lat, e.latlng.lng);
+            });
+
+            setTimeout(() => {
+                postAdLeafletMap.invalidateSize();
+            }, 200);
+        }
+
+        function flashLocationInputs() {
+            const inputs = ['cityInput', 'provinceSelect', 'neighbourhoodInput', 'postalCodeInput'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('sync-highlight-pulse');
+                    // Trigger reflow to restart animation
+                    void el.offsetWidth;
+                    el.classList.add('sync-highlight-pulse');
+                    setTimeout(() => el.classList.remove('sync-highlight-pulse'), 1500);
+                }
+            });
+        }
+
+        function isPointInCanada(lat, lng) {
+            const numLat = parseFloat(lat);
+            const numLng = parseFloat(lng);
+            return numLat >= 41.0 && numLat <= 84.0 && numLng >= -142.0 && numLng <= -52.0;
+        }
+
+        function resetLocationToCanada(cityName = 'Toronto') {
+            let lat = 43.6532;
+            let lng = -79.3832;
+            if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+                const targetCity = canadianCitiesMap[cityName] || Object.values(canadianCitiesMap)[0];
+                if (targetCity && targetCity.latitude && targetCity.longitude) {
+                    lat = parseFloat(targetCity.latitude);
+                    lng = parseFloat(targetCity.longitude);
+                }
+            }
+            if (postAdMarker) postAdMarker.setLatLng([lat, lng]);
+            if (postAdLeafletMap) postAdLeafletMap.setView([lat, lng], 13);
+            updatePostAdCoordinates(lat, lng);
+        }
+
+        function updatePostAdCoordinates(lat, lng) {
+            const latRounded = parseFloat(lat).toFixed(6);
+            const lngRounded = parseFloat(lng).toFixed(6);
+
+            const latInput = document.getElementById('postLatitude');
+            const lngInput = document.getElementById('postLongitude');
+            const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+
+            if (latInput) latInput.value = latRounded;
+            if (lngInput) lngInput.value = lngRounded;
+            if (coordsDisplay) coordsDisplay.textContent = `${latRounded}, ${lngRounded}`;
+
+            const insideCanadaBounds = isPointInCanada(latRounded, lngRounded);
+            const feedbackBox = document.getElementById('mapSyncFeedback');
+            const feedbackText = document.getElementById('mapSyncFeedbackText');
+
+            if (!insideCanadaBounds) {
+                postAdState.isOutsideCanada = true;
+                if (feedbackBox && feedbackText) {
+                    feedbackBox.style.setProperty('display', 'flex', 'important');
+                    feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
+                    feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                    feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                    feedbackBox.style.color = '#F59E0B';
+                    feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is outside Canada. Bon Trouver operates only in Canada.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+                }
+                updateLocationPreview();
+                saveDraftToStorage();
+                return;
+            }
+
+            postAdState.isOutsideCanada = false;
+
+            // 1. Immediate closest Canadian city lookup from database map
+            let closestCity = null;
+            let minDistance = Infinity;
+            if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+                Object.values(canadianCitiesMap).forEach(c => {
+                    if (c && c.latitude && c.longitude) {
+                        const dist = Math.hypot(parseFloat(c.latitude) - parseFloat(latRounded), parseFloat(c.longitude) - parseFloat(lngRounded));
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestCity = c;
+                        }
+                    }
+                });
+            }
+
+            if (closestCity && minDistance < 1.5) {
+                const cityInput = document.getElementById('cityInput');
+                const provSelect = document.getElementById('provinceSelect');
+                if (cityInput) {
+                    cityInput.value = closestCity.name;
+                    postAdState.city = closestCity.name;
+                }
+                if (provSelect && closestCity.province) {
+                    provSelect.value = closestCity.province;
+                    postAdState.province = closestCity.province;
+                }
+                updateLocationPreview();
+            }
+
+            // 2. Reverse geocode via OpenStreetMap Nominatim and match with database records
+            if (window._nominatimTimeout) clearTimeout(window._nominatimTimeout);
+            window._nominatimTimeout = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latRounded}&lon=${lngRounded}&zoom=16&addressdetails=1`, {
+                    headers: { 'Accept-Language': 'en' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const addr = data.address;
+                        const countryCode = (addr.country_code || '').toLowerCase();
+
+                        if (countryCode && countryCode !== 'ca') {
+                            postAdState.isOutsideCanada = true;
+                            if (feedbackBox && feedbackText) {
+                                feedbackBox.style.setProperty('display', 'flex', 'important');
+                                feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
+                                feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                                feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                                feedbackBox.style.color = '#F59E0B';
+                                const countryLabel = addr.country || 'outside Canada';
+                                feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is in ${countryLabel}. Please select a Canadian location.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+                            }
+                            return;
+                        }
+
+                        postAdState.isOutsideCanada = false;
+
+                        const rawCity = addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || '';
+                        const lowRaw = rawCity.toLowerCase().trim();
+                        const normRaw = lowRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                        // Resolve city directly from database
+                        let matchedDbCity = (lowRaw && dbCitiesByName[lowRaw]) 
+                            || (normRaw && dbCitiesByName[normRaw]) 
+                            || closestCity;
+                        let foundCity = matchedDbCity ? matchedDbCity.name : rawCity;
+
+                        // Resolve province directly from database
+                        let foundProv = '';
+                        if (addr.state) {
+                            const stateStr = addr.state.trim();
+                            const stateLow = stateStr.toLowerCase();
+                            const stateNorm = stateLow.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            foundProv = dbProvinceLookup[stateLow] || dbProvinceLookup[stateNorm] || '';
+                        }
+                        if (!foundProv && matchedDbCity && matchedDbCity.province) {
+                            foundProv = matchedDbCity.province;
+                        }
+
+                        const foundHood = addr.neighbourhood || addr.suburb || addr.quarter || addr.city_district || addr.residential || addr.road || '';
+
+                        let foundPostal = (addr.postcode || '').trim().toUpperCase();
+                        if (foundPostal && foundPostal.length === 6 && !foundPostal.includes(' ')) {
+                            foundPostal = foundPostal.substring(0, 3) + ' ' + foundPostal.substring(3, 6);
+                        }
+
+                        const cityInput = document.getElementById('cityInput');
+                        const provSelect = document.getElementById('provinceSelect');
+                        const hoodInput = document.getElementById('neighbourhoodInput');
+                        const postalInput = document.getElementById('postalCodeInput');
+
+                        if (foundCity && cityInput) {
+                            cityInput.value = foundCity;
+                            postAdState.city = foundCity;
+                        }
+                        if (foundProv && provSelect) {
+                            provSelect.value = foundProv;
+                            postAdState.province = foundProv;
+                        }
+                        if (hoodInput) {
+                            hoodInput.value = foundHood;
+                            postAdState.neighbourhood = foundHood;
+                        }
+                        if (foundPostal && postalInput) {
+                            postalInput.value = foundPostal;
+                            postAdState.postal_code = foundPostal;
+                        }
+
+                        // Trigger visual pulse on input boxes
+                        flashLocationInputs();
+
+                        // Update live feedback banner
+                        if (feedbackBox && feedbackText) {
+                            feedbackBox.style.setProperty('display', 'flex', 'important');
+                            feedbackBox.className = 'small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2';
+                            feedbackBox.style.background = 'rgba(73, 209, 125, 0.1)';
+                            feedbackBox.style.border = '1px solid rgba(73, 209, 125, 0.25)';
+                            feedbackBox.style.color = '#49D17D';
+                            const detailParts = [];
+                            if (foundCity) detailParts.push(`<strong>${foundCity}</strong>`);
+                            if (foundProv) detailParts.push(foundProv);
+                            if (foundHood) detailParts.push(`(${foundHood})`);
+                            if (foundPostal) detailParts.push(`• Postal: ${foundPostal}`);
+                            feedbackText.innerHTML = `<i class="bi bi-check2-circle text-success fs-6 me-1"></i> Auto-synced: ${detailParts.join(', ')}`;
+                        }
+
+                        updateLocationPreview();
+                        saveDraftToStorage();
+                    }
+                })
+                .catch(e => console.log('Reverse geocode notice:', e));
+            }, 300);
+
+            updateLocationPreview();
+            saveDraftToStorage();
+        }
+
+        function handleManualCoordInput() {
+            const lat = parseFloat(document.getElementById('postLatitude')?.value);
+            const lng = parseFloat(document.getElementById('postLongitude')?.value);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+                if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                if (postAdMarker) postAdMarker.setLatLng([lat, lng]);
+                if (postAdLeafletMap) postAdLeafletMap.panTo([lat, lng]);
+                updatePostAdCoordinates(lat, lng);
+            }
+        }
+
+        function syncPostAdMapCoordinates(flyTo = true) {
+            let lat = parseFloat(document.getElementById('postLatitude')?.value) || 43.6532;
+            let lng = parseFloat(document.getElementById('postLongitude')?.value) || -79.3832;
+
+            const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+            if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+            if (postAdMarker) {
+                postAdMarker.setLatLng([lat, lng]);
+            }
+            if (postAdLeafletMap && flyTo) {
+                postAdLeafletMap.setView([lat, lng], 13);
+            }
+        }
     </script>
 @endpush
 
 @push('styles')
     <style>
+        .sync-highlight-pulse {
+            animation: syncPulseGlow 1.4s ease-out;
+            border-color: #49D17D !important;
+            box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.25) !important;
+        }
+
+        @keyframes syncPulseGlow {
+            0% {
+                border-color: #49D17D;
+                box-shadow: 0 0 0 4px rgba(73, 209, 125, 0.4);
+                background-color: rgba(73, 209, 125, 0.08);
+            }
+            70% {
+                border-color: #49D17D;
+                box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.2);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
         .post-ad-preview-col {
             position: relative;
             height: 100%;

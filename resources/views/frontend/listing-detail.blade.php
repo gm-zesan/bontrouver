@@ -20,6 +20,32 @@
 @section('og_type', 'product')
 @section('og_image', !empty($listing['images'][0]['url']) ? $listing['images'][0]['url'] : (!empty($listing['image']) ? $listing['image'] : asset('images/hero/hero-1.jpg')))
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+.detail-map-pulse-marker {
+    width: 20px;
+    height: 20px;
+    background: #49D17D;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(73, 209, 125, 0.4);
+    animation: pulse-ring 1.8s infinite;
+}
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 rgba(73, 209, 125, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 16px rgba(73, 209, 125, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(73, 209, 125, 0);
+    }
+}
+</style>
+@endpush
+
 @push('custom-script')
 @if($listing)
 <script type="application/ld+json">
@@ -311,21 +337,19 @@
                                     </a>
                                 </div>
 
-                                <!-- Stylized Map Canvas Container -->
-                                <div class="rounded-4 overflow-hidden position-relative mt-3" style="height: 240px; background: #081D33; border: 1px solid rgba(255,255,255,0.1);">
-                                    <iframe src="https://maps.google.com/maps?q={{ urlencode($listing['city'] . ', ' . $listing['province'] . ', Canada') }}&t=&z=13&ie=UTF8&iwloc=&output=embed" class="w-100 h-100 opacity-75" style="border:0; pointer-events: none;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                                    <div class="position-absolute top-50 start-50 translate-middle">
-                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 48px; height: 48px; border: 3px solid white;">
-                                            <i class="bi bi-geo-alt-fill fs-5"></i>
-                                        </div>
-                                    </div>
-                                    <div class="position-absolute bottom-0 end-0 p-2 text-white-50 small" style="background: rgba(0,0,0,0.5); border-top-left-radius: 8px;">
-                                        Bontrouver Local Map
+                                <!-- Stylized Interactive Leaflet OSM Map Canvas Container -->
+                                <div class="rounded-4 overflow-hidden position-relative mt-3 shadow-sm" style="height: 280px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
+                                    <div id="listingDetailLeafletMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+                                    <div class="position-absolute bottom-0 end-0 m-2 z-3 d-flex gap-2">
+                                        <a href="https://maps.google.com/?q={{ urlencode((!empty($listing['latitude']) && !empty($listing['longitude'])) ? ($listing['latitude'] . ',' . $listing['longitude']) : ($listing['city'] . ', ' . $listing['province'] . ', Canada')) }}" target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="btn btn-sm btn-dark rounded-pill px-3 py-1 text-white border border-white border-opacity-25 shadow" style="background: rgba(13,36,60,0.9); backdrop-filter: blur(8px); font-size: 0.78rem;">
+                                            <i class="bi bi-geo-alt-fill text-success me-1"></i> Google Maps
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="location-disclaimer mt-2 text-secondary small">
-                                    <i class="bi bi-info-circle me-1"></i> To protect seller privacy, exact street addresses are
-                                    provided only upon mutual agreement.
+                                    <i class="bi bi-info-circle me-1"></i> Approximate area shown to protect seller privacy. Exact meeting location is arranged securely upon agreement.
                                 </div>
                             </div>
                         </div>
@@ -917,6 +941,7 @@
 @endsection
 
     @push('scripts')
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <script>
             // =========================================================================
             // Listing Detail Interactive State Engine
@@ -1359,6 +1384,53 @@
                         closeShareModal();
                     }
                 });
+
+                // Init Interactive Leaflet OpenStreetMap
+                const mapEl = document.getElementById('listingDetailLeafletMap');
+                if (mapEl && typeof L !== 'undefined') {
+                    const listingLat = {{ !empty($listing['latitude']) ? (float)$listing['latitude'] : 45.5017 }};
+                    const listingLng = {{ !empty($listing['longitude']) ? (float)$listing['longitude'] : -73.5673 }};
+                    const listingTitle = @json($listing['title'] ?? 'Listing');
+                    const listingPrice = @json($listing['price_formatted'] ?? '$0');
+                    const listingLoc = @json($listing['location'] ?? 'Canada');
+
+                    const detailMap = L.map('listingDetailLeafletMap', {
+                        center: [listingLat, listingLng],
+                        zoom: 13,
+                        zoomControl: true,
+                        scrollWheelZoom: false
+                    });
+
+                    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+                    }).addTo(detailMap);
+
+                    // Privacy Approximate Area Circle (1.2 km radius)
+                    L.circle([listingLat, listingLng], {
+                        radius: 1200,
+                        color: '#49D17D',
+                        fillColor: '#49D17D',
+                        fillOpacity: 0.15,
+                        weight: 2,
+                        dashArray: '5, 5'
+                    }).addTo(detailMap);
+
+                    // Center Pulse Marker
+                    const pulseIcon = L.divIcon({
+                        className: 'custom-pulse-pin',
+                        html: '<div class="detail-map-pulse-marker"></div>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+
+                    const marker = L.marker([listingLat, listingLng], { icon: pulseIcon }).addTo(detailMap);
+                    marker.bindPopup(`<div style="font-family: inherit; font-size: 13px;"><b>${listingTitle}</b><br><span style="color:#49D17D; font-weight:700;">${listingPrice}</span><br><span style="color:#94A3B8; font-size:11px;">${listingLoc} (Approximate Area)</span></div>`).openPopup();
+
+                    setTimeout(() => {
+                        detailMap.invalidateSize();
+                    }, 200);
+                }
             });
         </script>
     @endpush
