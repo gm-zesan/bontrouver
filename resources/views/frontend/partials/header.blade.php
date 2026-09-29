@@ -11,8 +11,10 @@
                     $siteBrandName = site_setting('site_name', 'Bontrouver');
                 @endphp
                 @if($headerLogo && Storage::disk('public')->exists($headerLogo))
-                    <a href="{{ url('/') }}" class="brand-logo d-inline-flex align-items-center" aria-label="{{ $siteBrandName }} Homepage">
-                        <img src="{{ Storage::url($headerLogo) }}" alt="{{ $siteBrandName }}" class="header-logo-img" style="max-height: 38px; width: auto; object-fit: contain;">
+                    <a href="{{ url('/') }}" class="brand-logo d-inline-flex align-items-center"
+                        aria-label="{{ $siteBrandName }} Homepage">
+                        <img src="{{ Storage::url($headerLogo) }}" alt="{{ $siteBrandName }}" class="header-logo-img"
+                            style="max-height: 38px; width: auto; object-fit: contain;">
                     </a>
                 @else
                     <a href="{{ url('/') }}" class="brand-logo" aria-label="{{ $siteBrandName }} Homepage">
@@ -274,8 +276,10 @@
                                         <div class="text-white fw-bold text-truncate" style="font-size: 0.88rem;">
                                             {{ Auth::user()->name }}
                                         </div>
-                                        <span class="badge bg-primary text-white font-monospace" style="font-size: 10px; padding: 2px 7px;">
-                                            <i class="bi bi-shield-check me-1"></i> {{ strtoupper(Auth::user()->role?->value ?? (string)Auth::user()->role) }}
+                                        <span class="badge bg-primary text-white font-monospace"
+                                            style="font-size: 10px; padding: 2px 7px;">
+                                            <i class="bi bi-shield-check me-1"></i>
+                                            {{ strtoupper(Auth::user()->role?->value ?? (string) Auth::user()->role) }}
                                         </span>
                                     </div>
                                     <div class="text-secondary small text-truncate mt-1" style="font-size: 0.75rem;">
@@ -285,6 +289,11 @@
                                 <li>
                                     <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
                                         <i class="bi bi-speedometer2 me-2 text-primary"></i> Admin Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('listings.my') }}">
+                                        <i class="bi bi-card-list me-2 text-info"></i> My Listings
                                     </a>
                                 </li>
                                 <li>
@@ -305,7 +314,8 @@
                                             {{ Auth::user()->name }}
                                         </div>
                                         @php $userTier = Auth::user()->member_tier; @endphp
-                                        <span class="badge {{ $userTier['badge_class'] ?? 'tier-badge tier-bronze' }}" style="font-size: 10px; padding: 2px 7px;">
+                                        <span class="badge {{ $userTier['badge_class'] ?? 'tier-badge tier-bronze' }}"
+                                            style="font-size: 10px; padding: 2px 7px;">
                                             {{ $userTier['icon'] ?? '🥉' }} {{ $userTier['short_name'] ?? 'Member' }}
                                         </span>
                                     </div>
@@ -314,14 +324,11 @@
                                             {{ Auth::user()->email ?? 'Active Account' }}
                                         </div>
                                         <span class="text-success fw-bold font-monospace" style="font-size: 0.78rem;">
-                                            <i class="bi bi-coin me-1"></i>{{ number_format(Auth::user()->community_points ?? 0) }} pts
+                                            <i
+                                                class="bi bi-coin me-1"></i>{{ number_format(Auth::user()->community_points ?? 0) }}
+                                            pts
                                         </span>
                                     </div>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
-                                        <i class="bi bi-person-gear me-2 text-warning"></i> Account Settings
-                                    </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('listings.my') }}">
@@ -339,8 +346,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('pages.member-benefits') }}">
-                                        <i class="bi bi-award me-2 text-primary"></i> Member Benefits &amp; Perks
+                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
+                                        <i class="bi bi-person-gear me-2 text-warning"></i> Account Settings
                                     </a>
                                 </li>
                                 <li>

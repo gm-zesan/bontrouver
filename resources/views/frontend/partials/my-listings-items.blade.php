@@ -151,7 +151,7 @@
                     <!-- Direct Single-Line Action Buttons -->
                     <div class="d-flex align-items-center gap-2 flex-nowrap">
                         
-                        @if($item['status'] === 'active' || $item['status'] === 'attention' || $item['status'] === 'paused')
+                        @if($item['status'] === 'active' || $item['status'] === 'attention')
                             <!-- Edit Button -->
                             <a href="{{ route('listings.edit', $item['id']) }}" class="btn-manage-edit" title="Edit Listing">
                                 <i class="bi bi-pencil"></i>
@@ -168,6 +168,20 @@
                             <!-- Mark as Sold Button -->
                             <button type="button" class="btn-manage-icon icon-sold" onclick="openMarkSoldModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}')" title="Mark as Sold">
                                 <i class="bi bi-bag-check text-success"></i>
+                            </button>
+                            <!-- Delete Button -->
+                            <button type="button" class="btn-manage-icon icon-delete" onclick="openDeleteModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}')" title="Delete Listing">
+                                <i class="bi bi-trash text-danger"></i>
+                            </button>
+                        @elseif($item['status'] === 'paused')
+                            <!-- Edit Button -->
+                            <a href="{{ route('listings.edit', $item['id']) }}" class="btn-manage-edit" title="Edit Listing">
+                                <i class="bi bi-pencil"></i>
+                                <span>Edit</span>
+                            </a>
+                            <!-- Resume Button -->
+                            <button type="button" class="btn btn-sm btn-success text-dark fw-semibold px-3 py-1 d-inline-flex align-items-center gap-1" style="font-size: 0.82rem;" onclick="openPauseModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}', 'paused')" title="Resume Listing">
+                                <i class="bi bi-play-circle-fill"></i> Resume
                             </button>
                             <!-- Delete Button -->
                             <button type="button" class="btn-manage-icon icon-delete" onclick="openDeleteModal({{ $item['id'] }}, '{{ addslashes($item['title']) }}')" title="Delete Listing">
