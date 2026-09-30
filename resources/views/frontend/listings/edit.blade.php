@@ -2,7 +2,15 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
+    @keyframes syncPulse {
+        0% { border-color: rgba(73, 209, 125, 0.9); box-shadow: 0 0 0 4px rgba(73, 209, 125, 0.35); }
+        100% { border-color: rgba(255, 255, 255, 0.12); box-shadow: none; }
+    }
+    .sync-highlight-pulse {
+        animation: syncPulse 1.4s ease-out !important;
+    }
     .select2-container {
         width: 100% !important;
         max-width: 100% !important;
@@ -416,7 +424,7 @@
                     <!-- SECTION 5: LOCATION DETAILS -->
                     <section class="post-ad-step-card mb-4" id="section-location">
                         <div class="step-card-header">
-                            <div class="step-header-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                            <div class="step-header-icon"><i class="bi bi-geo-alt-fill text-success"></i></div>
                             <div>
                                 <h2 class="step-card-title">5. Location Details</h2>
                                 <p class="step-card-desc">Accurate coordinates ensure your listing shows in local radius searches across Canada.</p>
@@ -424,9 +432,9 @@
                         </div>
 
                         <div class="step-card-body">
-                            <div class="row g-3">
-                                <!-- Col 1: Province / Territory (First) -->
-                                <div class="col-12 col-md-6">
+                            <div class="row g-3 mb-4">
+                                <!-- 1. Province / Territory (First) -->
+                                <div class="col-md-6">
                                     <label class="form-label-custom">Province / Territory <span class="text-danger">*</span></label>
                                     <select class="form-select form-control-custom select2-province-select" id="provinceSelect" name="province"
                                         required onchange="handleProvinceChange(this.value)">
@@ -441,37 +449,117 @@
                                     <input type="hidden" id="provinceIdInput" name="province_id" value="{{ old('province_id', $listing->province_id) }}">
                                 </div>
 
-                                <!-- Col 2: City / Town (Dynamically Filtered by Province) -->
-                                <div class="col-12 col-md-6">
+                                <!-- 2. City / Town (Second - Rendered based on selected Province) -->
+                                <div class="col-md-6">
                                     <label class="form-label-custom">City / Town <span class="text-danger">*</span></label>
-                                    <div class="input-icon-wrap position-relative" id="citySelectContainer" style="position: relative;">
+                                    <div class="input-icon-wrap" id="citySelectContainer" style="position: relative;">
                                         <select class="form-select form-control-custom select2-city-select"
                                             id="citySelect" name="city_id" required>
-                                            <option value="">Select a Province first...</option>
+                                            <option value="">Select a city...</option>
                                         </select>
                                         <input type="hidden" id="cityInput" name="city" value="{{ old('city', $listing->city_name) }}">
                                     </div>
                                 </div>
 
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label-custom">Postal Code</label>
-                                    <input type="text" name="postal_code" id="postalCodeInput" class="form-control form-control-custom font-monospace text-uppercase" 
-                                           value="{{ old('postal_code', $listing->postal_code) }}" placeholder="e.g. M5V 2T6" maxlength="10">
+                                <!-- 3. Neighbourhood / Area -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Neighbourhood / Area</label>
+                                    <input type="text" class="form-control form-control-custom" id="neighbourhoodInput"
+                                        name="neighbourhood" value="{{ old('neighbourhood', $listing->neighbourhood ?? $listing->location_name) }}"
+                                        placeholder="e.g. Downtown, North York, Kitsilano"
+                                        oninput="updateLocationPreview()">
                                 </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label-custom">Neighborhood / Landmark</label>
-                                    <input type="text" name="location_name" id="neighbourhoodInput" class="form-control form-control-custom" 
-                                           value="{{ old('location_name', $listing->location_name) }}" placeholder="e.g. Downtown Core, Plateau Mont-Royal, Kitsilano"
-                                           oninput="updateLocationPreview()">
+
+                                <!-- 4. Postal Code Prefix -->
+                                <div class="col-md-6">
+                                    <label class="form-label-custom">Postal Code Prefix (Optional)</label>
+                                    <input type="text" class="form-control form-control-custom text-uppercase"
+                                        id="postalCodeInput" name="postal_code" value="{{ old('postal_code', $listing->postal_code) }}"
+                                        placeholder="e.g. M5V or V6B" maxlength="10">
+                                </div>
+
+                                <!-- 5. Specific Location / Landmark -->
+                                <div class="col-12">
+                                    <label class="form-label-custom">Specific Location / Landmark (Optional)</label>
+                                    <input type="text" class="form-control form-control-custom" id="postLocationName"
+                                        name="location_name" value="{{ old('location_name', $listing->location_name) }}"
+                                        placeholder="e.g. Near Eaton Centre, Yonge & Bloor, Robson St, Downtown"
+                                        maxlength="100" oninput="updateLocationPreview()">
+                                </div>
+                            </div>
+
+                            <!-- GPS Coordinates & Current Location Sync Section -->
+                            <div class="p-3 rounded-3 mb-2"
+                                style="background: rgba(13, 36, 60, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-3">
+                                    <div>
+                                        <div class="fw-bold text-white small d-flex align-items-center gap-2">
+                                            <i class="bi bi-crosshair2 text-success"></i>
+                                            <span>GPS Coordinates (Latitude & Longitude)</span>
+                                        </div>
+                                        <div class="text-secondary small" style="font-size: 0.78rem;">
+                                            Auto-synced from your city or current location, or enter exact coordinates manually.
+                                        </div>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm"
+                                        id="btnUseCurrentLocation" onclick="fetchCurrentGeolocation()">
+                                        <i class="bi bi-geo-fill"></i>
+                                        <span>Use My Current Location</span>
+                                    </button>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small mb-1">Latitude</label>
+                                        <input type="number" step="any"
+                                            class="form-control form-control-custom py-2 font-monospace"
+                                            id="postLatitude" name="latitude" value="{{ old('latitude', $listing->latitude ?? '43.6532') }}"
+                                            placeholder="e.g. 43.6532" oninput="handleManualCoordInput()">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom small mb-1">Longitude</label>
+                                        <input type="number" step="any"
+                                            class="form-control form-control-custom py-2 font-monospace"
+                                            id="postLongitude" name="longitude" value="{{ old('longitude', $listing->longitude ?? '-79.3832') }}"
+                                            placeholder="e.g. -79.3832" oninput="handleManualCoordInput()">
+                                    </div>
+                                </div>
+
+                                <!-- Interactive Leaflet Map Picker -->
+                                <div class="mt-3 pt-3 border-top border-white border-opacity-10">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div class="small fw-semibold text-white d-flex align-items-center gap-1">
+                                            <i class="bi bi-pin-map-fill text-success"></i>
+                                            <span>Interactive Location Pin (Click map or drag pin to adjust)</span>
+                                        </div>
+                                        <span class="badge bg-success text-white border border-success border-opacity-25"
+                                            style="font-size: 0.72rem;">
+                                            <i class="bi bi-arrows-move me-1"></i> Draggable Pin
+                                        </span>
+                                    </div>
+                                    <div class="rounded-3 overflow-hidden position-relative shadow-sm"
+                                        style="height: 250px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
+                                        <div id="postAdLeafletMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between text-secondary small mt-1"
+                                        style="font-size: 0.76rem;">
+                                        <span><i class="bi bi-info-circle me-1"></i> Click anywhere on the map to place the pin.</span>
+                                        <span id="postAdCoordsDisplay" class="font-monospace text-white-50">{{ old('latitude', $listing->latitude ?? '43.6532') }}, {{ old('longitude', $listing->longitude ?? '-79.3832') }}</span>
+                                    </div>
+                                    <div id="mapSyncFeedback"
+                                        class="small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2"
+                                        style="display: none !important; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25); font-size: 0.8rem;">
+                                        <i class="bi bi-check2-circle text-success fs-6"></i>
+                                        <span id="mapSyncFeedbackText">Auto-synced: City, Province, Neighbourhood & Postal Code</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    <!-- Hidden Inputs for Deleted Images & Coords -->
+                    <!-- Hidden Inputs for Deleted Images -->
                     <div id="deletedImagesHiddenInputs"></div>
-                    <input type="hidden" name="latitude" id="latitudeInput" value="{{ old('latitude', $listing->latitude) }}">
-                    <input type="hidden" name="longitude" id="longitudeInput" value="{{ old('longitude', $listing->longitude) }}">
 
                     <!-- Step Navigation Actions -->
                     <div class="step-actions-footer p-4 rounded-4" style="background: var(--bg-card); border: 1px solid var(--border-card);">
@@ -710,6 +798,7 @@
 @push('scripts')
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const categoriesTree = @json($categories);
     const citiesMap = @json($citiesMap);
@@ -722,6 +811,32 @@
     const currentListingAttributes = @json($listing->attributes->mapWithKeys(function($a) {
         return [$a->categoryAttribute?->slug ?? $a->category_attribute_id => $a->value];
     }));
+
+    const databaseProvinces = @json($provincesMap ?? []);
+    const canadianCitiesMap = @json($citiesMap ?? []);
+
+    // Dynamic Province lookup map populated directly from database
+    const dbProvinceLookup = {};
+    Object.entries(databaseProvinces).forEach(([code, name]) => {
+        const codeStr = String(code).toUpperCase();
+        dbProvinceLookup[codeStr.toLowerCase()] = codeStr;
+        dbProvinceLookup[String(name).toLowerCase()] = codeStr;
+        const norm = String(name).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        dbProvinceLookup[norm] = codeStr;
+    });
+
+    // Dynamic City lookup by lowercase and accent-normalized name directly from database
+    const dbCitiesByName = {};
+    if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+        Object.values(canadianCitiesMap).forEach(c => {
+            if (c && c.name) {
+                const low = String(c.name).toLowerCase();
+                dbCitiesByName[low] = c;
+                const norm = low.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                dbCitiesByName[norm] = c;
+            }
+        });
+    }
 
     function updateTitlePreview(val) {
         const titleEl = document.getElementById('prevTitle');
@@ -938,7 +1053,7 @@
         }
     }
 
-    function populateCitiesForProvince(provCode, selectedCityId = null) {
+    function populateCitiesForProvince(provCode, selectedCityId = null, shouldFlyMap = true) {
         const $citySelect = $('#citySelect');
         if (!$citySelect.length) return;
 
@@ -958,6 +1073,8 @@
         $citySelect.append(new Option(`Search or select city in ${prov.name}...`, ''));
 
         let autoPickVal = '';
+        let matchedCityObj = null;
+
         prov.cities.forEach((city, idx) => {
             let isMatch = false;
             if (selectedCityId) {
@@ -977,19 +1094,19 @@
             if (isMatch) {
                 opt.selected = true;
                 autoPickVal = city.id;
+                matchedCityObj = city;
             }
             $citySelect.append(opt);
         });
 
         initCitySelect2();
 
-        if (autoPickVal) {
+        if (autoPickVal && matchedCityObj) {
             $citySelect.val(autoPickVal);
-            const selectedOpt = $citySelect.find('option:selected');
-            const cityName = selectedOpt.data('name');
-            const provId   = selectedOpt.data('province-id');
-            const lat      = parseFloat(selectedOpt.data('lat'));
-            const lng      = parseFloat(selectedOpt.data('lng'));
+            const cityName = matchedCityObj.name;
+            const provId   = prov.id;
+            const lat      = parseFloat(matchedCityObj.latitude);
+            const lng      = parseFloat(matchedCityObj.longitude);
 
             if (cityName) {
                 const cInp = document.getElementById('cityInput');
@@ -999,11 +1116,12 @@
                 const pIdEl = document.getElementById('provinceIdInput');
                 if (pIdEl) pIdEl.value = provId;
             }
-            if (!isNaN(lat) && !isNaN(lng)) {
-                const latEl = document.getElementById('latitudeInput');
-                const lngEl = document.getElementById('longitudeInput');
+            if (!isNaN(lat) && !isNaN(lng) && shouldFlyMap) {
+                const latEl = document.getElementById('postLatitude');
+                const lngEl = document.getElementById('postLongitude');
                 if (latEl) latEl.value = lat.toFixed(6);
                 if (lngEl) lngEl.value = lng.toFixed(6);
+                syncPostAdMapCoordinates(true);
             }
         }
 
@@ -1051,10 +1169,11 @@
                 }
             }
             if (!isNaN(lat) && !isNaN(lng)) {
-                const latEl = document.getElementById('latitudeInput');
-                const lngEl = document.getElementById('longitudeInput');
+                const latEl = document.getElementById('postLatitude');
+                const lngEl = document.getElementById('postLongitude');
                 if (latEl) latEl.value = lat.toFixed(6);
                 if (lngEl) lngEl.value = lng.toFixed(6);
+                syncPostAdMapCoordinates(true);
             }
 
             updateLocationPreview();
@@ -1069,7 +1188,324 @@
             if (pIdEl) pIdEl.value = provId;
         }
 
-        populateCitiesForProvince(provCode, null);
+        populateCitiesForProvince(provCode, null, true);
+    }
+
+    // ==========================================
+    // INTERACTIVE LEAFLET LOCATION PICKER ENGINE
+    // ==========================================
+    let postAdLeafletMap = null;
+    let postAdMarker = null;
+
+    function initPostAdLeafletMap() {
+        const mapEl = document.getElementById('postAdLeafletMap');
+        if (!mapEl || typeof L === 'undefined') return;
+
+        let lat = parseFloat(document.getElementById('postLatitude')?.value);
+        let lng = parseFloat(document.getElementById('postLongitude')?.value);
+        const hasExactCoords = !isNaN(lat) && !isNaN(lng);
+
+        const initialCenter = hasExactCoords ? [lat, lng] : [56.1304, -106.3468];
+        const initialZoom = hasExactCoords ? 13 : 4;
+        const markerPos = hasExactCoords ? [lat, lng] : [43.6532, -79.3832];
+
+        postAdLeafletMap = L.map('postAdLeafletMap', {
+            center: initialCenter,
+            zoom: initialZoom,
+            zoomControl: true,
+            scrollWheelZoom: false
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors'
+        }).addTo(postAdLeafletMap);
+
+        const pinIcon = L.divIcon({
+            className: 'post-ad-pin-icon',
+            html: '<div style="background: #49D17D; width: 26px; height: 26px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;"><i class="bi bi-geo-alt-fill" style="color: #06182B; font-size: 13px; transform: rotate(45deg);"></i></div>',
+            iconSize: [26, 26],
+            iconAnchor: [13, 26]
+        });
+
+        postAdMarker = L.marker(markerPos, {
+            draggable: true,
+            icon: pinIcon
+        }).addTo(postAdLeafletMap);
+
+        postAdMarker.bindPopup('<b>Location Pin</b><br><small>Drag to adjust exact location</small>');
+
+        // Drag end event
+        postAdMarker.on('dragend', function (e) {
+            const position = postAdMarker.getLatLng();
+            updatePostAdCoordinates(position.lat, position.lng);
+        });
+
+        // Map click event
+        postAdLeafletMap.on('click', function (e) {
+            postAdMarker.setLatLng(e.latlng);
+            updatePostAdCoordinates(e.latlng.lat, e.latlng.lng);
+        });
+
+        setTimeout(() => {
+            postAdLeafletMap.invalidateSize();
+        }, 200);
+    }
+
+    function flashLocationInputs() {
+        const inputs = ['cityInput', 'provinceSelect', 'neighbourhoodInput', 'postalCodeInput'];
+        inputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('sync-highlight-pulse');
+                void el.offsetWidth;
+                el.classList.add('sync-highlight-pulse');
+                setTimeout(() => el.classList.remove('sync-highlight-pulse'), 1500);
+            }
+        });
+    }
+
+    function isPointInCanada(lat, lng) {
+        const numLat = parseFloat(lat);
+        const numLng = parseFloat(lng);
+        return numLat >= 41.0 && numLat <= 84.0 && numLng >= -142.0 && numLng <= -52.0;
+    }
+
+    function resetLocationToCanada(cityName = 'Toronto') {
+        let lat = 43.6532;
+        let lng = -79.3832;
+        if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+            const targetCity = canadianCitiesMap[cityName] || Object.values(canadianCitiesMap)[0];
+            if (targetCity && targetCity.latitude && targetCity.longitude) {
+                lat = parseFloat(targetCity.latitude);
+                lng = parseFloat(targetCity.longitude);
+            }
+        }
+        if (postAdMarker) postAdMarker.setLatLng([lat, lng]);
+        if (postAdLeafletMap) postAdLeafletMap.setView([lat, lng], 13);
+        updatePostAdCoordinates(lat, lng);
+    }
+
+    function updatePostAdCoordinates(lat, lng) {
+        const latRounded = parseFloat(lat).toFixed(6);
+        const lngRounded = parseFloat(lng).toFixed(6);
+
+        const latInput = document.getElementById('postLatitude');
+        const lngInput = document.getElementById('postLongitude');
+        const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+
+        if (latInput) latInput.value = latRounded;
+        if (lngInput) lngInput.value = lngRounded;
+        if (coordsDisplay) coordsDisplay.textContent = `${latRounded}, ${lngRounded}`;
+
+        const insideCanadaBounds = isPointInCanada(latRounded, lngRounded);
+        const feedbackBox = document.getElementById('mapSyncFeedback');
+        const feedbackText = document.getElementById('mapSyncFeedbackText');
+
+        if (!insideCanadaBounds) {
+            if (feedbackBox && feedbackText) {
+                feedbackBox.style.setProperty('display', 'flex', 'important');
+                feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
+                feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                feedbackBox.style.color = '#F59E0B';
+                feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is outside Canada.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+            }
+            updateLocationPreview();
+            return;
+        }
+
+        // 1. Immediate closest Canadian city lookup from database map
+        let closestCity = null;
+        let minDistance = Infinity;
+        if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
+            Object.values(canadianCitiesMap).forEach(c => {
+                if (c && c.latitude && c.longitude) {
+                    const dist = Math.hypot(parseFloat(c.latitude) - parseFloat(latRounded), parseFloat(c.longitude) - parseFloat(lngRounded));
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestCity = c;
+                    }
+                }
+            });
+        }
+
+        if (closestCity && minDistance < 1.5) {
+            const cityInput = document.getElementById('cityInput');
+            const provSelect = document.getElementById('provinceSelect');
+            if (cityInput) {
+                cityInput.value = closestCity.name;
+            }
+            if (provSelect && closestCity.province) {
+                provSelect.value = closestCity.province;
+            }
+            updateLocationPreview();
+        }
+
+        // 2. Reverse geocode via OpenStreetMap Nominatim
+        if (window._nominatimTimeout) clearTimeout(window._nominatimTimeout);
+        window._nominatimTimeout = setTimeout(() => {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latRounded}&lon=${lngRounded}&zoom=16&addressdetails=1`, {
+                headers: { 'Accept-Language': 'en' }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const addr = data.address;
+                        const countryCode = (addr.country_code || '').toLowerCase();
+
+                        if (countryCode && countryCode !== 'ca') {
+                            if (feedbackBox && feedbackText) {
+                                feedbackBox.style.setProperty('display', 'flex', 'important');
+                                feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
+                                feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                                feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                                feedbackBox.style.color = '#F59E0B';
+                                const countryLabel = addr.country || 'outside Canada';
+                                feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is in ${countryLabel}.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+                            }
+                            return;
+                        }
+
+                        const rawCity = addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || '';
+                        const lowRaw = rawCity.toLowerCase().trim();
+                        const normRaw = lowRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                        let matchedDbCity = (lowRaw && dbCitiesByName[lowRaw])
+                            || (normRaw && dbCitiesByName[normRaw])
+                            || closestCity;
+                        let foundCity = matchedDbCity ? matchedDbCity.name : rawCity;
+
+                        let foundProv = '';
+                        if (addr.state) {
+                            const stateStr = addr.state.trim();
+                            const stateLow = stateStr.toLowerCase();
+                            const stateNorm = stateLow.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            foundProv = dbProvinceLookup[stateLow] || dbProvinceLookup[stateNorm] || '';
+                        }
+                        if (!foundProv && matchedDbCity && matchedDbCity.province) {
+                            foundProv = matchedDbCity.province;
+                        }
+
+                        const foundHood = addr.neighbourhood || addr.suburb || addr.quarter || addr.city_district || addr.residential || addr.road || '';
+
+                        let foundPostal = (addr.postcode || '').trim().toUpperCase();
+                        if (foundPostal && foundPostal.length === 6 && !foundPostal.includes(' ')) {
+                            foundPostal = foundPostal.substring(0, 3) + ' ' + foundPostal.substring(3, 6);
+                        }
+
+                        const cityInput = document.getElementById('cityInput');
+                        const provSelect = document.getElementById('provinceSelect');
+                        const hoodInput = document.getElementById('neighbourhoodInput');
+                        const postalInput = document.getElementById('postalCodeInput');
+
+                        if (foundProv && provSelect) {
+                            provSelect.value = foundProv;
+                            populateCitiesForProvince(foundProv, matchedDbCity?.id || foundCity, false);
+                        } else if (foundCity) {
+                            const $matchingOpt = $(`#citySelect option[data-name="${foundCity}"]`).first();
+                            if ($matchingOpt.length) {
+                                $('#citySelect').val($matchingOpt.val()).trigger('change');
+                            }
+                        }
+                        if (hoodInput) {
+                            hoodInput.value = foundHood;
+                        }
+                        if (foundPostal && postalInput) {
+                            postalInput.value = foundPostal;
+                        }
+
+                        flashLocationInputs();
+
+                        if (feedbackBox && feedbackText) {
+                            feedbackBox.style.setProperty('display', 'flex', 'important');
+                            feedbackBox.className = 'small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2';
+                            feedbackBox.style.background = 'rgba(73, 209, 125, 0.1)';
+                            feedbackBox.style.border = '1px solid rgba(73, 209, 125, 0.25)';
+                            feedbackBox.style.color = '#49D17D';
+                            const detailParts = [];
+                            if (foundCity) detailParts.push(`<strong>${foundCity}</strong>`);
+                            if (foundProv) detailParts.push(foundProv);
+                            if (foundHood) detailParts.push(`(${foundHood})`);
+                            if (foundPostal) detailParts.push(`• Postal: ${foundPostal}`);
+                            feedbackText.innerHTML = `<i class="bi bi-check2-circle text-success fs-6 me-1"></i> Auto-synced: ${detailParts.join(', ')}`;
+                        }
+
+                        updateLocationPreview();
+                    }
+                })
+                .catch(e => console.log('Reverse geocode notice:', e));
+        }, 300);
+
+        updateLocationPreview();
+    }
+
+    function handleManualCoordInput() {
+        const lat = parseFloat(document.getElementById('postLatitude')?.value);
+        const lng = parseFloat(document.getElementById('postLongitude')?.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+            if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            if (postAdMarker) postAdMarker.setLatLng([lat, lng]);
+            if (postAdLeafletMap) postAdLeafletMap.panTo([lat, lng]);
+            updatePostAdCoordinates(lat, lng);
+        }
+    }
+
+    function syncPostAdMapCoordinates(flyTo = true) {
+        let lat = parseFloat(document.getElementById('postLatitude')?.value) || 43.6532;
+        let lng = parseFloat(document.getElementById('postLongitude')?.value) || -79.3832;
+
+        const coordsDisplay = document.getElementById('postAdCoordsDisplay');
+        if (coordsDisplay) coordsDisplay.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+        if (postAdMarker) {
+            postAdMarker.setLatLng([lat, lng]);
+        }
+        if (postAdLeafletMap && flyTo) {
+            if (typeof postAdLeafletMap.flyTo === 'function') {
+                postAdLeafletMap.flyTo([lat, lng], 13, { duration: 1.2 });
+            } else {
+                postAdLeafletMap.setView([lat, lng], 13);
+            }
+        }
+    }
+
+    function fetchCurrentGeolocation() {
+        const btn = document.getElementById('btnUseCurrentLocation');
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Detecting...';
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                updatePostAdCoordinates(lat, lng);
+                if (postAdLeafletMap) {
+                    postAdLeafletMap.flyTo([lat, lng], 14, { duration: 1.2 });
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-geo-fill"></i> <span>Use My Current Location</span>';
+                }
+            },
+            (err) => {
+                console.warn('Geolocation error:', err);
+                alert('Could not retrieve your location. Please check your browser location permissions.');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-geo-fill"></i> <span>Use My Current Location</span>';
+                }
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
     }
 
     document.getElementById('editListingForm')?.addEventListener('submit', function() {
@@ -1087,8 +1523,10 @@
         }
         
         const initialProv = document.getElementById('provinceSelect')?.value || preselectedProvince || 'ON';
-        populateCitiesForProvince(initialProv, preselectedCityId || preselectedCityName || null);
+        populateCitiesForProvince(initialProv, preselectedCityId || preselectedCityName || null, false);
         updateLocationPreview();
+
+        initPostAdLeafletMap();
     });
 </script>
 @endpush
