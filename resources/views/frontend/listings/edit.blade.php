@@ -1,5 +1,116 @@
 @extends('frontend.layouts.app', ['title' => 'Edit Listing | ' . $listing->title . ' - Bon Trouver Canadian Classifieds'])
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .select2-container--default .select2-selection--single {
+        background-color: #0D243C !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 10px !important;
+        height: 46px !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 12px !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+        border-color: #49D17D !important;
+        box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.2) !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #FFFFFF !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
+        padding-left: 0 !important;
+        line-height: normal !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #94A3B8 !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 44px !important;
+        right: 12px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow b {
+        border-color: #94A3B8 transparent transparent transparent !important;
+    }
+    .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent #49D17D transparent !important;
+    }
+    .select2-dropdown {
+        background-color: #06182B !important;
+        border: 1px solid rgba(73, 209, 125, 0.35) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7) !important;
+        overflow: hidden !important;
+        z-index: 1060 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .select2-container--default .select2-search--dropdown {
+        padding: 10px !important;
+        background: #06182B !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+        background-color: #0D243C !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 8px !important;
+        color: #FFFFFF !important;
+        padding: 8px 12px !important;
+        font-size: 0.9rem !important;
+    }
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+        border-color: #49D17D !important;
+        outline: none !important;
+        box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.25) !important;
+    }
+    .select2-container--default .select2-results__group {
+        color: #49D17D !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        padding: 8px 14px 4px !important;
+        background: rgba(6, 24, 43, 0.9) !important;
+    }
+    .select2-container--default .select2-results__options {
+        background-color: #06182B !important;
+        max-height: 240px !important;
+    }
+    .select2-container--default .select2-results__option {
+        padding: 10px 14px !important;
+        font-size: 0.92rem !important;
+        color: #E2E8F0 !important;
+        background-color: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+        transition: background 0.15s ease, color 0.15s ease !important;
+    }
+    /* Highlighted Option State (Strong readable contrast: Dark text on emerald background) */
+    .select2-container--default .select2-results__option--highlighted,
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted[aria-selected="false"],
+    .select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+        background-color: #10B981 !important;
+        color: #06182B !important;
+        font-weight: 700 !important;
+    }
+    /* Selected Option State (When not currently hovered) */
+    .select2-container--default .select2-results__option[aria-selected="true"],
+    .select2-container--default .select2-results__option--selected {
+        background-color: rgba(16, 185, 129, 0.18) !important;
+        color: #34D399 !important;
+        font-weight: 600 !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="post-ad-page-wrapper">
     <!-- Header Hero Banner / Page Intro -->
@@ -314,32 +425,44 @@
 
                         <div class="step-card-body">
                             <div class="row g-3">
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label-custom">Province <span class="text-danger">*</span></label>
-                                    <select name="province" id="provinceSelect" class="form-select form-control-custom" required onchange="filterCitiesByProvince(this.value); updateLocationPreview();">
-                                        @foreach($provinces as $code => $pName)
-                                            <option value="{{ $code }}" {{ (strtoupper(old('province', $listing->province)) === strtoupper($code)) ? 'selected' : '' }}>
-                                                {{ $pName }} ({{ $code }})
+                                <!-- Col 1: Province / Territory (First) -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label-custom">Province / Territory <span class="text-danger">*</span></label>
+                                    <select class="form-select form-control-custom select2-province-select" id="provinceSelect" name="province"
+                                        required onchange="handleProvinceChange(this.value)">
+                                        <option value="">Select Province / Territory...</option>
+                                        @foreach($provinces as $prov)
+                                            <option value="{{ $prov->code }}" data-id="{{ $prov->id }}"
+                                                {{ (strtoupper(old('province', $listing->province_code)) === strtoupper($prov->code)) ? 'selected' : '' }}>
+                                                {{ $prov->name }} ({{ $prov->code }})
                                             </option>
                                         @endforeach
                                     </select>
+                                    <input type="hidden" id="provinceIdInput" name="province_id" value="{{ old('province_id', $listing->province_id) }}">
                                 </div>
-                                <div class="col-12 col-md-4">
-                                    <label class="form-label-custom">City <span class="text-danger">*</span></label>
-                                    <input type="text" name="city" id="cityInput" list="citiesDataList" class="form-control form-control-custom" 
-                                           value="{{ old('city', $listing->city) }}" required placeholder="e.g. Toronto, Montreal, Vancouver"
-                                           oninput="updateLocationPreview()">
-                                    <datalist id="citiesDataList"></datalist>
+
+                                <!-- Col 2: City / Town (Dynamically Filtered by Province) -->
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label-custom">City / Town <span class="text-danger">*</span></label>
+                                    <div class="input-icon-wrap position-relative" id="citySelectContainer" style="position: relative;">
+                                        <select class="form-select form-control-custom select2-city-select"
+                                            id="citySelect" name="city_id" required>
+                                            <option value="">Select a Province first...</option>
+                                        </select>
+                                        <input type="hidden" id="cityInput" name="city" value="{{ old('city', $listing->city_name) }}">
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-4">
+
+                                <div class="col-12 col-md-6">
                                     <label class="form-label-custom">Postal Code</label>
-                                    <input type="text" name="postal_code" class="form-control form-control-custom font-monospace text-uppercase" 
+                                    <input type="text" name="postal_code" id="postalCodeInput" class="form-control form-control-custom font-monospace text-uppercase" 
                                            value="{{ old('postal_code', $listing->postal_code) }}" placeholder="e.g. M5V 2T6" maxlength="10">
                                 </div>
-                                <div class="col-12">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label-custom">Neighborhood / Landmark</label>
-                                    <input type="text" name="location_name" class="form-control form-control-custom" 
-                                           value="{{ old('location_name', $listing->location_name) }}" placeholder="e.g. Downtown Core, Plateau Mont-Royal, Kitsilano">
+                                    <input type="text" name="location_name" id="neighbourhoodInput" class="form-control form-control-custom" 
+                                           value="{{ old('location_name', $listing->location_name) }}" placeholder="e.g. Downtown Core, Plateau Mont-Royal, Kitsilano"
+                                           oninput="updateLocationPreview()">
                                 </div>
                             </div>
                         </div>
@@ -585,11 +708,17 @@
 @endpush
 
 @push('scripts')
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     const categoriesTree = @json($categories);
     const citiesMap = @json($citiesMap);
+    const provincesData = @json($provinces);
     const preselectedCategory = "{{ $preselectedCategory }}";
     const preselectedSub = "{{ $preselectedSub }}";
+    const preselectedCityId = "{{ old('city_id', $listing->city_id) }}";
+    const preselectedCityName = "{{ old('city', $listing->city_name) }}";
+    const preselectedProvince = "{{ old('province', $listing->province_code) }}";
     const currentListingAttributes = @json($listing->attributes->mapWithKeys(function($a) {
         return [$a->categoryAttribute?->slug ?? $a->category_attribute_id => $a->value];
     }));
@@ -809,18 +938,138 @@
         }
     }
 
-    function filterCitiesByProvince(provCode) {
-        const datalist = document.getElementById('citiesDataList');
-        datalist.innerHTML = '';
-        if (!citiesMap) return;
+    function populateCitiesForProvince(provCode, selectedCityId = null) {
+        const $citySelect = $('#citySelect');
+        if (!$citySelect.length) return;
 
-        for (const [key, cityInfo] of Object.entries(citiesMap)) {
-            if (!provCode || (cityInfo.province && cityInfo.province.toUpperCase() === provCode.toUpperCase())) {
-                const opt = document.createElement('option');
-                opt.value = cityInfo.name || key;
-                datalist.appendChild(opt);
+        if ($citySelect.hasClass('select2-hidden-accessible')) {
+            $citySelect.select2('destroy');
+        }
+
+        $citySelect.empty();
+
+        const prov = (provincesData || []).find(p => p.code === provCode);
+        if (!prov || !prov.cities || prov.cities.length === 0) {
+            $citySelect.append(new Option('No cities available for this province', ''));
+            initCitySelect2();
+            return;
+        }
+
+        $citySelect.append(new Option(`Search or select city in ${prov.name}...`, ''));
+
+        let autoPickVal = '';
+        prov.cities.forEach((city, idx) => {
+            let isMatch = false;
+            if (selectedCityId) {
+                isMatch = (city.id == selectedCityId || city.name.toLowerCase() === String(selectedCityId).toLowerCase());
+            } else if (idx === 0) {
+                isMatch = true;
+            }
+
+            const opt = document.createElement('option');
+            opt.value = city.id;
+            opt.textContent = `${city.name}, ${prov.code}`;
+            opt.dataset.name = city.name;
+            opt.dataset.provinceCode = prov.code;
+            opt.dataset.provinceId = prov.id;
+            opt.dataset.lat = city.latitude;
+            opt.dataset.lng = city.longitude;
+            if (isMatch) {
+                opt.selected = true;
+                autoPickVal = city.id;
+            }
+            $citySelect.append(opt);
+        });
+
+        initCitySelect2();
+
+        if (autoPickVal) {
+            $citySelect.val(autoPickVal);
+            const selectedOpt = $citySelect.find('option:selected');
+            const cityName = selectedOpt.data('name');
+            const provId   = selectedOpt.data('province-id');
+            const lat      = parseFloat(selectedOpt.data('lat'));
+            const lng      = parseFloat(selectedOpt.data('lng'));
+
+            if (cityName) {
+                const cInp = document.getElementById('cityInput');
+                if (cInp) cInp.value = cityName;
+            }
+            if (provId) {
+                const pIdEl = document.getElementById('provinceIdInput');
+                if (pIdEl) pIdEl.value = provId;
+            }
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const latEl = document.getElementById('latitudeInput');
+                const lngEl = document.getElementById('longitudeInput');
+                if (latEl) latEl.value = lat.toFixed(6);
+                if (lngEl) lngEl.value = lng.toFixed(6);
             }
         }
+
+        updateLocationPreview();
+    }
+
+    function initCitySelect2() {
+        if (typeof window.jQuery === 'undefined' || typeof window.jQuery.fn.select2 === 'undefined') return;
+
+        const $citySelect = $('#citySelect');
+        if (!$citySelect.length) return;
+
+        $citySelect.select2({
+            placeholder: 'Search or type city...',
+            allowClear: false,
+            width: '100%',
+            tags: true,
+            dropdownAutoWidth: true,
+            dropdownParent: $('#citySelectContainer')
+        });
+
+        $citySelect.on('select2:select change', function (e) {
+            const selectedOption = $(this).find('option:selected');
+            if (!selectedOption.length || !selectedOption.val()) return;
+
+            const rawVal = $(this).val();
+            const cityName = selectedOption.data('name') || rawVal;
+            const provCode = selectedOption.data('province-code') || document.getElementById('provinceSelect')?.value;
+            const provId   = selectedOption.data('province-id') || document.getElementById('provinceIdInput')?.value;
+            const lat      = parseFloat(selectedOption.data('lat'));
+            const lng      = parseFloat(selectedOption.data('lng'));
+
+            if (cityName) {
+                const cInp = document.getElementById('cityInput');
+                if (cInp) cInp.value = cityName;
+            }
+            if (provId) {
+                const pIdEl = document.getElementById('provinceIdInput');
+                if (pIdEl) pIdEl.value = provId;
+            }
+            if (provCode) {
+                const provSelect = document.getElementById('provinceSelect');
+                if (provSelect && provSelect.value !== provCode) {
+                    provSelect.value = provCode;
+                }
+            }
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const latEl = document.getElementById('latitudeInput');
+                const lngEl = document.getElementById('longitudeInput');
+                if (latEl) latEl.value = lat.toFixed(6);
+                if (lngEl) lngEl.value = lng.toFixed(6);
+            }
+
+            updateLocationPreview();
+        });
+    }
+
+    function handleProvinceChange(provCode) {
+        const provSelect = document.getElementById('provinceSelect');
+        const provId = provSelect?.options[provSelect.selectedIndex]?.dataset?.id;
+        if (provId) {
+            const pIdEl = document.getElementById('provinceIdInput');
+            if (pIdEl) pIdEl.value = provId;
+        }
+
+        populateCitiesForProvince(provCode, null);
     }
 
     document.getElementById('editListingForm')?.addEventListener('submit', function() {
@@ -836,8 +1085,10 @@
         if (preselectedCategory) {
             handleMainCategoryChange(preselectedCategory);
         }
-        const provSelect = document.getElementById('provinceSelect');
-        if (provSelect) filterCitiesByProvince(provSelect.value);
+        
+        const initialProv = document.getElementById('provinceSelect')?.value || preselectedProvince || 'ON';
+        populateCitiesForProvince(initialProv, preselectedCityId || preselectedCityName || null);
+        updateLocationPreview();
     });
 </script>
 @endpush

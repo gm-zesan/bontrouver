@@ -71,7 +71,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 
 ### Province (`App\Models\Province`)
 - `$province->cities()` → `hasMany(City::class)`
-- `$province->listings()` → `hasManyThrough(Listing::class, City::class)`
+- `$province->listings()` → `hasMany(Listing::class)`
 - `$province->smartAlerts()` → `hasMany(SmartAlert::class)`
 - Fields: `name`, `code`, `slug`, `country_code`, `is_active`, `sort_order`
 
@@ -85,6 +85,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 ### Listing (`App\Models\Listing`)
 - `$listing->user()` → `belongsTo(User::class)`
 - `$listing->category()` → `belongsTo(Category::class)`
+- `$listing->province()` → `belongsTo(Province::class)`
 - `$listing->city()` → `belongsTo(City::class)`
 - `$listing->images()` → `hasMany(ListingImage::class)->orderBy('sort_order')`
 - `$listing->primaryImage()` → `hasOne(ListingImage::class)->where('is_primary', true)`
@@ -98,7 +99,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listing->activePromotions()` → `hasMany(ListingPromotion::class)->active()`
 - Enums & Casts: `status` (`App\Enums\ListingStatus`: `DRAFT`, `PENDING_REVIEW`, `ACTIVE`, `PAUSED`, `SOLD`, `EXPIRED`, `REJECTED`)
 - Flags & Boosts: `is_featured` (for Featured section), `is_sponsored` (for Hero carousel), `featured_until`, `sponsored_until`, `bumped_at` (bump to top)
-- Accessor: `$listing->primary_image_url` (returns primary image URL or fallback to `/images/no-image.svg`)
+- Accessors: `$listing->primary_image_url`, `$listing->city_name`, `$listing->province_code`, `$listing->province_name`, `$listing->location`
 - Scopes: `scopeActive()`, `scopeFeatured()`, `scopeSponsored()`, `scopeBumped()`, `scopeWithinRadius()`
 - Helpers: `$listing->isFeatured()`, `$listing->isSponsored()`, `$listing->isBumped()`
 

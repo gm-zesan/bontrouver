@@ -4,9 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\CategoryAttribute;
+use App\Models\City;
 use App\Models\Listing;
 use App\Models\ListingAttribute;
 use App\Models\ListingImage;
+use App\Models\Province;    
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -512,16 +514,23 @@ class ListingSeeder extends Seeder
 
             $slug = Str::slug($data['title']) . '-' . Str::random(5);
 
-            // Find matching City from cities table
+            // Find matching Province & City
+            $provCode = $data['province'] ?? 'ON';
+            $provModel = Province::where('code', $provCode)->first();
+
             $citySlug = Str::slug($data['city']);
-            $cityModel = \App\Models\City::where('slug', $citySlug)
+            $cityModel = City::where('slug', $citySlug)
                 ->orWhere('name', 'like', '%' . $data['city'] . '%')
                 ->first();
+
+            $provinceId = $cityModel?->province_id ?? $provModel?->id ?? Province::where('code', 'OTHER')->first()?->id;
+            $cityId     = $cityModel?->id ?? City::where('slug', 'outside-canada')->first()?->id;
 
             $listing = Listing::create([
                 'user_id'      => $user->id,
                 'category_id'  => $category->id,
-                'city_id'      => $cityModel?->id,
+                'province_id'  => $provinceId,
+                'city_id'      => $cityId,
                 'title'        => $data['title'],
                 'slug'         => $slug,
                 'description'  => $data['description'],
@@ -530,11 +539,9 @@ class ListingSeeder extends Seeder
                 'price_period' => $data['price_period'] ?? null,
                 'condition'    => $data['condition'] ?? null,
                 'location_name'=> $data['location_name'],
-                'city'         => $cityModel?->name ?? $data['city'],
-                'province'     => $cityModel?->province?->code ?? $data['province'],
                 'postal_code'  => $data['postal_code'] ?? null,
-                'latitude'     => $data['latitude'] ?? $cityModel?->latitude,
-                'longitude'    => $data['longitude'] ?? $cityModel?->longitude,
+                'latitude'     => $data['latitude'] ?? $cityModel?->latitude ?? 43.6532,
+                'longitude'    => $data['longitude'] ?? $cityModel?->longitude ?? -79.3832,
                 'status'       => 'active',
                 'is_featured'  => $data['is_featured'] ?? false,
                 'is_sponsored' => $data['is_sponsored'] ?? false,

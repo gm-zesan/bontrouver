@@ -12,6 +12,7 @@ use App\Models\Listing;
 use App\Models\ListingPromotion;
 use App\Models\PointTransaction;
 use App\Models\PromotionPackage;
+use App\Models\Province;
 use App\Models\User;
 use App\Notifications\ListingBoostActivated;
 use App\Services\PointService;
@@ -296,16 +297,81 @@ class ListingService
     // ─── Write ─────────────────────────────────────────────────────────────────
 
     /**
+     * Resolve Province and City models with robust fallback for "Outside Canada"
+     */
+    private function resolveLocationModels(array $validated): array
+    {
+        $cityName     = trim($validated['city'] ?? '');
+        $provinceCode = strtoupper(trim($validated['province'] ?? ''));
+
+        // 1. Resolve Province
+        $provinceModel = null;
+        if (!empty($validated['province_id'])) {
+            $provinceModel = Province::find($validated['province_id']);
+        }
+        if (!$provinceModel && $provinceCode) {
+            $provinceModel = Province::where('code', $provinceCode)
+                ->orWhereRaw('LOWER(name) = ?', [strtolower($provinceCode)])
+                ->first();
+        }
+
+        // 2. Resolve City
+        $cityModel = null;
+        if (!empty($validated['city_id'])) {
+            $cityModel = City::find($validated['city_id']);
+        }
+        if (!$cityModel && $cityName) {
+            $cityQuery = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
+                ->orWhere('name', 'like', "%{$cityName}%");
+            if ($provinceModel) {
+                $cityQuery->where('province_id', $provinceModel->id);
+            }
+            $cityModel = $cityQuery->first() ?? City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first();
+
+            // If city does not exist yet in database for this province, auto-create it on the fly
+            if (!$cityModel && $provinceModel && $provinceModel->code !== 'OTHER') {
+                $baseSlug = Str::slug($cityName);
+                $uniqueSlug = City::where('slug', $baseSlug)->exists()
+                    ? Str::slug($cityName . '-' . strtolower($provinceModel->code))
+                    : $baseSlug;
+
+                $cityModel = City::create([
+                    'province_id' => $provinceModel->id,
+                    'name'        => trim($cityName),
+                    'slug'        => $uniqueSlug,
+                    'latitude'    => !empty($validated['latitude']) ? (float)$validated['latitude'] : 0.0,
+                    'longitude'   => !empty($validated['longitude']) ? (float)$validated['longitude'] : 0.0,
+                    'population'  => null,
+                    'is_featured' => false,
+                    'is_active'   => true,
+                    'sort_order'  => 999,
+                ]);
+            }
+        }
+
+        // 3. Fallback to "Outside Canada" if international or not matched
+        $isOutsideCanada = ($provinceCode === 'OTHER' || $provinceCode === 'OUTSIDE CANADA' || $cityName === 'Outside Canada');
+        if ($isOutsideCanada || (!$provinceModel && !$cityModel)) {
+            $provinceModel ??= Province::where('code', 'OTHER')->orWhere('slug', 'outside-canada')->first();
+            $cityModel ??= City::where('slug', 'outside-canada')->orWhere('name', 'Outside Canada')->first();
+        }
+
+        if ($cityModel && !$provinceModel) {
+            $provinceModel = $cityModel->province;
+        }
+
+        $provinceId = $provinceModel?->id ?? $cityModel?->province_id;
+        $cityId     = $cityModel?->id;
+
+        return [$provinceId, $cityId, $provinceModel, $cityModel];
+    }
+
+    /**
      * Create and persist a new listing from validated request data.
      */
     public function create(array $validated): Listing
     {
-        $cityName     = trim($validated['city']);
-        $provinceCode = strtoupper(trim($validated['province']));
-
-        $cityModel = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
-            ->orWhere('name', 'like', "%{$cityName}%")
-            ->first();
+        [$provinceId, $cityId, $provinceModel, $cityModel] = $this->resolveLocationModels($validated);
 
         $latitude  = !empty($validated['latitude']) ? (float)$validated['latitude'] : ($cityModel?->latitude ?? 43.6532);
         $longitude = !empty($validated['longitude']) ? (float)$validated['longitude'] : ($cityModel?->longitude ?? -79.3832);
@@ -362,7 +428,8 @@ class ListingService
         $listing = Listing::create([
             'user_id'         => $userId,
             'category_id'     => $category?->id ?? 1,
-            'city_id'         => $cityModel?->id,
+            'province_id'     => $provinceId,
+            'city_id'         => $cityId,
             'title'           => $validated['title'],
             'slug'            => $slug,
             'description'     => $validated['description'],
@@ -370,8 +437,6 @@ class ListingService
             'price_type'      => $validated['price_type'] ?? 'fixed',
             'price_period'    => $validated['price_period'] ?? null,
             'condition'       => $validated['condition'] ?? 'used',
-            'city'            => $cityModel?->name ?? $cityName,
-            'province'        => $provinceCode,
             'postal_code'     => $validated['postal_code'] ?? null,
             'location_name'   => $validated['location_name'] ?? $validated['neighbourhood'] ?? null,
             'latitude'        => $latitude,
@@ -618,12 +683,7 @@ class ListingService
      */
     public function update(Listing $listing, array $validated): Listing
     {
-        $cityName     = trim($validated['city']);
-        $provinceCode = strtoupper(trim($validated['province']));
-
-        $cityModel = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
-            ->orWhere('name', 'like', "%{$cityName}%")
-            ->first();
+        [$provinceId, $cityId, $provinceModel, $cityModel] = $this->resolveLocationModels($validated);
 
         $latitude  = !empty($validated['latitude']) ? (float)$validated['latitude'] : ($cityModel?->latitude ?? $listing->latitude ?? 43.6532);
         $longitude = !empty($validated['longitude']) ? (float)$validated['longitude'] : ($cityModel?->longitude ?? $listing->longitude ?? -79.3832);
@@ -640,14 +700,14 @@ class ListingService
         }
 
         $updateData = [
+            'province_id'   => $provinceId ?? $listing->province_id,
+            'city_id'       => $cityId ?? $listing->city_id,
             'title'         => $validated['title'],
             'description'   => $validated['description'],
             'price'         => $validated['price'] ?? 0,
             'price_type'    => $validated['price_type'] ?? 'fixed',
             'price_period'  => $validated['price_period'] ?? null,
             'condition'     => $validated['condition'] ?? 'used',
-            'city'          => $cityModel?->name ?? $cityName,
-            'province'      => $provinceCode,
             'postal_code'   => $validated['postal_code'] ?? null,
             'location_name' => $validated['location_name'] ?? $validated['neighbourhood'] ?? null,
             'latitude'      => $latitude,
@@ -656,9 +716,6 @@ class ListingService
 
         if ($category) {
             $updateData['category_id'] = $category->id;
-        }
-        if ($cityModel) {
-            $updateData['city_id'] = $cityModel->id;
         }
 
         $listing->update($updateData);
@@ -842,8 +899,9 @@ class ListingService
             'seller'              => $sellerData,
             'title'               => $listing->title,
             'slug'                => $listing->slug,
-            'city'                => $listing->city,
-            'province'            => $listing->province,
+            'city'                => $listing->city_name,
+            'province'            => $listing->province_code,
+            'province_name'       => $listing->province_name,
             'category'            => $rootSlug,
             'category_name'       => $rootName,
             'subcategory'         => $subSlug,
@@ -855,7 +913,7 @@ class ListingService
             'currency'            => 'CAD',
             'latitude'            => $listing->latitude ? (float) $listing->latitude : null,
             'longitude'           => $listing->longitude ? (float) $listing->longitude : null,
-            'location'            => $listing->city . ', ' . $listing->province . ($listing->location_name ? ' • ' . $listing->location_name : ''),
+            'location'            => $listing->location,
             'neighbourhood'       => $listing->location_name,
             'postal_code_prefix'  => $listing->postal_code ?? '',
             'distance_km'         => $dist,

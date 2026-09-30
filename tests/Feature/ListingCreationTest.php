@@ -77,12 +77,15 @@ class ListingCreationTest extends TestCase
         $this->assertDatabaseHas('listings', [
             'title'      => 'Minimal Valid Listing',
             'user_id'    => $user->id,
-            'city'       => 'Montreal',
-            'province'   => 'QC',
             'price_type' => 'free',
             'price'      => 0,
             'status'     => 'active',
         ]);
+
+        $createdListing = Listing::where('title', 'Minimal Valid Listing')->first();
+        $this->assertNotNull($createdListing);
+        $this->assertEquals('Montreal', $createdListing->city_name);
+        $this->assertEquals('QC', $createdListing->province_code);
     }
 
     public function test_listing_creates_with_all_optional_fields_and_coordinates(): void
@@ -245,8 +248,8 @@ class ListingCreationTest extends TestCase
         $listing = Listing::where('title', '2024 Toyota RAV4 Hybrid AWD XSE')->first();
         $this->assertNotNull($listing);
         $this->assertEquals(42500, (float)$listing->price);
-        $this->assertEquals('Markham', $listing->city);
-        $this->assertEquals('ON', $listing->province);
+        $this->assertEquals('Markham', $listing->city_name);
+        $this->assertEquals('ON', $listing->province_code);
         $this->assertEquals(1, $listing->images()->count());
     }
 
@@ -281,7 +284,7 @@ class ListingCreationTest extends TestCase
         $listing = Listing::where('title', 'Luxury 2 Bedroom Condo with Balcony in Downtown Montreal')->first();
         $this->assertNotNull($listing);
         $this->assertEquals(2350, (float)$listing->price);
-        $this->assertEquals('Montreal', $listing->city);
+        $this->assertEquals('Montreal', $listing->city_name);
         $this->assertTrue((bool)$listing->is_featured);
     }
 

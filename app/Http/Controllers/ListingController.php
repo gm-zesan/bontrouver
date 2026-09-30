@@ -158,8 +158,10 @@ class ListingController extends Controller
 
         return view('frontend.post-ad', [
             'categories'          => CategoryService::getAll(),
-            'provinces'           => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
+            'provinces'           => Province::with(['cities' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('is_active', true)->orderBy('sort_order')->get(),
+            'provincesMap'        => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
             'citiesMap'           => City::getCitiesMap(),
+            'allCities'           => City::with('province')->where('is_active', true)->orderBy('sort_order')->get(),
             'preselectedCategory' => $request->query('category', ''),
             'preselectedSub'      => $request->query('sub', ''),
             'breadcrumbs'         => [
@@ -204,8 +206,8 @@ class ListingController extends Controller
     public function edit(Request $request, mixed $listing): View
     {
         $listingModel = is_numeric($listing)
-            ? Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city'])->findOrFail((int)$listing)
-            : Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city'])->where('slug', (string)$listing)->firstOrFail();
+            ? Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city.province', 'province'])->findOrFail((int)$listing)
+            : Listing::with(['category.parent', 'images', 'attributes.categoryAttribute', 'city.province', 'province'])->where('slug', (string)$listing)->firstOrFail();
 
         if (auth()->id() !== $listingModel->user_id && !auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized to edit this listing.');
@@ -219,8 +221,10 @@ class ListingController extends Controller
         return view('frontend.listings.edit', [
             'listing'             => $listingModel,
             'categories'          => CategoryService::getAll(),
-            'provinces'           => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
+            'provinces'           => Province::with(['cities' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('is_active', true)->orderBy('sort_order')->get(),
+            'provincesMap'        => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
             'citiesMap'           => City::getCitiesMap(),
+            'allCities'           => City::with('province')->where('is_active', true)->orderBy('sort_order')->get(),
             'preselectedCategory' => $mainCategorySlug,
             'preselectedSub'      => $subCategorySlug,
             'breadcrumbs'         => [

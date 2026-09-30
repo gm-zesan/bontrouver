@@ -27,7 +27,7 @@ class Province extends Model
 
     public function listings()
     {
-        return $this->hasManyThrough(Listing::class, City::class);
+        return $this->hasMany(Listing::class);
     }
 
     public function smartAlerts()

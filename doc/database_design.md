@@ -206,6 +206,7 @@ Core marketplace advertisements.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `user_id` (FK -> users.id, CASCADE DELETE)
 - `category_id` (FK -> categories.id, RESTRICT ON DELETE)
+- `province_id` (FK -> provinces.id, NULLABLE, SET NULL ON DELETE)
 - `city_id` (FK -> cities.id, NULLABLE, SET NULL ON DELETE)
 - `title` (VARCHAR 255)
 - `slug` (VARCHAR 255, UNIQUE)
@@ -215,8 +216,6 @@ Core marketplace advertisements.
 - `price_period` (VARCHAR 50, NULLABLE) - 'one_time', 'hour', 'day', 'week', 'month'
 - `condition` (VARCHAR 50, NULLABLE) - 'new', 'used_excellent', etc.
 - `location_name` (VARCHAR 255, NULLABLE) - e.g., 'Liberty Village' (neighborhood / address)
-- `city` (VARCHAR 255, NULLABLE) - Denormalized string cache for display
-- `province` (VARCHAR 255, NULLABLE) - Denormalized string cache for display
 - `postal_code` (VARCHAR 20, NULLABLE)
 - `latitude` (DECIMAL 10,8, NULLABLE)
 - `longitude` (DECIMAL 11,8, NULLABLE)
@@ -229,7 +228,7 @@ Core marketplace advertisements.
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE)
-*Indexes: `city_id`, `status`, `is_featured`, `is_sponsored`, `city`, `province`, `[latitude, longitude]`*
+*Indexes: `status`, `province_id`, `city_id`, `is_featured`, `is_sponsored`, `bumped_at`, `[latitude, longitude]`, `[status, published_at]`, `[status, province_id]`, `[status, city_id]`*
 
 ### `listing_images`
 Images for listings.

@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('provinces', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code', 4)->unique();
+            $table->string('code', 10)->unique();
             $table->string('slug')->unique();
-            $table->string('country_code', 3)->default('CA');
+            $table->string('country_code', 10)->default('CA');
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();

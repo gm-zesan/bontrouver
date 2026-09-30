@@ -13,6 +13,8 @@ class Listing extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'province_id',
+        'city_id',
         'title',
         'slug',
         'description',
@@ -20,10 +22,7 @@ class Listing extends Model
         'price_type',
         'price_period',
         'condition',
-        'city_id',
         'location_name',
-        'city',
-        'province',
         'postal_code',
         'latitude',
         'longitude',
@@ -62,9 +61,55 @@ class Listing extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
+
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    /**
+     * Clean location accessors for display & API serialization
+     */
+    public function getCityNameAttribute(): string
+    {
+        $cityRelation = $this->relationLoaded('city') ? $this->getRelation('city') : $this->getRelationValue('city');
+        return $cityRelation?->name ?? 'Outside Canada';
+    }
+
+    public function getProvinceCodeAttribute(): string
+    {
+        $provRelation = $this->relationLoaded('province') ? $this->getRelation('province') : $this->getRelationValue('province');
+        if ($provRelation) {
+            return $provRelation->code;
+        }
+        $cityRelation = $this->relationLoaded('city') ? $this->getRelation('city') : $this->getRelationValue('city');
+        return $cityRelation?->province?->code ?? 'OTHER';
+    }
+
+    public function getProvinceNameAttribute(): string
+    {
+        $provRelation = $this->relationLoaded('province') ? $this->getRelation('province') : $this->getRelationValue('province');
+        if ($provRelation) {
+            return $provRelation->name;
+        }
+        $cityRelation = $this->relationLoaded('city') ? $this->getRelation('city') : $this->getRelationValue('city');
+        return $cityRelation?->province?->name ?? 'Outside Canada';
+    }
+
+    public function getLocationAttribute(): string
+    {
+        $cityName = $this->city_name;
+        $provCode = $this->province_code;
+        $parts = [$cityName, $provCode];
+        $loc = implode(', ', array_filter($parts));
+        if (!empty($this->location_name)) {
+            $loc .= ' • ' . $this->location_name;
+        }
+        return $loc;
     }
 
     public function images()

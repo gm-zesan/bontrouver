@@ -1,7 +1,9 @@
 @extends('frontend.layouts.app', ['title' => 'Post an Ad | Create Listing - Bontrouver Canadian Classifieds', 'metaDescription' => 'Create and publish your listing on Bontrouver. Sell cars, electronics, real estate, furniture, or offer jobs and local services across Canada.'])
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
 
 @section('content')
@@ -65,8 +67,8 @@
                 <div class="post-ad-layout">
 
                     <!-- =========================================================================
-                         LEFT COLUMN: MAIN LISTING CREATION FORM WIZARD
-                         ========================================================================= -->
+                                 LEFT COLUMN: MAIN LISTING CREATION FORM WIZARD
+                                 ========================================================================= -->
                     <div class="post-ad-form-col">
 
                         <!-- STEP 1: CATEGORY SELECTION -->
@@ -380,50 +382,53 @@
                             <div class="step-card-body">
                                 <!-- Location Form Rows -->
                                 <div class="row g-3 mb-4">
-                                    <div class="col-md-6">
-                                        <label class="form-label-custom">City / Town <span
-                                                class="text-danger">*</span></label>
-                                        <div class="input-icon-wrap">
-                                            <i class="bi bi-geo-alt input-icon"></i>
-                                            <input type="text" class="form-control form-control-custom has-icon"
-                                                id="cityInput" name="city" list="canadianCitiesDataList" value="Toronto"
-                                                required placeholder="e.g. Toronto, Vancouver, Calgary"
-                                                oninput="handleCityInput(this.value)">
-                                            <datalist id="canadianCitiesDataList">
-                                                @if(!empty($canadianCities))
-                                                    @foreach($canadianCities as $cName => $cInfo)
-                                                        <option value="{{ $cInfo['name'] ?? $cName }}">
-                                                            {{ $cInfo['label'] ?? ($cName . ', ' . ($cInfo['province'] ?? '')) }}
-                                                        </option>
-                                                    @endforeach
-                                                @endif
-                                            </datalist>
-                                        </div>
-                                        <div class="invalid-feedback-custom" id="err-city"></div>
-                                    </div>
+                                    <!-- 1. Province / Territory (First) -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Province / Territory <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select form-control-custom" id="provinceSelect" name="province"
-                                            required onchange="updateLocationPreview()">
-                                            @foreach($provinces as $code => $provName)
-                                                <option value="{{ $code }}" {{ $code === 'ON' ? 'selected' : '' }}>{{ $provName }}
-                                                    ({{ $code }})</option>
+                                            required onchange="handleProvinceChange(this.value)">
+                                            <option value="">Select Province...</option>
+                                            @foreach($provinces as $prov)
+                                                <option value="{{ $prov->code }}" data-id="{{ $prov->id }}" {{ $prov->code === 'ON' ? 'selected' : '' }}>
+                                                    {{ $prov->name }} ({{ $prov->code }})
+                                                </option>
                                             @endforeach
                                         </select>
                                     </div>
+
+                                    <!-- 2. City / Town (Second - Rendered based on selected Province) -->
+                                    <div class="col-md-6">
+                                        <label class="form-label-custom">City / Town <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-icon-wrap" id="citySelectContainer" style="position: relative;">
+                                            <select class="form-select form-control-custom select2-city-select"
+                                                id="citySelect" name="city_id" required>
+                                                <option value="">Select a city...</option>
+                                            </select>
+                                            <input type="hidden" id="cityInput" name="city" value="Toronto">
+                                            <input type="hidden" id="provinceIdInput" name="province_id" value="1">
+                                        </div>
+                                        <div class="invalid-feedback-custom" id="err-city"></div>
+                                    </div>
+
+                                    <!-- 3. Neighbourhood / Area -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Neighbourhood / Area</label>
                                         <input type="text" class="form-control form-control-custom" id="neighbourhoodInput"
                                             name="neighbourhood" placeholder="e.g. Downtown, North York, Kitsilano"
                                             oninput="updateLocationPreview()">
                                     </div>
+
+                                    <!-- 4. Postal Code Prefix -->
                                     <div class="col-md-6">
                                         <label class="form-label-custom">Postal Code Prefix (Optional)</label>
                                         <input type="text" class="form-control form-control-custom text-uppercase"
                                             id="postalCodeInput" name="postal_code" placeholder="e.g. M5V or V6B"
                                             maxlength="7">
                                     </div>
+
+                                    <!-- 5. Specific Location / Landmark -->
                                     <div class="col-12">
                                         <label class="form-label-custom">Specific Location / Landmark (Optional)</label>
                                         <input type="text" class="form-control form-control-custom" id="postLocationName"
@@ -482,20 +487,29 @@
                                                 <i class="bi bi-pin-map-fill text-success"></i>
                                                 <span>Interactive Location Pin (Click map or drag pin to adjust)</span>
                                             </div>
-                                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25" style="font-size: 0.72rem;">
+                                            <span
+                                                class="badge bg-success text-white border border-success border-opacity-25"
+                                                style="font-size: 0.72rem;">
                                                 <i class="bi bi-arrows-move me-1"></i> Draggable Pin
                                             </span>
                                         </div>
-                                        <div class="rounded-3 overflow-hidden position-relative shadow-sm" style="height: 250px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
+                                        <div class="rounded-3 overflow-hidden position-relative shadow-sm"
+                                            style="height: 250px; background: #081D33; border: 1px solid rgba(255,255,255,0.12);">
                                             <div id="postAdLeafletMap" style="width: 100%; height: 100%; z-index: 1;"></div>
                                         </div>
-                                        <div class="d-flex align-items-center justify-content-between text-secondary small mt-1" style="font-size: 0.76rem;">
-                                            <span><i class="bi bi-info-circle me-1"></i> Click anywhere on the map to place the pin.</span>
-                                            <span id="postAdCoordsDisplay" class="font-monospace text-white-50">43.6532, -79.3832</span>
+                                        <div class="d-flex align-items-center justify-content-between text-secondary small mt-1"
+                                            style="font-size: 0.76rem;">
+                                            <span><i class="bi bi-info-circle me-1"></i> Click anywhere on the map to place
+                                                the pin.</span>
+                                            <span id="postAdCoordsDisplay" class="font-monospace text-white-50">43.6532,
+                                                -79.3832</span>
                                         </div>
-                                        <div id="mapSyncFeedback" class="small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2" style="display: none !important; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25); font-size: 0.8rem;">
+                                        <div id="mapSyncFeedback"
+                                            class="small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2"
+                                            style="display: none !important; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25); font-size: 0.8rem;">
                                             <i class="bi bi-check2-circle text-success fs-6"></i>
-                                            <span id="mapSyncFeedbackText">Auto-synced: City, Province, Neighbourhood & Postal Code</span>
+                                            <span id="mapSyncFeedbackText">Auto-synced: City, Province, Neighbourhood &
+                                                Postal Code</span>
                                         </div>
                                     </div>
                                 </div>
@@ -782,8 +796,8 @@
                     </div>
 
                     <!-- =========================================================================
-                         RIGHT COLUMN: STICKY LIVE LISTING PREVIEW
-                         ========================================================================= -->
+                                 RIGHT COLUMN: STICKY LIVE LISTING PREVIEW
+                                 ========================================================================= -->
                     <div class="post-ad-preview-col">
                         <div class="preview-sticky-wrapper">
                             <div class="preview-card-header">
@@ -797,8 +811,8 @@
                             <div class="preview-listing-card" id="liveListingPreviewCard">
                                 <!-- Card Image -->
                                 <div class="prev-image-box">
-                                    <img src="{{ asset('images/no-image.svg') }}"
-                                        alt="Listing Preview" id="prevCoverImage" class="prev-image"
+                                    <img src="{{ asset('images/no-image.svg') }}" alt="Listing Preview" id="prevCoverImage"
+                                        class="prev-image"
                                         onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                     <div class="prev-badge-pill" id="prevBadgePill">
                                         <i class="bi bi-star-fill me-1"></i> PREVIEW
@@ -854,8 +868,8 @@
     </div>
 
     <!-- =========================================================================
-         SUCCESS CELEBRATION MODAL (AFTER AD IS PUBLISHED)
-         ========================================================================= -->
+                 SUCCESS CELEBRATION MODAL (AFTER AD IS PUBLISHED)
+                 ========================================================================= -->
     <div class="modal fade" id="adSuccessModal" tabindex="-1" aria-labelledby="adSuccessModalLabel" aria-hidden="true"
         data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
@@ -894,7 +908,10 @@
 @endsection
 
 @push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         /**
          * Bontrouver Post an Ad Dynamic Client State & Schema Engine
@@ -926,6 +943,8 @@
             initCategorySelection();
             initAutosave();
             initDragAndDrop();
+            const initialProv = document.getElementById('provinceSelect')?.value || 'ON';
+            populateCitiesForProvince(initialProv, 'Toronto', false);
             updateLivePreview();
         });
 
@@ -1184,15 +1203,15 @@
             else if (level > 3) levelTitle = `Select Option (Level ${level})`;
 
             layerCard.innerHTML = `
-            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge" style="background: rgba(73, 209, 125, 0.15); color: #49D17D; border: 1px solid rgba(73, 209, 125, 0.3); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 4px;">Level ${level}</span>
-                    <label class="form-label-custom mb-0">${levelTitle} <span class="text-muted small fw-normal">(Optional)</span></label>
-                </div>
-                <span class="text-muted small" style="font-size: 0.78rem;">Under <strong class="text-light">${parentName}</strong></span>
-            </div>
-            <div class="subcategory-chips-wrap"></div>
-        `;
+                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge" style="background: rgba(73, 209, 125, 0.15); color: #49D17D; border: 1px solid rgba(73, 209, 125, 0.3); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 4px;">Level ${level}</span>
+                            <label class="form-label-custom mb-0">${levelTitle} <span class="text-muted small fw-normal">(Optional)</span></label>
+                        </div>
+                        <span class="text-muted small" style="font-size: 0.78rem;">Under <strong class="text-light">${parentName}</strong></span>
+                    </div>
+                    <div class="subcategory-chips-wrap"></div>
+                `;
 
             const chipsWrap = layerCard.querySelector('.subcategory-chips-wrap');
 
@@ -1206,9 +1225,9 @@
                 chip.className = 'subcat-chip';
                 chip.setAttribute('data-slug', itemSlug);
                 chip.innerHTML = `
-                <span>${itemName}</span>
-                ${hasChildren ? '<i class="bi bi-chevron-right ms-1 text-muted small" style="font-size: 0.7rem;"></i>' : ''}
-            `;
+                        <span>${itemName}</span>
+                        ${hasChildren ? '<i class="bi bi-chevron-right ms-1 text-muted small" style="font-size: 0.7rem;"></i>' : ''}
+                    `;
 
                 chip.onclick = () => selectCategoryChild(level, item, chip);
                 chipsWrap.appendChild(chip);
@@ -1350,60 +1369,60 @@
                 if (attr.type === 'select') {
                     const optionsHTML = (attr.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('');
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label} ${reqStar}</label>
-                    <select class="form-select form-control-custom" name="attributes[${attr.name}]" ${attr.required ? 'required' : ''} onchange="saveDraftToStorage()">
-                        <option value="">${attr.placeholder || 'Select ' + attr.label}</option>
-                        ${optionsHTML}
-                    </select>
-                `;
+                            <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                            <select class="form-select form-control-custom" name="attributes[${attr.name}]" ${attr.required ? 'required' : ''} onchange="saveDraftToStorage()">
+                                <option value="">${attr.placeholder || 'Select ' + attr.label}</option>
+                                ${optionsHTML}
+                            </select>
+                        `;
                 } else if (attr.type === 'checkbox') {
                     fieldHTML = `
-                    <div class="form-check form-switch pt-4">
-                        <input class="form-check-input" type="checkbox" role="switch" id="attr_${attr.id}" name="attributes[${attr.name}]" value="1" onchange="saveDraftToStorage()">
-                        <label class="form-check-label fw-semibold text-white ms-1" for="attr_${attr.id}">
-                            ${attr.label}
-                        </label>
-                    </div>
-                `;
+                            <div class="form-check form-switch pt-4">
+                                <input class="form-check-input" type="checkbox" role="switch" id="attr_${attr.id}" name="attributes[${attr.name}]" value="1" onchange="saveDraftToStorage()">
+                                <label class="form-check-label fw-semibold text-white ms-1" for="attr_${attr.id}">
+                                    ${attr.label}
+                                </label>
+                            </div>
+                        `;
                 } else if (attr.type === 'textarea') {
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label} ${reqStar}</label>
-                    <textarea class="form-control form-control-custom" name="attributes[${attr.name}]" rows="2" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()"></textarea>
-                `;
+                            <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                            <textarea class="form-control form-control-custom" name="attributes[${attr.name}]" rows="2" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()"></textarea>
+                        `;
                 } else if (attr.type === 'pills_radio') {
                     const pillsHTML = (attr.options || []).map((opt, i) => `
-                    <label class="condition-pill ${i === 0 ? 'active' : ''}">
-                        <input type="radio" name="attributes[${attr.name}]" value="${opt}" ${i === 0 ? 'checked' : ''} onchange="this.parentElement.parentElement.querySelectorAll('.condition-pill').forEach(p => p.classList.remove('active')); this.parentElement.classList.add('active'); saveDraftToStorage();">
-                        <span>${opt}</span>
-                    </label>
-                `).join('');
+                            <label class="condition-pill ${i === 0 ? 'active' : ''}">
+                                <input type="radio" name="attributes[${attr.name}]" value="${opt}" ${i === 0 ? 'checked' : ''} onchange="this.parentElement.parentElement.querySelectorAll('.condition-pill').forEach(p => p.classList.remove('active')); this.parentElement.classList.add('active'); saveDraftToStorage();">
+                                <span>${opt}</span>
+                            </label>
+                        `).join('');
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label} ${reqStar}</label>
-                    <div class="condition-pills-row">${pillsHTML}</div>
-                `;
+                            <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                            <div class="condition-pills-row">${pillsHTML}</div>
+                        `;
                 } else if (attr.type === 'multiselect_pills') {
                     const pillsHTML = (attr.options || []).map(opt => `
-                    <label class="spec-check-pill">
-                        <input type="checkbox" name="attributes[${attr.name}][]" value="${opt}" onchange="this.parentElement.classList.toggle('active', this.checked); saveDraftToStorage();">
-                        <i class="bi bi-check2"></i>
-                        <span>${opt}</span>
-                    </label>
-                `).join('');
+                            <label class="spec-check-pill">
+                                <input type="checkbox" name="attributes[${attr.name}][]" value="${opt}" onchange="this.parentElement.classList.toggle('active', this.checked); saveDraftToStorage();">
+                                <i class="bi bi-check2"></i>
+                                <span>${opt}</span>
+                            </label>
+                        `).join('');
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label}</label>
-                    <div class="specs-pills-wrap">${pillsHTML}</div>
-                `;
+                            <label class="form-label-custom">${attr.label}</label>
+                            <div class="specs-pills-wrap">${pillsHTML}</div>
+                        `;
                 } else if (attr.type === 'number') {
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label} ${reqStar}</label>
-                    <input type="number" class="form-control form-control-custom" name="attributes[${attr.name}]" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()">
-                `;
+                            <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                            <input type="number" class="form-control form-control-custom" name="attributes[${attr.name}]" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()">
+                        `;
                 } else {
                     // Default text field
                     fieldHTML = `
-                    <label class="form-label-custom">${attr.label} ${reqStar}</label>
-                    <input type="text" class="form-control form-control-custom" name="attributes[${attr.name}]" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()">
-                `;
+                            <label class="form-label-custom">${attr.label} ${reqStar}</label>
+                            <input type="text" class="form-control form-control-custom" name="attributes[${attr.name}]" placeholder="${attr.placeholder || ''}" ${attr.required ? 'required' : ''} oninput="saveDraftToStorage()">
+                        `;
                 }
 
                 fieldWrap.innerHTML = fieldHTML;
@@ -1567,33 +1586,154 @@
             });
         }
 
-        function handleCityInput(val) {
-            const trimmed = (val || '').trim();
-            const low = trimmed.toLowerCase();
-            const norm = low.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const cInfo = (canadianCitiesMap && canadianCitiesMap[trimmed]) 
-                || dbCitiesByName[low] 
-                || dbCitiesByName[norm];
+        const provincesData = @json($provinces);
 
-            if (cInfo) {
-                const provCode = cInfo.province;
-                const provSelect = document.getElementById('provinceSelect');
-                if (provSelect && provCode) {
-                    provSelect.value = provCode;
-                    postAdState.province = provCode;
+        function populateCitiesForProvince(provCode, selectedCityId = null, shouldFlyMap = true) {
+            const $citySelect = $('#citySelect');
+            if (!$citySelect.length) return;
+
+            // Destroy Select2 if already initialized so we can safely update DOM options
+            if ($citySelect.hasClass('select2-hidden-accessible')) {
+                $citySelect.select2('destroy');
+            }
+
+            $citySelect.empty();
+
+            const prov = (provincesData || []).find(p => p.code === provCode);
+            if (!prov || !prov.cities || prov.cities.length === 0) {
+                $citySelect.append(new Option('No cities available for this province', ''));
+                initCitySelect2();
+                return;
+            }
+
+            $citySelect.append(new Option(`Search or select city in ${prov.name}...`, ''));
+
+            let autoPickVal = '';
+            prov.cities.forEach((city, idx) => {
+                let isMatch = false;
+                if (selectedCityId) {
+                    isMatch = (city.id == selectedCityId || city.name.toLowerCase() === String(selectedCityId).toLowerCase());
+                } else if (idx === 0) {
+                    isMatch = true;
                 }
-                if (cInfo.latitude) {
+
+                const opt = document.createElement('option');
+                opt.value = city.id;
+                opt.textContent = `${city.name}, ${prov.code}`;
+                opt.dataset.name = city.name;
+                opt.dataset.provinceCode = prov.code;
+                opt.dataset.provinceId = prov.id;
+                opt.dataset.lat = city.latitude;
+                opt.dataset.lng = city.longitude;
+                if (isMatch) {
+                    opt.selected = true;
+                    autoPickVal = city.id;
+                }
+                $citySelect.append(opt);
+            });
+
+            initCitySelect2();
+
+            if (autoPickVal) {
+                $citySelect.val(autoPickVal);
+                const selectedOpt = $citySelect.find('option:selected');
+                const cityName = selectedOpt.data('name');
+                const provId = selectedOpt.data('province-id');
+                const lat = parseFloat(selectedOpt.data('lat'));
+                const lng = parseFloat(selectedOpt.data('lng'));
+
+                if (cityName) {
+                    const cInp = document.getElementById('cityInput');
+                    if (cInp) cInp.value = cityName;
+                    postAdState.city = cityName;
+                }
+                if (provId) {
+                    const pIdEl = document.getElementById('provinceIdInput');
+                    if (pIdEl) pIdEl.value = provId;
+                }
+                if (!isNaN(lat) && !isNaN(lng)) {
                     const latEl = document.getElementById('postLatitude');
-                    if (latEl) latEl.value = parseFloat(cInfo.latitude).toFixed(6);
-                }
-                if (cInfo.longitude) {
                     const lngEl = document.getElementById('postLongitude');
-                    if (lngEl) lngEl.value = parseFloat(cInfo.longitude).toFixed(6);
+                    if (latEl) latEl.value = lat.toFixed(6);
+                    if (lngEl) lngEl.value = lng.toFixed(6);
+                    if (shouldFlyMap) {
+                        syncPostAdMapCoordinates(true);
+                    }
                 }
             }
+
             updateLocationPreview();
-            syncPostAdMapCoordinates();
             saveDraftToStorage();
+        }
+
+        function handleProvinceChange(provCode) {
+            postAdState.province = provCode;
+            const provSelect = document.getElementById('provinceSelect');
+            const provId = provSelect?.options[provSelect.selectedIndex]?.dataset?.id;
+            if (provId) {
+                const pIdEl = document.getElementById('provinceIdInput');
+                if (pIdEl) pIdEl.value = provId;
+            }
+
+            populateCitiesForProvince(provCode, null, true);
+        }
+
+        function initCitySelect2() {
+            if (typeof window.jQuery === 'undefined' || typeof window.jQuery.fn.select2 === 'undefined') return;
+
+            const $citySelect = $('#citySelect');
+            if (!$citySelect.length) return;
+
+            if ($citySelect.hasClass('select2-hidden-accessible')) {
+                $citySelect.select2('destroy');
+            }
+
+            $citySelect.select2({
+                placeholder: 'Search or type city...',
+                allowClear: false,
+                width: '100%',
+                tags: true,
+                dropdownParent: $('#citySelectContainer')
+            });
+
+            $citySelect.off('select2:select change.citySelect').on('select2:select change.citySelect', function (e) {
+                const selectedOption = $(this).find('option:selected');
+                if (!selectedOption.length || !selectedOption.val()) return;
+
+                const rawVal = $(this).val();
+                const cityName = selectedOption.data('name') || rawVal;
+                const provCode = selectedOption.data('province-code') || document.getElementById('provinceSelect')?.value;
+                const provId = selectedOption.data('province-id') || document.getElementById('provinceIdInput')?.value;
+                const lat = parseFloat(selectedOption.data('lat'));
+                const lng = parseFloat(selectedOption.data('lng'));
+
+                if (cityName) {
+                    const cInp = document.getElementById('cityInput');
+                    if (cInp) cInp.value = cityName;
+                    postAdState.city = cityName;
+                }
+                if (provId) {
+                    const pIdEl = document.getElementById('provinceIdInput');
+                    if (pIdEl) pIdEl.value = provId;
+                }
+                if (provCode) {
+                    const provSelect = document.getElementById('provinceSelect');
+                    if (provSelect && provSelect.value !== provCode) {
+                        provSelect.value = provCode;
+                        postAdState.province = provCode;
+                    }
+                }
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const latEl = document.getElementById('postLatitude');
+                    const lngEl = document.getElementById('postLongitude');
+                    if (latEl) latEl.value = lat.toFixed(6);
+                    if (lngEl) lngEl.value = lng.toFixed(6);
+                    syncPostAdMapCoordinates(true);
+                }
+
+                updateLocationPreview();
+                saveDraftToStorage();
+            });
         }
 
         function fetchCurrentGeolocation() {
@@ -1784,13 +1924,13 @@
                 const card = document.createElement('div');
                 card.className = 'photo-thumb-card' + (isCover ? ' is-cover' : '');
                 card.innerHTML = `
-                <img src="${img.dataUrl}" alt="Photo ${idx + 1}" class="thumb-img">
-                ${isCover ? '<span class="cover-badge"><i class="bi bi-star-fill me-1"></i> Cover</span>' : ''}
-                <div class="thumb-overlay-actions">
-                    ${!isCover ? `<button type="button" class="btn-thumb-action" title="Set as Cover" onclick="setCoverPhoto(${idx})"><i class="bi bi-star"></i></button>` : ''}
-                    <button type="button" class="btn-thumb-action btn-thumb-delete" title="Remove Photo" onclick="removePhoto(${idx})"><i class="bi bi-trash3"></i></button>
-                </div>
-            `;
+                        <img src="${img.dataUrl}" alt="Photo ${idx + 1}" class="thumb-img">
+                        ${isCover ? '<span class="cover-badge"><i class="bi bi-star-fill me-1"></i> Cover</span>' : ''}
+                        <div class="thumb-overlay-actions">
+                            ${!isCover ? `<button type="button" class="btn-thumb-action" title="Set as Cover" onclick="setCoverPhoto(${idx})"><i class="bi bi-star"></i></button>` : ''}
+                            <button type="button" class="btn-thumb-action btn-thumb-delete" title="Remove Photo" onclick="removePhoto(${idx})"><i class="bi bi-trash3"></i></button>
+                        </div>
+                    `;
                 grid.appendChild(card);
             });
 
@@ -2265,12 +2405,18 @@
             const mapEl = document.getElementById('postAdLeafletMap');
             if (!mapEl || typeof L === 'undefined') return;
 
-            let lat = parseFloat(document.getElementById('postLatitude')?.value) || 43.6532;
-            let lng = parseFloat(document.getElementById('postLongitude')?.value) || -79.3832;
+            let lat = parseFloat(document.getElementById('postLatitude')?.value);
+            let lng = parseFloat(document.getElementById('postLongitude')?.value);
+            const hasExactCoords = !isNaN(lat) && !isNaN(lng);
+
+            // Default to full Canada panoramic view [56.1304, -106.3468] at zoom level 4 on initial creation
+            const initialCenter = hasExactCoords ? [lat, lng] : [56.1304, -106.3468];
+            const initialZoom = hasExactCoords ? 12 : 4;
+            const markerPos = hasExactCoords ? [lat, lng] : [43.6532, -79.3832];
 
             postAdLeafletMap = L.map('postAdLeafletMap', {
-                center: [lat, lng],
-                zoom: 12,
+                center: initialCenter,
+                zoom: initialZoom,
                 zoomControl: true,
                 scrollWheelZoom: false
             });
@@ -2287,7 +2433,7 @@
                 iconAnchor: [13, 26]
             });
 
-            postAdMarker = L.marker([lat, lng], {
+            postAdMarker = L.marker(markerPos, {
                 draggable: true,
                 icon: pinIcon
             }).addTo(postAdLeafletMap);
@@ -2414,102 +2560,104 @@
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latRounded}&lon=${lngRounded}&zoom=16&addressdetails=1`, {
                     headers: { 'Accept-Language': 'en' }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.address) {
-                        const addr = data.address;
-                        const countryCode = (addr.country_code || '').toLowerCase();
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.address) {
+                            const addr = data.address;
+                            const countryCode = (addr.country_code || '').toLowerCase();
 
-                        if (countryCode && countryCode !== 'ca') {
-                            postAdState.isOutsideCanada = true;
+                            if (countryCode && countryCode !== 'ca') {
+                                postAdState.isOutsideCanada = true;
+                                if (feedbackBox && feedbackText) {
+                                    feedbackBox.style.setProperty('display', 'flex', 'important');
+                                    feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
+                                    feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
+                                    feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+                                    feedbackBox.style.color = '#F59E0B';
+                                    const countryLabel = addr.country || 'outside Canada';
+                                    feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is in ${countryLabel}. Please select a Canadian location.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+                                }
+                                return;
+                            }
+
+                            postAdState.isOutsideCanada = false;
+
+                            const rawCity = addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || '';
+                            const lowRaw = rawCity.toLowerCase().trim();
+                            const normRaw = lowRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                            // Resolve city directly from database
+                            let matchedDbCity = (lowRaw && dbCitiesByName[lowRaw])
+                                || (normRaw && dbCitiesByName[normRaw])
+                                || closestCity;
+                            let foundCity = matchedDbCity ? matchedDbCity.name : rawCity;
+
+                            // Resolve province directly from database
+                            let foundProv = '';
+                            if (addr.state) {
+                                const stateStr = addr.state.trim();
+                                const stateLow = stateStr.toLowerCase();
+                                const stateNorm = stateLow.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                foundProv = dbProvinceLookup[stateLow] || dbProvinceLookup[stateNorm] || '';
+                            }
+                            if (!foundProv && matchedDbCity && matchedDbCity.province) {
+                                foundProv = matchedDbCity.province;
+                            }
+
+                            const foundHood = addr.neighbourhood || addr.suburb || addr.quarter || addr.city_district || addr.residential || addr.road || '';
+
+                            let foundPostal = (addr.postcode || '').trim().toUpperCase();
+                            if (foundPostal && foundPostal.length === 6 && !foundPostal.includes(' ')) {
+                                foundPostal = foundPostal.substring(0, 3) + ' ' + foundPostal.substring(3, 6);
+                            }
+
+                            const cityInput = document.getElementById('cityInput');
+                            const provSelect = document.getElementById('provinceSelect');
+                            const hoodInput = document.getElementById('neighbourhoodInput');
+                            const postalInput = document.getElementById('postalCodeInput');
+
+                            if (foundProv && provSelect) {
+                                provSelect.value = foundProv;
+                                postAdState.province = foundProv;
+                                populateCitiesForProvince(foundProv, matchedDbCity?.id || foundCity, false);
+                            } else if (foundCity) {
+                                const $matchingOpt = $(`#citySelect option[data-name="${foundCity}"]`).first();
+                                if ($matchingOpt.length) {
+                                    $('#citySelect').val($matchingOpt.val()).trigger('change');
+                                }
+                            }
+                            if (hoodInput) {
+                                hoodInput.value = foundHood;
+                                postAdState.neighbourhood = foundHood;
+                            }
+                            if (foundPostal && postalInput) {
+                                postalInput.value = foundPostal;
+                                postAdState.postal_code = foundPostal;
+                            }
+
+                            // Trigger visual pulse on input boxes
+                            flashLocationInputs();
+
+                            // Update live feedback banner
                             if (feedbackBox && feedbackText) {
                                 feedbackBox.style.setProperty('display', 'flex', 'important');
-                                feedbackBox.className = 'small mt-2 py-1.5 px-3 rounded-2 d-flex align-items-center justify-content-between gap-2';
-                                feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
-                                feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.35)';
-                                feedbackBox.style.color = '#F59E0B';
-                                const countryLabel = addr.country || 'outside Canada';
-                                feedbackText.innerHTML = `<span class="d-inline-flex align-items-center gap-1"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Selected location is in ${countryLabel}. Please select a Canadian location.</span> <button type="button" class="btn btn-sm btn-outline-warning ms-auto py-0 px-2 rounded-pill" style="font-size: 0.72rem; white-space: nowrap;" onclick="resetLocationToCanada()">Snap to Canada</button>`;
+                                feedbackBox.className = 'small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2';
+                                feedbackBox.style.background = 'rgba(73, 209, 125, 0.1)';
+                                feedbackBox.style.border = '1px solid rgba(73, 209, 125, 0.25)';
+                                feedbackBox.style.color = '#49D17D';
+                                const detailParts = [];
+                                if (foundCity) detailParts.push(`<strong>${foundCity}</strong>`);
+                                if (foundProv) detailParts.push(foundProv);
+                                if (foundHood) detailParts.push(`(${foundHood})`);
+                                if (foundPostal) detailParts.push(`• Postal: ${foundPostal}`);
+                                feedbackText.innerHTML = `<i class="bi bi-check2-circle text-success fs-6 me-1"></i> Auto-synced: ${detailParts.join(', ')}`;
                             }
-                            return;
+
+                            updateLocationPreview();
+                            saveDraftToStorage();
                         }
-
-                        postAdState.isOutsideCanada = false;
-
-                        const rawCity = addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || '';
-                        const lowRaw = rawCity.toLowerCase().trim();
-                        const normRaw = lowRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-                        // Resolve city directly from database
-                        let matchedDbCity = (lowRaw && dbCitiesByName[lowRaw]) 
-                            || (normRaw && dbCitiesByName[normRaw]) 
-                            || closestCity;
-                        let foundCity = matchedDbCity ? matchedDbCity.name : rawCity;
-
-                        // Resolve province directly from database
-                        let foundProv = '';
-                        if (addr.state) {
-                            const stateStr = addr.state.trim();
-                            const stateLow = stateStr.toLowerCase();
-                            const stateNorm = stateLow.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                            foundProv = dbProvinceLookup[stateLow] || dbProvinceLookup[stateNorm] || '';
-                        }
-                        if (!foundProv && matchedDbCity && matchedDbCity.province) {
-                            foundProv = matchedDbCity.province;
-                        }
-
-                        const foundHood = addr.neighbourhood || addr.suburb || addr.quarter || addr.city_district || addr.residential || addr.road || '';
-
-                        let foundPostal = (addr.postcode || '').trim().toUpperCase();
-                        if (foundPostal && foundPostal.length === 6 && !foundPostal.includes(' ')) {
-                            foundPostal = foundPostal.substring(0, 3) + ' ' + foundPostal.substring(3, 6);
-                        }
-
-                        const cityInput = document.getElementById('cityInput');
-                        const provSelect = document.getElementById('provinceSelect');
-                        const hoodInput = document.getElementById('neighbourhoodInput');
-                        const postalInput = document.getElementById('postalCodeInput');
-
-                        if (foundCity && cityInput) {
-                            cityInput.value = foundCity;
-                            postAdState.city = foundCity;
-                        }
-                        if (foundProv && provSelect) {
-                            provSelect.value = foundProv;
-                            postAdState.province = foundProv;
-                        }
-                        if (hoodInput) {
-                            hoodInput.value = foundHood;
-                            postAdState.neighbourhood = foundHood;
-                        }
-                        if (foundPostal && postalInput) {
-                            postalInput.value = foundPostal;
-                            postAdState.postal_code = foundPostal;
-                        }
-
-                        // Trigger visual pulse on input boxes
-                        flashLocationInputs();
-
-                        // Update live feedback banner
-                        if (feedbackBox && feedbackText) {
-                            feedbackBox.style.setProperty('display', 'flex', 'important');
-                            feedbackBox.className = 'small text-success mt-2 py-1 px-2 rounded-2 d-flex align-items-center gap-2';
-                            feedbackBox.style.background = 'rgba(73, 209, 125, 0.1)';
-                            feedbackBox.style.border = '1px solid rgba(73, 209, 125, 0.25)';
-                            feedbackBox.style.color = '#49D17D';
-                            const detailParts = [];
-                            if (foundCity) detailParts.push(`<strong>${foundCity}</strong>`);
-                            if (foundProv) detailParts.push(foundProv);
-                            if (foundHood) detailParts.push(`(${foundHood})`);
-                            if (foundPostal) detailParts.push(`• Postal: ${foundPostal}`);
-                            feedbackText.innerHTML = `<i class="bi bi-check2-circle text-success fs-6 me-1"></i> Auto-synced: ${detailParts.join(', ')}`;
-                        }
-
-                        updateLocationPreview();
-                        saveDraftToStorage();
-                    }
-                })
-                .catch(e => console.log('Reverse geocode notice:', e));
+                    })
+                    .catch(e => console.log('Reverse geocode notice:', e));
             }, 300);
 
             updateLocationPreview();
@@ -2539,7 +2687,11 @@
                 postAdMarker.setLatLng([lat, lng]);
             }
             if (postAdLeafletMap && flyTo) {
-                postAdLeafletMap.setView([lat, lng], 13);
+                if (typeof postAdLeafletMap.flyTo === 'function') {
+                    postAdLeafletMap.flyTo([lat, lng], 13, { duration: 1.2 });
+                } else {
+                    postAdLeafletMap.setView([lat, lng], 13);
+                }
             }
         }
     </script>
@@ -2559,10 +2711,12 @@
                 box-shadow: 0 0 0 4px rgba(73, 209, 125, 0.4);
                 background-color: rgba(73, 209, 125, 0.08);
             }
+
             70% {
                 border-color: #49D17D;
                 box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.2);
             }
+
             100% {
                 background-color: transparent;
             }
@@ -2592,6 +2746,144 @@
         .preview-sticky-wrapper::-webkit-scrollbar-thumb {
             background: rgba(73, 209, 125, 0.25);
             border-radius: 4px;
+        }
+
+        /* ─── Select2 Bon Trouver Dark Theme ─── */
+        .select2-container {
+            width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            background-color: #0D243C !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 10px !important;
+            height: 46px !important;
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 12px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .select2-container {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .select2-container--default .select2-selection--single {
+            background-color: #0D243C !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 10px !important;
+            height: 46px !important;
+            display: flex !important;
+            align-items: center !important;
+            padding: 0 12px !important;
+            transition: border-color 0.2s, box-shadow 0.2s !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #49D17D !important;
+            box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.2) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #FFFFFF !important;
+            font-size: 0.95rem !important;
+            font-weight: 500 !important;
+            padding-left: 0 !important;
+            line-height: normal !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #94A3B8 !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px !important;
+            right: 12px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #94A3B8 transparent transparent transparent !important;
+        }
+
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #49D17D transparent !important;
+        }
+
+        .select2-dropdown {
+            background-color: #06182B !important;
+            border: 1px solid rgba(73, 209, 125, 0.35) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7) !important;
+            overflow: hidden !important;
+            z-index: 1060 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        .select2-container--default .select2-search--dropdown {
+            padding: 10px !important;
+            background: #06182B !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            background-color: #0D243C !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 8px !important;
+            color: #FFFFFF !important;
+            padding: 8px 12px !important;
+            font-size: 0.9rem !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+            border-color: #49D17D !important;
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.25) !important;
+        }
+
+        .select2-container--default .select2-results__group {
+            color: #49D17D !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            padding: 8px 14px 4px !important;
+            background: rgba(6, 24, 43, 0.9) !important;
+        }
+
+        .select2-container--default .select2-results__options {
+            background-color: #06182B !important;
+            max-height: 240px !important;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 10px 14px !important;
+            font-size: 0.92rem !important;
+            color: #E2E8F0 !important;
+            background-color: transparent !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+            transition: background 0.15s ease, color 0.15s ease !important;
+        }
+
+        /* Highlighted Option State (Strong readable contrast: Dark text on emerald background) */
+        .select2-container--default .select2-results__option--highlighted,
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+        .select2-container--default .select2-results__option--highlighted[aria-selected],
+        .select2-container--default .select2-results__option--highlighted[aria-selected="false"],
+        .select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+            background-color: #10B981 !important;
+            color: #06182B !important;
+            font-weight: 700 !important;
+        }
+
+        /* Selected Option State (When not currently hovered) */
+        .select2-container--default .select2-results__option[aria-selected="true"],
+        .select2-container--default .select2-results__option--selected {
+            background-color: rgba(16, 185, 129, 0.18) !important;
+            color: #34D399 !important;
+            font-weight: 600 !important;
         }
     </style>
 @endpush

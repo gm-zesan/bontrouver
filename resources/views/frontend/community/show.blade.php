@@ -389,6 +389,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const marker = L.marker([meetupLat, meetupLng], { icon: pinIcon }).addTo(meetupMap);
         marker.bindPopup(`<div style="font-family: inherit; font-size: 13px;"><b>${meetupTitle}</b><br><span style="color:#94A3B8; font-size: 11px;">${meetupLocation}</span></div>`).openPopup();
+
+        setTimeout(() => {
+            if (meetupMap) meetupMap.invalidateSize();
+        }, 200);
     }
 });
 </script>

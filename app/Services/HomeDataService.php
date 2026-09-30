@@ -42,9 +42,12 @@ class HomeDataService
 
     public function getHeroAds(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active');
+        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active');
         if ($city) {
-            $base->where('city', 'like', "%{$city}%");
+            $base->where(function ($q) use ($city) {
+                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+            });
         }
 
         // 1. Sponsored listings in the selected city (ordered by recency)
@@ -53,7 +56,7 @@ class HomeDataService
         // 2. If fewer than 4, supplement with active sponsored listings nationwide
         if ($models->count() < 4) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement = Listing::with(['category', 'primaryImage'])
+            $supplement = Listing::with(['category', 'primaryImage', 'city.province', 'province'])
                 ->where('status', 'active')
                 ->sponsored()
                 ->whereNotIn('id', $existingIds)
@@ -77,7 +80,7 @@ class HomeDataService
         // 4. If still fewer than 4, supplement with nationwide featured listings
         if ($models->count() < 4) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement = Listing::with(['category', 'primaryImage'])
+            $supplement = Listing::with(['category', 'primaryImage', 'city.province', 'province'])
                 ->where('status', 'active')
                 ->featured()
                 ->whereNotIn('id', $existingIds)
@@ -90,7 +93,7 @@ class HomeDataService
         // 5. Fallback to latest active listings
         if ($models->count() < 4) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement = Listing::with(['category', 'primaryImage'])
+            $supplement = Listing::with(['category', 'primaryImage', 'city.province', 'province'])
                 ->where('status', 'active')
                 ->whereNotIn('id', $existingIds)
                 ->orderByRaw('COALESCE(bumped_at, created_at) DESC')
@@ -103,10 +106,10 @@ class HomeDataService
             'id'          => $l->id,
             'title'       => $l->title,
             'slug'        => $l->slug,
-            'specs'       => [$l->category->name ?? '', $l->condition ? ucwords(str_replace('_', ' ', $l->condition)) : '', $l->city],
+            'specs'       => [$l->category->name ?? '', $l->condition ? ucwords(str_replace('_', ' ', $l->condition)) : '', $l->city_name],
             'price'       => '$' . number_format((float) $l->price, 2),
             'currency'    => 'CAD',
-            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+            'location'    => $l->location,
             'description' => Str::limit($l->description, 150),
             'image'       => $l->primary_image_url,
             'alt'         => $l->title,
@@ -116,15 +119,18 @@ class HomeDataService
 
     public function getTrendingListings(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active');
+        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active');
         if ($city) {
-            $base->where('city', 'like', "%{$city}%");
+            $base->where(function ($q) use ($city) {
+                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+            });
         }
 
         $models = (clone $base)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
 
         if ($models->isEmpty() && $city) {
-            $models = Listing::with(['category', 'primaryImage'])->where('status', 'active')->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
+            $models = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
         }
 
         return $models->map(function (Listing $l) {
@@ -150,7 +156,7 @@ class HomeDataService
                 'title'       => $l->title,
                 'price'       => '$' . number_format((float) $l->price, 2),
                 'photos_count'=> $l->images()->count(),
-                'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+                'location'    => $l->location,
                 'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
                 'category'    => $l->category->name ?? '',
                 'badge'       => $badge,
@@ -164,21 +170,24 @@ class HomeDataService
 
     public function getFeaturedListings(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage'])->where('status', 'active')->featured();
+        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->featured();
         if ($city) {
-            $base->where('city', 'like', "%{$city}%");
+            $base->where(function ($q) use ($city) {
+                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+            });
         }
 
         $models = (clone $base)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
 
         if ($models->count() < 6) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->featured()->whereNotIn('id', $existingIds)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8 - count($existingIds))->get();
+            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->featured()->whereNotIn('id', $existingIds)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8 - count($existingIds))->get();
             $models      = $models->merge($supplement);
         }
         if ($models->count() < 4) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement  = Listing::with(['category', 'primaryImage'])->where('status', 'active')->whereNotIn('id', $existingIds)->orderByDesc('views_count')->limit(8 - count($existingIds))->get();
+            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->whereNotIn('id', $existingIds)->orderByDesc('views_count')->limit(8 - count($existingIds))->get();
             $models      = $models->merge($supplement);
         }
 
@@ -188,7 +197,7 @@ class HomeDataService
             'title'       => $l->title,
             'price'       => '$' . number_format((float) $l->price, 2),
             'photos_count'=> $l->images()->count(),
-            'location'    => $l->city . ', ' . $l->province . ($l->location_name ? ' • ' . $l->location_name : ''),
+            'location'    => $l->location,
             'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
             'category'    => $l->category->name ?? '',
             'badge'       => 'FEATURED',

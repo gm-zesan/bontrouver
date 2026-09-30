@@ -94,7 +94,7 @@ class LocationTest extends TestCase
         $listings = \App\Models\Listing::where('city_id', $toronto->id)->get();
         if ($listings->isNotEmpty()) {
             $this->assertEquals($toronto->id, $listings->first()->city_id);
-            $this->assertEquals('Toronto', $listings->first()->city);
+            $this->assertEquals('Toronto', $listings->first()->city_name);
         }
     }
 
@@ -107,11 +107,10 @@ class LocationTest extends TestCase
         $response->assertViewHas('provinces');
         
         $provinces = $response->viewData('provinces');
-        $this->assertIsArray($provinces);
-        $this->assertArrayHasKey('ON', $provinces);
-        $this->assertArrayHasKey('QC', $provinces);
-        $this->assertArrayHasKey('BC', $provinces);
-        $this->assertEquals('Ontario', $provinces['ON']);
+        $this->assertNotEmpty($provinces);
+        $this->assertTrue($provinces->contains('code', 'ON'));
+        $this->assertTrue($provinces->contains('code', 'QC'));
+        $this->assertTrue($provinces->contains('code', 'BC'));
     }
 
     public function test_post_ad_store_persists_listing_with_dynamic_city_id(): void
@@ -135,14 +134,13 @@ class LocationTest extends TestCase
 
         $this->assertDatabaseHas('listings', [
             'title' => 'Vintage Canadian Acoustic Guitar',
-            'city' => 'Toronto',
-            'province' => 'ON',
         ]);
 
         $listing = \App\Models\Listing::where('title', 'Vintage Canadian Acoustic Guitar')->first();
         $this->assertNotNull($listing);
         $this->assertNotNull($listing->city_id);
-        $this->assertEquals('Toronto', $listing->city?->name ?? $listing->city);
+        $this->assertEquals('Toronto', $listing->city_name);
+        $this->assertEquals('ON', $listing->province_code);
     }
 
     public function test_location_service_calculates_distance_and_finds_nearest_city(): void

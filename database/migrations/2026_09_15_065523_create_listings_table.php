@@ -23,11 +23,10 @@ return new class extends Migration
             $table->string('price_period', 50)->nullable(); // one_time, hour, day, week, month
             $table->string('condition', 50)->nullable();
             
-            // Location
+            // Location & Spatial Coordinates
+            $table->foreignId('province_id')->nullable()->constrained('provinces')->nullOnDelete();
             $table->foreignId('city_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->string('location_name')->nullable();
-            $table->string('city')->nullable();
-            $table->string('province')->nullable();
             $table->string('postal_code', 20)->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
@@ -47,12 +46,15 @@ return new class extends Migration
             $table->softDeletes();
             
             $table->index('status');
+            $table->index('province_id');
+            $table->index('city_id');
             $table->index('is_featured');
             $table->index('is_sponsored');
             $table->index('bumped_at');
-            $table->index('city');
-            $table->index('province');
             $table->index(['latitude', 'longitude']);
+            $table->index(['status', 'published_at']);
+            $table->index(['status', 'province_id']);
+            $table->index(['status', 'city_id']);
         });
     }
 

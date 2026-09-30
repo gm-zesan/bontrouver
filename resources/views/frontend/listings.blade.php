@@ -5,6 +5,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
 /* Map View Layout & Toggle Buttons */
 .map-view-toggle-group {
@@ -19,7 +20,7 @@
     background: transparent;
     border: none;
     color: #94A3B8;
-    padding: 5px 12px;
+    padding: 5px 14px;
     border-radius: 7px;
     font-size: 0.82rem;
     font-weight: 600;
@@ -27,7 +28,7 @@
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 .btn-view-mode:hover {
     color: #fff;
@@ -39,10 +40,50 @@
     box-shadow: 0 2px 8px rgba(73, 209, 125, 0.35);
 }
 
-/* Listings Map Wrapper */
+/* Results Layout Wrapper (Seamlessly switches between List and Full Map View) */
+.results-layout-wrapper {
+    width: 100%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Standalone List Mode */
+.view-mode-list .listings-pane {
+    width: 100%;
+    display: block;
+}
+.view-mode-list .map-pane {
+    display: none !important;
+}
+
+/* Standalone Map Mode (Rich panoramic map portal) */
+.view-mode-map .listings-pane {
+    display: none !important;
+}
+.view-mode-map .map-pane {
+    width: 100% !important;
+    display: block !important;
+}
+.view-mode-map .listings-map-wrapper {
+    height: 700px;
+    min-height: calc(100vh - 250px);
+    width: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+.view-mode-map #listingsLeafletMap {
+    height: calc(100% - 42px);
+    min-height: 658px;
+}
+.view-mode-map #paginationWrap {
+    display: none !important;
+}
+
+/* Listings Map Wrapper Base */
 .listings-map-wrapper {
     position: relative;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
     background: #081D33;
     border: 1px solid rgba(255,255,255,0.1);
@@ -80,6 +121,152 @@
     background: #49D17D;
     color: #06182B;
     border-color: #49D17D;
+    transform: translateY(-1px);
+}
+
+/* Floating Search This Area Pill */
+.map-search-area-pill {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    background: #06182B;
+    border: 1px solid #49D17D;
+    color: #49D17D;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+}
+.map-search-area-pill:hover {
+    background: #49D17D;
+    color: #06182B;
+    box-shadow: 0 6px 20px rgba(73, 209, 125, 0.45);
+    transform: translateX(-50%) translateY(-1px);
+}
+
+/* =========================================================
+   SELECT2 CUSTOM DARK THEME (Search Bar & Mobile Drawer)
+   ========================================================= */
+.search-col .select2-container {
+    width: 100% !important;
+    flex: 1;
+    min-width: 0;
+}
+.search-col .select2-container--default .select2-selection--single {
+    background: transparent !important;
+    border: none !important;
+    height: 2.875rem !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+}
+.search-col .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #FFFFFF !important;
+    font-size: 0.92rem !important;
+    font-weight: 500 !important;
+    padding-left: 0 !important;
+    padding-right: 1.5rem !important;
+    line-height: normal !important;
+}
+.search-col .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    right: 0 !important;
+    top: 0 !important;
+    width: 20px !important;
+}
+.search-col .select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #64748B transparent transparent transparent !important;
+    border-width: 5px 4px 0 4px !important;
+}
+.search-col .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent #49D17D transparent !important;
+    border-width: 0 4px 5px 4px !important;
+}
+
+/* Mobile Drawer Select2 */
+.mobile-drawer-select-wrap .select2-container {
+    width: 100% !important;
+}
+.mobile-drawer-select-wrap .select2-container--default .select2-selection--single {
+    background: #06182B !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 10px !important;
+    height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+}
+.mobile-drawer-select-wrap .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #FFFFFF !important;
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+    padding: 0 !important;
+}
+.mobile-drawer-select-wrap .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    right: 10px !important;
+}
+
+/* Universal Select2 Dark Dropdown */
+.select2-dropdown {
+    background: #081D33 !important;
+    border: 1px solid rgba(73, 209, 125, 0.35) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65) !important;
+    color: #FFFFFF !important;
+    z-index: 99999 !important;
+    overflow: hidden !important;
+    margin-top: 4px !important;
+}
+.select2-container--default .select2-search--dropdown {
+    padding: 8px 10px !important;
+    background: #081D33 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    background: #06182B !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    outline: none !important;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: #49D17D !important;
+    box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.25) !important;
+}
+.select2-container--default .select2-results__options {
+    max-height: 240px !important;
+    padding: 4px !important;
+}
+.select2-container--default .select2-results__option {
+    color: #E2E8F0 !important;
+    padding: 8px 12px !important;
+    font-size: 0.86rem !important;
+    border-radius: 6px !important;
+    margin: 2px 0 !important;
+    transition: all 0.15s ease !important;
+}
+.select2-container--default .select2-results__option--highlighted,
+.select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: #49D17D !important;
+    color: #06182B !important;
+    font-weight: 600 !important;
+}
+.select2-container--default .select2-results__option[aria-selected="true"],
+.select2-container--default .select2-results__option--selected {
+    background: rgba(73, 209, 125, 0.2) !important;
+    color: #49D17D !important;
+    font-weight: 700 !important;
 }
 
 /* Custom Leaflet Price Badges / Pin Markers */
@@ -94,18 +281,18 @@
     white-space: nowrap;
     box-shadow: 0 4px 14px rgba(0,0,0,0.45);
     cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease, box-shadow 0.15s ease;
     display: inline-flex;
     align-items: center;
     gap: 4px;
     transform: translate(-50%, -50%);
 }
 .leaflet-price-pin:hover, .leaflet-price-pin.active-marker {
-    transform: translate(-50%, -50%) scale(1.18);
+    transform: translate(-50%, -50%) scale(1.22);
     background: #49D17D !important;
     color: #06182B !important;
     border-color: #ffffff !important;
-    box-shadow: 0 6px 20px rgba(73,209,125,0.6) !important;
+    box-shadow: 0 8px 24px rgba(73,209,125,0.7) !important;
     z-index: 1000 !important;
 }
 .leaflet-price-pin.featured-pin {
@@ -117,6 +304,14 @@
     border-color: #3B82F6;
     color: #93C5FD;
     background: #112A45;
+}
+
+/* Card Highlight State when Pin is Clicked/Hovered */
+.listing-row-card.highlighted-card {
+    border-color: #49D17D !important;
+    box-shadow: 0 0 0 2px rgba(73, 209, 125, 0.5), 0 12px 32px rgba(0, 0, 0, 0.5) !important;
+    background: #0d2a4a !important;
+    transform: translateY(-2px);
 }
 
 /* Custom Leaflet Popup Card */
@@ -226,21 +421,20 @@
     color: #06182B !important;
 }
 
-/* Split view styling */
-.split-view-active #listingsMapContainer {
-    height: 420px;
-    position: sticky;
-    top: 90px;
-    z-index: 10;
+/* User Location Pulse Animation */
+.user-geo-pulse div {
+    animation: userPulse 2s infinite ease-in-out;
 }
-.split-view-active #listingsLeafletMap {
-    height: 375px;
+@keyframes userPulse {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    70% { box-shadow: 0 0 0 14px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 </style>
 @endpush
 
 @section('content')
-<div class="search-results-page">
+<div class="search-results-page view-mode-list" id="searchResultsPage">
 
     {{-- 1. Top Breadcrumb & Prominent Search Banner --}}
     <div class="search-hero-banner">
@@ -782,10 +976,6 @@
                                     <i class="bi bi-map-fill"></i>
                                     <span>Map</span>
                                 </button>
-                                <button type="button" class="btn-view-mode d-none d-xl-inline-flex" id="btnModeSplit" onclick="switchViewMode('split')" title="Split Side-by-Side View">
-                                    <i class="bi bi-layout-split"></i>
-                                    <span>Split</span>
-                                </button>
                             </div>
 
                             <!-- Desktop Sort By Dropdown -->
@@ -815,159 +1005,181 @@
                     </div>
                 </div>
 
-                <!-- Interactive Leaflet Map Container -->
-                <div class="listings-map-wrapper shadow-sm mb-4" id="listingsMapContainer" style="display: none;">
-                    <div class="map-floating-ctrl">
-                        <button type="button" class="map-floating-btn" onclick="recenterLeafletMap()" title="Center map on selected city">
-                            <i class="bi bi-crosshair me-1"></i> Recenter
-                        </button>
-                        <button type="button" class="map-floating-btn" onclick="locateUserOnMap()" title="Find listings near my device">
-                            <i class="bi bi-geo-alt me-1"></i> Near Me
-                        </button>
-                    </div>
-                    <div id="listingsLeafletMap"></div>
-                    <div class="map-bottom-legend d-flex align-items-center justify-content-between px-3 py-2 text-white-50 small" style="background: rgba(6, 24, 43, 0.95); border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem;">
-                        <div class="d-flex align-items-center gap-3">
-                            <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> Active Listings</span>
-                            <span><i class="bi bi-star-fill text-warning me-1" style="font-size: 0.7rem;"></i> Featured / Sponsored</span>
-                            <span class="d-none d-sm-inline"><i class="bi bi-circle text-info me-1" style="font-size: 0.7rem;"></i> Radius Range</span>
-                        </div>
-                        <span class="font-monospace text-muted" id="mapMarkersCountLabel">0 on map</span>
-                    </div>
-                </div>
+                <!-- Results Layout Wrapper (Seamlessly switches between List, Standalone Map, and Split View) -->
+                <div class="results-layout-wrapper" id="resultsLayoutWrapper">
 
-                <!-- Skeleton Loader State (Shown during instant filter transitions) -->
-                <div id="resultsSkeletonLoader" class="results-skeleton-container" style="display: none;">
-                    @for($i = 0; $i < 4; $i++)
-                        <div class="skeleton-listing-card">
-                            <div class="skeleton-img"></div>
-                            <div class="skeleton-body">
-                                <div class="skeleton-line skeleton-title"></div>
-                                <div class="skeleton-line skeleton-meta"></div>
-                                <div class="skeleton-line skeleton-desc"></div>
-                                <div class="skeleton-line skeleton-price"></div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-
-                <!-- Listing Cards Stream Container -->
-                <div class="listings-stream" id="listingsStreamContainer">
-                    @foreach($listings as $item)
-                        <article class="listing-row-card {{ !empty($item['badge']) ? 'has-badge' : '' }}" id="listing-card-{{ $item['id'] }}" onclick="handleCardClick(event, '{{ $item['url'] }}')">
-                            <!-- Left: Listing Image & Quick Action -->
-                            <div class="listing-row-media">
-                                <a href="{{ $item['url'] }}" class="listing-media-link" aria-label="{{ $item['title'] }}" onclick="event.stopPropagation()">
-                                    <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="listing-media-img" loading="lazy">
-                                </a>
-
-                                @if(!empty($item['photos_count']))
-                                    <span class="listing-photo-badge">
-                                        <i class="bi bi-camera-fill me-1"></i>{{ $item['photos_count'] }}
-                                    </span>
-                                @endif
-
-                                @if(!empty($item['badge']))
-                                    <span class="listing-status-badge badge-{{ $item['badge_type'] ?? 'featured' }}">
-                                        @if(!empty($item['badge_icon']))
-                                            <i class="bi {{ $item['badge_icon'] }} me-1"></i>
-                                        @endif
-                                        {{ $item['badge'] }}
-                                    </span>
-                                @endif
-                            </div>
-
-                            <!-- Center: Title, Specs & Details -->
-                            <div class="listing-row-content">
-                                <div class="listing-row-header">
-                                    <div class="listing-category-tag">{{ $item['subcategory_name'] ?? $item['category_name'] }}</div>
-                                    <h2 class="listing-row-title">
-                                        <a href="{{ $item['url'] }}" onclick="event.stopPropagation()">{{ $item['title'] }}</a>
-                                    </h2>
-                                </div>
-
-                                <p class="listing-row-desc">{{ $item['description'] }}</p>
-
-                                @if(!empty($item['specs_pills']))
-                                    <div class="listing-specs-pills">
-                                        @foreach($item['specs_pills'] as $spec)
-                                            <span class="spec-tag">{{ $spec }}</span>
-                                        @endforeach
+                    <!-- Left/Main Column: Listings Content Stream, Skeleton & Pagination -->
+                    <div class="listings-pane" id="listingsPane">
+                        <!-- Skeleton Loader State (Shown during instant filter transitions) -->
+                        <div id="resultsSkeletonLoader" class="results-skeleton-container" style="display: none;">
+                            @for($i = 0; $i < 4; $i++)
+                                <div class="skeleton-listing-card">
+                                    <div class="skeleton-img"></div>
+                                    <div class="skeleton-body">
+                                        <div class="skeleton-line skeleton-title"></div>
+                                        <div class="skeleton-line skeleton-meta"></div>
+                                        <div class="skeleton-line skeleton-desc"></div>
+                                        <div class="skeleton-line skeleton-price"></div>
                                     </div>
-                                @endif
-
-                                <div class="listing-row-footer">
-                                    <span class="listing-row-location">
-                                        <i class="bi bi-geo-alt-fill me-1"></i>{{ $item['location'] }}
-                                    </span>
-                                    <span class="listing-dot">•</span>
-                                    <span class="listing-row-time">{{ $item['posted_at'] }}</span>
-                                    @if(!empty($item['distance_km']))
-                                        <span class="listing-dot">•</span>
-                                        <span class="listing-distance">{{ $item['distance_km'] }} km away</span>
-                                    @endif
-                                    @if(!empty($item['seller_type_label']) || !empty($item['seller']['type']))
-                                        <span class="listing-dot">•</span>
-                                        <span class="listing-seller-pill">
-                                            <i class="bi bi-patch-check-fill"></i>
-                                            <span>{{ $item['seller_type_label'] ?? $item['seller']['type'] }}</span>
-                                        </span>
-                                    @endif
                                 </div>
+                            @endfor
+                        </div>
+
+                        <!-- Listing Cards Stream Container -->
+                        <div class="listings-stream" id="listingsStreamContainer">
+                            @foreach($listings as $item)
+                                <article class="listing-row-card {{ !empty($item['badge']) ? 'has-badge' : '' }}" id="listing-card-{{ $item['id'] }}" onclick="handleCardClick(event, '{{ $item['url'] }}')" onmouseenter="highlightMapPin({{ $item['id'] }})" onmouseleave="unhighlightMapPin({{ $item['id'] }})">
+                                    <!-- Left: Listing Image & Quick Action -->
+                                    <div class="listing-row-media">
+                                        <a href="{{ $item['url'] }}" class="listing-media-link" aria-label="{{ $item['title'] }}" onclick="event.stopPropagation()">
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['title'] }}" class="listing-media-img" loading="lazy">
+                                        </a>
+
+                                        @if(!empty($item['photos_count']))
+                                            <span class="listing-photo-badge">
+                                                <i class="bi bi-camera-fill me-1"></i>{{ $item['photos_count'] }}
+                                            </span>
+                                        @endif
+
+                                        @if(!empty($item['badge']))
+                                            <span class="listing-status-badge badge-{{ $item['badge_type'] ?? 'featured' }}">
+                                                @if(!empty($item['badge_icon']))
+                                                    <i class="bi {{ $item['badge_icon'] }} me-1"></i>
+                                                @endif
+                                                {{ $item['badge'] }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Center: Title, Specs & Details -->
+                                    <div class="listing-row-content">
+                                        <div class="listing-row-header">
+                                            <div class="listing-category-tag">{{ $item['subcategory_name'] ?? $item['category_name'] }}</div>
+                                            <h2 class="listing-row-title">
+                                                <a href="{{ $item['url'] }}" onclick="event.stopPropagation()">{{ $item['title'] }}</a>
+                                            </h2>
+                                        </div>
+
+                                        <p class="listing-row-desc">{{ $item['description'] }}</p>
+
+                                        @if(!empty($item['specs_pills']))
+                                            <div class="listing-specs-pills">
+                                                @foreach($item['specs_pills'] as $spec)
+                                                    <span class="spec-tag">{{ $spec }}</span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <div class="listing-row-footer">
+                                            <span class="listing-row-location">
+                                                <i class="bi bi-geo-alt-fill me-1"></i>{{ $item['location'] }}
+                                            </span>
+                                            <span class="listing-dot">•</span>
+                                            <span class="listing-row-time">{{ $item['posted_at'] }}</span>
+                                            @if(!empty($item['distance_km']))
+                                                <span class="listing-dot">•</span>
+                                                <span class="listing-distance">{{ $item['distance_km'] }} km away</span>
+                                            @endif
+                                            @if(!empty($item['seller_type_label']) || !empty($item['seller']['type']))
+                                                <span class="listing-dot">•</span>
+                                                <span class="listing-seller-pill">
+                                                    <i class="bi bi-patch-check-fill"></i>
+                                                    <span>{{ $item['seller_type_label'] ?? $item['seller']['type'] }}</span>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- Right: Price & Favorite CTA -->
+                                    <div class="listing-row-actions">
+                                        <div class="listing-price-box">
+                                            <div class="listing-price-val">{{ $item['price_formatted'] }}</div>
+                                            <span class="listing-currency">{{ $item['currency'] }}</span>
+                                        </div>
+
+                                        <div class="listing-action-btns">
+                                            <button type="button" class="btn-favorite-icon {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'active' : '' }}" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="Save listing">
+                                                <i class="bi bi-heart heart-outline" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'none' : 'inline-block' }};"></i>
+                                                <i class="bi bi-heart-fill heart-filled" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'inline-block' : 'none' }};"></i>
+                                            </button>
+                                            <a href="{{ $item['url'] }}" class="btn-view-details" onclick="event.stopPropagation()">
+                                                <span>View</span>
+                                                <i class="bi bi-arrow-right"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <!-- Beautiful Empty State (Zero results fallback) -->
+                        <div class="empty-results-card" id="emptyResultsCard" style="display: none;">
+                            <div class="empty-state-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h3 class="empty-state-title">No listings found</h3>
+                            <p class="empty-state-subtitle">
+                                We couldn't find any matches matching your current filters. Try removing some filters or broadening your search radius.
+                            </p>
+                            <div class="empty-state-actions">
+                                <button type="button" class="btn-reset-filters" onclick="resetAllFilters()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                    <span>Clear all filters</span>
+                                </button>
+                                <button type="button" class="btn-change-location" onclick="expandLocationFilter()">
+                                    <i class="bi bi-geo-alt me-1"></i>
+                                    <span>Search All Canada</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Clean Pagination Controls -->
+                        <div class="marketplace-pagination-wrap" id="paginationWrap">
+                            <ul class="marketplace-pagination">
+                                <li class="page-item disabled"><a class="page-link" href="javascript:void(0)"><i class="bi bi-chevron-left"></i> Previous</a></li>
+                                <li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0)">2</a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Next <i class="bi bi-chevron-right"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right/Map Column: Interactive Leaflet Map Pane -->
+                    <div class="map-pane" id="mapPane" style="display: none;">
+                        <div class="listings-map-wrapper shadow-sm" id="listingsMapContainer">
+                            <!-- Floating Map Controls -->
+                            <div class="map-floating-ctrl">
+                                <button type="button" class="map-floating-btn" onclick="recenterLeafletMap()" title="Center map on selected location">
+                                    <i class="bi bi-crosshair me-1"></i> Recenter
+                                </button>
+                                <button type="button" class="map-floating-btn" onclick="locateUserOnMap()" title="Find listings near my device">
+                                    <i class="bi bi-geo-alt me-1"></i> Near Me
+                                </button>
+                                <button type="button" class="map-floating-btn d-none d-md-inline-flex" onclick="fitAllListingsBounds()" title="Fit map to all listings">
+                                    <i class="bi bi-arrows-fullscreen me-1"></i> Fit All
+                                </button>
                             </div>
 
-                            <!-- Right: Price & Favorite CTA -->
-                            <div class="listing-row-actions">
-                                <div class="listing-price-box">
-                                    <div class="listing-price-val">{{ $item['price_formatted'] }}</div>
-                                    <span class="listing-currency">{{ $item['currency'] }}</span>
-                                </div>
-
-                                <div class="listing-action-btns">
-                                		<button type="button" class="btn-favorite-icon {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'active' : '' }}" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="Save listing">
-                                        <i class="bi bi-heart heart-outline" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'none' : 'inline-block' }};"></i>
-                                        <i class="bi bi-heart-fill heart-filled" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'inline-block' : 'none' }};"></i>
-                                    </button>
-                                    <a href="{{ $item['url'] }}" class="btn-view-details" onclick="event.stopPropagation()">
-                                        <span>View</span>
-                                        <i class="bi bi-arrow-right"></i>
-                                    </a>
-                                </div>
+                            <!-- Floating Search This Area Pill -->
+                            <div class="map-search-area-pill" id="mapSearchAreaPill" style="display: none;" onclick="searchThisMapArea()">
+                                <i class="bi bi-search me-1"></i> Search this map area
                             </div>
-                        </article>
-                    @endforeach
-                </div>
 
-                <!-- Beautiful Empty State (Zero results fallback) -->
-                <div class="empty-results-card" id="emptyResultsCard" style="display: none;">
-                    <div class="empty-state-icon">
-                        <i class="bi bi-search"></i>
-                    </div>
-                    <h3 class="empty-state-title">No listings found</h3>
-                    <p class="empty-state-subtitle">
-                        We couldn't find any matches matching your current filters. Try removing some filters or broadening your search radius.
-                    </p>
-                    <div class="empty-state-actions">
-                        <button type="button" class="btn-reset-filters" onclick="resetAllFilters()">
-                            <i class="bi bi-arrow-clockwise me-1"></i>
-                            <span>Clear all filters</span>
-                        </button>
-                        <button type="button" class="btn-change-location" onclick="expandLocationFilter()">
-                            <i class="bi bi-geo-alt me-1"></i>
-                            <span>Search All Canada</span>
-                        </button>
-                    </div>
-                </div>
+                            <div id="listingsLeafletMap"></div>
 
-                <!-- Clean Pagination Controls -->
-                <div class="marketplace-pagination-wrap" id="paginationWrap">
-                    <ul class="marketplace-pagination">
-                        <li class="page-item disabled"><a class="page-link" href="javascript:void(0)"><i class="bi bi-chevron-left"></i> Previous</a></li>
-                        <li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>
-                        <li class="page-item"><a class="page-link" href="javascript:void(0)">2</a></li>
-                        <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
-                        <li class="page-item"><a class="page-link" href="javascript:void(0)">Next <i class="bi bi-chevron-right"></i></a></li>
-                    </ul>
+                            <!-- Sleek Bottom Legend -->
+                            <div class="map-bottom-legend d-flex align-items-center justify-content-between px-3 py-2 text-white-50 small" style="background: rgba(6, 24, 43, 0.95); border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem;">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> Active Listings</span>
+                                    <span><i class="bi bi-star-fill text-warning me-1" style="font-size: 0.7rem;"></i> Featured / Sponsored</span>
+                                    <span class="d-none d-sm-inline"><i class="bi bi-circle text-info me-1" style="font-size: 0.7rem;"></i> Radius Range</span>
+                                </div>
+                                <span class="font-monospace text-muted" id="mapMarkersCountLabel">0 on map</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </main>
@@ -1625,9 +1837,9 @@
                 stream.style.display = 'flex';
                 stream.innerHTML = filtered.map(item => createListingRowHTML(item)).join('');
             }
-            // Conditional pagination: only show pagination if there are > 10 listings (i.e. more than 1 page)
+            // Conditional pagination: NEVER show in map mode, only show in list/split if > 10 listings
             if (paginationWrap) {
-                paginationWrap.style.display = (totalCount > 10) ? 'flex' : 'none';
+                paginationWrap.style.display = (currentViewMode !== 'map' && totalCount > 10) ? 'flex' : 'none';
             }
         }
 
@@ -1688,7 +1900,7 @@
         ` : '';
 
         return `
-            <article class="listing-row-card ${item.badge ? 'has-badge' : ''}" id="listing-card-${item.id}" onclick="handleCardClick(event, '${item.url}')">
+            <article class="listing-row-card ${item.badge ? 'has-badge' : ''}" id="listing-card-${item.id}" onclick="handleCardClick(event, '${item.url}')" onmouseenter="highlightMapPin(${item.id})" onmouseleave="unhighlightMapPin(${item.id})">
                 <div class="listing-row-media">
                     <a href="${item.url}" class="listing-media-link" aria-label="${item.title}" onclick="event.stopPropagation()">
                         <img src="${item.image}" alt="${item.title}" class="listing-media-img" loading="lazy">
@@ -1926,9 +2138,24 @@
         const d = document.getElementById('filterRadiusSelect');
         const sideRad = document.getElementById('filterSidebarRadiusSelect');
         const m = document.getElementById('mobileFilterRadiusSelect');
-        if (d && d.value !== val) d.value = val;
-        if (sideRad && sideRad.value !== val) sideRad.value = val;
-        if (m && m.value !== val) m.value = val;
+        if (d && d.value !== val) {
+            d.value = val;
+            if (window.jQuery && $(d).hasClass('select2-hidden-accessible')) {
+                $(d).val(val).trigger('change.select2');
+            }
+        }
+        if (sideRad && sideRad.value !== val) {
+            sideRad.value = val;
+            if (window.jQuery && $(sideRad).hasClass('select2-hidden-accessible')) {
+                $(sideRad).val(val).trigger('change.select2');
+            }
+        }
+        if (m && m.value !== val) {
+            m.value = val;
+            if (window.jQuery && $(m).hasClass('select2-hidden-accessible')) {
+                $(m).val(val).trigger('change.select2');
+            }
+        }
         triggerLiveFilter();
     }
 
@@ -1936,9 +2163,24 @@
         const heroLoc = document.getElementById('filterLocation');
         const sideLoc = document.getElementById('filterSidebarLocation');
         const mobLoc = document.getElementById('mobileFilterLocation');
-        if (heroLoc && heroLoc.value !== val) heroLoc.value = val;
-        if (sideLoc && sideLoc.value !== val) sideLoc.value = val;
-        if (mobLoc && mobLoc.value !== val) mobLoc.value = val;
+        if (heroLoc && heroLoc.value !== val) {
+            heroLoc.value = val;
+            if (window.jQuery && $(heroLoc).hasClass('select2-hidden-accessible')) {
+                $(heroLoc).val(val).trigger('change.select2');
+            }
+        }
+        if (sideLoc && sideLoc.value !== val) {
+            sideLoc.value = val;
+            if (window.jQuery && $(sideLoc).hasClass('select2-hidden-accessible')) {
+                $(sideLoc).val(val).trigger('change.select2');
+            }
+        }
+        if (mobLoc && mobLoc.value !== val) {
+            mobLoc.value = val;
+            if (window.jQuery && $(mobLoc).hasClass('select2-hidden-accessible')) {
+                $(mobLoc).val(val).trigger('change.select2');
+            }
+        }
         triggerLiveFilter();
     }
 
@@ -2390,42 +2632,39 @@
     }
 
     // ==========================================
-    // LEAFLET OPENSTREETMAP ENGINE
+    // LEAFLET OPENSTREETMAP ENGINE & VIEW MODES
     // ==========================================
     function switchViewMode(mode) {
         currentViewMode = mode;
 
         const btnList = document.getElementById('btnModeList');
         const btnMap = document.getElementById('btnModeMap');
-        const btnSplit = document.getElementById('btnModeSplit');
-        const mapContainer = document.getElementById('listingsMapContainer');
-        const streamContainer = document.getElementById('listingsStreamContainer');
-        const emptyCard = document.getElementById('emptyResultsCard');
-        const searchResultsCol = document.querySelector('.search-results-container');
+        const mapPane = document.getElementById('mapPane');
+        const listingsPane = document.getElementById('listingsPane');
+        const paginationWrap = document.getElementById('paginationWrap');
+        const searchResultsPage = document.getElementById('searchResultsPage');
 
+        // Toggle active button states
         if (btnList) btnList.classList.toggle('active', mode === 'list');
         if (btnMap) btnMap.classList.toggle('active', mode === 'map');
-        if (btnSplit) btnSplit.classList.toggle('active', mode === 'split');
 
-        if (searchResultsCol) {
-            searchResultsCol.classList.toggle('split-view-active', mode === 'split');
+        // Toggle page class names for responsive CSS layout
+        if (searchResultsPage) {
+            searchResultsPage.classList.remove('view-mode-list', 'view-mode-map');
+            searchResultsPage.classList.add(`view-mode-${mode}`);
         }
 
+        const totalCount = lastFilteredListings ? lastFilteredListings.length : 0;
+
         if (mode === 'list') {
-            if (mapContainer) mapContainer.style.display = 'none';
-            if (streamContainer && (!lastFilteredListings || lastFilteredListings.length > 0)) {
-                streamContainer.style.display = 'flex';
-            }
+            if (mapPane) mapPane.style.display = 'none';
+            if (listingsPane) listingsPane.style.display = 'block';
+            if (paginationWrap) paginationWrap.style.display = (totalCount > 10) ? 'flex' : 'none';
         } else if (mode === 'map') {
-            if (mapContainer) mapContainer.style.display = 'block';
-            if (streamContainer) streamContainer.style.display = 'none';
-            if (emptyCard) emptyCard.style.display = 'none';
-            initOrRefreshLeafletMap();
-        } else if (mode === 'split') {
-            if (mapContainer) mapContainer.style.display = 'block';
-            if (streamContainer && (!lastFilteredListings || lastFilteredListings.length > 0)) {
-                streamContainer.style.display = 'flex';
-            }
+            if (mapPane) mapPane.style.display = 'block';
+            if (listingsPane) listingsPane.style.display = 'none';
+            // Standalone Map mode NEVER shows pagination
+            if (paginationWrap) paginationWrap.style.display = 'none';
             initOrRefreshLeafletMap();
         }
     }
@@ -2437,7 +2676,7 @@
             setTimeout(() => {
                 leafletMap.invalidateSize();
                 updateLeafletMap(lastFilteredListings);
-            }, 150);
+            }, 180);
         }
     }
 
@@ -2445,11 +2684,11 @@
         const mapEl = document.getElementById('listingsLeafletMap');
         if (!mapEl || typeof L === 'undefined') return;
 
-        // Default Canadian Center
-        const defaultCenter = [45.5017, -73.5673];
+        // Default Canadian Panoramic Center
+        const defaultCenter = [56.1304, -106.3468];
         leafletMap = L.map('listingsLeafletMap', {
             center: defaultCenter,
-            zoom: 11,
+            zoom: 4,
             zoomControl: true,
             scrollWheelZoom: false
         });
@@ -2462,10 +2701,18 @@
 
         mapMarkersLayer = L.layerGroup().addTo(leafletMap);
 
+        // Listen for map movements to show "Search this area" pill
+        leafletMap.on('movend zoomend', function () {
+            const pill = document.getElementById('mapSearchAreaPill');
+            if (pill && currentViewMode !== 'list') {
+                pill.style.display = 'inline-flex';
+            }
+        });
+
         setTimeout(() => {
             leafletMap.invalidateSize();
             updateLeafletMap(lastFilteredListings);
-        }, 150);
+        }, 180);
     }
 
     function updateLeafletMap(listings) {
@@ -2576,6 +2823,17 @@
             `;
 
             marker.bindPopup(popupHTML, { maxWidth: 260, minWidth: 240, className: 'bontrouver-map-popup' });
+
+            // On marker click: scroll to listing card and highlight
+            marker.on('click', () => {
+                const card = document.getElementById('listing-card-' + item.id);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('highlighted-card');
+                    setTimeout(() => card.classList.remove('highlighted-card'), 2200);
+                }
+            });
+
             mapMarkersLayer.addLayer(marker);
         });
 
@@ -2596,6 +2854,35 @@
         } else if (cityCenterLat && cityCenterLng) {
             leafletMap.setView([cityCenterLat, cityCenterLng], 12);
         }
+    }
+
+    function highlightMapPin(id) {
+        const pin = document.getElementById('map-pin-' + id);
+        if (pin) {
+            pin.classList.add('active-marker');
+        }
+    }
+
+    function unhighlightMapPin(id) {
+        const pin = document.getElementById('map-pin-' + id);
+        if (pin) {
+            pin.classList.remove('active-marker');
+        }
+    }
+
+    function fitAllListingsBounds() {
+        if (!leafletMap || !mapMarkersLayer) return;
+        const markers = mapMarkersLayer.getLayers();
+        if (markers.length > 0) {
+            const group = L.featureGroup(markers);
+            leafletMap.fitBounds(group.getBounds(), { padding: [40, 40], maxZoom: 15 });
+        }
+    }
+
+    function searchThisMapArea() {
+        const pill = document.getElementById('mapSearchAreaPill');
+        if (pill) pill.style.display = 'none';
+        triggerLiveFilter();
     }
 
     function recenterLeafletMap() {
@@ -2637,6 +2924,54 @@
             }
         );
     }
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        if (typeof $.fn.select2 !== 'undefined') {
+            // 1. Initialize Hero City Location Select2
+            $('#filterLocation').select2({
+                placeholder: 'Search City / Nationwide',
+                allowClear: false,
+                width: '100%'
+            }).on('select2:select change', function () {
+                syncLocationFilter(this.value);
+            });
+
+            // 2. Initialize Hero Distance Radius Select2
+            $('#filterRadiusSelect').select2({
+                placeholder: 'Select distance',
+                allowClear: false,
+                width: '100%',
+                minimumResultsForSearch: Infinity
+            }).on('select2:select change', function () {
+                syncRadius(this.value);
+            });
+
+            // 3. Initialize Mobile Drawer Location Select2
+            const $mobileDrawer = $('#mobileFilterDrawer');
+            $('#mobileFilterLocation').select2({
+                placeholder: 'Search City / Nationwide',
+                allowClear: false,
+                width: '100%',
+                dropdownParent: $mobileDrawer.length ? $mobileDrawer : null
+            }).on('select2:select change', function () {
+                syncLocationFilter(this.value);
+            });
+
+            // 4. Initialize Mobile Drawer Distance Select2
+            $('#mobileFilterRadiusSelect').select2({
+                placeholder: 'Select distance',
+                allowClear: false,
+                width: '100%',
+                minimumResultsForSearch: Infinity,
+                dropdownParent: $mobileDrawer.length ? $mobileDrawer : null
+            }).on('select2:select change', function () {
+                syncRadius(this.value);
+            });
+        }
+    });
 </script>
 @endpush
 @endsection

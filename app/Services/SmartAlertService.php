@@ -97,10 +97,10 @@ class SmartAlertService
                 $q->whereNull('city_id')
                   ->orWhere('city_id', $listing->city_id);
             });
-        } elseif ($listing->city) {
+        } elseif (!empty($listing->city_name) && $listing->city_name !== 'Outside Canada') {
             $query->where(function ($q) use ($listing) {
                 $q->whereNull('city')
-                  ->orWhere('city', 'like', '%' . $listing->city . '%');
+                  ->orWhere('city', 'like', '%' . $listing->city_name . '%');
             });
         }
 

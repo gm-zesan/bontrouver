@@ -17,7 +17,7 @@ class AdminListingService
     public function getListingsQuery(array $filters = []): Builder
     {
         $query = Listing::query()
-            ->with(['user', 'category', 'city.province', 'primaryImage']);
+            ->with(['user', 'category', 'city.province', 'province', 'primaryImage']);
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);

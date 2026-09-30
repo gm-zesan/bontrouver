@@ -21,7 +21,7 @@ class UpdateProvinceRequest extends FormRequest
 
         return [
             'name'       => ['required', 'string', 'max:255'],
-            'code'       => ['required', 'string', 'max:4', Rule::unique('provinces', 'code')->ignore($provinceId)],
+            'code'       => ['required', 'string', 'max:10', Rule::unique('provinces', 'code')->ignore($provinceId)],
             'sort_order' => ['nullable', 'integer'],
             'is_active'  => ['nullable', 'boolean'],
         ];

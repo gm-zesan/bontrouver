@@ -104,6 +104,13 @@ class ProvinceSeeder extends Seeder
                 'country_code' => 'CA',
                 'sort_order' => 13,
             ],
+            [
+                'name' => 'Outside Canada',
+                'code' => 'OTHER',
+                'slug' => 'outside-canada',
+                'country_code' => 'OTHER',
+                'sort_order' => 99,
+            ],
         ];
 
         foreach ($provinces as $province) {
