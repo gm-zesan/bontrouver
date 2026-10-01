@@ -15,7 +15,8 @@ class ListingController extends Controller
 {
     public function __construct(
         protected AdminListingService $listingService
-    ) {}
+    ) {
+    }
 
     /**
      * Display a listing of marketplace listings for administrators.
@@ -47,7 +48,7 @@ class ListingController extends Controller
                     $html .= '<img src="' . $imgUrl . '" class="rounded-2 me-2 object-fit-cover shadow-sm" style="width: 44px; height: 44px;" onerror="this.onerror=null; this.src=\'' . asset('images/no-image.svg') . '\'">';
                     $html .= '<div class="d-flex flex-column">';
                     $html .= '<a href="' . $showUrl . '" class="fw-semibold text-dark text-decoration-none" style="font-size: 13.5px;">' . $title . '</a>';
-                    $html .= '<span class="text-muted small">' . e($row->city ?? 'Canada') . ($row->province ? ', ' . e($row->province) : '') . '</span>';
+                    $html .= '<span class="text-muted small">' . e($row->city->name ?? 'Canada') . ($row->province ? ', ' . e($row->province->name) : '') . '</span>';
                     $html .= '</div></div>';
 
                     return $html;

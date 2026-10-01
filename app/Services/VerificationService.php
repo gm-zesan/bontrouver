@@ -184,7 +184,7 @@ class VerificationService
             'rejected' => UserVerification::where('status', 'rejected')->count(),
             'drivers_license' => UserVerification::where('document_type', 'drivers_license')->count(),
             'passport' => UserVerification::where('document_type', 'passport')->count(),
-            'provincial_id' => UserVerification::where('document_type', 'provincial_id')->orWhere('document_type', 'government_id')->count(),
+            'provincial_id' => UserVerification::whereIn('document_type', ['provincial_id', 'government_id'])->count(),
         ];
     }
 }
