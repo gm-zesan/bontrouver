@@ -1457,15 +1457,18 @@ body {
     box-shadow: 0 0 0 3px rgba(73, 209, 125, 0.25);
 }
 
-/* Card Header (Icon + Top/Bottom Right Arrow) */
+/* Card Header (Icon + Text Body Side-by-Side) */
 .category-card-header {
     display: flex;
     align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+    justify-content: flex-start;
+    gap: 0.875rem;
+    margin-bottom: 0;
+    width: 100%;
 }
 
 .category-icon-box {
+    flex-shrink: 0;
     width: 2.75rem;
     height: 2.75rem;
     border-radius: var(--radius-md);

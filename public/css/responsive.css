@@ -368,7 +368,8 @@ svg {
     }
 
     .category-card-header {
-        margin-bottom: 14px;
+        gap: 0.75rem;
+        margin-bottom: 0;
     }
 
     .category-icon-box {
@@ -703,7 +704,8 @@ svg {
     }
 
     .category-card-header {
-        margin-bottom: 14px;
+        gap: 0.75rem;
+        margin-bottom: 0;
     }
 
     .category-icon-box {
