@@ -76,7 +76,7 @@
                 <span class="link_names">Users</span>
             </a>
         </li>
-        <li>
+        <!-- <li>
             <a href="{{ route('admin.verifications.index') }}"
                 class="{{ request()->routeIs('admin.verifications.*') ? 'active-focus' : '' }}">
                 <i class="ri-shield-check-line"></i>
@@ -89,7 +89,7 @@
                 <i class="ri-flag-2-line"></i>
                 <span class="link_names">Moderation & Reports</span>
             </a>
-        </li>
+        </li> -->
         <li>
             <a href="{{ route('admin.support.index') }}"
                 class="{{ request()->routeIs('admin.support.*') ? 'active-focus' : '' }}">

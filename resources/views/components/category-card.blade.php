@@ -13,13 +13,9 @@
         <div class="category-icon-box">
             <i class="bi {{ $icon }}" aria-hidden="true"></i>
         </div>
-        <span class="category-card-arrow" aria-hidden="true">
-            <i class="bi bi-arrow-right"></i>
-        </span>
-    </div>
-    
-    <div class="category-card-body">
-        <h3 class="category-title">{{ $name }}</h3>
-        <p class="category-description">{{ $description }}</p>
+        <div class="category-card-body">
+            <h3 class="category-title">{{ $name }}</h3>
+            <p class="category-description">{{ $description }}</p>
+        </div>
     </div>
 </a>

@@ -253,13 +253,13 @@
                             <i class="ri-image-line me-2 fs-6"></i> Photo Gallery <span class="badge bg-secondary-subtle text-secondary ms-2 rounded-pill">{{ $listing->images->count() }}</span>
                         </button>
                     </li>
-                    <li class="nav-item p-1" role="presentation">
+                    <!-- <li class="nav-item p-1" role="presentation">
                         <button class="nav-link rounded-2 p-2 d-flex align-items-center" id="reports-tab" data-bs-toggle="pill" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
                             <i class="ri-flag-line me-2 fs-6"></i> Reports & Flags 
                             @php $repCount = $listing->reports_count ?? $listing->reports->count(); @endphp
                             <span class="badge {{ $repCount > 0 ? 'bg-danger text-white' : 'bg-secondary-subtle text-secondary' }} ms-2 rounded-pill">{{ $repCount }}</span>
                         </button>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
 

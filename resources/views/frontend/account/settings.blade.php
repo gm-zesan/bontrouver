@@ -1,6 +1,6 @@
 @extends('frontend.account.layout', [
-    'title' => 'Account Settings & Security | Bontrouver Canadian Classifieds', 
-    'metaDescription' => 'Manage your personal profile, avatar, location, security credentials, and communication preferences.', 
+    'title' => 'Account Settings & Security | Bontrouver Canadian Classifieds',
+    'metaDescription' => 'Manage your personal profile, avatar, location, security credentials, and communication preferences.',
     'activeNav' => 'settings'
 ])
 
@@ -58,13 +58,17 @@
                             </span>
                         </div>
                         <p class="text-secondary small mb-0 mt-1">
-                            You currently have <strong class="text-white">{{ $user->community_points ?? 0 }} Community Points</strong> earned through mutual aid and verified transactions.
-                            <a href="{{ route('pages.member-benefits') }}" class="text-success text-decoration-none ms-1 fw-medium"><i class="bi bi-gift me-1"></i>Tier Perks & Rewards &rarr;</a>
+                            You currently have <strong class="text-white">{{ $user->community_points ?? 0 }} Community
+                                Points</strong> earned through mutual aid and verified transactions.
+                            <a href="{{ route('pages.member-benefits') }}"
+                                class="text-success text-decoration-none ms-1 fw-medium"><i class="bi bi-gift me-1"></i>Tier
+                                Perks & Rewards &rarr;</a>
                         </p>
                     </div>
                 </div>
 
-                <a href="{{ route('profile.view') }}" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 text-nowrap">
+                <a href="{{ route('profile.view') }}"
+                    class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 text-nowrap">
                     <i class="bi bi-eye me-1"></i> View Public Profile
                 </a>
             </div>
@@ -76,8 +80,8 @@
                         <span class="text-white fw-bold">{{ $tier['points_needed'] }} points to level up</span>
                     </div>
                     <div class="progress" style="height: 8px; background: rgba(255,255,255,0.08); border-radius: 999px;">
-                        <div class="progress-bar bg-success rounded-pill" role="progressbar" 
-                            style="width: {{ $tier['progress_percentage'] }}%;" 
+                        <div class="progress-bar bg-success rounded-pill" role="progressbar"
+                            style="width: {{ $tier['progress_percentage'] }}%;"
                             aria-valuenow="{{ $tier['progress_percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
@@ -97,7 +101,8 @@
                 <div class="row g-4">
                     <!-- Avatar Upload & Live Preview -->
                     <div class="col-12 col-md-6">
-                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Avatar / Logo</label>
+                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Avatar /
+                            Logo</label>
                         <div class="d-flex align-items-center gap-3">
                             <div class="position-relative flex-shrink-0">
                                 @if($user->avatar)
@@ -105,7 +110,8 @@
                                         class="rounded-circle object-fit-cover shadow"
                                         style="width: 72px; height: 72px; border: 2px solid #49D17D;">
                                 @else
-                                    <div id="avatarPlaceholder" class="rounded-circle shadow d-flex align-items-center justify-content-center text-dark fw-bold fs-3"
+                                    <div id="avatarPlaceholder"
+                                        class="rounded-circle shadow d-flex align-items-center justify-content-center text-dark fw-bold fs-3"
                                         style="width: 72px; height: 72px; background: #49D17D;">
                                         {{ substr($user->name ?? 'U', 0, 1) }}
                                     </div>
@@ -115,8 +121,11 @@
                                 @endif
                             </div>
                             <div>
-                                <input type="file" id="avatarFileInput" name="avatar" class="d-none" accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewAvatarImage(this)">
-                                <button type="button" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2" onclick="document.getElementById('avatarFileInput').click()">
+                                <input type="file" id="avatarFileInput" name="avatar" class="d-none"
+                                    accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewAvatarImage(this)">
+                                <button type="button"
+                                    class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2"
+                                    onclick="document.getElementById('avatarFileInput').click()">
                                     <i class="bi bi-camera me-1"></i> Choose Photo
                                 </button>
                                 <span class="text-secondary small d-block mt-1">JPG, PNG (Max 5MB)</span>
@@ -126,7 +135,8 @@
 
                     <!-- Cover Image Upload & Preview -->
                     <div class="col-12 col-md-6">
-                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Cover Photo (Banner)</label>
+                        <label class="form-label text-secondary small fw-semibold d-block mb-2">Profile Cover Photo
+                            (Banner)</label>
                         <div class="d-flex align-items-center gap-3">
                             <div class="position-relative flex-shrink-0">
                                 @if(optional($user->profile)->cover_image_path)
@@ -141,8 +151,11 @@
                                 @endif
                             </div>
                             <div>
-                                <input type="file" id="coverFileInput" name="cover_image" class="d-none" accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewCoverImage(this)">
-                                <button type="button" class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2" onclick="document.getElementById('coverFileInput').click()">
+                                <input type="file" id="coverFileInput" name="cover_image" class="d-none"
+                                    accept="image/png,image/jpeg,image/webp,image/jpg" onchange="previewCoverImage(this)">
+                                <button type="button"
+                                    class="btn btn-sm btn-theme-outline-primary rounded-pill px-3 py-2 me-2"
+                                    onclick="document.getElementById('coverFileInput').click()">
                                     <i class="bi bi-images me-1"></i> Choose Cover
                                 </button>
                                 <span class="text-secondary small d-block mt-1">Wide JPG, PNG (Max 8MB)</span>
@@ -151,15 +164,16 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label text-secondary small fw-semibold">Display Name / Business <span class="text-danger">*</span></label>
+                        <label class="form-label text-secondary small fw-semibold">Display Name / Business <span
+                                class="text-danger">*</span></label>
                         <input type="text" name="name" class="form-control dark-filter-input"
                             value="{{ old('name', $user->name) }}" required>
                     </div>
 
                     <div class="col-12 col-md-6">
                         <label class="form-label text-secondary small fw-semibold">Email Address (Primary Login)</label>
-                        <input type="email" class="form-control dark-filter-input" value="{{ $user->email }}"
-                            readonly disabled style="opacity: 0.7;">
+                        <input type="email" class="form-control dark-filter-input" value="{{ $user->email }}" readonly
+                            disabled style="opacity: 0.7;">
                     </div>
 
                     <div class="col-12 col-md-6">
@@ -229,11 +243,13 @@
                     <div class="col-12">
                         <label class="form-label text-secondary small fw-semibold">Short Bio (Catchphrase)</label>
                         <input type="text" name="bio" class="form-control dark-filter-input"
-                            value="{{ old('bio', $user->bio) }}" placeholder="e.g. Authentic Moroccan Cuisine or Freelance Web Developer">
+                            value="{{ old('bio', $user->bio) }}"
+                            placeholder="e.g. Authentic Moroccan Cuisine or Freelance Web Developer">
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label text-secondary small fw-semibold">Detailed About Section (Nos spécialités / Who we are)</label>
+                        <label class="form-label text-secondary small fw-semibold">Detailed About Section (Nos spécialités /
+                            Who we are)</label>
                         <textarea name="about_text" rows="5" class="form-control dark-filter-input"
                             placeholder="Tell visitors about your offerings, background, and what makes you unique...">{{ old('about_text', $user->profile->about_text ?? '') }}</textarea>
                     </div>
@@ -241,34 +257,40 @@
                     <div class="col-12 col-md-6">
                         <label class="form-label text-secondary small fw-semibold">Website URL</label>
                         <input type="url" name="website_url" class="form-control dark-filter-input"
-                            value="{{ old('website_url', $user->profile->website_url ?? '') }}" placeholder="https://example.com">
+                            value="{{ old('website_url', $user->profile->website_url ?? '') }}"
+                            placeholder="https://example.com">
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="form-label text-secondary small fw-semibold">Facebook / Social Link</label>
                         <input type="url" name="social_links[facebook]" class="form-control dark-filter-input"
-                            value="{{ old('social_links.facebook', $user->profile->social_links['facebook'] ?? '') }}" placeholder="https://facebook.com/yourpage">
+                            value="{{ old('social_links.facebook', $user->profile->social_links['facebook'] ?? '') }}"
+                            placeholder="https://facebook.com/yourpage">
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="form-label text-secondary small fw-semibold">Instagram Profile</label>
                         <input type="url" name="social_links[instagram]" class="form-control dark-filter-input"
-                            value="{{ old('social_links.instagram', $user->profile->social_links['instagram'] ?? '') }}" placeholder="https://instagram.com/yourhandle">
+                            value="{{ old('social_links.instagram', $user->profile->social_links['instagram'] ?? '') }}"
+                            placeholder="https://instagram.com/yourhandle">
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="form-label text-secondary small fw-semibold">X (Twitter) Profile</label>
                         <input type="url" name="social_links[twitter]" class="form-control dark-filter-input"
-                            value="{{ old('social_links.twitter', $user->profile->social_links['twitter'] ?? '') }}" placeholder="https://x.com/yourhandle">
+                            value="{{ old('social_links.twitter', $user->profile->social_links['twitter'] ?? '') }}"
+                            placeholder="https://x.com/yourhandle">
                     </div>
 
                     <div class="col-12 mt-4">
-                        <h6 class="text-white fw-bold border-bottom border-secondary border-opacity-10 pb-2 mb-3">Operating Hours (Optional)</h6>
+                        <h6 class="text-white fw-bold border-bottom border-secondary border-opacity-10 pb-2 mb-3">Operating
+                            Hours (Optional)</h6>
                         <div class="row g-3">
                             @foreach(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
                                 @php $dayKey = strtolower($day); @endphp
                                 <div class="col-12 col-md-6 col-lg-4 d-flex align-items-center gap-2">
                                     <span class="text-secondary small fw-semibold" style="width: 85px;">{{ $day }}</span>
-                                    <input type="text" name="operating_hours[{{ $dayKey }}]" class="form-control form-control-sm dark-filter-input" 
-                                        placeholder="e.g. 9:00 - 17:00 or Closed" 
-                                        value="{{ old('operating_hours.'.$dayKey, $user->profile->operating_hours[$dayKey] ?? '') }}">
+                                    <input type="text" name="operating_hours[{{ $dayKey }}]"
+                                        class="form-control form-control-sm dark-filter-input"
+                                        placeholder="e.g. 9:00 - 17:00 or Closed"
+                                        value="{{ old('operating_hours.' . $dayKey, $user->profile->operating_hours[$dayKey] ?? '') }}">
                                 </div>
                             @endforeach
                         </div>
@@ -290,17 +312,20 @@
                 <i class="bi bi-images text-warning fs-5"></i>
                 <h2 class="h5 fw-bold text-white mb-0">Ambiance & Photo Gallery</h2>
             </div>
-            
-            <p class="text-secondary small mb-3">Upload multiple photos to showcase your workspace, previous work, or store ambiance. These will appear in a beautiful carousel on your public profile.</p>
+
+            <p class="text-secondary small mb-3">Upload multiple photos to showcase your workspace, previous work, or store
+                ambiance. These will appear in a beautiful carousel on your public profile.</p>
 
             <form method="POST" action="{{ route('settings.update') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-4">
                     <label class="form-label text-secondary small fw-semibold">Add New Photos to Gallery (Max 10)</label>
-                    <input type="file" name="gallery_images[]" class="form-control dark-filter-input" accept="image/png,image/jpeg,image/webp,image/jpg" multiple>
-                    <span class="text-secondary small d-block mt-1">Select multiple files (JPG, PNG, WEBP). Each file max 8MB.</span>
+                    <input type="file" name="gallery_images[]" class="form-control dark-filter-input"
+                        accept="image/png,image/jpeg,image/webp,image/jpg" multiple>
+                    <span class="text-secondary small d-block mt-1">Select multiple files (JPG, PNG, WEBP). Each file max
+                        8MB.</span>
                 </div>
-                
+
                 <div class="text-end">
                     <button type="submit" class="btn btn-sm btn-theme-outline-primary px-4 py-2 rounded-pill fw-semibold">
                         <i class="bi bi-upload me-1"></i> Upload Gallery Photos
@@ -309,236 +334,237 @@
             </form>
 
             @if(optional($user->gallery)->count() > 0)
-            <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
-                <h6 class="text-white fw-bold mb-3 small">Current Gallery Photos ({{ $user->gallery->count() }})</h6>
-                <div class="row g-3">
-                    @foreach($user->gallery as $img)
-                        <div class="col-4 col-md-3 col-lg-2 position-relative group-gallery-item">
-                            <img src="{{ $img->image_path }}" class="img-fluid rounded-3 object-fit-cover w-100 shadow-sm" style="height: 100px; border: 1px solid rgba(255,255,255,0.1);">
-                            <form method="POST" action="{{ route('settings.gallery.destroy', $img->id) }}" class="position-absolute top-0 end-0 m-1" onsubmit="return confirm('Are you sure you want to remove this photo from your gallery?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm p-0 rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 24px; height: 24px; font-size: 11px;" title="Remove Photo">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </form>
-                        </div>
-                    @endforeach
+                <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
+                    <h6 class="text-white fw-bold mb-3 small">Current Gallery Photos ({{ $user->gallery->count() }})</h6>
+                    <div class="row g-3">
+                        @foreach($user->gallery as $img)
+                            <div class="col-4 col-md-3 col-lg-2 position-relative group-gallery-item">
+                                <img src="{{ $img->image_path }}" class="img-fluid rounded-3 object-fit-cover w-100 shadow-sm"
+                                    style="height: 100px; border: 1px solid rgba(255,255,255,0.1);">
+                                <form method="POST" action="{{ route('settings.gallery.destroy', $img->id) }}"
+                                    class="position-absolute top-0 end-0 m-1"
+                                    onsubmit="return confirm('Are you sure you want to remove this photo from your gallery?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="btn btn-danger btn-sm p-0 rounded-circle d-flex align-items-center justify-content-center shadow"
+                                        style="width: 24px; height: 24px; font-size: 11px;" title="Remove Photo">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
             @endif
         </div>
 
         <!-- 4. Canadian Identity Document Verification (Always Visible & Updatable) -->
-        @php
-            $latestVerif = $user->latestVerification;
-        @endphp
-        <div class="dark-surface-card p-4 rounded-4"
-            style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);" id="verification-section">
-            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-secondary border-opacity-10 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-shield-check text-success fs-5"></i>
-                    <h2 class="h5 fw-bold text-white mb-0">Identity & Document Verification</h2>
-                    <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill small">Optional</span>
-                </div>
-
-            </div>
-
-            @if(!$user->is_verified && $latestVerif && $latestVerif->isPending())
-                <div class="p-4 rounded-4 mb-4"
-                    style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3);">
-                    <div class="d-flex align-items-start gap-3">
-                        <i class="bi bi-clock-history text-warning fs-2 mt-1"></i>
-                        <div class="flex-grow-1">
-                            <h5 class="text-white fw-bold mb-1">Verification In Progress</h5>
-                            <p class="text-secondary small mb-3">
-                                Your document submission is under review by our Canadian trust & safety staff. Review takes approximately 12–24 hours. Your account remains fully active during this time.
-                            </p>
-                            <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(8, 29, 51, 0.8); border: 1px solid rgba(255,255,255,0.06);">
-                                <div class="small text-secondary">
-                                    <span class="text-white fw-semibold"><i class="bi bi-file-earmark-arrow-up text-warning me-1"></i> {{ ucwords(str_replace('_', ' ', $latestVerif->document_type)) }}</span>
-                                    <span class="ms-2">• Submitted {{ $latestVerif->created_at->format('M d, Y - h:i A') }}</span>
-                                </div>
-                                @if($latestVerif->document_path)
-                                    <a href="{{ $latestVerif->document_path }}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 text-decoration-none">
-                                        <i class="bi bi-eye me-1"></i> View Uploaded Document
-                                    </a>
-                                @endif
+        <!-- @php
+                        $latestVerif = $user->latestVerification;
+                    @endphp
+                    <div class="dark-surface-card p-4 rounded-4"
+                        style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);" id="verification-section">
+                        <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-secondary border-opacity-10 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-shield-check text-success fs-5"></i>
+                                <h2 class="h5 fw-bold text-white mb-0">Identity & Document Verification</h2>
+                                <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25 px-2 py-0.5 rounded-pill small">Optional</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            @elseif(!$user->is_verified && $latestVerif && $latestVerif->isRejected())
-                <div class="p-4 rounded-4 mb-4"
-                    style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
-                        <h6 class="text-danger fw-bold mb-0">Document Verification Not Approved</h6>
-                    </div>
-                    <p class="text-secondary small mb-0">
-                        <strong>Feedback:</strong> {{ $latestVerif->rejection_reason ?: 'The document was illegible, expired, or did not match your profile name.' }} You can re-upload a valid document below anytime.
-                    </p>
-                </div>
-            @endif
 
-            <!-- Document Upload Form (Always Available for Anytime Updates) -->
-            <div>
-                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                    <h6 class="text-white fw-bold mb-0 small">
-                        <i class="bi bi-upload text-success me-1"></i>
-                        {{ $user->is_verified ? 'Update / Replace Verification Document' : 'Upload Canadian ID Document' }}
-                    </h6>
-                    <span class="text-secondary small" style="font-size: 0.78rem;">
-                        {{ $user->is_verified ? 'Optional • Submit anytime to update your records' : 'Optional • Account is active even without ID verification' }}
-                    </span>
-                </div>
-
-                <p class="text-secondary small mb-3" style="font-size: 0.84rem; line-height: 1.5;">
-                    @if($user->is_verified)
-                        You can update your identity document scan or registration details anytime below if your credentials have renewed.
-                    @else
-                        Document verification is <strong class="text-white">100% optional</strong>. Your account is tagged <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-2 py-0.5">Unverified</span> by default, but you have full access to buy, sell, and post listings. Verifying your identity grants a verified badge and <strong class="text-white">+50 Community Points</strong>.
-                    @endif
-                </p>
-
-                <form method="POST" action="{{ route('verification.document.store') }}" enctype="multipart/form-data" onsubmit="handleDocSubmit()">
-                    @csrf
-                    <div class="row g-3">
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-secondary small fw-semibold">Document Type (Optional)</label>
-                            <select name="document_type" class="form-select dark-filter-input">
-                                <option value="drivers_license" {{ (old('document_type', $latestVerif?->document_type) === 'drivers_license') ? 'selected' : '' }}>Canadian Driver's License (Provincial)</option>
-                                <option value="government_id" {{ (old('document_type', $latestVerif?->document_type) === 'government_id') ? 'selected' : '' }}>Provincial Photo ID Card (e.g. Ontario Photo Card / RAMQ / BC Services)</option>
-                                <option value="passport" {{ (old('document_type', $latestVerif?->document_type) === 'passport') ? 'selected' : '' }}>Canadian Passport</option>
-                                <option value="dealer_license" {{ (old('document_type', $latestVerif?->document_type) === 'dealer_license') ? 'selected' : '' }}>OMVIC / Registered Dealer License</option>
-                            </select>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <label class="form-label text-secondary small fw-semibold">ID Number / Reference (Optional)</label>
-                            <input type="text" name="id_number" class="form-control dark-filter-input" placeholder="e.g. DL-12345-67890" value="{{ old('id_number') }}">
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label text-secondary small fw-semibold">Upload Document Photo or PDF Scan (Optional)</label>
-                            
-                            <!-- Interactive File Dropzone Area -->
-                            <div id="settingsDocDropzone" class="p-4 rounded-4 text-center position-relative transition-all"
-                                style="background: #081D33; border: 2px dashed rgba(255,255,255,0.18); cursor: pointer;"
-                                onclick="document.getElementById('settingsIdDocFile').click()">
-                                
-                                <input type="file" id="settingsIdDocFile" name="document" class="d-none"
-                                    accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
-                                    onchange="handleSettingsDocSelected(this)">
-
-                                <!-- Default Empty State UI -->
-                                <div id="settingsDocPromptState">
-                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
-                                        style="width: 52px; height: 52px; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25);">
-                                        <i class="bi bi-cloud-arrow-up-fill text-success fs-3"></i>
-                                    </div>
-                                    <h6 class="text-white fw-bold mb-1">Click to select or drag & drop document scan</h6>
-                                    <p class="text-secondary small mb-3">Accepted: JPG, PNG, WEBP, or PDF (Max 10MB). Encrypted & safely stored.</p>
-                                    <span class="btn btn-sm btn-theme-outline-primary rounded-pill px-4 py-2"
-                                        style="cursor: pointer;">
-                                        <i class="bi bi-folder2-open me-1"></i> Choose Document File
-                                    </span>
-                                </div>
-
-                                <!-- Selected File Preview UI -->
-                                <div id="settingsDocPreviewState" class="d-none text-start p-3 rounded-3"
-                                    style="background: rgba(13, 36, 60, 0.9); border: 1px solid rgba(73, 209, 125, 0.4);"
-                                    onclick="event.stopPropagation();">
-                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <div id="settingsDocPreviewIcon" class="d-flex align-items-center justify-content-center rounded-3 text-success fs-2"
-                                                style="width: 48px; height: 48px; background: rgba(73, 209, 125, 0.15);">
-                                                <i class="bi bi-file-earmark-check-fill"></i>
+                        @if(!$user->is_verified && $latestVerif && $latestVerif->isPending())
+                            <div class="p-4 rounded-4 mb-4"
+                                style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3);">
+                                <div class="d-flex align-items-start gap-3">
+                                    <i class="bi bi-clock-history text-warning fs-2 mt-1"></i>
+                                    <div class="flex-grow-1">
+                                        <h5 class="text-white fw-bold mb-1">Verification In Progress</h5>
+                                        <p class="text-secondary small mb-3">
+                                            Your document submission is under review by our Canadian trust & safety staff. Review takes approximately 12–24 hours. Your account remains fully active during this time.
+                                        </p>
+                                        <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(8, 29, 51, 0.8); border: 1px solid rgba(255,255,255,0.06);">
+                                            <div class="small text-secondary">
+                                                <span class="text-white fw-semibold"><i class="bi bi-file-earmark-arrow-up text-warning me-1"></i> {{ ucwords(str_replace('_', ' ', $latestVerif->document_type)) }}</span>
+                                                <span class="ms-2">• Submitted {{ $latestVerif->created_at->format('M d, Y - h:i A') }}</span>
                                             </div>
-                                            <img id="settingsDocImgPreview" src="" alt="Scan Preview" class="rounded-3 d-none object-fit-cover shadow-sm"
-                                                style="width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.2);">
-                                            <div>
-                                                <div id="settingsDocFileName" class="text-white fw-semibold small text-truncate" style="max-width: 280px;">document.pdf</div>
-                                                <div id="settingsDocFileSize" class="text-secondary small" style="font-size: 0.76rem;">1.24 MB • Ready to submit</div>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <label for="settingsIdDocFile" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="cursor: pointer;">
-                                                <i class="bi bi-arrow-repeat me-1"></i> Change File
-                                            </label>
-                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1 d-flex align-items-center justify-content-center"
-                                                style="width: 32px; height: 32px;" title="Remove file" onclick="clearSettingsDocSelection()">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="col-12 text-end pt-2">
-                            <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-pill fw-semibold" id="btnSubmitDoc">
-                                <span class="btn-text"><i class="bi bi-upload me-1"></i> {{ $user->is_verified ? 'Upload Updated Document' : 'Submit ID Document' }}</span>
-                                <span class="btn-spinner" style="display: none;"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Past Submissions History Table in Settings -->
-            @if(isset($verifications) && $verifications->count() > 0)
-                <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
-                    <h6 class="text-white fw-bold mb-3 small"><i class="bi bi-clock-history me-1"></i> Verification History</h6>
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
-                            <thead>
-                                <tr class="text-secondary small border-secondary border-opacity-25" style="font-size: 0.78rem;">
-                                    <th>Document Type</th>
-                                    <th>Date Submitted</th>
-                                    <th>Status</th>
-                                    <th>Review Notes</th>
-                                    <th>Scan File</th>
-                                </tr>
-                            </thead>
-                            <tbody class="small" style="font-size: 0.8rem;">
-                                @foreach($verifications as $v)
-                                    <tr class="border-secondary border-opacity-10">
-                                        <td class="text-white fw-semibold">
-                                            <i class="bi bi-file-earmark-text text-secondary me-1"></i>
-                                            {{ ucwords(str_replace('_', ' ', $v->document_type)) }}
-                                        </td>
-                                        <td class="text-secondary">{{ $v->created_at->format('M d, Y') }}</td>
-                                        <td>
-                                            @if($v->isApproved())
-                                                <span class="badge bg-success-subtle text-success">Approved</span>
-                                            @elseif($v->isPending())
-                                                <span class="badge bg-warning-subtle text-warning">In Review</span>
-                                            @else
-                                                <span class="badge bg-danger-subtle text-danger">Rejected</span>
-                                            @endif
-                                        </td>
-                                        <td class="text-secondary">
-                                            {{ $v->rejection_reason ?: ($v->isApproved() ? 'Approved by verification team' : 'Pending review') }}
-                                        </td>
-                                        <td>
-                                            @if($v->document_path)
-                                                <a href="{{ $v->document_path }}" target="_blank" class="text-success small fw-semibold text-decoration-none">
-                                                    <i class="bi bi-box-arrow-up-right me-1"></i> View
+                                            @if($latestVerif->document_path)
+                                                <a href="{{ $latestVerif->document_path }}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 text-decoration-none">
+                                                    <i class="bi bi-eye me-1"></i> View Uploaded Document
                                                 </a>
-                                            @else
-                                                <span class="text-secondary">—</span>
                                             @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endif
-        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif(!$user->is_verified && $latestVerif && $latestVerif->isRejected())
+                            <div class="p-4 rounded-4 mb-4"
+                                style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                                    <h6 class="text-danger fw-bold mb-0">Document Verification Not Approved</h6>
+                                </div>
+                                <p class="text-secondary small mb-0">
+                                    <strong>Feedback:</strong> {{ $latestVerif->rejection_reason ?: 'The document was illegible, expired, or did not match your profile name.' }} You can re-upload a valid document below anytime.
+                                </p>
+                            </div>
+                        @endif
+
+                        <div>
+                            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                                <h6 class="text-white fw-bold mb-0 small">
+                                    <i class="bi bi-upload text-success me-1"></i>
+                                    {{ $user->is_verified ? 'Update / Replace Verification Document' : 'Upload Canadian ID Document' }}
+                                </h6>
+                                <span class="text-secondary small" style="font-size: 0.78rem;">
+                                    {{ $user->is_verified ? 'Optional • Submit anytime to update your records' : 'Optional • Account is active even without ID verification' }}
+                                </span>
+                            </div>
+
+                            <p class="text-secondary small mb-3" style="font-size: 0.84rem; line-height: 1.5;">
+                                @if($user->is_verified)
+                                    You can update your identity document scan or registration details anytime below if your credentials have renewed.
+                                @else
+                                    Document verification is <strong class="text-white">100% optional</strong>. Your account is tagged <span class="badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 px-2 py-0.5">Unverified</span> by default, but you have full access to buy, sell, and post listings. Verifying your identity grants a verified badge and <strong class="text-white">+50 Community Points</strong>.
+                                @endif
+                            </p>
+
+                            <form method="POST" action="{{ route('verification.document.store') }}" enctype="multipart/form-data" onsubmit="handleDocSubmit()">
+                                @csrf
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label text-secondary small fw-semibold">Document Type (Optional)</label>
+                                        <select name="document_type" class="form-select dark-filter-input">
+                                            <option value="drivers_license" {{ (old('document_type', $latestVerif?->document_type) === 'drivers_license') ? 'selected' : '' }}>Canadian Driver's License (Provincial)</option>
+                                            <option value="government_id" {{ (old('document_type', $latestVerif?->document_type) === 'government_id') ? 'selected' : '' }}>Provincial Photo ID Card (e.g. Ontario Photo Card / RAMQ / BC Services)</option>
+                                            <option value="passport" {{ (old('document_type', $latestVerif?->document_type) === 'passport') ? 'selected' : '' }}>Canadian Passport</option>
+                                            <option value="dealer_license" {{ (old('document_type', $latestVerif?->document_type) === 'dealer_license') ? 'selected' : '' }}>OMVIC / Registered Dealer License</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label class="form-label text-secondary small fw-semibold">ID Number / Reference (Optional)</label>
+                                        <input type="text" name="id_number" class="form-control dark-filter-input" placeholder="e.g. DL-12345-67890" value="{{ old('id_number') }}">
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label text-secondary small fw-semibold">Upload Document Photo or PDF Scan (Optional)</label>
+
+
+                                        <div id="settingsDocDropzone" class="p-4 rounded-4 text-center position-relative transition-all"
+                                            style="background: #081D33; border: 2px dashed rgba(255,255,255,0.18); cursor: pointer;"
+                                            onclick="document.getElementById('settingsIdDocFile').click()">
+
+                                            <input type="file" id="settingsIdDocFile" name="document" class="d-none"
+                                                accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+                                                onchange="handleSettingsDocSelected(this)">
+
+                                            <div id="settingsDocPromptState">
+                                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+                                                    style="width: 52px; height: 52px; background: rgba(73, 209, 125, 0.1); border: 1px solid rgba(73, 209, 125, 0.25);">
+                                                    <i class="bi bi-cloud-arrow-up-fill text-success fs-3"></i>
+                                                </div>
+                                                <h6 class="text-white fw-bold mb-1">Click to select or drag & drop document scan</h6>
+                                                <p class="text-secondary small mb-3">Accepted: JPG, PNG, WEBP, or PDF (Max 10MB). Encrypted & safely stored.</p>
+                                                <span class="btn btn-sm btn-theme-outline-primary rounded-pill px-4 py-2"
+                                                    style="cursor: pointer;">
+                                                    <i class="bi bi-folder2-open me-1"></i> Choose Document File
+                                                </span>
+                                            </div>
+
+                                            <div id="settingsDocPreviewState" class="d-none text-start p-3 rounded-3"
+                                                style="background: rgba(13, 36, 60, 0.9); border: 1px solid rgba(73, 209, 125, 0.4);"
+                                                onclick="event.stopPropagation();">
+                                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <div id="settingsDocPreviewIcon" class="d-flex align-items-center justify-content-center rounded-3 text-success fs-2"
+                                                            style="width: 48px; height: 48px; background: rgba(73, 209, 125, 0.15);">
+                                                            <i class="bi bi-file-earmark-check-fill"></i>
+                                                        </div>
+                                                        <img id="settingsDocImgPreview" src="" alt="Scan Preview" class="rounded-3 d-none object-fit-cover shadow-sm"
+                                                            style="width: 48px; height: 48px; border: 1px solid rgba(255,255,255,0.2);">
+                                                        <div>
+                                                            <div id="settingsDocFileName" class="text-white fw-semibold small text-truncate" style="max-width: 280px;">document.pdf</div>
+                                                            <div id="settingsDocFileSize" class="text-secondary small" style="font-size: 0.76rem;">1.24 MB • Ready to submit</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <label for="settingsIdDocFile" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="cursor: pointer;">
+                                                            <i class="bi bi-arrow-repeat me-1"></i> Change File
+                                                        </label>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1 d-flex align-items-center justify-content-center"
+                                                            style="width: 32px; height: 32px;" title="Remove file" onclick="clearSettingsDocSelection()">
+                                                            <i class="bi bi-x-lg"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-end pt-2">
+                                        <button type="submit" class="btn btn-theme-primary px-4 py-2 rounded-pill fw-semibold" id="btnSubmitDoc">
+                                            <span class="btn-text"><i class="bi bi-upload me-1"></i> {{ $user->is_verified ? 'Upload Updated Document' : 'Submit ID Document' }}</span>
+                                            <span class="btn-spinner" style="display: none;"><span class="spinner-border spinner-border-sm me-1"></span> Uploading...</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        @if(isset($verifications) && $verifications->count() > 0)
+                            <div class="mt-4 pt-3 border-top border-secondary border-opacity-10">
+                                <h6 class="text-white fw-bold mb-3 small"><i class="bi bi-clock-history me-1"></i> Verification History</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                                        <thead>
+                                            <tr class="text-secondary small border-secondary border-opacity-25" style="font-size: 0.78rem;">
+                                                <th>Document Type</th>
+                                                <th>Date Submitted</th>
+                                                <th>Status</th>
+                                                <th>Review Notes</th>
+                                                <th>Scan File</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="small" style="font-size: 0.8rem;">
+                                            @foreach($verifications as $v)
+                                                <tr class="border-secondary border-opacity-10">
+                                                    <td class="text-white fw-semibold">
+                                                        <i class="bi bi-file-earmark-text text-secondary me-1"></i>
+                                                        {{ ucwords(str_replace('_', ' ', $v->document_type)) }}
+                                                    </td>
+                                                    <td class="text-secondary">{{ $v->created_at->format('M d, Y') }}</td>
+                                                    <td>
+                                                        @if($v->isApproved())
+                                                            <span class="badge bg-success-subtle text-success">Approved</span>
+                                                        @elseif($v->isPending())
+                                                            <span class="badge bg-warning-subtle text-warning">In Review</span>
+                                                        @else
+                                                            <span class="badge bg-danger-subtle text-danger">Rejected</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-secondary">
+                                                        {{ $v->rejection_reason ?: ($v->isApproved() ? 'Approved by verification team' : 'Pending review') }}
+                                                    </td>
+                                                    <td>
+                                                        @if($v->document_path)
+                                                            <a href="{{ $v->document_path }}" target="_blank" class="text-success small fw-semibold text-decoration-none">
+                                                                <i class="bi bi-box-arrow-up-right me-1"></i> View
+                                                            </a>
+                                                        @else
+                                                            <span class="text-secondary">—</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+                    </div> -->
 
         <!-- 4. Password & Login Security -->
         <div class="dark-surface-card p-4 rounded-4"
@@ -560,8 +586,8 @@
 
                     <div class="col-12 col-md-4">
                         <label class="form-label text-secondary small fw-semibold">New Password</label>
-                        <input type="password" name="password" class="form-control dark-filter-input"
-                            placeholder="••••••••" required>
+                        <input type="password" name="password" class="form-control dark-filter-input" placeholder="••••••••"
+                            required>
                     </div>
 
                     <div class="col-12 col-md-4">
@@ -580,93 +606,102 @@
         </div>
 
         <!-- 4. Notifications & Communication Preferences -->
-        @php
-            $msgNotif = $user->wantsNotification('messages');
-            $alertNotif = $user->wantsNotification('alerts');
-            $meetupNotif = $user->wantsNotification('meetups');
-        @endphp
-        <div class="dark-surface-card p-4 rounded-4"
-            style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);" id="notification-settings-section">
-            <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-secondary border-opacity-10 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-bell-fill text-warning fs-5"></i>
-                    <h2 class="h5 fw-bold text-white mb-0">Notification Preferences</h2>
-                </div>
-                <div id="notifStatusBadge" class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 small d-none">
-                    <i class="bi bi-check2 me-1"></i> Saved
-                </div>
-            </div>
-
-            <form method="POST" action="{{ route('settings.notifications.update') }}" id="notificationsForm">
-                @csrf
-                <div class="d-flex flex-column gap-3">
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
-                        style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
-                        <div>
-                            <h6 class="text-white fw-bold mb-1 small">Buyer Inquiries & Direct Messages</h6>
-                            <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Receive real-time push and email alerts when a user messages you regarding a classified listing or community meetup.</p>
-                        </div>
-                        <div class="form-check form-switch ms-3">
-                            <input class="form-check-input notif-toggle" type="checkbox" name="messages" role="switch" value="1"
-                                id="notifMessages" {{ $msgNotif ? 'checked' : '' }}
-                                onchange="toggleNotificationPreference('messages', this.checked)"
-                                style="width: 2.2em; height: 1.2em; cursor: pointer;">
-                        </div>
+        <!-- @php
+                $msgNotif = $user->wantsNotification('messages');
+                $alertNotif = $user->wantsNotification('alerts');
+                $meetupNotif = $user->wantsNotification('meetups');
+            @endphp
+            <div class="dark-surface-card p-4 rounded-4"
+                style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08);" id="notification-settings-section">
+                <div
+                    class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-secondary border-opacity-10 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bell-fill text-warning fs-5"></i>
+                        <h2 class="h5 fw-bold text-white mb-0">Notification Preferences</h2>
                     </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
-                        style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
-                        <div>
-                            <h6 class="text-white fw-bold mb-1 small">Smart Alert Instant Triggers</h6>
-                            <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Get immediate alerts when newly published items match your custom Canadian search triggers.</p>
-                        </div>
-                        <div class="form-check form-switch ms-3">
-                            <input class="form-check-input notif-toggle" type="checkbox" name="alerts" role="switch" value="1"
-                                id="notifAlerts" {{ $alertNotif ? 'checked' : '' }}
-                                onchange="toggleNotificationPreference('alerts', this.checked)"
-                                style="width: 2.2em; height: 1.2em; cursor: pointer;">
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
-                        style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
-                        <div>
-                            <h6 class="text-white fw-bold mb-1 small">Community Meetup Activity</h6>
-                            <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Notifications when someone requests to join your meetups or when a host approves your RSVP.</p>
-                        </div>
-                        <div class="form-check form-switch ms-3">
-                            <input class="form-check-input notif-toggle" type="checkbox" name="meetups" role="switch" value="1"
-                                id="notifMeetups" {{ $meetupNotif ? 'checked' : '' }}
-                                onchange="toggleNotificationPreference('meetups', this.checked)"
-                                style="width: 2.2em; height: 1.2em; cursor: pointer;">
-                        </div>
+                    <div id="notifStatusBadge"
+                        class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 small d-none">
+                        <i class="bi bi-check2 me-1"></i> Saved
                     </div>
                 </div>
-            </form>
-        </div>
+
+                <form method="POST" action="{{ route('settings.notifications.update') }}" id="notificationsForm">
+                    @csrf
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
+                            style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <h6 class="text-white fw-bold mb-1 small">Buyer Inquiries & Direct Messages</h6>
+                                <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Receive real-time push and
+                                    email alerts when a user messages you regarding a classified listing or community meetup.
+                                </p>
+                            </div>
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input notif-toggle" type="checkbox" name="messages" role="switch"
+                                    value="1" id="notifMessages" {{ $msgNotif ? 'checked' : '' }}
+                                    onchange="toggleNotificationPreference('messages', this.checked)"
+                                    style="width: 2.2em; height: 1.2em; cursor: pointer;">
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
+                            style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <h6 class="text-white fw-bold mb-1 small">Smart Alert Instant Triggers</h6>
+                                <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Get immediate alerts when newly
+                                    published items match your custom Canadian search triggers.</p>
+                            </div>
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input notif-toggle" type="checkbox" name="alerts" role="switch"
+                                    value="1" id="notifAlerts" {{ $alertNotif ? 'checked' : '' }}
+                                    onchange="toggleNotificationPreference('alerts', this.checked)"
+                                    style="width: 2.2em; height: 1.2em; cursor: pointer;">
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between p-3 rounded-3"
+                            style="background: #081D33; border: 1px solid rgba(255,255,255,0.05);">
+                            <div>
+                                <h6 class="text-white fw-bold mb-1 small">Community Meetup Activity</h6>
+                                <p class="text-secondary small mb-0" style="font-size: 0.78rem;">Notifications when someone
+                                    requests to join your meetups or when a host approves your RSVP.</p>
+                            </div>
+                            <div class="form-check form-switch ms-3">
+                                <input class="form-check-input notif-toggle" type="checkbox" name="meetups" role="switch"
+                                    value="1" id="notifMeetups" {{ $meetupNotif ? 'checked' : '' }}
+                                    onchange="toggleNotificationPreference('meetups', this.checked)"
+                                    style="width: 2.2em; height: 1.2em; cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div> -->
 
         <!-- 5. Danger Zone: Delete Account -->
-        <div class="dark-surface-card p-4 rounded-4"
-            style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.2);">
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
-                <h2 class="h5 fw-bold text-danger mb-0">Delete Account</h2>
-            </div>
-            <p class="text-secondary small mb-3" style="font-size: 0.84rem; line-height: 1.5;">
-                Once your account is deleted, all active listings, saved favorites, chat messages, reputation reviews, and community points will be permanently deleted.
-            </p>
+        <!-- <div class="dark-surface-card p-4 rounded-4"
+                    style="background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.2);">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-exclamation-triangle-fill text-danger fs-5"></i>
+                        <h2 class="h5 fw-bold text-danger mb-0">Delete Account</h2>
+                    </div>
+                    <p class="text-secondary small mb-3" style="font-size: 0.84rem; line-height: 1.5;">
+                        Once your account is deleted, all active listings, saved favorites, chat messages, reputation reviews, and
+                        community points will be permanently deleted.
+                    </p>
 
-            <button type="button" class="btn btn-sm btn-outline-danger px-4 py-2 rounded-pill fw-semibold"
-                data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                <i class="bi bi-trash me-1"></i> Delete My Account
-            </button>
-        </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger px-4 py-2 rounded-pill fw-semibold"
+                        data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="bi bi-trash me-1"></i> Delete My Account
+                    </button>
+                </div> -->
     </div>
 
     <!-- Delete Account Confirmation Modal -->
-    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
-            <div class="modal-content" style="background: #0D243C; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px;">
+            <div class="modal-content"
+                style="background: #0D243C; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 16px;">
                 <form method="post" action="{{ route('profile.destroy') }}">
                     @csrf
                     @method('delete')
@@ -676,23 +711,28 @@
                             style="width: 56px; height: 56px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);">
                             <i class="bi bi-trash-fill text-danger fs-3"></i>
                         </div>
-                        <h5 class="modal-title text-white fw-bold" id="deleteAccountModalLabel">Permanently Delete Account?</h5>
+                        <h5 class="modal-title text-white fw-bold" id="deleteAccountModalLabel">Permanently Delete Account?
+                        </h5>
                     </div>
 
                     <div class="modal-body px-4 py-3 text-center">
                         <p class="text-secondary small mb-3">
-                            Please enter your password to confirm you wish to permanently erase your Bontrouver account and data.
+                            Please enter your password to confirm you wish to permanently erase your Bontrouver account and
+                            data.
                         </p>
 
                         <div class="text-start mb-3">
                             <label class="form-label text-secondary small fw-semibold">Confirm Password</label>
-                            <input type="password" name="password" class="form-control dark-filter-input" placeholder="••••••••" required>
+                            <input type="password" name="password" class="form-control dark-filter-input"
+                                placeholder="••••••••" required>
                         </div>
                     </div>
 
                     <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary text-white rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-4 fw-semibold">Delete Permanently</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary text-white rounded-pill px-3"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-4 fw-semibold">Delete
+                            Permanently</button>
                     </div>
                 </form>
             </div>
@@ -703,7 +743,7 @@
         function previewAvatarImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const preview = document.getElementById('avatarPreview');
                     const placeholder = document.getElementById('avatarPlaceholder');
                     preview.src = e.target.result;
@@ -719,7 +759,7 @@
         function previewCoverImage(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     const preview = document.getElementById('coverPreview');
                     const placeholder = document.getElementById('coverPlaceholder');
                     preview.src = e.target.result;
@@ -752,7 +792,7 @@
                 // Handle preview based on file type
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         if (imgPreview) {
                             imgPreview.src = e.target.result;
                             imgPreview.classList.remove('d-none');
@@ -836,19 +876,19 @@
                 },
                 body: JSON.stringify({ key: key, enabled: enabled ? 1 : 0 })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success && statusBadge) {
-                    statusBadge.innerHTML = '<i class="bi bi-check2 me-1"></i> ' + (enabled ? 'Enabled' : 'Disabled');
-                    statusBadge.classList.remove('d-none');
-                    setTimeout(() => {
-                        statusBadge.classList.add('d-none');
-                    }, 2500);
-                }
-            })
-            .catch(err => {
-                console.error('Failed to toggle notification preference:', err);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && statusBadge) {
+                        statusBadge.innerHTML = '<i class="bi bi-check2 me-1"></i> ' + (enabled ? 'Enabled' : 'Disabled');
+                        statusBadge.classList.remove('d-none');
+                        setTimeout(() => {
+                            statusBadge.classList.add('d-none');
+                        }, 2500);
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to toggle notification preference:', err);
+                });
         }
         function handleDocSubmit() {
             const btn = document.getElementById('btnSubmitDoc');

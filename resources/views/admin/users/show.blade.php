@@ -186,25 +186,25 @@
                                 <i class="ri-star-line me-1 fs-6"></i> Reviews
                             </button>
                         </li>
-                        <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
+                        <!-- <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="verification-tab" data-bs-toggle="pill" data-bs-target="#verification" type="button" role="tab" aria-controls="verification" aria-selected="false">
                                 <i class="ri-shield-check-line me-1 fs-6"></i> Verification
                                 @if($user->verifications()->where('status', 'pending')->exists())
                                     <span class="badge bg-danger ms-1 rounded-pill" style="font-size: 10px;">New</span>
                                 @endif
                             </button>
-                        </li>
+                        </li> -->
                         <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="conversations-tab" data-bs-toggle="pill" data-bs-target="#conversations" type="button" role="tab" aria-controls="conversations" aria-selected="false">
                                 <i class="ri-chat-3-line me-1 fs-6"></i> Conversations <span class="badge bg-secondary-subtle text-secondary ms-1 rounded-pill" style="font-size: 11px;">{{ $conversations->total() }}</span>
                             </button>
                         </li>
-                        <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
+                        <!-- <li class="nav-item col-lg-3 col-md-6 col-12 m-0 p-1" role="presentation">
                             <button class="nav-link w-100 rounded-2 px-2 py-2 d-flex align-items-center justify-content-center" id="reports-tab" data-bs-toggle="pill" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="false">
                                 <i class="ri-flag-line me-1 fs-6"></i> Reports
                                 <span class="badge {{ $userReportsCount > 0 ? 'bg-danger text-white' : 'bg-secondary-subtle text-secondary' }} ms-1 rounded-pill" style="font-size: 11px;">{{ $userReportsCount }}</span>
                             </button>
-                        </li>
+                        </li> -->
                     </ul>
                 </div>
             </div>

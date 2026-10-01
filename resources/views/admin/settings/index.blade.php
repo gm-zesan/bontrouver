@@ -54,7 +54,7 @@
                             <i class="ri-palette-line me-2 fs-6"></i> Branding Assets
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <!-- <li class="nav-item" role="presentation">
                         <button
                             class="nav-link {{ $activeTab === 'seo' ? 'active' : '' }} rounded-2 px-3 py-2 d-flex align-items-center"
                             id="seo-tab" data-bs-toggle="pill" data-bs-target="#seoPane" type="button" role="tab"
@@ -62,7 +62,7 @@
                             style="font-size: 13px;">
                             <i class="ri-search-eye-line me-2 fs-6"></i> Canadian SEO &amp; Social
                         </button>
-                    </li>
+                    </li> -->
                     <li class="nav-item" role="presentation">
                         <button
                             class="nav-link {{ $activeTab === 'marketplace' ? 'active' : '' }} rounded-2 px-3 py-2 d-flex align-items-center"
