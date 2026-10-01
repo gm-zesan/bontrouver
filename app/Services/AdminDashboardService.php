@@ -198,9 +198,10 @@ class AdminDashboardService
      */
     private function getTopCities(): array
     {
-        return Listing::select('city', DB::raw('count(*) as count'))
-            ->whereNotNull('city')
-            ->groupBy('city')
+        return Listing::join('cities', 'listings.city_id', '=', 'cities.id')
+            ->select('cities.name as city', DB::raw('count(listings.id) as count'))
+            ->whereNotNull('listings.city_id')
+            ->groupBy('cities.id', 'cities.name')
             ->orderByDesc('count')
             ->limit(6)
             ->get()

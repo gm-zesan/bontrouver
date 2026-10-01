@@ -278,23 +278,28 @@
                                                     @foreach($meetup->attendees as $attendee)
                                                         @php
                                                             $attendeeBadgeClass = $attendee->status == 'approved' ? 'meetup-status-open' : 'meetup-status-full';
+                                                            $attUser = $attendee->user;
+                                                            $attUserId = $attUser ? $attUser->id : $attendee->user_id;
+                                                            $attUserName = $attUser ? $attUser->name : 'Member';
+                                                            $attUserAvatar = $attUser ? $attUser->avatar : null;
+                                                            $attProfileUrl = $attUserId ? route('user.profile', ['user' => $attUserId]) : '#';
                                                         @endphp
                                                         <div class="attendee-item d-flex justify-content-between align-items-center gap-2">
-                                                            <a href="{{ route('profile.view', ['id' => $attendee->user->id]) }}" 
+                                                            <a href="{{ $attProfileUrl }}" 
                                                                 target="_blank"
                                                                 class="d-flex align-items-center gap-2 attendee-profile-link text-truncate me-auto" 
-                                                                title="View {{ $attendee->user->name }}'s profile">
-                                                                @if($attendee->user->avatar ?? false)
-                                                                    <img src="{{ $attendee->user->avatar }}" alt="{{ $attendee->user->name }}"
+                                                                title="View {{ $attUserName }}'s profile">
+                                                                @if($attUserAvatar)
+                                                                    <img src="{{ $attUserAvatar }}" alt="{{ $attUserName }}"
                                                                         class="rounded-circle object-fit-cover flex-shrink-0" style="width: 32px; height: 32px;">
                                                                 @else
                                                                     <div class="avatar avatar-sm meetup-avatar-circle rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
                                                                         style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                                                        {{ strtoupper(substr($attendee->user->name, 0, 1)) }}
+                                                                        {{ strtoupper(substr($attUserName, 0, 1)) }}
                                                                     </div>
                                                                 @endif
                                                                 <div class="d-flex align-items-center gap-1 text-truncate">
-                                                                    <span class="small fw-semibold attendee-name text-white text-truncate">{{ $attendee->user->name }}</span>
+                                                                    <span class="small fw-semibold attendee-name text-white text-truncate">{{ $attUserName }}</span>
                                                                     <i class="bi bi-box-arrow-up-right attendee-icon text-white-50 flex-shrink-0" style="font-size: 0.65rem;"></i>
                                                                 </div>
                                                             </a>
@@ -398,7 +403,13 @@
                                             {{ $meetup->meetup_date_time->format('D, M j, Y g:i A') }}</li>
                                         <li><i class="bi bi-geo-alt me-2 text-primary"></i> {{ $meetup->location_name }}
                                             ({{ $meetup->city }})</li>
-                                        <li><i class="bi bi-person-circle me-2 text-primary"></i> Hosted by <a href="{{ route('profile.view', ['id' => $meetup->user->id]) }}" class="fw-medium text-white text-decoration-none hover-primary" target="_blank">{{ $meetup->user->name }}</a></li>
+                                        @php
+                                            $hostUser = $meetup->user;
+                                            $hostUserId = $hostUser ? $hostUser->id : $meetup->user_id;
+                                            $hostUserName = $hostUser ? $hostUser->name : 'Host';
+                                            $hostProfileUrl = $hostUserId ? route('user.profile', ['user' => $hostUserId]) : '#';
+                                        @endphp
+                                        <li><i class="bi bi-person-circle me-2 text-primary"></i> Hosted by <a href="{{ $hostProfileUrl }}" class="fw-medium text-white text-decoration-none hover-primary" target="_blank">{{ $hostUserName }}</a></li>
                                     </ul>
                                 </div>
 

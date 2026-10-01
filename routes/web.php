@@ -108,6 +108,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/community/meetup/{id}/join', [CommunityController::class, 'requestToJoin'])->name('community.join');
     Route::get('/my-meetups', [MeetupController::class, 'index'])->name('meetups.my');
     Route::post('/my-meetups/{meetupId}/attendees/{attendeeId}/status', [MeetupController::class, 'updateAttendeeStatus'])->name('meetups.my.attendee.status');
+    Route::delete('/my-meetups/{meetupId}/attendees/{attendeeId}/cancel', [MeetupController::class, 'cancelRequest'])->name('meetups.my.attendee.cancel');
 
     // 5. Smart Alerts
     Route::get('/account/alerts', [SmartAlertController::class, 'index'])->name('account.alerts.index');

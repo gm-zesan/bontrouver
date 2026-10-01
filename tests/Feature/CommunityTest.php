@@ -157,4 +157,75 @@ class CommunityTest extends TestCase
             'status' => 'full',
         ]);
     }
+
+    public function test_user_can_view_my_meetups_dashboard(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create();
+
+        $meetup = CompanionshipRequest::create([
+            'user_id' => $host->id,
+            'type' => '☕ Coffee & Chat',
+            'title' => 'My Hosted Meetup',
+            'description' => 'Desc',
+            'meetup_date_time' => now()->addDay(),
+            'location_name' => 'Loc',
+            'city' => 'Toronto',
+            'province' => 'ON',
+            'status' => 'open',
+            'headcount_limit' => 2,
+        ]);
+
+        $attendee = CompanionshipAttendee::create([
+            'companionship_request_id' => $meetup->id,
+            'user_id' => $guest->id,
+            'status' => 'pending',
+        ]);
+
+        $responseHost = $this->actingAs($host)->get(route('meetups.my'));
+        $responseHost->assertOk();
+        $responseHost->assertSee('My Hosted Meetup');
+
+        $responseGuest = $this->actingAs($guest)->get(route('meetups.my'));
+        $responseGuest->assertOk();
+        $responseGuest->assertSee('My Hosted Meetup');
+    }
+
+    public function test_guest_can_withdraw_rsvp(): void
+    {
+        $host = User::factory()->create();
+        $guest = User::factory()->create();
+
+        $meetup = CompanionshipRequest::create([
+            'user_id' => $host->id,
+            'type' => '☕ Coffee & Chat',
+            'title' => 'Test Coffee',
+            'description' => 'Desc',
+            'meetup_date_time' => now()->addDay(),
+            'location_name' => 'Loc',
+            'city' => 'Toronto',
+            'province' => 'ON',
+            'status' => 'open',
+            'headcount_limit' => 2,
+        ]);
+
+        $attendee = CompanionshipAttendee::create([
+            'companionship_request_id' => $meetup->id,
+            'user_id' => $guest->id,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($guest)->delete(route('meetups.my.attendee.cancel', [
+            'meetupId' => $meetup->id,
+            'attendeeId' => $attendee->id,
+        ]));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('companionship_attendees', [
+            'id' => $attendee->id,
+        ]);
+    }
 }
+
