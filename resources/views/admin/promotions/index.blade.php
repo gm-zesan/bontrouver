@@ -329,7 +329,7 @@
                                     <a href="{{ route('listings.show', $promo->listing->slug) }}" target="_blank" class="text-decoration-none fw-semibold text-dark d-block text-truncate" style="max-width: 240px;" title="{{ $promo->listing->title }}">
                                         {{ $promo->listing->title }}
                                     </a>
-                                    <small class="text-muted">{{ $promo->listing->city }}, {{ $promo->listing->province }}</small>
+                                    <small class="text-muted">{{ $promo->listing->city?->name ?? 'Canada' }}, {{ $promo->listing->province?->name ?? 'CA' }}</small>
                                 @else
                                     <span class="text-muted fst-italic">Listing Deleted</span>
                                 @endif

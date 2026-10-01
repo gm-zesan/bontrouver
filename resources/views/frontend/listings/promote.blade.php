@@ -56,8 +56,8 @@
                                         class="badge bg-secondary bg-opacity-25 text-white-50 border border-secondary border-opacity-25 px-2 py-1"
                                         style="font-size: 0.72rem;">{{ $listing->category?->name ?? 'Classified' }}</span>
                                     <span class="small text-secondary"><i
-                                            class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $listing->city }},
-                                        {{ $listing->province }}</span>
+                                            class="bi bi-geo-alt-fill text-danger me-1"></i>{{ $listing->city?->name ?? 'Canada' }},
+                                        {{ $listing->province?->name ?? 'CA' }}</span>
                                 </div>
                                 <h5 class="fw-bold text-white mb-1 text-truncate" style="font-size: 1.05rem;">
                                     {{ $listing->title }}</h5>

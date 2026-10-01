@@ -139,12 +139,12 @@
                                 class="btn btn-theme-primary rounded-pill px-4 py-2 fw-semibold shadow">
                                 <i class="bi bi-chat-dots-fill me-1"></i> Message
                             </a>
-                            <button type="button"
+                            <!-- <button type="button"
                                 class="btn btn-outline-secondary text-white rounded-circle d-flex align-items-center justify-content-center p-2"
                                 data-bs-toggle="modal" data-bs-target="#reportUserModal" style="width: 40px; height: 40px;"
                                 title="Report User">
                                 <i class="bi bi-flag"></i>
-                            </button>
+                            </button> -->
                         @endif
                     </div>
                 </div>

@@ -17,7 +17,7 @@ class UserProfileService
     public function getRecentListings(User $user, int $limit = 6): array
     {
         $dbUserListings = $user->listings()
-            ->with(['category', 'primaryImage'])
+            ->with(['category', 'primaryImage', 'city.province', 'province'])
             ->withCount('favorites as saves')
             ->latest()
             ->take($limit)
@@ -29,7 +29,7 @@ class UserProfileService
                 'title' => $item->title,
                 'price' => '$' . number_format($item->price, 2),
                 'category' => $item->category->name ?? 'Uncategorized',
-                'location' => $item->city ? ($item->city . ', ' . ($item->province ?? '')) : 'Canada',
+                'location' => $item->location,
                 'posted_at' => $item->created_at->diffForHumans(),
                 'views' => $item->views_count ?? 0,
                 'saves' => $item->saves ?? 0,

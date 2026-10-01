@@ -15,7 +15,7 @@ class SellerListingService
     public function getDashboardListings(User $user): array
     {
         $dbListings = $user->listings()
-            ->with(['category', 'primaryImage'])
+            ->with(['category', 'primaryImage', 'city.province', 'province'])
             ->withCount(['favorites as saves', 'conversations as messages'])
             ->latest()
             ->get();
@@ -43,7 +43,7 @@ class SellerListingService
                 'title' => $item->title,
                 'price' => '$' . number_format($item->price, 2),
                 'category' => $item->category->name ?? 'Uncategorized',
-                'location' => $item->city . ', ' . $item->province,
+                'location' => $item->location,
                 'status' => $item->status instanceof ListingStatus ? $item->status->value : (string) ($item->status ?? 'active'),
                 'posted_at' => ($item->bumped_at ?? $item->created_at)->diffForHumans(),
                 'created_at' => $item->created_at->format('Y-m-d'),

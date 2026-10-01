@@ -13,7 +13,7 @@ class FavoriteService
      */
     public function getUserFavorites(User $user): array
     {
-        $dbFavorites = $user->favorites()->with(['listing.category', 'listing.primaryImage', 'listing.user'])->get();
+        $dbFavorites = $user->favorites()->with(['listing.category', 'listing.primaryImage', 'listing.user', 'listing.city.province', 'listing.province'])->get();
 
         return $dbFavorites->map(function ($fav) {
             $listing = $fav->listing;
@@ -27,7 +27,7 @@ class FavoriteService
                 'price' => '$' . number_format($listing->price, 2),
                 'price_num' => $listing->price,
                 'category' => $listing->category->name ?? 'Uncategorized',
-                'location' => $listing->city . ', ' . $listing->province,
+                'location' => $listing->location,
                 'posted_at' => $listing->created_at->diffForHumans(),
                 'views' => $listing->views_count ?? 0,
                 'seller_name' => $listing->user->name ?? 'Unknown',

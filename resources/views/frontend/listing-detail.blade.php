@@ -114,10 +114,10 @@
                             <i class="bi bi-share"></i>
                             <span>Share</span>
                         </button>
-                        <button type="button" class="btn-detail-action text-secondary" onclick="openReportModal()"
+                        <!-- <button type="button" class="btn-detail-action text-secondary" onclick="openReportModal()"
                             id="topReportBtn" title="Report this ad">
                             <i class="bi bi-flag"></i>
-                        </button>
+                        </button> -->
                     </div>
                 @endif
             </div>
@@ -383,9 +383,9 @@
                                 <div
                                     class="safety-card-footer mt-3 pt-3 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2">
                                     <span class="text-secondary small">Notice anything suspicious about this ad?</span>
-                                    <button type="button" class="btn-report-link" onclick="openReportModal()">
+                                    <!-- <button type="button" class="btn-report-link" onclick="openReportModal()">
                                         <i class="bi bi-flag me-1"></i> Report this listing
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
                         </div>

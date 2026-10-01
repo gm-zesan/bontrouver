@@ -627,7 +627,7 @@
                                 <div class="prev-card-footer">
                                     <div class="prev-location" id="prevLocation">
                                         <i class="bi bi-geo-alt"></i>
-                                        <span>{{ $listing->city ?? 'Toronto' }}, {{ $listing->province ?? 'ON' }}</span>
+                                        <span>{{ $listing->city?->name ?? 'Toronto' }}, {{ $listing->province?->code ?? ($listing->province?->name ?? 'ON') }}</span>
                                     </div>
                                     <span class="prev-time">Updated</span>
                                 </div>

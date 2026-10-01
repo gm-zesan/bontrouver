@@ -21,7 +21,7 @@
                     
                     <h5 class="fw-bold text-dark mb-1" style="font-size: 18px;">{{ $listing->title }}</h5>
                     <p class="text-muted mb-2" style="font-size: 13.5px;">
-                        <i class="ri-map-pin-line text-secondary me-1"></i>{{ $listing->city ?? 'Canada' }}{{ $listing->province ? ', ' . $listing->province : '' }}
+                        <i class="ri-map-pin-line text-secondary me-1"></i>{{ $listing->city?->name ?? 'Canada' }}{{ $listing->province ? ', ' . $listing->province->name : '' }}
                     </p>
 
                     {{-- Status & Featured Badges --}}
@@ -106,7 +106,7 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="text-muted small">City & Province</span>
-                        <span class="fw-medium text-dark small">{{ $listing->city ?? 'N/A' }}, {{ $listing->province ?? 'Canada' }}</span>
+                        <span class="fw-medium text-dark small">{{ $listing->city?->name ?? 'N/A' }}, {{ $listing->province?->name ?? 'Canada' }}</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="text-muted small">Postal Code</span>
