@@ -262,3 +262,12 @@ We will execute the remaining admin modules in the following prioritized sequenc
 6. **Step 6: Dashboard Analytics & System Settings (`/admin/dashboard` & `/admin/settings`)**:
    - **Dashboard** — ✅ **Complete (100%)**: Live real-time KPIs, pending moderation alert badges, and 30-day activity charts.
    - **Settings** — ✅ **Complete (100%)**: Streamlined 4-tab configuration engine for General Identity, Branding Assets, Canadian SEO & Social metadata, and Marketplace Rules with zero broken assets and dynamic frontend integration.
+
+7. **Step 7: Production Deployment & Server Configuration** — ✅ **Complete (100%)**:
+   - **Host**: `cloud.webfastdns.com:2083` (cPanel user `bontrouv`).
+   - **Live Domain**: [`https://bontrouver.ca`](https://bontrouver.ca) running on PHP 8.4.24 with LiteSpeed and Cloudflare.
+   - **Database**: `bontrouv_bontrouver` with dedicated user `bontrouv_dbuser`.
+   - **Migrations & Seeders**: All 34 migrations and 19 seeders executed (Users, 470 Categories, 2,125 Attributes, 9,833 Options, 251 Cities, 14 Provinces, Listings, Member Tiers, Point Rules, Site Settings, Monetization Packages).
+   - **Framework Optimization**: Configuration, routes, blade views cached; `public/storage` symlink connected.
+   - **Image Upload Support**: PHP limits configured for 64MB; form validations enhanced to support up to 25MB per image with dynamic site settings fallback.
+
