@@ -98,6 +98,25 @@ is_dealer = false     → individual private user
 
 **Why `is_dealer` is NOT a role:** Dealers are still regular marketplace users who buy, sell, message, favorite, and earn reputation. Dealer status is a **profile capability**, not an authorization level.
 
+### 3.1. Dual-Tier Registration Architecture
+To provide casual community members with a 30-second onboarding while ensuring commercial car dealerships, real estate agencies, and retailers are fully verified:
+
+1. **General User Registration (`/register` → `RegisteredUserController`)**:
+   - Streamlined, minimalist form collecting only: `name`, `email`, `password`, `password_confirmation`, `province`, and `city`.
+   - `is_dealer` defaults to `false`.
+   - No business tax IDs, licensing documents, or commercial fields required.
+
+2. **Merchant / Professional Dealer Registration (`/register/merchant` → `MerchantRegistrationController`)**:
+   - Specialized commercial onboarding collecting:
+     - Dealership / Business Name (`name`)
+     - Business Contact Phone / WhatsApp (`phone`)
+     - Storefront Address & Canadian Postal Code (`location`, `postal_code`)
+     - Canadian Province and City (`province`, `city`)
+     - Business License / Dealer Number / OMVIC ID
+     - Document Verification Upload (stored via `UserVerification`)
+     - Operating Hours & Website URL
+   - Sets `is_dealer = true` and kicks off commercial identity verification.
+
 ---
 
 ## 4. Core System Components
@@ -164,6 +183,27 @@ SmartAlertTriggered Notification (database / email)
 - **Search & Filtering:** Keyword search, category/location filters, price range, dynamic attribute filters.
 - **Messaging Engine:** In-app inbox via `conversations` and `messages`. No email exposure.
 - **Dashboard:** Unified hub for active ads, saved favorites, messages, notifications, and community points.
+
+### 4.6. Dynamic Profile-Aware Ad Location Pre-Population
+
+- **Location Priority Engine**: Eliminates static hardcoded defaults (such as Toronto). When an authenticated user initiates ad creation at `/post-ad`:
+  - The controller/view extracts the user's registered `city` and `province` from `auth()->user()`.
+  - The province and city `<select>` controls automatically pre-select their home locality (e.g., Montreal, Quebec).
+  - Unauthenticated users or users with empty location profiles fallback to platform default settings (`site_setting('default_province')`, `site_setting('default_city')`).
+
+### 4.7. Multilingual Content & Dynamic "Traduire" (Translate) Pipeline
+
+- **Bilingual System with Open Multilingual Content**: The system operates natively in French and English, but user-submitted listings can be in any language (French, English, Arabic, Spanish, etc.).
+- **On-Demand Client/Server Translation Architecture**:
+  - Listing cards (`<x-listing-card />`) and the listing detail page (`listings/show.blade.php`) feature a reactive **"Traduire" (Translate)** action toggle.
+  - Clicking "Traduire" dynamically translates the title and description into the viewer's active language (French ↔ English) without reloading the page.
+  - Prevents database pollution: original listing text is preserved in MySQL `listings.title` and `listings.description`, while translations are rendered and cached dynamically.
+
+### 4.8. High-Capacity Media Pipeline & Exception Interception
+
+- **High-Resolution Allowance**: Configurable via `site_settings.max_image_upload_size_kb` (up to 25MB per image).
+- **Graceful Error Recovery**: `PostTooLargeException` is trapped globally in `bootstrap/app.php` to prevent HTTP 500 fatal errors when users upload massive photo batches, redirecting with actionable error messages.
+- **ImageOptimizationService**: Automatically downsizes dimensions, corrects EXIF camera orientations, and recompresses into modern WebP format (85% quality) before persisting to public storage.
 
 ---
 
@@ -348,3 +388,8 @@ app/
 - [x] `AlertMatcherService::matches($listing, $alert)` is pure and unit-testable
 - [x] Dealer status = `is_dealer` boolean, not a primary role
 - [x] EAV design for dynamic attributes (multi-select limitation noted for future)
+- [x] Dynamic profile-first location auto-population (prioritizes authenticated user's home city over static defaults)
+- [x] Dual-tier registration separation (General User frictionless vs Merchant commercial onboarding)
+- [x] Multilingual content architecture with on-demand "Traduire" translation pipeline
+- [x] High-capacity media pipeline with WebP optimization & `PostTooLargeException` graceful error trapping
+- [x] Production deployment configuration on cPanel / LiteSpeed / PHP 8.4 / MySQL / Cloudflare

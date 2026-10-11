@@ -9,11 +9,14 @@ This document outlines the architectural standards, Eloquent relationships map, 
 Whenever building any functionality, modifying code, designing migrations, or responding to user commands, **ALWAYS strictly adhere** to the specifications in the `doc/` directory:
 
 1. **[Client Requirements Specification](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/client_requirements.md)**:
-   - **Location-First**: All listings and services require exact coordinates (`latitude`, `longitude`), postal code (`A1A 1A1`), city, and province.
+   - **Location-First & Dynamic Pre-fill**: All listings and services require exact coordinates (`latitude`, `longitude`), postal code (`A1A 1A1`), city, and province. Ad creation dynamically auto-populates the authenticated user's registered home city and province (e.g. Montreal, QC) instead of hardcoding any default city (e.g. Toronto).
    - **Smart Alerts**: Category, location, keyword, and min/max price triggers (e.g., *"A new room for $700 in Montreal"*).
    - **Reputation**: Reviews, star ratings (1–5 ⭐), verified transaction counts, community help points, and verification badges (`is_verified`, `is_dealer`).
    - **Point System & Member Levels**: 🥉 New Member (0-99) → 🥈 Active Member (100-299) → 🥇 Trusted Member (300-699) → ⭐ Highly Appreciated Member (700+). Mutual aid reward system, *never directly exchangeable for money*.
    - **Community (Need Companionship)**: Wholesome social meetups (☕ Coffee & Chat, 🚶 Walk, 🍽️ Dining, 🎬 Cinema, ⚽ Match, 🏃 Sports, 🎮 Gaming, 🌆 Outings, 🗣️ Meet people).
+   - **Multilingual Support & "Traduire" (Translate) Button**: Fully bilingual core UI (English/French) while allowing users to post listings in any language (French, English, Arabic, Spanish). Every listing card and detail page includes an on-demand "Traduire" (Translate) button for instant bilingual translation without page reload.
+   - **Dual-Tier User Registration**: Strict separation between **General User Account** (minimal frictionless onboarding: Name, Email, Password, City/Province) and **Merchant / Professional Dealer Account** (commercial onboarding: business legal name, contact phone, business license / OMVIC ID, physical address, store hours, and `is_dealer = true`).
+   - **High-Capacity Media Uploads**: Up to 25MB per image upload allowance, server configuration for 64M/128M payloads, and graceful framework-level `PostTooLargeException` error handling.
 
 2. **[Database Design Specification](file:///Users/zesan/Desktop/My-Work/bontrouver/doc/database_design.md)**:
    - Standardized table naming, indexing on foreign keys/location, soft deletes, and data integrity.
@@ -265,4 +268,27 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 4. **Eager Loading**: Prevent N+1 query issues by eager-loading relationships (`with(['user', 'primaryImage', 'category'])`).
 5. **Aesthetics & UI**: Use rich, dynamic styles with responsive design, clear contrast, and zero layout overflow.
 6. **Mandatory Documentation & Schema Synchronization**: Whenever any model relationship, migration field, schema, feature, or model property is added, modified, or deleted, **immediately update this `AGENTS.md` and all corresponding documents in `doc/` (`database_design.md`, `software_architecture.md`, `client_requirements.md`, `project_status_report.md`)** to maintain 100% sync.
+
+---
+
+## 4. Specialized Feature Standards
+
+### A. Location-First Dynamic Ad Auto-Population
+- **No Hardcoded Defaults**: When authenticated users navigate to `/post-ad`, the form must automatically default the location select to the user's registered `city` and `province` from `$user->city` and `$user->province` (e.g. Montreal, QC).
+- **Fallback**: Only if the user is unauthenticated or has not set their home city should standard province/city dropdown fallbacks be presented.
+
+### B. Multilingual "Traduire" (Translate) Action Button
+- **Bilingual Interface**: UI strings support English and French.
+- **Multilingual Content Freedom**: Ad postings and meetup descriptions can be authored in any language (English, French, Arabic, etc.).
+- **On-Demand Translate Action**: Listing cards and the listing detail page feature a "Traduire" (Translate) button/component that dynamically fetches/toggles translated titles and descriptions into French/English without requiring a full page refresh.
+
+### C. Dual-Tier User Registration Separation
+- **General User Account (`/register`)**: Minimalist, frictionless onboarding for private individuals, buyers, and casual sellers. Fields: Name, Email, Password, Confirmation, City, and Province. Zero commercial complexity.
+- **Merchant / Professional Dealer Account (`/register/merchant` or role selector tab)**: Comprehensive business onboarding. Fields: Dealership / Business Name, Business Phone / WhatsApp, Physical Storefront Address, Business License / OMVIC / Tax ID, Commercial Category, Store Operating Hours, Website URL, and Document Verification upload (`user_verifications`). Sets `is_dealer = true`.
+
+### D. Production Deployment Architecture
+- **Host**: `cloud.webfastdns.com:2083` (cPanel account: `bontrouv`).
+- **Domain**: `https://bontrouver.ca` (LiteSpeed Server, PHP 8.4, Cloudflare proxy & SSL).
+- **Database**: `bontrouv_bontrouver` with dedicated user `bontrouv_dbuser`.
+- **Media Upload Limits**: PHP `post_max_size=128M`, `upload_max_filesize=64M`, framework Site Setting `max_image_upload_size_kb=25600` (25MB per image), and global `PostTooLargeException` interception in `bootstrap/app.php`.
 

@@ -26,6 +26,10 @@
 | **11. Scheduled Expiry & Cron Automation** | ✅ **Complete** | **100%** | `CheckListingAndPromotionExpiry`, hourly cron, 24h warning alerts, `ListingBoostExpired`, `ListingExpired` |
 | **12. End-to-End User Journey & Monetization** | ✅ **Complete** | **100%** | `EndToEndUserJourneyTest`, Ad creation with Stripe card boost, real-time Smart Alert sync, Pause/Resume transitions, active boost cooldown locks, points redemption, and seller analytics |
 | **13. Live Support Chat Wizard & Helpdesk** | ✅ **Complete** | **100%** | `SupportConversation`, `SupportMessage`, `SupportChatService`, `SupportChatController`, `SupportManagementController`, `<x-support-chat-widget />`, Guest login gate with return URL, dual tabs (Live Chat + Instant FAQs), photo/PDF attachments, live 5s polling, Admin Helpdesk split workspace at `/admin/support`. |
+| **14. Location-First Dynamic Ad Auto-Population** | ✅ **Complete** | **100%** | Profile city/province extracted on `/post-ad`, eliminating static hardcoded defaults with dynamic city/province pre-selection. |
+| **15. High-Capacity Media & Resilient Uploads** | ✅ **Complete** | **100%** | 25MB individual photo allowance via `max_image_upload_size_kb`, 64M/128M server ceilings, WebP compression, and framework-level `PostTooLargeException` error handling. |
+| **16. Multilingual "Traduire" (Translate) Action** | ⏳ **In Progress** | **80%** | Reactive translate button on ad cards & detail views for on-demand title and description translation between French & English. |
+| **17. Dual-Tier User Registration Separation** | ⏳ **In Progress** | **85%** | Split onboarding: Minimalist general registration (`/register`) vs. comprehensive commercial merchant onboarding (`/register/merchant`). |
 
 ---
 
@@ -271,3 +275,8 @@ We will execute the remaining admin modules in the following prioritized sequenc
    - **Framework Optimization**: Configuration, routes, blade views cached; `public/storage` symlink connected.
    - **Image Upload Support**: PHP limits configured for 64MB; form validations enhanced to support up to 25MB per image with dynamic site settings fallback.
 
+8. **Step 8: Client Customization & Feature Roadmap** — 🟡 **In Progress**:
+   - ✅ **Dynamic Location Auto-population**: Solved default location issue (Toronto pre-selection); Create Ad form now dynamically auto-fills the authenticated user's registered profile city & province (e.g. Montreal, QC).
+   - ✅ **High-Capacity Media Uploads**: Increased image file upload ceilings to 25MB per image and 64M/128M server limits with graceful `PostTooLargeException` error recovery.
+   - ⏳ **"Traduire" (Translate) Action Button**: On-demand translation toggle on ad cards and detail pages to translate titles and descriptions into French/English.
+   - ⏳ **Dual-Tier User Registration**: Split registration flows into lightweight General User (minimal form) vs. Merchant / Dealer (full business credentials & verification).

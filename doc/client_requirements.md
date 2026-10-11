@@ -13,6 +13,7 @@ Bon Trouver is built from the ground up as a hyper-local Canadian classifieds an
 - **Geographic Hierarchy**: Search, browse, and filter ads by **Province** (ON, QC, BC, AB, etc.), **City** (Montréal, Toronto, Vancouver, Calgary, Ottawa, etc.), and **Neighbourhood / District** (e.g., Plateau-Mont-Royal, Liberty Village, Kitsilano, Harbourfront).
 - **Coordinate Precision**: Storage of exact `latitude` and `longitude` coordinates alongside standard Canadian Postal Codes (`A1A 1A1` format).
 - **Radius & Distance Filtering**: Ability for users to find items and services near their current location within customizable distance radii (e.g., within 5km, 10km, 25km, 50km).
+- **Dynamic Profile-Based Location Auto-fill**: When posting a new ad, the system dynamically populates the user's registered home city and province (e.g., Montreal, QC) from their user profile, preventing unintended defaults (e.g., Toronto).
 - **Local Meetup Safety**: Promotes in-person local transactions and verified public exchange locations.
 
 ---
@@ -162,16 +163,93 @@ Bon Trouver utilizes a hybrid Canadian marketplace monetization model designed f
 
 ---
 
-## 8. Implementation & Database Mapping Reference
+---
 
-| Requirement Module | Database Tables / Models | Seeder Reference |
-| :--- | :--- | :--- |
-| **Location & Ads** | `listings`, `listing_images`, `listing_attributes` | `ListingSeeder.php` |
-| **Smart Alerts** | `smart_alerts`, `smart_alert_attributes` | `SmartAlertSeeder.php` |
-| **Reputation & Reviews** | `users`, `reviews`, `transactions` | `UserSeeder.php`, `ReviewSeeder.php`, `TransactionSeeder.php` |
-| **Points & Tiers** | `member_tiers`, `point_transactions`, `point_rules` | `MemberTierSeeder.php`, `PointTransactionSeeder.php` |
-| **Companionship** | `companionship_requests`, `companionship_attendees` | `CompanionshipSeeder.php` |
-| **Messaging & Inquiries** | `conversations`, `messages` | `ConversationSeeder.php` |
-| **User Profiles** | `users`, `user_profiles`, `user_galleries` | `UserSeeder.php` |
-| **Monetization & Ads** | `promotion_packages`, `listing_promotions`, `banner_ads` | `MonetizationSeeder.php` |
-| **Platform Settings** | `site_settings` | `SiteSettingSeeder.php` |
+## 8. Multilingual Architecture & Dynamic Content Translation ("Traduire" Feature)
+
+### Overview
+Canada is an officially bilingual country (English & French), and Bon Trouver accommodates diverse linguistic communities while maintaining French and English operational parity.
+
+### Key Capabilities
+- **Platform Interface Language**: The core UI/UX is built to support French, English, and localized translations across all navigation, forms, buttons, and system alerts.
+- **Unrestricted Multilingual User Content**: Users have complete freedom to publish ads and community meetups in any language (French, English, Arabic, Spanish, etc.).
+- **On-Demand "Traduire" (Translate) Action Button**:
+  - Every listing card across search results, category browse pages, and the listing detail page features a visible **"Traduire" (Translate)** button/toggle.
+  - Allows visitors and buyers with a single click to instantly translate the title and description into their preferred language (French / English) without reloading the page or leaving the listing.
+  - Seamlessly bridges communication between anglophone and francophone buyers and sellers across Quebec and all Canadian provinces.
+
+---
+
+## 9. Dual-Tier User Registration (General User vs. Merchant / Dealer)
+
+### Overview
+To lower the entry barrier for casual community members while providing enterprise-grade tools for professional businesses, registration is strictly partitioned into two separate flows.
+
+### Two Distinct Registration Experiences
+
+1. **General User Account (Standard Community Member)**:
+   - **Target Audience**: Casual buyers, individual sellers decluttering items, students, roommates, and community meetup participants.
+   - **Streamlined Minimal Onboarding**: Zero unnecessary friction. Asks only for core essentials:
+     - Full Name
+     - Email Address
+     - City & Province (for hyper-local discovery)
+     - Password & Confirmation
+   - Instant access to browse, save favorites, post standard ads, and message sellers.
+
+2. **Merchant / Professional Dealer Account (Commercial Seller)**:
+   - **Target Audience**: Licensed car dealerships (OMVIC, AMVOQ, VSA), real estate brokerages, retail businesses, and professional service providers.
+   - **Comprehensive Business Verification Form**:
+     - Business / Dealership Legal Name & Trade Name
+     - Business Contact Phone & Direct WhatsApp/SMS Line
+     - Physical Storefront / Lot Address & Coordinates
+     - Business License / Dealer ID Number
+     - Document upload for identity and regulatory compliance (e.g., commercial license PDF/image)
+     - Operating Hours & Website URL
+   - **Merchant Privileges**: Displays verified `is_dealer` badge, enhanced storefront showcase, inventory bulk management, and heightened trust ratings.
+
+---
+
+## 10. High-Capacity Media & Large Payload Upload Specifications
+
+### Overview
+To accommodate high-resolution automotive galleries, detailed rental walkthrough images, and commercial catalogs, Bon Trouver provides an enterprise-tier upload pipeline with resilient error handling.
+
+### Technical & Capacity Standards
+- **High-Resolution Per-Image Allowance**: Supports individual image uploads up to **25 MB** (25,600 KB) each, controlled dynamically via Site Settings.
+- **Extended Total POST Payload**: PHP server configuration (`post_max_size` 128M, `upload_max_filesize` 64M, `memory_limit` 256M) allows simultaneous batch uploads of high-megapixel smartphone and camera photos.
+- **Fail-Safe Server Error Handling**:
+  - Intercepts PHP / Laravel `PostTooLargeException` at the application framework level (`bootstrap/app.php`).
+  - Completely prevents unhandled HTTP 500 internal server crashes, instead returning graceful, user-friendly feedback guiding users on file size limits.
+- **Automated WebP Compression & EXIF Correction**: All uploaded images undergo automated server-side compression to WebP (85% quality) and orientation normalization via `ImageOptimizationService`, ensuring blazing-fast page loads.
+
+---
+
+## 11. Implementation & Database Mapping Reference
+
+| Requirement Module | Database Tables / Models | Seeder Reference | Status |
+| :--- | :--- | :--- | :---: |
+| **Location & Dynamic Ad Pre-fill** | `listings`, `listing_images`, `cities`, `provinces` | `ListingSeeder.php`, `LocationSeeder.php` | ✅ Complete |
+| **Smart Alerts** | `smart_alerts`, `smart_alert_attributes` | `SmartAlertSeeder.php` | ✅ Complete |
+| **Reputation & Reviews** | `users`, `reviews`, `transactions` | `UserSeeder.php`, `ReviewSeeder.php` | ✅ Complete |
+| **Points & Tiers** | `member_tiers`, `point_transactions`, `point_rules` | `MemberTierSeeder.php`, `PointTransactionSeeder.php` | ✅ Complete |
+| **Companionship** | `companionship_requests`, `companionship_attendees` | `CompanionshipSeeder.php` | ✅ Complete |
+| **Messaging & Inquiries** | `conversations`, `messages` | `ConversationSeeder.php` | ✅ Complete |
+| **User Profiles & Storefronts** | `users`, `user_profiles`, `user_galleries` | `UserSeeder.php` | ✅ Complete |
+| **Monetization & Ads** | `promotion_packages`, `listing_promotions`, `banner_ads` | `MonetizationSeeder.php` | ✅ Complete |
+| **Platform Settings** | `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
+| **High-Capacity Media Uploads** | `listings`, `listing_images`, `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
+| **Dynamic "Traduire" (Translate)** | `listings` (frontend translation integration) | Frontend components & translation API | ⏳ In Progress |
+| **Dual Registration (User vs. Merchant)** | `users`, `user_verifications`, `user_profiles` | `UserSeeder.php`, `VerificationSeeder.php` | ⏳ In Progress |
+
+---
+
+## 12. Production Hosting & Infrastructure Specifications
+
+### Infrastructure Baseline
+- **Primary Domain**: `https://bontrouver.ca`
+- **Hosting Platform**: cPanel on Cloud Linux / LiteSpeed Enterprise Web Server (`cloud.webfastdns.com:2083`).
+- **PHP Version**: PHP 8.4 with required extensions (`bcmath`, `curl`, `fileinfo`, `gd`, `intl`, `mbstring`, `openssl`, `pdo_mysql`, `tokenizer`, `xml`, `zip`).
+- **Database Engine**: MySQL 8.0+ / MariaDB 10.6+ (`bontrouv_bontrouver`).
+- **Security & CDN**: Cloudflare Proxy with Full (Strict) SSL and edge caching.
+- **Queue & WebSockets**: Database queue worker and Laravel Reverb for real-time live support.
+- **Scheduled Tasks**: cPanel Cron running `php artisan schedule:run` every minute.

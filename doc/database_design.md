@@ -13,22 +13,26 @@ Core authentication and profile table.
 - `email` (VARCHAR 255, UNIQUE)
 - `password` (VARCHAR 255)
 - `role` (VARCHAR 50) - Default: 'user'. Enum: 'user', 'admin', 'moderator'
-- `is_dealer` (BOOLEAN) - Default: false. Represents if the user operates as a commercial entity.
-- `phone` (VARCHAR 50, NULLABLE)
-- `city` (VARCHAR 100, NULLABLE)
-- `province` (VARCHAR 50, NULLABLE)
-- `postal_code` (VARCHAR 20, NULLABLE)
-- `location` (VARCHAR 255, NULLABLE) - Formatted neighbourhood / district
+- `is_dealer` (BOOLEAN) - Default: false. Flags commercial merchant / dealer status (set to `true` during Merchant Registration).
+- `phone` (VARCHAR 50, NULLABLE) - Merchant business phone / WhatsApp line (required for merchants; optional for general users).
+- `city` (VARCHAR 100, NULLABLE) - Hyper-local Canadian city (e.g., 'Montreal', 'Toronto'). Auto-populates as default location when posting ads.
+- `province` (VARCHAR 50, NULLABLE) - Canadian province/territory code (e.g., 'QC', 'ON'). Auto-populates as default location when posting ads.
+- `postal_code` (VARCHAR 20, NULLABLE) - Standard Canadian Postal Code (`A1A 1A1`).
+- `location` (VARCHAR 255, NULLABLE) - Formatted neighbourhood, street, or storefront address.
 - `avatar` (VARCHAR, NULLABLE)
 - `bio` (TEXT, NULLABLE)
 - `community_points` (INT, DEFAULT 0) - *Used for Member Tier progression*
-- `is_verified` (BOOLEAN, DEFAULT FALSE)
+- `is_verified` (BOOLEAN, DEFAULT FALSE) - Granted upon approving identity / dealer license verification.
 - `is_suspended` (BOOLEAN, DEFAULT FALSE)
 - `admin_notes` (TEXT, NULLABLE) - *Internal notes by admins*
 - `notification_preferences` (JSON, NULLABLE)
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE) - Soft deletes.
+
+> **Registration Separation Architecture**:
+> - **General User Flow**: Simple onboarding collecting only `name`, `email`, `password`, `city`, and `province`. `is_dealer` defaults to `false`.
+> - **Merchant Dealer Flow**: Collects `name` (business/dealer name), `email`, `phone`, `city`, `province`, `postal_code`, `location`, sets `is_dealer = true`, and links to `user_verifications` for commercial license review.
 
 ### `member_tiers`
 Configuration for member tiers based on community points.
@@ -229,6 +233,10 @@ Core marketplace advertisements.
 - `updated_at` (TIMESTAMP, NULLABLE)
 - `deleted_at` (TIMESTAMP, NULLABLE)
 *Indexes: `status`, `province_id`, `city_id`, `is_featured`, `is_sponsored`, `bumped_at`, `[latitude, longitude]`, `[status, published_at]`, `[status, province_id]`, `[status, city_id]`*
+
+> **Multilingual Text & "Traduire" (Translate) Architecture**:
+> - `title` and `description` store the creator's original submitted text in any language (English, French, Arabic, etc.).
+> - Dynamic translation does not overwrite raw database content; it is rendered on-demand in the UI when the user clicks the "Traduire" action button. Translations can be cached client-side or served via localized translation responses.
 
 ### `listing_images`
 Images for listings.
@@ -492,4 +500,25 @@ Real-time messages sent between users, administrators, and automated bot assista
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 *Indexes: `[support_conversation_id, created_at]`, `[support_conversation_id, is_read]`*
+
+---
+
+## 10. SYSTEM CONFIGURATION & SITE SETTINGS
+
+### `site_settings`
+Key-value configuration store for runtime application settings, media limits, SEO, and branding.
+- `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
+- `key` (VARCHAR 100, UNIQUE) - e.g., `site_name`, `max_image_upload_size_kb`, `default_province`, `default_city`
+- `value` (LONGTEXT, NULLABLE) - String, JSON, or boolean string representation
+- `group` (VARCHAR 50) - Default: 'general'. Groups: 'general', 'branding', 'seo', 'marketplace', 'support'
+- `type` (VARCHAR 30) - Default: 'string'. Types: 'string', 'text', 'integer', 'boolean', 'file'
+- `description` (VARCHAR 255, NULLABLE)
+- `created_at` (TIMESTAMP, NULLABLE)
+- `updated_at` (TIMESTAMP, NULLABLE)
+*Indexes: `key`, `group`*
+
+> **Key Settings Reference**:
+> - `max_image_upload_size_kb`: Maximum allowed size per uploaded listing photo (default: `25600` KB / 25MB).
+> - `max_images_per_listing`: Limit on total photos per listing (default: `10`).
+> - `default_province` / `default_city`: Fallback location metadata for unauthenticated guest browsing.
 
