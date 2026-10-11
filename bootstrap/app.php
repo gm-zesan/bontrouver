@@ -31,6 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
+        // Redirect back or return JSON for payload too large violations
+        $exceptions->renderable(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, Request $request) {
+            if ($request->expectsJson() || $request->ajax() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The total upload size is too large. Please select fewer or smaller images.',
+                ], 413);
+            }
+            return back()->with('error', 'The uploaded files are too large. Please select fewer or smaller images.');
+        });
+
         // Redirect back with user-friendly message for domain rule violations
         $exceptions->renderable(function (\App\Exceptions\CompanionshipException $e, Request $request) {
             if (!$request->expectsJson()) {

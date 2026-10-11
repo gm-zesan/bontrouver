@@ -390,7 +390,7 @@
                                             required onchange="handleProvinceChange(this.value)">
                                             <option value="">Select Province...</option>
                                             @foreach($provinces as $prov)
-                                                <option value="{{ $prov->code }}" data-id="{{ $prov->id }}" {{ $prov->code === 'ON' ? 'selected' : '' }}>
+                                                <option value="{{ $prov->code }}" data-id="{{ $prov->id }}" {{ $prov->code === ($defaultProvince ?? 'QC') ? 'selected' : '' }}>
                                                     {{ $prov->name }} ({{ $prov->code }})
                                                 </option>
                                             @endforeach
@@ -406,8 +406,8 @@
                                                 id="citySelect" name="city_id" required>
                                                 <option value="">Select a city...</option>
                                             </select>
-                                            <input type="hidden" id="cityInput" name="city" value="Toronto">
-                                            <input type="hidden" id="provinceIdInput" name="province_id" value="1">
+                                            <input type="hidden" id="cityInput" name="city" value="{{ $defaultCity ?? 'Montreal' }}">
+                                            <input type="hidden" id="provinceIdInput" name="province_id" value="{{ optional($provinces->firstWhere('code', $defaultProvince ?? 'QC'))->id ?? 2 }}">
                                         </div>
                                         <div class="invalid-feedback-custom" id="err-city"></div>
                                     </div>
@@ -842,7 +842,7 @@
                                     <div class="prev-card-footer">
                                         <div class="prev-location" id="prevLocation">
                                             <i class="bi bi-geo-alt"></i>
-                                            <span>Toronto, ON</span>
+                                            <span>{{ $defaultCity ?? 'Montreal' }}, {{ $defaultProvince ?? 'QC' }}</span>
                                         </div>
                                         <span class="prev-time">Just now</span>
                                     </div>
@@ -929,8 +929,8 @@
             pricePeriod: 'one_time',
             condition: 'New',
             description: '',
-            city: 'Toronto',
-            province: 'ON',
+            city: '{{ $defaultCity ?? 'Montreal' }}',
+            province: '{{ $defaultProvince ?? 'QC' }}',
             neighbourhood: '',
             images: [],
             coverIndex: 0,
@@ -943,8 +943,8 @@
             initCategorySelection();
             initAutosave();
             initDragAndDrop();
-            const initialProv = document.getElementById('provinceSelect')?.value || 'ON';
-            populateCitiesForProvince(initialProv, 'Toronto', false);
+            const initialProv = document.getElementById('provinceSelect')?.value || '{{ $defaultProvince ?? 'QC' }}';
+            populateCitiesForProvince(initialProv, '{{ $defaultCity ?? 'Montreal' }}', false);
             updateLivePreview();
         });
 
@@ -1809,8 +1809,8 @@
         }
 
         function updateLocationPreview() {
-            const city = document.getElementById('cityInput').value.trim() || 'Toronto';
-            const prov = document.getElementById('provinceSelect').value || 'ON';
+            const city = document.getElementById('cityInput').value.trim() || '{{ $defaultCity ?? 'Montreal' }}';
+            const prov = document.getElementById('provinceSelect').value || '{{ $defaultProvince ?? 'QC' }}';
             const hood = document.getElementById('neighbourhoodInput').value.trim();
 
             postAdState.city = city;
@@ -2233,13 +2233,13 @@
                 condition: postAdState.condition || 'New',
                 description: document.getElementById('listingDescInput')?.value || '',
                 dynamicAttributes: dynamicAttrs,
-                city: document.getElementById('cityInput')?.value || 'Toronto',
-                province: document.getElementById('provinceSelect')?.value || 'ON',
+                city: document.getElementById('cityInput')?.value || '{{ $defaultCity ?? 'Montreal' }}',
+                province: document.getElementById('provinceSelect')?.value || '{{ $defaultProvince ?? 'QC' }}',
                 neighbourhood: document.getElementById('neighbourhoodInput')?.value || '',
                 postal_code: document.getElementById('postalCodeInput')?.value || '',
                 location_name: document.getElementById('postLocationName')?.value || '',
-                latitude: document.getElementById('postLatitude')?.value || '43.6532',
-                longitude: document.getElementById('postLongitude')?.value || '-79.3832',
+                latitude: document.getElementById('postLatitude')?.value || '45.5017',
+                longitude: document.getElementById('postLongitude')?.value || '-73.5673',
                 promotions: checkedPromos,
                 payment_method: document.querySelector('input[name="payment_method"]:checked')?.value || 'stripe',
                 images: (postAdState.images || []).map(img => ({ name: img.name, dataUrl: img.dataUrl })),
@@ -2477,9 +2477,9 @@
             return numLat >= 41.0 && numLat <= 84.0 && numLng >= -142.0 && numLng <= -52.0;
         }
 
-        function resetLocationToCanada(cityName = 'Toronto') {
-            let lat = 43.6532;
-            let lng = -79.3832;
+        function resetLocationToCanada(cityName = '{{ $defaultCity ?? 'Montreal' }}') {
+            let lat = 45.5017;
+            let lng = -73.5673;
             if (typeof canadianCitiesMap === 'object' && canadianCitiesMap !== null) {
                 const targetCity = canadianCitiesMap[cityName] || Object.values(canadianCitiesMap)[0];
                 if (targetCity && targetCity.latitude && targetCity.longitude) {

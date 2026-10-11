@@ -156,12 +156,35 @@ class ListingController extends Controller
             return $this->edit($request, $request->query('edit'));
         }
 
+        $user = auth()->user();
+        $defaultCity = $user?->city;
+        $defaultProvince = $user?->province;
+
+        if (!$defaultCity && !empty($user?->location)) {
+            $parts = array_map('trim', explode(',', $user->location));
+            $defaultCity = $parts[0] ?? null;
+            if (empty($defaultProvince) && !empty($parts[1])) {
+                $defaultProvince = $parts[1];
+            }
+        }
+
+        $selectedCity = session('selected_city') ?? $request->cookie('bontrouver_city');
+        if (!$defaultCity && !empty($selectedCity)) {
+            $defaultCity = $selectedCity;
+        }
+
+        $defaultCity = $defaultCity ?: 'Montreal';
+        $defaultProvince = $defaultProvince ?: 'QC';
+
         return view('frontend.post-ad', [
             'categories'          => CategoryService::getAll(),
             'provinces'           => Province::with(['cities' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('is_active', true)->orderBy('sort_order')->get(),
             'provincesMap'        => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
             'citiesMap'           => City::getCitiesMap(),
             'allCities'           => City::with('province')->where('is_active', true)->orderBy('sort_order')->get(),
+            'defaultCity'         => $defaultCity,
+            'defaultProvince'     => $defaultProvince,
+            'userPostalCode'      => $user?->postal_code ?? '',
             'preselectedCategory' => $request->query('category', ''),
             'preselectedSub'      => $request->query('sub', ''),
             'breadcrumbs'         => [
