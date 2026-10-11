@@ -120,8 +120,11 @@
 
                         <!-- Register CTA -->
                         <div class="text-center">
-                            <a href="{{ route('register') }}" class="btn-auth-secondary w-100">
-                                <i class="bi bi-person-plus me-2"></i> Create an Account
+                            <a href="{{ route('register') }}" class="btn-auth-secondary w-100 mb-2">
+                                <i class="bi bi-person-plus me-2"></i> Create Personal Account
+                            </a>
+                            <a href="{{ route('register.merchant') }}" class="text-success small text-decoration-none d-inline-flex align-items-center gap-1 mt-2">
+                                <i class="bi bi-building-check"></i> Commercial Dealer or Broker? Register Merchant Account
                             </a>
                         </div>
                     </form>

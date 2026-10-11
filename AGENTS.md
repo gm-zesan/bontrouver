@@ -258,6 +258,11 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Internal platform notifications: `ListingBoostActivated` dispatched upon boost activation to the user's database notification feed (`/notifications`).
 - Admin Revenue Hub: `/admin/promotions` with 30-day ApexCharts CAD revenue area chart, Boost tier share donut chart, package pricing & policy manager, live transaction audit ledger, and CSV ledger export (`GET /admin/promotions/export-csv`).
 
+### RegistrationService & Dual-Tier Onboarding (`App\Services\RegistrationService`, `App\Http\Controllers\Auth\RegisteredUserController`)
+- Dual-tier onboarding architecture strictly partitioning **General User Account** (frictionless personal registration at `/register`) from **Merchant & Professional Dealer Account** (commercial onboarding at `/register/merchant`).
+- Dedicated Form Requests: `RegisterGeneralUserRequest` and `RegisterMerchantRequest`.
+- Merchant onboarding atomically creates `User` (`is_dealer = true`), `UserProfile` (storefront features, operating hours, website), and `UserVerification` (`document_type = 'dealer_license'`, license ID, and uploaded permit document up to 25MB).
+
 ---
 
 ## 3. Code Standards & Development Rules
@@ -284,7 +289,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 
 ### C. Dual-Tier User Registration Separation
 - **General User Account (`/register`)**: Minimalist, frictionless onboarding for private individuals, buyers, and casual sellers. Fields: Name, Email, Password, Confirmation, City, and Province. Zero commercial complexity.
-- **Merchant / Professional Dealer Account (`/register/merchant` or role selector tab)**: Comprehensive business onboarding. Fields: Dealership / Business Name, Business Phone / WhatsApp, Physical Storefront Address, Business License / OMVIC / Tax ID, Commercial Category, Store Operating Hours, Website URL, and Document Verification upload (`user_verifications`). Sets `is_dealer = true`.
+- **Merchant / Professional Dealer Account (`/register/merchant`)**: Comprehensive business onboarding on a separate dedicated page with individual cross-links. Fields: Dealership / Business Name, Business Phone / WhatsApp, Physical Storefront Address, Business License / OMVIC / Tax ID, Commercial Category, Store Operating Hours, Website URL, and Document Verification upload (`user_verifications`). Sets `is_dealer = true`.
 
 ### D. Production Deployment Architecture
 - **Host**: `cloud.webfastdns.com:2083` (cPanel account: `bontrouv`).

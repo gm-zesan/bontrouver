@@ -239,7 +239,7 @@ To accommodate high-resolution automotive galleries, detailed rental walkthrough
 | **Platform Settings** | `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
 | **High-Capacity Media Uploads** | `listings`, `listing_images`, `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
 | **Dynamic "Traduire" (Translate)** | `listings` (frontend translation integration) | Frontend components & translation API | ⏳ In Progress |
-| **Dual Registration (User vs. Merchant)** | `users`, `user_verifications`, `user_profiles` | `UserSeeder.php`, `VerificationSeeder.php` | ⏳ In Progress |
+| **Dual Registration (User vs. Merchant)** | `users`, `user_verifications`, `user_profiles` | `RegistrationService.php`, `DualTierRegistrationTest.php` | ✅ Complete |
 
 ---
 

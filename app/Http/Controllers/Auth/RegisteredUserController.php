@@ -3,60 +3,70 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Auth\Events\Registered;
+use App\Http\Requests\Auth\RegisterGeneralUserRequest;
+use App\Http\Requests\Auth\RegisterMerchantRequest;
+use App\Models\Province;
+use App\Services\LocationService;
+use App\Services\RegistrationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Illuminate\Validation\Rule;
-use App\Enums\UserRole;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the dedicated Personal / General Account registration view.
      */
     public function create(): View
     {
-        return view('auth.register');
+        $provinces = LocationService::getProvinces();
+        $citiesMap = LocationService::getCitiesMap();
+
+        return view('auth.register', compact('provinces', 'citiesMap'));
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws ValidationException
+     * Display the dedicated Merchant & Dealer registration view.
      */
-    public function store(Request $request): RedirectResponse
+    public function createMerchant(): View
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['nullable', Rule::enum(UserRole::class)],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'location' => ['nullable', 'string', 'max:100'],
-        ]);
+        $provinces = LocationService::getProvinces();
+        $citiesMap = LocationService::getCitiesMap();
+        $commercialCategories = \App\Models\Category::whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->input('role', UserRole::USER->value),
-            'phone' => $request->input('phone'),
-            'location' => $request->input('location', 'Toronto, ON'),
-            'member_since' => 'Member since ' . date('Y'),
-            'is_dealer' => false,
-            'is_verified' => false,
-        ]);
+        return view('auth.register-merchant', compact('provinces', 'citiesMap', 'commercialCategories'));
+    }
 
-        event(new Registered($user));
+    /**
+     * Handle incoming general user registration.
+     */
+    public function store(RegisterGeneralUserRequest $request, RegistrationService $registrationService): RedirectResponse
+    {
+        $user = $registrationService->registerGeneralUser($request->validated());
 
         Auth::login($user);
 
-        return redirect(route('profile.edit', absolute: false));
+        return redirect(route('profile.edit', absolute: false))
+            ->with('success', 'Welcome to Bontrouver! Your account has been successfully created.');
+    }
+
+    /**
+     * Handle incoming commercial merchant / dealer registration.
+     */
+    public function storeMerchant(RegisterMerchantRequest $request, RegistrationService $registrationService): RedirectResponse
+    {
+        $user = $registrationService->registerMerchant(
+            $request->validated(),
+            $request->file('license_document')
+        );
+
+        Auth::login($user);
+
+        return redirect(route('profile.edit', absolute: false))
+            ->with('success', 'Welcome to Bontrouver Merchant Network! Your commercial dealer profile and verification submission have been established.');
     }
 }

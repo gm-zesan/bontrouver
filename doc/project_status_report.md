@@ -29,7 +29,7 @@
 | **14. Location-First Dynamic Ad Auto-Population** | ✅ **Complete** | **100%** | Profile city/province extracted on `/post-ad`, eliminating static hardcoded defaults with dynamic city/province pre-selection. |
 | **15. High-Capacity Media & Resilient Uploads** | ✅ **Complete** | **100%** | 25MB individual photo allowance via `max_image_upload_size_kb`, 64M/128M server ceilings, WebP compression, and framework-level `PostTooLargeException` error handling. |
 | **16. Multilingual "Traduire" (Translate) Action** | ⏳ **In Progress** | **80%** | Reactive translate button on ad cards & detail views for on-demand title and description translation between French & English. |
-| **17. Dual-Tier User Registration Separation** | ⏳ **In Progress** | **85%** | Split onboarding: Minimalist general registration (`/register`) vs. comprehensive commercial merchant onboarding (`/register/merchant`). |
+| **17. Dual-Tier User Registration Separation** | ✅ **Complete** | **100%** | `RegistrationService`, `RegisterGeneralUserRequest`, `RegisterMerchantRequest`, dual-tier interactive switch (`/register`), dedicated merchant flow (`/register/merchant`), automated `UserProfile` & `UserVerification` provisioning, 100% test coverage in `DualTierRegistrationTest`. |
 
 ---
 
@@ -278,5 +278,5 @@ We will execute the remaining admin modules in the following prioritized sequenc
 8. **Step 8: Client Customization & Feature Roadmap** — 🟡 **In Progress**:
    - ✅ **Dynamic Location Auto-population**: Solved default location issue (Toronto pre-selection); Create Ad form now dynamically auto-fills the authenticated user's registered profile city & province (e.g. Montreal, QC).
    - ✅ **High-Capacity Media Uploads**: Increased image file upload ceilings to 25MB per image and 64M/128M server limits with graceful `PostTooLargeException` error recovery.
+   - ✅ **Dual-Tier User Registration Separation**: Split onboarding into lightweight General User (`/register`) vs. comprehensive commercial merchant onboarding (`/register/merchant`) with automatic `UserProfile` and `UserVerification` provisioning and 100% test coverage.
    - ⏳ **"Traduire" (Translate) Action Button**: On-demand translation toggle on ad cards and detail pages to translate titles and descriptions into French/English.
-   - ⏳ **Dual-Tier User Registration**: Split registration flows into lightweight General User (minimal form) vs. Merchant / Dealer (full business credentials & verification).

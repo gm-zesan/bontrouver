@@ -1,7 +1,8 @@
 @php
     $isOwnProfile = Auth::check() && Auth::id() === $user->id;
-    $layout = $isOwnProfile ? 'frontend.account.layout' : 'frontend.layouts.app';
-    $sectionName = $isOwnProfile ? 'account_content' : 'content';
+    $isAccountView = $isOwnProfile && request()->routeIs('profile*') && request()->query('view') !== 'public';
+    $layout = $isAccountView ? 'frontend.account.layout' : 'frontend.layouts.app';
+    $sectionName = $isAccountView ? 'account_content' : 'content';
     $tier = $user->member_tier ?? [
         'name' => 'New Member',
         'icon' => '🥉',
@@ -21,8 +22,31 @@
 ])
 
 @section($sectionName)
-    @if(!$isOwnProfile)
+    @if(!$isAccountView)
         <div class="container py-4 py-lg-5">
+            @if($isOwnProfile)
+                <!-- Owner Preview Mode Banner -->
+                <div class="alert alert-info bg-info bg-opacity-10 border border-info border-opacity-25 text-info d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 rounded-4 py-3 px-4 mb-4 small shadow-sm">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-info bg-opacity-20 text-info d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                            <i class="bi bi-eye-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <strong class="text-white d-block">Public View Mode</strong>
+                            <span>You are previewing this profile exactly as seen by Canadian marketplace buyers and visitors.</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ route('profile.view') }}" class="btn btn-sm btn-outline-info rounded-pill px-3 py-1 fw-semibold">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard View
+                        </a>
+                        <a href="{{ route('settings.index') }}" class="btn btn-sm btn-info rounded-pill px-3 py-1 fw-semibold text-dark">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            @endif
+
             <!-- Breadcrumbs for Public Profile -->
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0 small">
@@ -34,6 +58,7 @@
                 </ol>
             </nav>
     @endif
+
 
         <!-- 1. Profile Header Hero Banner Card -->
         <div class="dark-surface-card mb-4 position-relative overflow-hidden rounded-4"
@@ -82,6 +107,17 @@
                                         <i class="bi bi-building me-1"></i> Certified Dealer
                                     </span>
                                 @endif
+                                @if(!empty($user->profile?->features['dealer_category']))
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">
+                                        <i class="bi bi-tags-fill me-1"></i> {{ $user->profile->features['dealer_category'] }}
+                                    </span>
+                                @endif
+                                @if(!empty($user->profile?->website_url))
+                                    <a href="{{ $user->profile->website_url }}" target="_blank" rel="noopener noreferrer" 
+                                       class="badge bg-dark text-light border border-secondary px-2 py-1 small text-decoration-none hover-white">
+                                        <i class="bi bi-globe me-1 text-primary"></i> {{ parse_url($user->profile->website_url, PHP_URL_HOST) ?? 'Website' }}
+                                    </a>
+                                @endif
                             </div>
 
                             <div class="d-flex align-items-center gap-2 text-secondary small mb-2 flex-wrap"
@@ -125,7 +161,24 @@
 
                     <!-- Action Buttons -->
                     <div class="d-flex align-items-center gap-2 flex-shrink-0 pb-2">
-                        @if($isOwnProfile)
+                        @if($isAccountView)
+                            <a href="{{ route('user.profile', $user->id) }}" target="_blank"
+                                class="btn btn-outline-light rounded-pill px-3 py-2 fw-semibold small" style="border-color: rgba(255,255,255,0.25);">
+                                <i class="bi bi-eye me-1"></i> Public View
+                            </a>
+                            <a href="{{ route('settings.index') }}"
+                                class="btn btn-theme-outline-primary rounded-pill px-3 py-2 fw-semibold">
+                                <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                            </a>
+                            <a href="{{ route('listings.create') }}"
+                                class="btn btn-theme-primary rounded-pill px-3 py-2 fw-semibold">
+                                <i class="bi bi-plus-lg me-1"></i> Post Ad
+                            </a>
+                        @elseif($isOwnProfile)
+                            <a href="{{ route('profile.view') }}"
+                                class="btn btn-outline-light rounded-pill px-3 py-2 fw-semibold small" style="border-color: rgba(255,255,255,0.25);">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard View
+                            </a>
                             <a href="{{ route('settings.index') }}"
                                 class="btn btn-theme-outline-primary rounded-pill px-3 py-2 fw-semibold">
                                 <i class="bi bi-pencil-square me-1"></i> Edit Profile
@@ -139,22 +192,22 @@
                                 class="btn btn-theme-primary rounded-pill px-4 py-2 fw-semibold shadow">
                                 <i class="bi bi-chat-dots-fill me-1"></i> Message
                             </a>
-                            <!-- <button type="button"
-                                class="btn btn-outline-secondary text-white rounded-circle d-flex align-items-center justify-content-center p-2"
-                                data-bs-toggle="modal" data-bs-target="#reportUserModal" style="width: 40px; height: 40px;"
-                                title="Report User">
-                                <i class="bi bi-flag"></i>
-                            </button> -->
                         @endif
                     </div>
                 </div>
             </div>
         </div>
 
+        @php
+            $operatingHours = $user->profile?->operating_hours;
+            $hasHours = !empty($operatingHours) && is_array($operatingHours) && count(array_filter($operatingHours)) > 0;
+            $hasStorefrontInfo = $user->is_dealer || $hasHours || !empty($user->profile?->website_url) || !empty($user->profile?->features['dealer_category']);
+        @endphp
+
         <div class="row g-4">
 
-            <!-- Tabs and Content -->
-            <div class="col-12">
+            <!-- Tabs and Main Content Column -->
+            <div class="{{ $hasStorefrontInfo ? 'col-12 col-lg-8' : 'col-12' }}">
                 <!-- 2. Profile Tabs Navigation -->
                 <div class="dark-surface-card p-2 p-md-3 mb-4 rounded-4"
                     style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
@@ -463,14 +516,152 @@
                                 </div>
                             </div>
                         </div>
+                </div> <!-- End Tab Panes -->
+            </div> <!-- End Left/Main Column -->
+
+            @if($hasStorefrontInfo)
+                <!-- Storefront & Operating Hours Sidebar Column -->
+                <div class="col-12 col-lg-4">
+                    <!-- 1. Storefront & Business Contact Card -->
+                    <div class="dark-surface-card p-4 rounded-4 mb-4"
+                        style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
+                        
+                        <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom border-secondary border-opacity-10">
+                            <h3 class="h6 fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-shop text-success fs-5"></i>
+                                <span>{{ $user->is_dealer ? 'Storefront & Dealer Info' : 'Business Information' }}</span>
+                            </h3>
+                            @if($user->is_dealer)
+                                <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 small px-2 py-1">
+                                    <i class="bi bi-patch-check-fill me-1"></i> Verified
+                                </span>
+                            @endif
+                        </div>
+
+                        <ul class="list-unstyled mb-0 d-flex flex-column gap-3 small">
+                            @if(!empty($user->profile?->features['dealer_category']))
+                                <li class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-tags-fill text-success fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Commercial Category</span>
+                                        <span class="text-white fw-semibold">{{ $user->profile->features['dealer_category'] }}</span>
+                                    </div>
+                                </li>
+                            @endif
+
+                            @if(!empty($user->location))
+                                <li class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Storefront Physical Address</span>
+                                        <span class="text-white fw-semibold">{{ $user->location }}</span>
+                                        @if(!empty($user->postal_code))
+                                            <span class="badge bg-secondary bg-opacity-25 text-light ms-1">{{ $user->postal_code }}</span>
+                                        @endif
+                                    </div>
+                                </li>
+                            @endif
+
+                            @if(!empty($user->phone))
+                                <li class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-telephone-fill text-success fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Business Phone / Direct Line</span>
+                                        <a href="tel:{{ $user->phone }}" class="text-white fw-semibold text-decoration-none hover-brand-green">
+                                            {{ $user->phone }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @endif
+
+                            @if(!empty($user->profile?->website_url))
+                                <li class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-globe text-primary fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Official Website</span>
+                                        <a href="{{ $user->profile->website_url }}" target="_blank" rel="noopener noreferrer" 
+                                           class="text-info fw-semibold text-decoration-none hover-underline text-break">
+                                            {{ $user->profile->website_url }} <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.7rem;"></i>
+                                        </a>
+                                    </div>
+                                </li>
+                            @endif
+
+                            @if(!empty($user->profile?->features['contact_person']))
+                                <li class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-person-badge text-warning fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Primary Representative</span>
+                                        <span class="text-white fw-semibold">{{ $user->profile->features['contact_person'] }}</span>
+                                    </div>
+                                </li>
+                            @endif
+                        </ul>
                     </div>
 
-                </div> <!-- End Right Column -->
-            </div> <!-- End Row -->
+                    <!-- 2. Store Operating Hours Card -->
+                    @if($hasHours)
+                        <div class="dark-surface-card p-4 rounded-4 mb-4"
+                            style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
+                            
+                            <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom border-secondary border-opacity-10">
+                                <h3 class="h6 fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                                    <i class="bi bi-clock-history text-success fs-5"></i>
+                                    <span>Store Operating Hours</span>
+                                </h3>
+                                @php
+                                    $todayName = \Carbon\Carbon::now()->format('l');
+                                    $todayKey = strtolower($todayName);
+                                    $todayHours = $operatingHours[$todayName] ?? ($operatingHours[$todayKey] ?? null);
+                                    $isOpenToday = !empty($todayHours) && !str_contains(strtolower($todayHours), 'closed');
+                                @endphp
+                                @if($isOpenToday)
+                                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 small px-2 py-1">
+                                        <i class="bi bi-circle-fill me-1" style="font-size: 0.45rem;"></i> Open Today
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-25 small px-2 py-1">
+                                        Closed Today
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div class="store-hours-list d-flex flex-column gap-2 small">
+                                @php
+                                    $dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                                @endphp
+                                @foreach($dayNames as $day)
+                                    @php
+                                        $dayKey = strtolower($day);
+                                        $hours = $operatingHours[$day] ?? ($operatingHours[$dayKey] ?? null);
+                                        $isToday = (strtolower($day) === strtolower($todayName));
+                                        $isClosed = empty($hours) || str_contains(strtolower($hours), 'closed');
+                                    @endphp
+                                    <div class="d-flex align-items-center justify-content-between p-2 rounded {{ $isToday ? 'bg-success bg-opacity-10 border border-success border-opacity-25' : '' }}">
+                                        <span class="{{ $isToday ? 'fw-bold text-white' : 'text-secondary' }} d-flex align-items-center gap-2">
+                                            <span>{{ $day }}</span>
+                                            @if($isToday)
+                                                <span class="badge bg-success text-dark fw-bold px-1 py-0" style="font-size: 0.65rem;">TODAY</span>
+                                            @endif
+                                        </span>
+                                        <span class="{{ $isClosed ? 'text-secondary' : ($isToday ? 'text-success fw-bold' : 'text-white') }}">
+                                            {{ $hours ?: 'Closed' }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+        </div> <!-- End Row -->
+
+            @if(!$isAccountView)
+                </div>
+            @endif
 
             @if(!$isOwnProfile)
-                </div>
-
                 <!-- Report User Modal -->
                 <div class="modal fade" id="reportUserModal" tabindex="-1" aria-labelledby="reportUserModalLabel"
                     aria-hidden="true">
