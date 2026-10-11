@@ -1860,45 +1860,124 @@
             });
         }
 
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-
-        function handleFiles(files) {
-            if (!files || files.length === 0) return;
-
-            const maxPhotos = 10;
-            const remainingSlots = maxPhotos - postAdState.images.length;
-
-            if (remainingSlots <= 0) {
-                alert('You have already reached the maximum of 10 photos.');
-                return;
-            }
-
-            const filesToProcess = Array.from(files).slice(0, remainingSlots);
-
-            filesToProcess.forEach(file => {
-                if (!file.type.match('image.*')) {
-                    alert(`File "${file.name}" is not an image.`);
+        function compressImage(file, maxDimension = 1920, quality = 0.86) {
+            return new Promise((resolve) => {
+                if (!file.type || !file.type.startsWith('image/')) {
+                    resolve({ file: file, dataUrl: null, name: file.name });
                     return;
                 }
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(`File "${file.name}" exceeds 10MB limit.`);
+                if (file.type === 'image/svg+xml' || file.type === 'image/gif') {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve({ file: file, dataUrl: e.target.result, name: file.name });
+                    reader.onerror = () => resolve({ file: file, dataUrl: null, name: file.name });
+                    reader.readAsDataURL(file);
                     return;
                 }
 
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    postAdState.images.push({
-                        file: file,
-                        dataUrl: e.target.result,
-                        name: file.name
-                    });
-                    renderPhotoGrid();
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            } else {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const outMime = 'image/jpeg';
+                        canvas.toBlob((blob) => {
+                            if (!blob || blob.size >= file.size) {
+                                resolve({ file: file, dataUrl: e.target.result, name: file.name });
+                                return;
+                            }
+                            const newFileName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+                            const compressedFile = new File([blob], newFileName, {
+                                type: outMime,
+                                lastModified: Date.now()
+                            });
+                            const dataUrl = canvas.toDataURL(outMime, quality);
+                            resolve({ file: compressedFile, dataUrl: dataUrl, name: newFileName });
+                        }, outMime, quality);
+                    };
+                    img.onerror = () => resolve({ file: file, dataUrl: e.target.result, name: file.name });
+                    img.src = e.target.result;
                 };
+                reader.onerror = () => resolve({ file: file, dataUrl: null, name: file.name });
                 reader.readAsDataURL(file);
             });
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+            e.target.value = '';
+        }
+
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
+
+            const maxPhotos = {{ site_setting('max_images_per_listing', 15) }};
+            const maxPerFileSizeMb = {{ site_setting('max_upload_size_mb', 25) }};
+            const remainingSlots = maxPhotos - postAdState.images.length;
+
+            if (remainingSlots <= 0) {
+                alert(`You have already reached the maximum of ${maxPhotos} photos.`);
+                return;
+            }
+
+            const filesToProcess = Array.from(files).slice(0, remainingSlots);
+            const countText = document.getElementById('photoCountText');
+            if (countText) {
+                countText.innerHTML = `<span class="spinner-border spinner-border-sm me-1 text-success"></span> Optimizing photos for high-speed upload...`;
+            }
+
+            for (let i = 0; i < filesToProcess.length; i++) {
+                const file = filesToProcess[i];
+                if (!file.type.match('image.*')) {
+                    alert(`File "${file.name}" is not an image.`);
+                    continue;
+                }
+                if (file.size > maxPerFileSizeMb * 1024 * 1024) {
+                    alert(`File "${file.name}" exceeds the ${maxPerFileSizeMb}MB limit.`);
+                    continue;
+                }
+
+                try {
+                    const optimized = await compressImage(file, 1920, 0.86);
+                    postAdState.images.push(optimized);
+                    renderPhotoGrid();
+                    saveDraftToStorage();
+                } catch (err) {
+                    console.error('Image compression error:', err);
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        postAdState.images.push({
+                            file: file,
+                            dataUrl: e.target.result,
+                            name: file.name
+                        });
+                        renderPhotoGrid();
+                        saveDraftToStorage();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            renderPhotoGrid();
         }
 
         function renderPhotoGrid() {
@@ -1909,7 +1988,7 @@
 
             if (postAdState.images.length === 0) {
                 grid.style.display = 'none';
-                countText.innerHTML = `<i class="bi bi-image me-1"></i> 0 of 10 photos added`;
+                countText.innerHTML = `<i class="bi bi-image me-1"></i> 0 of {{ site_setting('max_images_per_listing', 15) }} photos added`;
                 prevCover.src = '{{ asset('images/no-image.svg') }}';
                 prevCount.innerHTML = `<i class="bi bi-camera-fill me-1"></i> <span>0 Photos</span>`;
                 return;
@@ -1917,7 +1996,7 @@
 
             grid.style.display = 'grid';
             grid.innerHTML = '';
-            countText.innerHTML = `<i class="bi bi-image me-1"></i> ${postAdState.images.length} of 10 photos added`;
+            countText.innerHTML = `<i class="bi bi-image me-1"></i> ${postAdState.images.length} of {{ site_setting('max_images_per_listing', 15) }} photos added`;
 
             postAdState.images.forEach((img, idx) => {
                 const isCover = (idx === postAdState.coverIndex);
@@ -2105,16 +2184,28 @@
             const formData = new FormData(document.getElementById('postAdForm'));
 
             // Append client photos (original file or converted from restored dataUrl)
+            let totalPayloadBytes = 0;
             postAdState.images.forEach((img, idx) => {
                 if (img.file) {
+                    totalPayloadBytes += img.file.size;
                     formData.append(`images[${idx}]`, img.file);
                 } else if (img.dataUrl) {
                     const restoredFile = dataURLtoFile(img.dataUrl, img.name || `photo_${idx}.jpg`);
                     if (restoredFile) {
+                        totalPayloadBytes += restoredFile.size;
                         formData.append(`images[${idx}]`, restoredFile);
                     }
                 }
             });
+
+            // Prevent network timeout / browser crash on excessive payloads
+            if (totalPayloadBytes > 60 * 1024 * 1024) {
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline-flex';
+                btnSpinner.style.display = 'none';
+                alert('Total upload size is too large (' + (totalPayloadBytes / (1024 * 1024)).toFixed(1) + 'MB). Please remove a few photos.');
+                return;
+            }
 
             fetch('{{ route('listings.store') }}', {
                 method: 'POST',
@@ -2125,13 +2216,23 @@
                 body: formData
             })
                 .then(async res => {
-                    const data = await res.json();
+                    let data = {};
+                    try {
+                        data = await res.json();
+                    } catch (e) {
+                        // Response was non-JSON e.g. webserver HTML error 413 or 500
+                    }
+
                     if (!res.ok) {
                         let errorMsg = 'Validation failed.';
                         if (data.errors) {
                             errorMsg = Object.values(data.errors).flat().join('\n');
                         } else if (data.message) {
                             errorMsg = data.message;
+                        } else if (res.status === 413) {
+                            errorMsg = 'The total upload size exceeds server limits. Please select fewer or smaller images.';
+                        } else if (res.status === 500) {
+                            errorMsg = 'A server error occurred while publishing your ad. Please try again.';
                         }
                         throw new Error(errorMsg);
                     }

@@ -169,14 +169,14 @@ class SiteSettingSeeder extends Seeder
             ],
             [
                 'key'         => 'max_images_per_listing',
-                'value'       => '10',
+                'value'       => '15',
                 'group'       => 'marketplace',
                 'type'        => 'integer',
                 'description' => 'Maximum allowed photos per classified ad.',
             ],
             [
                 'key'         => 'max_upload_size_mb',
-                'value'       => '10',
+                'value'       => '25',
                 'group'       => 'marketplace',
                 'type'        => 'integer',
                 'description' => 'Maximum upload file size limit in megabytes.',

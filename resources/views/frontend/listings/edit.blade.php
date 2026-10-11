@@ -412,7 +412,7 @@
                                  style="background: #081D33; border: 2px dashed rgba(73, 209, 125, 0.35); border-radius: 12px; transition: all 0.25s ease;">
                                 <i class="bi bi-cloud-arrow-up-fill text-success fs-1 mb-2 d-block"></i>
                                 <div class="text-white fw-semibold mb-1">Click to browse or drop images here</div>
-                                <div class="text-secondary small">Supports JPG, PNG, WEBP up to 10MB per photo</div>
+                                <div class="text-secondary small">Supports JPG, PNG, WEBP up to {{ site_setting('max_upload_size_mb', 25) }}MB per photo</div>
                                 <input type="file" id="newPhotosInput" name="images[]" multiple accept="image/*" class="d-none" onchange="handleNewPhotos(event)">
                             </div>
 
@@ -1508,7 +1508,19 @@
         );
     }
 
-    document.getElementById('editListingForm')?.addEventListener('submit', function() {
+    document.getElementById('editListingForm')?.addEventListener('submit', function(e) {
+        const input = document.getElementById('newPhotosInput');
+        if (input && input.files && input.files.length > 0) {
+            let totalBytes = 0;
+            for (let i = 0; i < input.files.length; i++) {
+                totalBytes += input.files[i].size;
+            }
+            if (totalBytes > 60 * 1024 * 1024) {
+                e.preventDefault();
+                alert('Total new photos upload size is too large (' + (totalBytes / (1024 * 1024)).toFixed(1) + 'MB). Please choose smaller or fewer images.');
+                return;
+            }
+        }
         const btn = document.getElementById('btnSubmitUpdate');
         if (btn) {
             btn.disabled = true;
