@@ -18,6 +18,11 @@ class CategoryAttributeSeeder extends Seeder
     {
         $attributeArchetypes = $this->getAttributeArchetypes();
 
+        $attributesFrPath = database_path('seeders/data/attributes_fr.json');
+        $frenchAttrsData = file_exists($attributesFrPath) ? json_decode(file_get_contents($attributesFrPath), true) : ['attrs' => [], 'options' => []];
+        $frenchAttrNames = $frenchAttrsData['attrs'] ?? [];
+        $frenchOptLabels = $frenchAttrsData['options'] ?? [];
+
         $allCategories = Category::with(['parent.parent'])->get();
         $totalCategories = $allCategories->count();
         $categoriesWithAttributes = 0;
@@ -36,13 +41,17 @@ class CategoryAttributeSeeder extends Seeder
 
                 $sortOrder = 1;
                 foreach ($attributes as $attrData) {
+                    $attrNameEn = $attrData['name'];
+                    $attrNameFr = $frenchAttrNames[$attrNameEn] ?? $attrNameEn;
+
                     $attribute = CategoryAttribute::updateOrCreate(
                         [
                             'category_id' => $category->id,
                             'slug'        => $attrData['slug'],
                         ],
                         [
-                            'name'          => $attrData['name'],
+                            'name_en'       => $attrNameEn,
+                            'name_fr'       => $attrNameFr,
                             'type'          => $attrData['type'],
                             'is_required'   => $attrData['is_required'] ?? false,
                             'is_filterable' => $attrData['is_filterable'] ?? false,
@@ -56,13 +65,17 @@ class CategoryAttributeSeeder extends Seeder
                     if (!empty($attrData['options'])) {
                         $optSort = 1;
                         foreach ($attrData['options'] as $optionLabel) {
+                            $optLabelEn = $optionLabel;
+                            $optLabelFr = $frenchOptLabels[$optLabelEn] ?? $optLabelEn;
+
                             AttributeOption::updateOrCreate(
                                 [
                                     'category_attribute_id' => $attribute->id,
                                     'value'                 => Str::slug($optionLabel),
                                 ],
                                 [
-                                    'label'      => $optionLabel,
+                                    'label_en'   => $optLabelEn,
+                                    'label_fr'   => $optLabelFr,
                                     'is_active'  => true,
                                     'sort_order' => $optSort++,
                                 ]

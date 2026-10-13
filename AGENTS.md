@@ -63,27 +63,36 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$category->children()` → `hasMany(Category::class, 'parent_id')`
 - `$category->attributes()` → `hasMany(CategoryAttribute::class)`
 - `$category->listings()` → `hasMany(Listing::class)`
+- Accessors: `$category->name` (locale-aware EN/FR), `$category->description` (locale-aware EN/FR)
+- Fields: `name_en`, `name_fr`, `slug`, `icon`, `description_en`, `description_fr`, `parent_id`, `is_active`, `sort_order`
 - Helper: `Category::getTree()` (hierarchical category array)
 
 ### CategoryAttribute (`App\Models\CategoryAttribute`)
 - `$attr->category()` → `belongsTo(Category::class)`
 - `$attr->options()` → `hasMany(AttributeOption::class)`
+- Accessors: `$attr->name` (locale-aware EN/FR), `$attr->placeholder`, `$attr->help_text`
+- Fields: `category_id`, `name_en`, `name_fr`, `slug`, `type`, `placeholder_en`, `placeholder_fr`, `help_text_en`, `help_text_fr`, `is_required`, `is_filterable`, `is_active`, `sort_order`
 
 ### AttributeOption (`App\Models\AttributeOption`)
 - `$option->attribute()` → `belongsTo(CategoryAttribute::class, 'category_attribute_id')`
+- Accessor: `$option->label` (locale-aware EN/FR)
+- Fields: `category_attribute_id`, `value`, `label_en`, `label_fr`, `sort_order`
 
 ### Province (`App\Models\Province`)
 - `$province->cities()` → `hasMany(City::class)`
 - `$province->listings()` → `hasMany(Listing::class)`
 - `$province->smartAlerts()` → `hasMany(SmartAlert::class)`
-- Fields: `name`, `code`, `slug`, `country_code`, `is_active`, `sort_order`
+- Accessor: `$province->name` (locale-aware EN/FR)
+- Fields: `name_en`, `name_fr`, `code`, `slug`, `country_code`, `is_active`, `sort_order`
 
 ### City (`App\Models\City`)
 - `$city->province()` → `belongsTo(Province::class)`
 - `$city->listings()` → `hasMany(Listing::class)`
 - `$city->companionshipRequests()` → `hasMany(CompanionshipRequest::class)`
 - `$city->smartAlerts()` → `hasMany(SmartAlert::class)`
-- Helper: `City::getCitiesMap()` (cached active Canadian cities with province metadata & coordinates)
+- Accessor: `$city->name` (locale-aware EN/FR)
+- Fields: `province_id`, `name_en`, `name_fr`, `slug`, `latitude`, `longitude`, `population`, `is_featured`, `is_active`, `sort_order`
+- Helpers: `City::getCitiesMap()` (cached active Canadian cities with province metadata & coordinates, cached by locale `canadian_cities_map_{$locale}`), `City::clearMapCache()`
 
 ### Listing (`App\Models\Listing`)
 - `$listing->user()` → `belongsTo(User::class)`
@@ -131,8 +140,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$listingAttr->categoryAttribute()` → `belongsTo(CategoryAttribute::class, 'category_attribute_id')`
 
 ### MemberTier (`App\Models\MemberTier`)
-- Columns: `name`, `icon`, `badge_color`, `badge_class`, `min_points`, `max_points`, `description`, `perks` (json)
-- Accessor: `$tier->clean_name` (strips leading emoji for clean display)
+- Columns: `name_en`, `name_fr`, `icon`, `badge_color`, `badge_class`, `min_points`, `max_points`, `description_en`, `description_fr`, `perks_en` (json), `perks_fr` (json)
+- Accessor: `$tier->name` (locale-aware EN/FR), `$tier->clean_name` (strips leading emoji for clean display), `$tier->description`, `$tier->perks`
 
 ### Review (`App\Models\Review`)
 - `$review->reviewer()` → `belongsTo(User::class, 'reviewer_id')`
@@ -183,7 +192,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$pt->reference()` → `morphTo()`
 
 ### PointRule (`App\Models\PointRule`)
-- Columns: `rule_key`, `name`, `type` (`earn`, `spend`), `points`, `category`, `description`, `is_active`, `sort_order`
+- Columns: `rule_key`, `name_en`, `name_fr`, `type` (`earn`, `spend`), `points`, `category`, `description_en`, `description_fr`, `is_active`, `sort_order`
+- Accessor: `$rule->name` (locale-aware EN/FR), `$rule->description` (locale-aware EN/FR)
 - Scopes: `scopeEarn()`, `scopeSpend()`, `scopeActive()`
 
 ### Report (`App\Models\Report`)
@@ -207,7 +217,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 
 ### PromotionPackage (`App\Models\PromotionPackage`)
 - `$pkg->listingPromotions()` → `hasMany(ListingPromotion::class)`
-- Columns: `name`, `slug`, `type` (`sponsored`, `featured`, `bump_up`), `badge_text`, `badge_color`, `badge_icon`, `price`, `point_cost`, `duration_days`, `description`, `features` (json), `is_active`, `sort_order`
+- Columns: `name_en`, `name_fr`, `slug`, `type` (`sponsored`, `featured`, `bump_up`), `badge_text_en`, `badge_text_fr`, `badge_color`, `badge_icon`, `price`, `point_cost`, `duration_days`, `description_en`, `description_fr`, `features_en` (json), `features_fr` (json), `is_active`, `sort_order`
+- Accessor: `$pkg->name` (locale-aware EN/FR), `$pkg->badge_text`, `$pkg->description`, `$pkg->features`
 
 ### ListingPromotion (`App\Models\ListingPromotion`)
 - `$promo->listing()` → `belongsTo(Listing::class)`
@@ -216,7 +227,8 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Columns: `listing_id`, `user_id`, `promotion_package_id`, `type`, `price_paid`, `points_spent`, `payment_method`, `payment_status`, `transaction_reference`, `starts_at`, `expires_at`, `is_active`
 
 ### BannerAd (`App\Models\BannerAd`)
-- Columns: `title`, `position` (`homepage_top`, `homepage_middle`, `homepage_bottom`, `homepage_leaderboard`, `search_sidebar`, `listing_detail_bottom`, `community_sidebar`), `image_path`, `target_url`, `html_code`, `city`, `province`, `is_active`, `sort_order`, `impressions_count`, `clicks_count`, `starts_at`, `expires_at`
+- Columns: `title_en`, `title_fr`, `button_text_en`, `button_text_fr`, `position` (`homepage_top`, `homepage_middle`, `homepage_bottom`, `homepage_leaderboard`, `search_sidebar`, `listing_detail_bottom`, `community_sidebar`), `image_path`, `target_url`, `html_code`, `city`, `province`, `is_active`, `sort_order`, `impressions_count`, `clicks_count`, `starts_at`, `expires_at`
+- Accessor: `$banner->title` (locale-aware EN/FR), `$banner->button_text`
 
 ### SearchQuery (`App\Models\SearchQuery`)
 - Fields: `query`, `hits_count`, `results_count`, `last_searched_at`
@@ -305,4 +317,12 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - **Domain**: `https://bontrouver.ca` (LiteSpeed Server, PHP 8.4, Cloudflare proxy & SSL).
 - **Database**: `bontrouv_bontrouver` with dedicated user `bontrouv_dbuser`.
 - **Media Upload Limits**: PHP `post_max_size=128M`, `upload_max_filesize=64M`, framework Site Setting `max_image_upload_size_kb=25600` (25MB per image), and global `PostTooLargeException` interception in `bootstrap/app.php`.
+
+### E. Bilingual Database-Driven Master Data & Enums Architecture
+- **Strict Separation of Master Data vs UGC**: User-generated content (`listings` and `companionship_requests`) remains non-destructive in the DB and is translated dynamically on-demand via `TranslationService` with 30-day SHA-256 caching. In contrast, **all platform master data** (`categories`, `category_attributes`, `attribute_options`, `provinces`, `cities`, `member_tiers`, `point_rules`, `promotion_packages`, `banner_ads`) is stored bilingually with dedicated `_en` and `_fr` columns in MySQL.
+- **Smart Locale Accessors with Fallback**: Model accessors (`getNameAttribute()`, `getDescriptionAttribute()`, `getLabelAttribute()`, etc.) automatically evaluate runtime locale (`app()->getLocale()`). If `fr` is active and the French value is populated, it returns the French translation; otherwise, it seamlessly falls back to English, maintaining 100% backward compatibility for all existing Blade views (`$category->name`, `$city->name`, etc.).
+- **Bilingual Platform Enums**: All system enums (`ListingStatus`, `ReportReason`, `CompanionshipType`, `UserRole`) implement `label(?string $locale = null)` delivering official localized Canadian English and French terms.
+- **Locale-Aware City Caching**: `City::getCitiesMap()` caches Canadian location records per locale (`canadian_cities_map_en`, `canadian_cities_map_fr`) with automated invalidation via `City::clearMapCache()`.
+- **Admin Panel Dual-Language CRUD**: All administrative create/edit modals and forms provide side-by-side English and French inputs with auto-fallback validation in FormRequests (`prepareForValidation`).
+
 

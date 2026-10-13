@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\City;
 use App\Models\Listing;
 use App\Models\Province;
 use App\Models\User;
-use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,7 +14,13 @@ class AdminLocationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_non_admin_cannot_access_locations_panel(): void
+    public function test_guest_cannot_access_locations_directory(): void
+    {
+        $response = $this->get(route('admin.locations.index'));
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_regular_user_cannot_access_locations_directory(): void
     {
         $user = User::factory()->create(['role' => 'user']);
 
@@ -25,10 +31,11 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_view_locations_directory(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'Alberta', 'slug' => 'alberta', 'code' => 'AB']);
+        $province = Province::create(['name_en' => 'Alberta', 'name_fr' => 'Alberta', 'slug' => 'alberta', 'code' => 'AB']);
         City::create([
             'province_id' => $province->id,
-            'name'        => 'Calgary',
+            'name_en'     => 'Calgary',
+            'name_fr'     => 'Calgary',
             'slug'        => 'calgary',
             'latitude'    => 51.0447,
             'longitude'   => -114.0719,
@@ -48,10 +55,11 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_fetch_cities_via_datatables_ajax(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'Alberta', 'slug' => 'alberta', 'code' => 'AB']);
+        $province = Province::create(['name_en' => 'Alberta', 'name_fr' => 'Alberta', 'slug' => 'alberta', 'code' => 'AB']);
         City::create([
             'province_id' => $province->id,
-            'name'        => 'Calgary',
+            'name_en'     => 'Calgary',
+            'name_fr'     => 'Calgary',
             'slug'        => 'calgary',
             'latitude'    => 51.0447,
             'longitude'   => -114.0719,
@@ -75,11 +83,12 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_create_new_city(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'British Columbia', 'slug' => 'british-columbia', 'code' => 'BC']);
+        $province = Province::create(['name_en' => 'British Columbia', 'name_fr' => 'Colombie-Britannique', 'slug' => 'british-columbia', 'code' => 'BC']);
 
         $response = $this->actingAs($admin)->postJson(route('admin.locations.cities.store'), [
             'province_id' => $province->id,
-            'name'        => 'Kelowna',
+            'name_en'     => 'Kelowna',
+            'name_fr'     => 'Kelowna',
             'latitude'    => 49.8880,
             'longitude'   => -119.4960,
             'population'  => 142000,
@@ -91,7 +100,7 @@ class AdminLocationTest extends TestCase
             ->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('cities', [
-            'name'        => 'Kelowna',
+            'name_en'     => 'Kelowna',
             'slug'        => 'kelowna',
             'province_id' => $province->id,
             'is_featured' => 1,
@@ -101,10 +110,11 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_update_city(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'Ontario', 'slug' => 'ontario', 'code' => 'ON']);
+        $province = Province::create(['name_en' => 'Ontario', 'name_fr' => 'Ontario', 'slug' => 'ontario', 'code' => 'ON']);
         $city = City::create([
             'province_id' => $province->id,
-            'name'        => 'Ottawa',
+            'name_en'     => 'Ottawa',
+            'name_fr'     => 'Ottawa',
             'slug'        => 'ottawa',
             'latitude'    => 45.4215,
             'longitude'   => -75.6972,
@@ -112,7 +122,8 @@ class AdminLocationTest extends TestCase
 
         $response = $this->actingAs($admin)->putJson(route('admin.locations.cities.update', $city), [
             'province_id' => $province->id,
-            'name'        => 'City of Ottawa',
+            'name_en'     => 'City of Ottawa',
+            'name_fr'     => 'Ville d\'Ottawa',
             'latitude'    => 45.4215,
             'longitude'   => -75.6972,
             'is_featured' => 1,
@@ -124,7 +135,7 @@ class AdminLocationTest extends TestCase
 
         $this->assertDatabaseHas('cities', [
             'id'          => $city->id,
-            'name'        => 'City of Ottawa',
+            'name_en'     => 'City of Ottawa',
             'is_featured' => 1,
         ]);
     }
@@ -132,10 +143,11 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_toggle_city_active_and_featured(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'Manitoba', 'slug' => 'manitoba', 'code' => 'MB']);
+        $province = Province::create(['name_en' => 'Manitoba', 'name_fr' => 'Manitoba', 'slug' => 'manitoba', 'code' => 'MB']);
         $city = City::create([
             'province_id' => $province->id,
-            'name'        => 'Winnipeg',
+            'name_en'     => 'Winnipeg',
+            'name_fr'     => 'Winnipeg',
             'slug'        => 'winnipeg',
             'latitude'    => 49.8951,
             'longitude'   => -97.1384,
@@ -158,11 +170,12 @@ class AdminLocationTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $user = User::factory()->create(['role' => 'user']);
-        $category = Category::create(['name' => 'Electronics', 'slug' => 'electronics']);
-        $province = Province::create(['name' => 'Nova Scotia', 'slug' => 'nova-scotia', 'code' => 'NS']);
+        $category = Category::create(['name_en' => 'Electronics', 'name_fr' => 'Électronique', 'slug' => 'electronics']);
+        $province = Province::create(['name_en' => 'Nova Scotia', 'name_fr' => 'Nouvelle-Écosse', 'slug' => 'nova-scotia', 'code' => 'NS']);
         $city = City::create([
             'province_id' => $province->id,
-            'name'        => 'Halifax',
+            'name_en'     => 'Halifax',
+            'name_fr'     => 'Halifax',
             'slug'        => 'halifax',
             'latitude'    => 44.6488,
             'longitude'   => -63.5752,
@@ -192,10 +205,11 @@ class AdminLocationTest extends TestCase
     public function test_admin_can_update_and_toggle_province(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $province = Province::create(['name' => 'Yukon Territory', 'slug' => 'yukon-territory', 'code' => 'YT']);
+        $province = Province::create(['name_en' => 'Yukon Territory', 'name_fr' => 'Territoire du Yukon', 'slug' => 'yukon-territory', 'code' => 'YT']);
 
         $response = $this->actingAs($admin)->putJson(route('admin.locations.provinces.update', $province), [
-            'name'       => 'Yukon',
+            'name_en'    => 'Yukon',
+            'name_fr'    => 'Yukon',
             'code'       => 'YT',
             'sort_order' => 12,
             'is_active'  => 1,
@@ -205,8 +219,8 @@ class AdminLocationTest extends TestCase
             ->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('provinces', [
-            'id'   => $province->id,
-            'name' => 'Yukon',
+            'id'      => $province->id,
+            'name_en' => 'Yukon',
         ]);
 
         $response = $this->actingAs($admin)->postJson(route('admin.locations.provinces.toggleActive', $province));

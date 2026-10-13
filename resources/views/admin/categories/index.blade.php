@@ -259,14 +259,19 @@
 
                 <div class="modal-body p-4">
                     <div class="row g-3">
-                        {{-- Category Name --}}
-                        <div class="col-md-7">
-                            <label class="form-label small fw-semibold text-dark">Category Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-sm" id="cat_name" name="name" placeholder="e.g. Vehicles, Real Estate, Community Meetups" required onkeyup="autoGenerateSlug(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                        {{-- Category Name EN & FR --}}
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Category Name (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="cat_name_en" name="name_en" placeholder="e.g. Vehicles, Real Estate" required onkeyup="autoGenerateSlug(this.value)" style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Category Name (French / Français)</label>
+                            <input type="text" class="form-control form-control-sm" id="cat_name_fr" name="name_fr" placeholder="ex. Véhicules, Immobilier" style="border: 1px solid #cbd5e1; border-radius: 6px;">
                         </div>
 
                         {{-- Parent Category --}}
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label class="form-label small fw-semibold text-dark">Parent Group</label>
                             <select class="form-select form-select-sm" id="cat_parent_id" name="parent_id" style="border: 1px solid #cbd5e1; border-radius: 6px;">
                                 <option value="">— None (Root Category) —</option>
@@ -296,19 +301,24 @@
                             </div>
                         </div>
 
-                        {{-- Description --}}
-                        <div class="col-12">
-                            <label class="form-label small fw-semibold text-dark">Description</label>
-                            <textarea class="form-control form-control-sm" id="cat_description" name="description" rows="2" placeholder="Short description for SEO and category listings..." style="border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
-                        </div>
-
-                        {{-- Sort Order & Active Switch --}}
+                        {{-- Sort Order --}}
                         <div class="col-md-6">
                             <label class="form-label small fw-semibold text-dark">Sort Order</label>
                             <input type="number" class="form-control form-control-sm" id="cat_sort_order" name="sort_order" value="0" min="0" style="border: 1px solid #cbd5e1; border-radius: 6px;">
                         </div>
 
-                        <div class="col-md-6 d-flex align-items-center pt-3">
+                        {{-- Description EN & FR --}}
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Description (English)</label>
+                            <textarea class="form-control form-control-sm" id="cat_description_en" name="description_en" rows="2" placeholder="Short description for SEO..." style="border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Description (French / Français)</label>
+                            <textarea class="form-control form-control-sm" id="cat_description_fr" name="description_fr" rows="2" placeholder="Description courte pour le référencement..." style="border: 1px solid #cbd5e1; border-radius: 6px;"></textarea>
+                        </div>
+
+                        <div class="col-12 d-flex align-items-center pt-2">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" role="switch" id="cat_is_active" name="is_active" value="1" checked style="cursor: pointer;">
                                 <label class="form-check-label small fw-semibold text-dark" for="cat_is_active">Publish & Enable Category</label>
@@ -469,16 +479,18 @@
                         var c = res.category;
                         $('#category_id').val(c.id);
                         $('#category_method').val('PUT');
-                        $('#cat_name').val(c.name);
+                        $('#cat_name_en').val(c.name_en || '');
+                        $('#cat_name_fr').val(c.name_fr || '');
                         $('#cat_slug').val(c.slug);
                         $('#cat_parent_id').val(c.parent_id || '');
                         $('#cat_icon').val(c.icon || '');
-                        $('#cat_description').val(c.description || '');
+                        $('#cat_description_en').val(c.description_en || '');
+                        $('#cat_description_fr').val(c.description_fr || '');
                         $('#cat_sort_order').val(c.sort_order || 0);
                         $('#cat_is_active').prop('checked', c.is_active == 1);
                         
                         updateIconPreview(c.icon || '');
-                        $('#categoryModalLabel').text('Edit Category: ' + c.name);
+                        $('#categoryModalLabel').text('Edit Category: ' + (c.name_en || ''));
                         $('#categoryModal').modal('show');
                     }
                 }
@@ -495,11 +507,13 @@
             var formData = {
                 _token: "{{ csrf_token() }}",
                 _method: method,
-                name: $('#cat_name').val(),
+                name_en: $('#cat_name_en').val(),
+                name_fr: $('#cat_name_fr').val(),
                 slug: $('#cat_slug').val(),
                 parent_id: $('#cat_parent_id').val() || null,
                 icon: $('#cat_icon').val(),
-                description: $('#cat_description').val(),
+                description_en: $('#cat_description_en').val(),
+                description_fr: $('#cat_description_fr').val(),
                 sort_order: $('#cat_sort_order').val(),
                 is_active: $('#cat_is_active').is(':checked') ? 1 : 0
             };

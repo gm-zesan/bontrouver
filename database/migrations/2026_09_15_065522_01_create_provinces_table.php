@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('provinces', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name_en');
+            $table->string('name_fr')->nullable();
             $table->string('code', 10)->unique();
             $table->string('slug')->unique();
             $table->string('country_code', 10)->default('CA');

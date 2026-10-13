@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('point_rules', function (Blueprint $table) {
             $table->id();
             $table->string('rule_key', 64)->unique();
-            $table->string('name', 150);
+            $table->string('name_en', 150);
+            $table->string('name_fr', 150)->nullable();
             $table->enum('type', ['earn', 'spend'])->index();
             $table->unsignedInteger('points')->default(0);
             $table->string('category', 100)->nullable();
-            $table->text('description')->nullable();
+            $table->text('description_en')->nullable();
+            $table->text('description_fr')->nullable();
             $table->boolean('is_active')->default(true)->index();
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();

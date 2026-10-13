@@ -515,12 +515,20 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
-                                    Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="tier_name" name="name" required
+                                    Name (EN) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="tier_name_en" name="name_en" required
                                     style="height: 34px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px;">
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
+                                    Name (FR)</label>
+                                <input type="text" class="form-control" id="tier_name_fr" name="name_fr"
+                                    placeholder="Nom du niveau en français"
+                                    style="height: 34px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px;">
+                            </div>
+
+                            <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Icon
                                     / Emoji</label>
                                 <input type="text" class="form-control text-center" id="tier_icon" name="icon"
@@ -528,7 +536,7 @@
                                     style="height: 34px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px;">
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark mb-1.5"
                                     style="font-size: 12.5px;">Color Code</label>
                                 <div class="input-group" style="height: 34px;">
@@ -571,19 +579,35 @@
                                     tier (no upper point limit).</div>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
-                                    Description</label>
-                                <textarea class="form-control" id="tier_description" name="description" rows="2"
-                                    placeholder="Brief summary of member standing..."
+                                    Description (EN)</label>
+                                <textarea class="form-control" id="tier_description_en" name="description_en" rows="2"
+                                    placeholder="Brief summary in English..."
                                     style="border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;"></textarea>
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
-                                    Perks (One perk per line)</label>
-                                <textarea class="form-control font-monospace" id="tier_perks" name="perks" rows="4"
+                                    Description (FR)</label>
+                                <textarea class="form-control" id="tier_description_fr" name="description_fr" rows="2"
+                                    placeholder="Description du statut en français..."
+                                    style="border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;"></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
+                                    Perks (EN - One per line)</label>
+                                <textarea class="form-control font-monospace" id="tier_perks_en" name="perks_en" rows="4"
                                     placeholder="Priority support queue&#10;10% point discount on featured ads&#10;Special profile badge"
+                                    style="border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;"></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark mb-1.5" style="font-size: 12.5px;">Tier
+                                    Perks (FR - Un par ligne)</label>
+                                <textarea class="form-control font-monospace" id="tier_perks_fr" name="perks_fr" rows="4"
+                                    placeholder="File d'assistance prioritaire&#10;10 % de réduction de points&#10;Badge de profil spécial"
                                     style="border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;"></textarea>
                             </div>
                         </div>
@@ -638,8 +662,8 @@
                                     <option value="">-- Choose Member --</option>
                                     @foreach($users as $u)
                                         <option value="{{ $u->id }}">
-                                            {{ $u->name }} ({{ $u->email }}) — Current:
-                                            {{ number_format($u->community_points) }} pts
+                                             {{ $u->name }} ({{ $u->email }}) — Current:
+                                             {{ number_format($u->community_points) }} pts
                                         </option>
                                     @endforeach
                                 </select>
@@ -786,19 +810,22 @@
                 if (res.success && res.tier) {
                     var t = res.tier;
                     $('#tier_id').val(t.id);
-                    $('#tier_name').val(t.name);
+                    $('#tier_name_en').val(t.name_en || t.name || '');
+                    $('#tier_name_fr').val(t.name_fr || '');
                     $('#tier_icon').val(t.icon || '');
                     $('#tier_badge_color').val(t.badge_color || '#cd7f32');
                     $('#tier_color_picker').val(t.badge_color || '#cd7f32');
                     $('#tier_min_points').val(t.min_points);
                     $('#tier_max_points').val(t.max_points !== null ? t.max_points : '');
-                    $('#tier_description').val(t.description || '');
+                    $('#tier_description_en').val(t.description_en || t.description || '');
+                    $('#tier_description_fr').val(t.description_fr || '');
 
-                    var perksText = Array.isArray(t.perks) ? t.perks.join("\n") : (t.perks || '');
-                    $('#tier_perks').val(perksText);
+                    var perksEnText = Array.isArray(t.perks_en) ? t.perks_en.join("\n") : (Array.isArray(t.perks) ? t.perks.join("\n") : (t.perks_en || t.perks || ''));
+                    var perksFrText = Array.isArray(t.perks_fr) ? t.perks_fr.join("\n") : (t.perks_fr || '');
+                    $('#tier_perks_en').val(perksEnText);
+                    $('#tier_perks_fr').val(perksFrText);
 
                     $('#editTierModal').modal('show');
-                }
             }).fail(function () {
                 window.showToast("Failed to fetch tier details.", true, "Error");
             });

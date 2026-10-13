@@ -13,18 +13,20 @@ enum ListingStatus: string
     case REJECTED = 'rejected';
 
     /**
-     * Get a human-readable display label.
+     * Get a human-readable localized display label.
      */
-    public function label(): string
+    public function label(?string $locale = null): string
     {
+        $locale = $locale ?? app()->getLocale();
+
         return match ($this) {
-            self::DRAFT => 'Draft',
-            self::PENDING_REVIEW => 'Pending Review',
-            self::ACTIVE => 'Active',
-            self::PAUSED => 'Paused',
-            self::SOLD => 'Sold',
-            self::EXPIRED => 'Expired',
-            self::REJECTED => 'Rejected',
+            self::DRAFT          => $locale === 'fr' ? 'Brouillon' : 'Draft',
+            self::PENDING_REVIEW => $locale === 'fr' ? 'En attente de révision' : 'Pending Review',
+            self::ACTIVE         => $locale === 'fr' ? 'Actif' : 'Active',
+            self::PAUSED         => $locale === 'fr' ? 'En pause' : 'Paused',
+            self::SOLD           => $locale === 'fr' ? 'Vendu' : 'Sold',
+            self::EXPIRED        => $locale === 'fr' ? 'Expiré' : 'Expired',
+            self::REJECTED       => $locale === 'fr' ? 'Rejeté' : 'Rejected',
         };
     }
 

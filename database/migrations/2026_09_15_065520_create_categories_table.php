@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable()->constrained('categories')->restrictOnDelete();
-            $table->string('name');
+            $table->string('name_en');
+            $table->string('name_fr')->nullable();
             $table->string('slug')->unique();
             $table->string('icon')->nullable();
-            $table->text('description')->nullable();
+            $table->text('description_en')->nullable();
+            $table->text('description_fr')->nullable();
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

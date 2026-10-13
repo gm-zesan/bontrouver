@@ -30,47 +30,59 @@ class AdminMemberTierTest extends TestCase
 
         // Seed basic member tiers
         MemberTier::create([
-            'name' => '🥉 New Member',
+            'name_en' => '🥉 New Member',
+            'name_fr' => '🥉 Nouveau membre',
             'icon' => '🥉',
             'badge_color' => '#cd7f32',
             'badge_class' => 'tier-badge tier-bronze',
             'min_points' => 0,
             'max_points' => 99,
-            'description' => 'Welcome tier for newly registered members in Canada.',
-            'perks' => ['Standard posting rights', 'Basic community messaging'],
+            'description_en' => 'Welcome tier for newly registered members in Canada.',
+            'description_fr' => 'Niveau de bienvenue pour les nouveaux membres au Canada.',
+            'perks_en' => ['Standard posting rights', 'Basic community messaging'],
+            'perks_fr' => ['Droits de publication standard', 'Messagerie communautaire de base'],
         ]);
 
         MemberTier::create([
-            'name' => '🥈 Active Member',
+            'name_en' => '🥈 Active Member',
+            'name_fr' => '🥈 Membre actif',
             'icon' => '🥈',
             'badge_color' => '#a0a0a0',
             'badge_class' => 'tier-badge tier-silver',
             'min_points' => 100,
             'max_points' => 299,
-            'description' => 'Members actively participating in community aid and marketplace.',
-            'perks' => ['Silver badge on listings', 'Priority customer support'],
+            'description_en' => 'Members actively participating in community aid and marketplace.',
+            'description_fr' => 'Membres participant activement à l\'entraide communautaire.',
+            'perks_en' => ['Silver badge on listings', 'Priority customer support'],
+            'perks_fr' => ['Badge argent sur les annonces', 'Support client prioritaire'],
         ]);
 
         MemberTier::create([
-            'name' => '🥇 Trusted Member',
+            'name_en' => '🥇 Trusted Member',
+            'name_fr' => '🥇 Membre de confiance',
             'icon' => '🥇',
             'badge_color' => '#f59e0b',
             'badge_class' => 'tier-badge tier-gold',
             'min_points' => 300,
             'max_points' => 699,
-            'description' => 'Highly trusted Canadian community members.',
-            'perks' => ['Gold verified badge', 'Discounts on promotions'],
+            'description_en' => 'Highly trusted Canadian community members.',
+            'description_fr' => 'Membres hautement fiables de la communauté canadienne.',
+            'perks_en' => ['Gold verified badge', 'Discounts on promotions'],
+            'perks_fr' => ['Badge or vérifié', 'Rabais sur les promotions'],
         ]);
 
         MemberTier::create([
-            'name' => '⭐ Highly Appreciated Member',
+            'name_en' => '⭐ Highly Appreciated Member',
+            'name_fr' => '⭐ Membre hautement apprécié',
             'icon' => '⭐',
             'badge_color' => '#8b5cf6',
             'badge_class' => 'tier-badge tier-elite',
             'min_points' => 700,
             'max_points' => null,
-            'description' => 'Pillar members with exceptional trust and mutual aid score.',
-            'perks' => ['Star Elite badge', 'Free monthly featured ad'],
+            'description_en' => 'Pillar members with exceptional trust and mutual aid score.',
+            'description_fr' => 'Piliers de la communauté avec un score exceptionnel.',
+            'perks_en' => ['Star Elite badge', 'Free monthly featured ad'],
+            'perks_fr' => ['Badge étoile élite', 'Annonce en vedette mensuelle gratuite'],
         ]);
     }
 
@@ -153,17 +165,19 @@ class AdminMemberTierTest extends TestCase
 
     public function test_admin_can_update_member_tier_thresholds_and_perks(): void
     {
-        $tier = MemberTier::where('name', 'like', '%Active Member%')->first();
+        $tier = MemberTier::where('name_en', 'like', '%Active Member%')->first() ?? MemberTier::first();
 
         $response = $this->actingAs($this->admin)->put(route('admin.member-tiers.update', $tier), [
-            'name' => '🥈 Active Member Pro',
+            'name_en' => '🥈 Active Member Pro',
+            'name_fr' => '🥈 Membre Actif Pro',
             'icon' => '🥈',
             'badge_color' => '#b0b0b0',
             'badge_class' => 'tier-badge tier-silver',
             'min_points' => 120,
             'max_points' => 350,
-            'description' => 'Updated tier description for active community members.',
-            'perks' => "Silver badge on listings\nPriority customer support\nExtended listing duration",
+            'description_en' => 'Updated tier description for active community members.',
+            'description_fr' => 'Description mise à jour pour les membres actifs de la communauté.',
+            'perks_en' => "Silver badge on listings\nPriority customer support\nExtended listing duration",
         ]);
 
         $response->assertOk();
@@ -178,7 +192,7 @@ class AdminMemberTierTest extends TestCase
 
         $this->assertDatabaseHas('member_tiers', [
             'id' => $tier->id,
-            'name' => '🥈 Active Member Pro',
+            'name_en' => '🥈 Active Member Pro',
             'min_points' => 120,
             'max_points' => 350,
         ]);
@@ -189,13 +203,13 @@ class AdminMemberTierTest extends TestCase
         $tier = MemberTier::first();
 
         $response = $this->actingAs($this->admin)->putJson(route('admin.member-tiers.update', $tier), [
-            'name' => '', // required
+            'name_en' => '', // required
             'min_points' => -5, // min 0
             'max_points' => 'not-a-number',
         ]);
 
         $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['name', 'min_points', 'max_points']);
+        $response->assertJsonValidationErrors(['name_en', 'min_points', 'max_points']);
     }
 
     public function test_admin_can_adjust_user_points_with_award(): void

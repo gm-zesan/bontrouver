@@ -7,13 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 class Province extends Model
 {
     protected $fillable = [
-        'name',
+        'name_en',
+        'name_fr',
         'code',
         'slug',
         'country_code',
         'is_active',
         'sort_order',
     ];
+
+    protected $appends = [
+        'name',
+    ];
+
+    /**
+     * Context-aware localized province name.
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['name_fr'])) {
+            return $this->attributes['name_fr'];
+        }
+        return $this->attributes['name_en'] ?? '';
+    }
 
     protected $casts = [
         'is_active'  => 'boolean',

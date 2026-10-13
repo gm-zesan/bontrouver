@@ -387,7 +387,7 @@
 
 <!-- Edit Package Modal -->
 <div class="modal fade" id="packageModal" tabindex="-1" aria-labelledby="packageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <form id="packageForm" method="POST" class="modal-content">
             @csrf
             @method('PUT')
@@ -396,9 +396,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">Package Name <span class="text-danger">*</span></label>
-                    <input type="text" name="name" id="pkg_name" class="form-control" required>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Package Name (EN) <span class="text-danger">*</span></label>
+                        <input type="text" name="name_en" id="pkg_name_en" class="form-control" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Package Name (FR)</label>
+                        <input type="text" name="name_fr" id="pkg_name_fr" class="form-control" placeholder="Nom du forfait en français">
+                    </div>
                 </div>
                 <div class="row g-2 mb-3">
                     <div class="col-6">
@@ -411,23 +417,43 @@
                     </div>
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-6">
+                    <div class="col-4">
                         <label class="form-label small fw-semibold">Duration (Days) <span class="text-danger">*</span></label>
                         <input type="number" name="duration_days" id="pkg_duration_days" class="form-control" required>
                         <small class="text-muted" style="font-size: 11px;">0 = Instant 1-time bump</small>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label small fw-semibold">Badge Text</label>
-                        <input type="text" name="badge_text" id="pkg_badge_text" class="form-control" placeholder="e.g. Featured">
+                    <div class="col-4">
+                        <label class="form-label small fw-semibold">Badge Text (EN)</label>
+                        <input type="text" name="badge_text_en" id="pkg_badge_text_en" class="form-control" placeholder="e.g. Featured">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-semibold">Badge Text (FR)</label>
+                        <input type="text" name="badge_text_fr" id="pkg_badge_text_fr" class="form-control" placeholder="ex. En vedette">
                     </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">Badge Hex Color</label>
                     <input type="color" name="badge_color" id="pkg_badge_color" class="form-control form-control-color w-100" style="height: 38px;">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-semibold">Description</label>
-                    <textarea name="description" id="pkg_description" class="form-control" rows="2"></textarea>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Description (EN)</label>
+                        <textarea name="description_en" id="pkg_description_en" class="form-control" rows="2" placeholder="English description..."></textarea>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Description (FR)</label>
+                        <textarea name="description_fr" id="pkg_description_fr" class="form-control" rows="2" placeholder="Description en français..."></textarea>
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Features (EN - One per line)</label>
+                        <textarea name="features_en" id="pkg_features_en" class="form-control font-monospace" rows="3" placeholder="Homepage carousel&#10;Top rank in category" style="font-size: 12px;"></textarea>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Features (FR - Un par ligne)</label>
+                        <textarea name="features_fr" id="pkg_features_fr" class="form-control font-monospace" rows="3" placeholder="Carrousel d'accueil&#10;Premier rang" style="font-size: 12px;"></textarea>
+                    </div>
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="is_active" id="pkg_is_active" value="1">
@@ -591,13 +617,20 @@ $(document).ready(function () {
         const form = document.getElementById('packageForm');
         form.action = `/admin/promotions/packages/${pkg.id}`;
 
-        $('#pkg_name').val(pkg.name || '');
+        $('#pkg_name_en').val(pkg.name_en || pkg.name || '');
+        $('#pkg_name_fr').val(pkg.name_fr || '');
         $('#pkg_price').val(pkg.price || 0);
         $('#pkg_point_cost').val(pkg.point_cost !== null ? pkg.point_cost : '');
         $('#pkg_duration_days').val(pkg.duration_days || 0);
-        $('#pkg_badge_text').val(pkg.badge_text || '');
+        $('#pkg_badge_text_en').val(pkg.badge_text_en || pkg.badge_text || '');
+        $('#pkg_badge_text_fr').val(pkg.badge_text_fr || '');
         $('#pkg_badge_color').val(pkg.badge_color || '#2563eb');
-        $('#pkg_description').val(pkg.description || '');
+        $('#pkg_description_en').val(pkg.description_en || pkg.description || '');
+        $('#pkg_description_fr').val(pkg.description_fr || '');
+        var featEn = Array.isArray(pkg.features_en) ? pkg.features_en.join("\n") : (Array.isArray(pkg.features) ? pkg.features.join("\n") : (pkg.features_en || pkg.features || ''));
+        var featFr = Array.isArray(pkg.features_fr) ? pkg.features_fr.join("\n") : (pkg.features_fr || '');
+        $('#pkg_features_en').val(featEn);
+        $('#pkg_features_fr').val(featFr);
         $('#pkg_is_active').prop('checked', Boolean(pkg.is_active));
 
         const modal = new bootstrap.Modal(document.getElementById('packageModal'));

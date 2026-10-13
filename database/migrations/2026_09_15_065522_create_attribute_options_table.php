@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('attribute_options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_attribute_id')->constrained()->cascadeOnDelete();
-            $table->string('label');
+            $table->string('label_en');
+            $table->string('label_fr')->nullable();
             $table->string('value');
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);

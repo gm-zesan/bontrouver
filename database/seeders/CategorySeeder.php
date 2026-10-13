@@ -15,29 +15,51 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categoriesData = $this->getInitialCategories();
+        $frenchMapPath = database_path('seeders/data/categories_fr.json');
+        $frenchMap = file_exists($frenchMapPath) ? json_decode(file_get_contents($frenchMapPath), true) : [];
+
+        $rootDescFr = [
+            'housing' => 'Appartements, condos, maisons et locations',
+            'jobs' => 'Trouvez des emplois locaux ou embauchez des talents',
+            'ridesharing' => 'Trajets partagés, covoiturage et déplacements quotidiens',
+            'cars-vehicles' => 'Autos, camions, motos, pièces et plus',
+            'buy-sell' => 'Électronique, meubles, mode et articles divers',
+            'services' => 'Métiers spécialisés, réparations et services professionnels',
+            'pets' => 'Animaux, fournitures, accessoires et services',
+            'community' => 'Événements locaux, groupes, cours et annonces',
+            'vacation-rentals' => 'Chalets, cabines, refuges et escapades',
+        ];
 
         DB::beginTransaction();
         try {
             $rootOrder = 1;
 
             foreach ($categoriesData as $rootSlug => $rootData) {
+                $slug = $rootData['slug'] ?? $rootSlug;
+                $nameEn = $rootData['name'] ?? ucfirst($rootSlug);
+                $nameFr = $frenchMap[$slug] ?? $nameEn;
+                $descEn = $rootData['description'] ?? null;
+                $descFr = $rootDescFr[$slug] ?? null;
+
                 // 1. Insert or update Root Category (Level 1)
                 $rootCategory = Category::updateOrCreate(
                     [
                         'parent_id' => null,
-                        'slug' => $rootData['slug'] ?? $rootSlug,
+                        'slug' => $slug,
                     ],
                     [
-                        'name' => $rootData['name'] ?? ucfirst($rootSlug),
+                        'name_en' => $nameEn,
+                        'name_fr' => $nameFr,
                         'icon' => $rootData['icon'] ?? 'bi-tag',
-                        'description' => $rootData['description'] ?? null,
+                        'description_en' => $descEn,
+                        'description_fr' => $descFr,
                         'sort_order' => $rootOrder++,
                         'is_active' => true,
                     ]
                 );
 
                 $subcategories = $rootData['children'] ?? $rootData['subcategories'] ?? [];
-                $this->seedChildren($rootCategory->id, $subcategories);
+                $this->seedChildren($rootCategory->id, $subcategories, $frenchMap);
             }
 
             DB::commit();
@@ -50,13 +72,14 @@ class CategorySeeder extends Seeder
     /**
      * Recursively seed children categories for arbitrary levels of depth.
      */
-    protected function seedChildren(int $parentId, array $children, int $startOrder = 1): void
+    protected function seedChildren(int $parentId, array $children, array $frenchMap, int $startOrder = 1): void
     {
         $order = $startOrder;
 
         foreach ($children as $childData) {
-            $name = $childData['name'] ?? 'Category';
-            $slug = $childData['slug'] ?? Str::slug($name);
+            $nameEn = $childData['name'] ?? 'Category';
+            $slug = $childData['slug'] ?? Str::slug($nameEn);
+            $nameFr = $frenchMap[$slug] ?? $nameEn;
 
             $category = Category::updateOrCreate(
                 [
@@ -64,9 +87,11 @@ class CategorySeeder extends Seeder
                     'slug' => $slug,
                 ],
                 [
-                    'name' => $name,
+                    'name_en' => $nameEn,
+                    'name_fr' => $nameFr,
                     'icon' => $childData['icon'] ?? null,
-                    'description' => $childData['description'] ?? null,
+                    'description_en' => $childData['description'] ?? null,
+                    'description_fr' => null,
                     'sort_order' => $order++,
                     'is_active' => true,
                 ]
@@ -74,7 +99,7 @@ class CategorySeeder extends Seeder
 
             $nestedChildren = $childData['children'] ?? $childData['subcategories'] ?? [];
             if (!empty($nestedChildren)) {
-                $this->seedChildren($category->id, $nestedChildren);
+                $this->seedChildren($category->id, $nestedChildren, $frenchMap);
             }
         }
     }

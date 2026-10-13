@@ -248,6 +248,7 @@ To accommodate high-resolution automotive galleries, detailed rental walkthrough
 | **High-Capacity Media Uploads** | `listings`, `listing_images`, `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
 | **Dynamic "Traduire" (Translate)** | `listings` (frontend translation integration) | `TranslationService.php`, `ListingTranslationController.php`, `<x-listing-translate-btn />` | ✅ Complete |
 | **Dual Registration (User vs. Merchant)** | `users`, `user_verifications`, `user_profiles` | `RegistrationService.php`, `DualTierRegistrationTest.php` | ✅ Complete |
+| **Bilingual Database Master Data & Enums** | `categories`, `category_attributes`, `attribute_options`, `provinces`, `cities`, `member_tiers`, `point_rules`, `promotion_packages`, `banner_ads` | `CategorySeeder.php`, `CategoryAttributeSeeder.php`, `CitySeeder.php`, `ProvinceSeeder.php`, `MemberTierSeeder.php`, `PointRuleSeeder.php`, `MonetizationSeeder.php` | ✅ Complete |
 
 ---
 

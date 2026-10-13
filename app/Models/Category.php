@@ -11,13 +11,44 @@ class Category extends Model
 
     protected $fillable = [
         'parent_id',
-        'name',
+        'name_en',
+        'name_fr',
         'slug',
         'icon',
-        'description',
+        'description_en',
+        'description_fr',
         'sort_order',
         'is_active',
     ];
+
+    protected $appends = [
+        'name',
+        'description',
+    ];
+
+    /**
+     * Context-aware localized category name.
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['name_fr'])) {
+            return $this->attributes['name_fr'];
+        }
+        return $this->attributes['name_en'] ?? '';
+    }
+
+    /**
+     * Context-aware localized category description.
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['description_fr'])) {
+            return $this->attributes['description_fr'];
+        }
+        return $this->attributes['description_en'] ?? null;
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

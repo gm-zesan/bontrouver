@@ -30,7 +30,8 @@ class StripeCheckoutTest extends TestCase
         ]);
 
         $province = Province::create([
-            'name' => 'Quebec',
+            'name_en' => 'Quebec',
+            'name_fr' => 'Québec',
             'code' => 'QC',
             'slug' => 'quebec',
             'country_code' => 'CA',
@@ -38,7 +39,8 @@ class StripeCheckoutTest extends TestCase
         ]);
 
         $city = City::create([
-            'name' => 'Montreal',
+            'name_en' => 'Montreal',
+            'name_fr' => 'Montréal',
             'slug' => 'montreal',
             'province_id' => $province->id,
             'latitude' => 45.5017,
@@ -47,7 +49,8 @@ class StripeCheckoutTest extends TestCase
         ]);
 
         $category = \App\Models\Category::create([
-            'name' => 'Electronics',
+            'name_en' => 'Electronics',
+            'name_fr' => 'Électronique',
             'slug' => 'electronics',
             'is_active' => true,
         ]);
@@ -69,7 +72,8 @@ class StripeCheckoutTest extends TestCase
         ]);
 
         $this->sponsoredPkg = PromotionPackage::create([
-            'name' => 'Sponsored Spotlight',
+            'name_en' => 'Sponsored Spotlight',
+            'name_fr' => 'Pleins feux sponsorisés',
             'slug' => 'sponsored-spotlight',
             'type' => 'sponsored',
             'price' => 9.99,
@@ -80,7 +84,8 @@ class StripeCheckoutTest extends TestCase
         ]);
 
         $this->featuredPkg = PromotionPackage::create([
-            'name' => 'Featured Highlight',
+            'name_en' => 'Featured Highlight',
+            'name_fr' => 'Mise en vedette',
             'slug' => 'featured-highlight',
             'type' => 'featured',
             'price' => 4.99,

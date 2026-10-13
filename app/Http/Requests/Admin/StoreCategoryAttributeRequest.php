@@ -15,9 +15,13 @@ class StoreCategoryAttributeRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (empty($this->slug) && !empty($this->name)) {
+        $nameEn = $this->name_en ?? $this->name;
+        if (!empty($nameEn)) {
+            $this->merge(['name_en' => $nameEn]);
+        }
+        if (empty($this->slug) && !empty($nameEn)) {
             $this->merge([
-                'slug' => Str::slug($this->name, '_'),
+                'slug' => Str::slug($nameEn, '_'),
             ]);
         }
     }
@@ -28,7 +32,12 @@ class StoreCategoryAttributeRequest extends FormRequest
 
         return [
             'category_id' => ['required', 'exists:categories,id'],
-            'name' => ['required', 'string', 'max:100'],
+            'name_en' => ['required', 'string', 'max:100'],
+            'name_fr' => ['nullable', 'string', 'max:100'],
+            'placeholder_en' => ['nullable', 'string', 'max:150'],
+            'placeholder_fr' => ['nullable', 'string', 'max:150'],
+            'help_text_en' => ['nullable', 'string', 'max:255'],
+            'help_text_fr' => ['nullable', 'string', 'max:255'],
             'slug' => [
                 'required',
                 'string',
@@ -44,7 +53,6 @@ class StoreCategoryAttributeRequest extends FormRequest
             'is_active' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'options' => ['nullable', 'array'],
-            'options.*' => ['nullable', 'string', 'max:150'],
         ];
     }
 

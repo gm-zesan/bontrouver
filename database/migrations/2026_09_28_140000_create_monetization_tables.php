@@ -14,17 +14,21 @@ return new class extends Migration
         // 1. Promotion Packages table (pricing & point costs for listing boosts)
         Schema::create('promotion_packages', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name_en');
+            $table->string('name_fr')->nullable();
             $table->string('slug')->unique();
             $table->string('type', 50); // sponsored, featured, bump_up
-            $table->string('badge_text')->nullable();
+            $table->string('badge_text_en')->nullable();
+            $table->string('badge_text_fr')->nullable();
             $table->string('badge_color', 30)->default('#2563eb');
             $table->string('badge_icon', 50)->nullable();
             $table->decimal('price', 8, 2)->default(0.00); // CAD
             $table->integer('point_cost')->nullable(); // Community Points to redeem
             $table->integer('duration_days')->default(7); // 0 for instant 1-time (bump_up)
-            $table->text('description')->nullable();
-            $table->json('features')->nullable();
+            $table->text('description_en')->nullable();
+            $table->text('description_fr')->nullable();
+            $table->json('features_en')->nullable();
+            $table->json('features_fr')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -58,7 +62,10 @@ return new class extends Migration
         // 4. Banner Ads & Local Business Sponsorship / AdSense
         Schema::create('banner_ads', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title_en');
+            $table->string('title_fr')->nullable();
+            $table->string('button_text_en', 50)->nullable();
+            $table->string('button_text_fr', 50)->nullable();
             $table->string('position', 50)->default('search_sidebar'); // search_sidebar, listing_detail_bottom, homepage_leaderboard, community_sidebar
             $table->string('image_path')->nullable();
             $table->string('target_url')->nullable();

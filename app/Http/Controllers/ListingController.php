@@ -179,7 +179,7 @@ class ListingController extends Controller
         return view('frontend.post-ad', [
             'categories'          => CategoryService::getAll(),
             'provinces'           => Province::with(['cities' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('is_active', true)->orderBy('sort_order')->get(),
-            'provincesMap'        => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
+            'provincesMap'        => Province::where('is_active', true)->orderBy('sort_order')->get()->pluck('name', 'code')->toArray(),
             'citiesMap'           => City::getCitiesMap(),
             'allCities'           => City::with('province')->where('is_active', true)->orderBy('sort_order')->get(),
             'defaultCity'         => $defaultCity,
@@ -245,7 +245,7 @@ class ListingController extends Controller
             'listing'             => $listingModel,
             'categories'          => CategoryService::getAll(),
             'provinces'           => Province::with(['cities' => fn($q) => $q->where('is_active', true)->orderBy('sort_order')])->where('is_active', true)->orderBy('sort_order')->get(),
-            'provincesMap'        => Province::orderBy('sort_order')->pluck('name', 'code')->toArray(),
+            'provincesMap'        => Province::where('is_active', true)->orderBy('sort_order')->get()->pluck('name', 'code')->toArray(),
             'citiesMap'           => City::getCitiesMap(),
             'allCities'           => City::with('province')->where('is_active', true)->orderBy('sort_order')->get(),
             'preselectedCategory' => $mainCategorySlug,

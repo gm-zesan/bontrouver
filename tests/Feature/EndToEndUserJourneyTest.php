@@ -33,7 +33,8 @@ class EndToEndUserJourneyTest extends TestCase
         parent::setUp();
 
         $this->province = Province::create([
-            'name' => 'Quebec',
+            'name_en' => 'Quebec',
+            'name_fr' => 'Québec',
             'code' => 'QC',
             'slug' => 'quebec',
             'country_code' => 'CA',
@@ -43,7 +44,8 @@ class EndToEndUserJourneyTest extends TestCase
 
         $this->city = City::create([
             'province_id' => $this->province->id,
-            'name' => 'Montreal',
+            'name_en' => 'Montreal',
+            'name_fr' => 'Montréal',
             'slug' => 'montreal',
             'latitude' => 45.5017,
             'longitude' => -73.5673,
@@ -52,7 +54,8 @@ class EndToEndUserJourneyTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Cameras & Photography',
+            'name_en' => 'Cameras & Photography',
+            'name_fr' => 'Appareils photo et photographie',
             'slug' => 'cameras-photography',
             'icon' => 'camera',
             'is_active' => true,
@@ -80,46 +83,55 @@ class EndToEndUserJourneyTest extends TestCase
         ]);
 
         $this->sponsoredPackage = PromotionPackage::create([
-            'name' => 'Sponsored Spotlight',
+            'name_en' => 'Sponsored Spotlight',
+            'name_fr' => 'Pleins feux sponsorisés',
             'slug' => 'sponsored-spotlight',
             'type' => 'sponsored',
-            'badge_text' => 'SPONSORED',
+            'badge_text_en' => 'SPONSORED',
+            'badge_text_fr' => 'SPONSORISÉ',
             'badge_color' => '#EAB308',
             'badge_icon' => 'crown',
             'price' => 9.99,
             'point_cost' => 150,
             'duration_days' => 7,
-            'description' => 'Top placement in hero carousel and search results',
+            'description_en' => 'Top placement in hero carousel and search results',
+            'description_fr' => 'Emplacement supérieur sur le carrousel d\'accueil et résultats de recherche',
             'is_active' => true,
             'sort_order' => 1,
         ]);
 
         $this->featuredPackage = PromotionPackage::create([
-            'name' => 'Featured Highlight',
+            'name_en' => 'Featured Highlight',
+            'name_fr' => 'Mise en vedette',
             'slug' => 'featured-highlight',
             'type' => 'featured',
-            'badge_text' => 'FEATURED',
+            'badge_text_en' => 'FEATURED',
+            'badge_text_fr' => 'EN VEDETTE',
             'badge_color' => '#3B82F6',
             'badge_icon' => 'star',
             'price' => 4.99,
             'point_cost' => 75,
             'duration_days' => 7,
-            'description' => 'Distinctive highlight border and badge in search feeds',
+            'description_en' => 'Distinctive highlight border and badge in search feeds',
+            'description_fr' => 'Bordure et badge distinctifs dans les fils de recherche',
             'is_active' => true,
             'sort_order' => 2,
         ]);
 
         $this->bumpPackage = PromotionPackage::create([
-            'name' => 'Instant Bump-Up',
+            'name_en' => 'Instant Bump-Up',
+            'name_fr' => 'Remontée instantanée',
             'slug' => 'instant-bump-up',
             'type' => 'bump_up',
-            'badge_text' => 'BUMPED',
+            'badge_text_en' => 'BUMPED',
+            'badge_text_fr' => 'REMONTÉ',
             'badge_color' => '#10B981',
             'badge_icon' => 'rocket',
             'price' => 1.99,
             'point_cost' => 30,
             'duration_days' => 1,
-            'description' => 'Instantly push your ad back to the top of fresh listings',
+            'description_en' => 'Instantly push your ad back to the top of fresh listings',
+            'description_fr' => 'Remontez instantanément votre annonce en tête des nouvelles annonces',
             'is_active' => true,
             'sort_order' => 3,
         ]);

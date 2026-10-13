@@ -311,7 +311,8 @@ class ListingService
         }
         if (!$provinceModel && $provinceCode) {
             $provinceModel = Province::where('code', $provinceCode)
-                ->orWhereRaw('LOWER(name) = ?', [strtolower($provinceCode)])
+                ->orWhereRaw('LOWER(name_en) = ?', [strtolower($provinceCode)])
+                ->orWhereRaw('LOWER(name_fr) = ?', [strtolower($provinceCode)])
                 ->first();
         }
 
@@ -321,12 +322,19 @@ class ListingService
             $cityModel = City::find($validated['city_id']);
         }
         if (!$cityModel && $cityName) {
-            $cityQuery = City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])
-                ->orWhere('name', 'like', "%{$cityName}%");
+            $cityQuery = City::where(function ($q) use ($cityName) {
+                $q->whereRaw('LOWER(name_en) = ?', [strtolower($cityName)])
+                  ->orWhereRaw('LOWER(name_fr) = ?', [strtolower($cityName)])
+                  ->orWhere('name_en', 'like', "%{$cityName}%")
+                  ->orWhere('name_fr', 'like', "%{$cityName}%");
+            });
             if ($provinceModel) {
                 $cityQuery->where('province_id', $provinceModel->id);
             }
-            $cityModel = $cityQuery->first() ?? City::whereRaw('LOWER(name) = ?', [strtolower($cityName)])->first();
+            $cityModel = $cityQuery->first() ?? City::where(function ($q) use ($cityName) {
+                $q->whereRaw('LOWER(name_en) = ?', [strtolower($cityName)])
+                  ->orWhereRaw('LOWER(name_fr) = ?', [strtolower($cityName)]);
+            })->first();
 
             // If city does not exist yet in database for this province, auto-create it on the fly
             if (!$cityModel && $provinceModel && $provinceModel->code !== 'OTHER') {
@@ -337,7 +345,8 @@ class ListingService
 
                 $cityModel = City::create([
                     'province_id' => $provinceModel->id,
-                    'name'        => trim($cityName),
+                    'name_en'     => trim($cityName),
+                    'name_fr'     => trim($cityName),
                     'slug'        => $uniqueSlug,
                     'latitude'    => !empty($validated['latitude']) ? (float)$validated['latitude'] : 0.0,
                     'longitude'   => !empty($validated['longitude']) ? (float)$validated['longitude'] : 0.0,
@@ -353,7 +362,7 @@ class ListingService
         $isOutsideCanada = ($provinceCode === 'OTHER' || $provinceCode === 'OUTSIDE CANADA' || $cityName === 'Outside Canada');
         if ($isOutsideCanada || (!$provinceModel && !$cityModel)) {
             $provinceModel ??= Province::where('code', 'OTHER')->orWhere('slug', 'outside-canada')->first();
-            $cityModel ??= City::where('slug', 'outside-canada')->orWhere('name', 'Outside Canada')->first();
+            $cityModel ??= City::where('slug', 'outside-canada')->orWhere('name_en', 'Outside Canada')->orWhere('name_fr', 'Outside Canada')->first();
         }
 
         if ($cityModel && !$provinceModel) {

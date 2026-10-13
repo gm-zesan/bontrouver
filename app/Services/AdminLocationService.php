@@ -38,7 +38,8 @@ class AdminLocationService
 
         if (!empty($search)) {
             $query->where(function (Builder $q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('name_en', 'like', "%{$search}%")
+                  ->orWhere('name_fr', 'like', "%{$search}%")
                   ->orWhere('slug', 'like', "%{$search}%");
             });
         }
@@ -51,7 +52,7 @@ class AdminLocationService
             $query->where('is_featured', $featured === 'yes' || $featured === '1');
         }
 
-        return $query->orderBy('province_id')->orderBy('sort_order')->orderBy('name');
+        return $query->orderBy('province_id')->orderBy('sort_order')->orderBy('name_en');
     }
 
     /**
@@ -59,8 +60,11 @@ class AdminLocationService
      */
     public function createCity(array $data): City
     {
+        $nameEn = $data['name_en'] ?? '';
+        $nameFr = $data['name_fr'] ?? $nameEn;
+
         if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
+            $data['slug'] = Str::slug($nameEn);
         }
 
         // Ensure unique slug
@@ -72,7 +76,8 @@ class AdminLocationService
 
         $city = City::create([
             'province_id' => $data['province_id'],
-            'name'        => $data['name'],
+            'name_en'     => $nameEn,
+            'name_fr'     => $nameFr,
             'slug'        => $data['slug'],
             'latitude'    => $data['latitude'],
             'longitude'   => $data['longitude'],
@@ -92,8 +97,11 @@ class AdminLocationService
      */
     public function updateCity(City $city, array $data): City
     {
-        if (!empty($data['name']) && empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
+        $nameEn = $data['name_en'] ?? $city->name_en;
+        $nameFr = $data['name_fr'] ?? $city->name_fr ?? $nameEn;
+
+        if (!empty($nameEn) && empty($data['slug'])) {
+            $data['slug'] = Str::slug($nameEn);
         }
 
         if (!empty($data['slug']) && $data['slug'] !== $city->slug) {
@@ -106,7 +114,8 @@ class AdminLocationService
 
         $city->update([
             'province_id' => $data['province_id'] ?? $city->province_id,
-            'name'        => $data['name'] ?? $city->name,
+            'name_en'     => $nameEn,
+            'name_fr'     => $nameFr,
             'slug'        => $data['slug'] ?? $city->slug,
             'latitude'    => $data['latitude'] ?? $city->latitude,
             'longitude'   => $data['longitude'] ?? $city->longitude,
@@ -187,8 +196,12 @@ class AdminLocationService
      */
     public function updateProvince(Province $province, array $data): Province
     {
+        $nameEn = $data['name_en'] ?? $province->name_en;
+        $nameFr = $data['name_fr'] ?? $province->name_fr ?? $nameEn;
+
         $province->update([
-            'name'       => $data['name'] ?? $province->name,
+            'name_en'    => $nameEn,
+            'name_fr'    => $nameFr,
             'code'       => !empty($data['code']) ? strtoupper($data['code']) : $province->code,
             'sort_order' => isset($data['sort_order']) ? (int) $data['sort_order'] : $province->sort_order,
             'is_active'  => isset($data['is_active']) ? (bool) $data['is_active'] : $province->is_active,
@@ -217,7 +230,10 @@ class AdminLocationService
      */
     public function flushLocationsCache(): void
     {
+        City::clearMapCache();
         Cache::forget(City::CACHE_KEY);
+        Cache::forget(City::CACHE_KEY . '_en');
+        Cache::forget(City::CACHE_KEY . '_fr');
         Cache::forget('canadian_cities_all');
         Cache::forget('canadian_provinces_all');
     }

@@ -190,7 +190,7 @@
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         {{-- Province Assignment --}}
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label small fw-semibold text-dark">Province / Territory <span class="text-danger">*</span></label>
                             <select class="form-select form-select-sm" id="city_province_id" name="province_id" required style="border: 1px solid #cbd5e1; border-radius: 6px;">
                                 <option value="">— Select Province —</option>
@@ -200,10 +200,15 @@
                             </select>
                         </div>
 
-                        {{-- City Name --}}
+                        {{-- City Name EN & FR --}}
                         <div class="col-md-6">
-                            <label class="form-label small fw-semibold text-dark">City Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-sm" id="city_name" name="name" placeholder="e.g. Toronto, Montreal, Calgary" required style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                            <label class="form-label small fw-semibold text-dark">City Name (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="city_name_en" name="name_en" placeholder="e.g. Montreal, Quebec City" required style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">City Name (French / Français)</label>
+                            <input type="text" class="form-control form-control-sm" id="city_name_fr" name="name_fr" placeholder="ex. Montréal, Ville de Québec" style="border: 1px solid #cbd5e1; border-radius: 6px;">
                         </div>
 
                         {{-- Latitude --}}
@@ -274,9 +279,14 @@
 
                 <div class="modal-body p-4">
                     <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label small fw-semibold text-dark">Province / Territory Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-sm" id="edit_prov_name" name="name" required style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Province Name (English) <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="edit_prov_name_en" name="name_en" required style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Province Name (French / Français)</label>
+                            <input type="text" class="form-control form-control-sm" id="edit_prov_name_fr" name="name_fr" style="border: 1px solid #cbd5e1; border-radius: 6px;">
                         </div>
 
                         <div class="col-md-6">
@@ -398,14 +408,15 @@
                         $('#city_id').val(c.id);
                         $('#city_method').val('PUT');
                         $('#city_province_id').val(c.province_id);
-                        $('#city_name').val(c.name);
+                        $('#city_name_en').val(c.name_en || '');
+                        $('#city_name_fr').val(c.name_fr || '');
                         $('#city_latitude').val(c.latitude);
                         $('#city_longitude').val(c.longitude);
                         $('#city_population').val(c.population || '');
                         $('#city_sort_order').val(c.sort_order || 0);
                         $('#city_is_active').prop('checked', c.is_active == 1);
 
-                        $('#cityModalLabel').text('Edit City: ' + c.name);
+                        $('#cityModalLabel').text('Edit City: ' + (c.name_en || ''));
                         $('#cityModal').modal('show');
                     }
                 },
@@ -428,7 +439,8 @@
                 _token: "{{ csrf_token() }}",
                 _method: method,
                 province_id: $('#city_province_id').val(),
-                name: $('#city_name').val(),
+                name_en: $('#city_name_en').val(),
+                name_fr: $('#city_name_fr').val(),
                 latitude: $('#city_latitude').val(),
                 longitude: $('#city_longitude').val(),
                 population: $('#city_population').val() || null,
@@ -527,12 +539,13 @@
                     if (res.success && res.province) {
                         var p = res.province;
                         $('#edit_province_id').val(p.id);
-                        $('#edit_prov_name').val(p.name);
+                        $('#edit_prov_name_en').val(p.name_en || '');
+                        $('#edit_prov_name_fr').val(p.name_fr || '');
                         $('#edit_prov_code').val(p.code);
                         $('#edit_prov_sort').val(p.sort_order || 0);
                         $('#edit_prov_active').prop('checked', p.is_active == 1);
 
-                        $('#provinceModalLabel').text('Edit Province: ' + p.name);
+                        $('#provinceModalLabel').text('Edit Province: ' + (p.name_en || ''));
                         $('#provinceModal').modal('show');
                     }
                 },
@@ -553,7 +566,8 @@
             var formData = {
                 _token: "{{ csrf_token() }}",
                 _method: 'PUT',
-                name: $('#edit_prov_name').val(),
+                name_en: $('#edit_prov_name_en').val(),
+                name_fr: $('#edit_prov_name_fr').val(),
                 code: $('#edit_prov_code').val(),
                 sort_order: $('#edit_prov_sort').val() || 0,
                 is_active: $('#edit_prov_active').is(':checked') ? 1 : 0

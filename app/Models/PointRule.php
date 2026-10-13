@@ -12,14 +12,45 @@ class PointRule extends Model
 
     protected $fillable = [
         'rule_key',
-        'name',
+        'name_en',
+        'name_fr',
         'type',
         'points',
         'category',
-        'description',
+        'description_en',
+        'description_fr',
         'is_active',
         'sort_order',
     ];
+
+    protected $appends = [
+        'name',
+        'description',
+    ];
+
+    /**
+     * Context-aware localized rule name.
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['name_fr'])) {
+            return $this->attributes['name_fr'];
+        }
+        return $this->attributes['name_en'] ?? '';
+    }
+
+    /**
+     * Context-aware localized rule description.
+     */
+    public function getDescriptionAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['description_fr'])) {
+            return $this->attributes['description_fr'];
+        }
+        return $this->attributes['description_en'] ?? null;
+    }
 
     protected $casts = [
         'points'     => 'integer',

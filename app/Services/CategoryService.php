@@ -23,9 +23,12 @@ class CategoryService
      */
     public static function getAll(): array
     {
+        $locale = app()->getLocale();
+        $cacheKey = self::CACHE_KEY . '_' . $locale;
+
         try {
             if (Schema::hasTable('categories')) {
-                return Cache::remember(self::CACHE_KEY, self::CACHE_TTL, function () {
+                return Cache::remember($cacheKey, self::CACHE_TTL, function () {
                     return Category::getTree();
                 });
             }
@@ -51,5 +54,7 @@ class CategoryService
     public static function clearCache(): void
     {
         Cache::forget(self::CACHE_KEY);
+        Cache::forget(self::CACHE_KEY . '_en');
+        Cache::forget(self::CACHE_KEY . '_fr');
     }
 }

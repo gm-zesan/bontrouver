@@ -10,7 +10,8 @@ class City extends Model
 
     protected $fillable = [
         'province_id',
-        'name',
+        'name_en',
+        'name_fr',
         'slug',
         'latitude',
         'longitude',
@@ -19,6 +20,22 @@ class City extends Model
         'is_active',
         'sort_order',
     ];
+
+    protected $appends = [
+        'name',
+    ];
+
+    /**
+     * Context-aware localized city name.
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['name_fr'])) {
+            return $this->attributes['name_fr'];
+        }
+        return $this->attributes['name_en'] ?? '';
+    }
 
     protected $casts = [
         'latitude' => 'decimal:8',
@@ -54,8 +71,11 @@ class City extends Model
      */
     public static function getCitiesMap(): array
     {
+        $locale = app()->getLocale();
+        $cacheKey = self::CACHE_KEY . '_' . $locale;
+
         try {
-            return cache()->remember(self::CACHE_KEY, 3600, function () {
+            return cache()->remember($cacheKey, 3600, function () {
                 return self::with('province')
                     ->where('is_active', true)
                     ->orderBy('sort_order')
@@ -79,5 +99,15 @@ class City extends Model
         } catch (\Throwable $e) {
             return [];
         }
+    }
+
+    /**
+     * Clear cities map cache for all locales.
+     */
+    public static function clearMapCache(): void
+    {
+        cache()->forget(self::CACHE_KEY);
+        cache()->forget(self::CACHE_KEY . '_en');
+        cache()->forget(self::CACHE_KEY . '_fr');
     }
 }

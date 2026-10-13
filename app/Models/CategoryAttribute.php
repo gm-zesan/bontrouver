@@ -8,14 +8,61 @@ class CategoryAttribute extends Model
 {
     protected $fillable = [
         'category_id',
-        'name',
+        'name_en',
+        'name_fr',
         'slug',
         'type',
+        'placeholder_en',
+        'placeholder_fr',
+        'help_text_en',
+        'help_text_fr',
         'is_required',
         'is_filterable',
         'is_active',
         'sort_order',
     ];
+
+    protected $appends = [
+        'name',
+        'placeholder',
+        'help_text',
+    ];
+
+    /**
+     * Context-aware localized attribute name.
+     */
+    public function getNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['name_fr'])) {
+            return $this->attributes['name_fr'];
+        }
+        return $this->attributes['name_en'] ?? '';
+    }
+
+    /**
+     * Context-aware localized placeholder.
+     */
+    public function getPlaceholderAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['placeholder_fr'])) {
+            return $this->attributes['placeholder_fr'];
+        }
+        return $this->attributes['placeholder_en'] ?? null;
+    }
+
+    /**
+     * Context-aware localized help text.
+     */
+    public function getHelpTextAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['help_text_fr'])) {
+            return $this->attributes['help_text_fr'];
+        }
+        return $this->attributes['help_text_en'] ?? null;
+    }
 
     protected $casts = [
         'is_required' => 'boolean',

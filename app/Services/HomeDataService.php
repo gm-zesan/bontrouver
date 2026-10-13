@@ -45,8 +45,8 @@ class HomeDataService
         $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active');
         if ($city) {
             $base->where(function ($q) use ($city) {
-                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
-                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+                $q->whereHas('city', fn ($cq) => $cq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
             });
         }
 
@@ -122,8 +122,8 @@ class HomeDataService
         $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active');
         if ($city) {
             $base->where(function ($q) use ($city) {
-                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
-                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+                $q->whereHas('city', fn ($cq) => $cq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
             });
         }
 
@@ -173,8 +173,8 @@ class HomeDataService
         $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->featured();
         if ($city) {
             $base->where(function ($q) use ($city) {
-                $q->whereHas('city', fn ($cq) => $cq->where('name', 'like', "%{$city}%"))
-                  ->orWhereHas('province', fn ($pq) => $pq->where('name', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
+                $q->whereHas('city', fn ($cq) => $cq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%"))
+                  ->orWhereHas('province', fn ($pq) => $pq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%")->orWhere('code', 'like', "%{$city}%"));
             });
         }
 

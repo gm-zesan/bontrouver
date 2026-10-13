@@ -39,7 +39,8 @@ class ComprehensivePagesHealthTest extends TestCase
 
         $this->province = Province::create([
             'code' => 'ON',
-            'name' => 'Ontario',
+            'name_en' => 'Ontario',
+            'name_fr' => 'Ontario',
             'slug' => 'ontario',
             'country_code' => 'CA',
             'is_active' => true,
@@ -47,7 +48,8 @@ class ComprehensivePagesHealthTest extends TestCase
 
         $this->city = City::create([
             'province_id' => $this->province->id,
-            'name' => 'Toronto',
+            'name_en' => 'Toronto',
+            'name_fr' => 'Toronto',
             'slug' => 'toronto',
             'latitude' => 43.6532,
             'longitude' => -79.3832,
@@ -55,20 +57,23 @@ class ComprehensivePagesHealthTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Electronics',
+            'name_en' => 'Electronics',
+            'name_fr' => 'Électronique',
             'slug' => 'electronics',
-            'icon_class' => 'bi-laptop',
+            'icon' => 'bi-laptop',
             'is_active' => true,
         ]);
 
         MemberTier::create([
-            'name' => 'New Member',
+            'name_en' => 'New Member',
+            'name_fr' => 'Nouveau membre',
             'icon' => '🥉',
             'badge_color' => '#94A3B8',
             'badge_class' => 'bg-secondary-subtle text-light',
             'min_points' => 0,
             'max_points' => 99,
-            'description' => 'Starting tier for all new Canadian members.',
+            'description_en' => 'Starting tier for all new Canadian members.',
+            'description_fr' => 'Niveau de départ pour tous les nouveaux membres canadiens.',
         ]);
 
         $this->user = User::factory()->create([
@@ -119,7 +124,8 @@ class ComprehensivePagesHealthTest extends TestCase
         ]);
 
         PromotionPackage::create([
-            'name' => 'Featured Highlight',
+            'name_en' => 'Featured Highlight',
+            'name_fr' => 'Mise en vedette',
             'slug' => 'featured-highlight',
             'type' => 'featured',
             'price' => 9.99,

@@ -16,20 +16,22 @@ enum ReportReason: string
     case INAPPROPRIATE = 'inappropriate';
     case OTHER = 'other';
 
-    public function label(): string
+    public function label(?string $locale = null): string
     {
+        $locale = $locale ?? app()->getLocale();
+
         return match ($this) {
-            self::SCAM => 'Fraudulent / Scam',
-            self::PROHIBITED => 'Prohibited / Illegal Item',
-            self::MISLEADING => 'Misleading Information',
-            self::DUPLICATE => 'Duplicate / Spam',
-            self::OFFENSIVE => 'Offensive Content',
-            self::SPAM => 'Spam / Advertising',
-            self::FRAUD => 'Fraudulent Behavior',
-            self::HARASSMENT => 'Harassment / Abusive Language',
-            self::IMPERSONATION => 'Impersonation / Fake Profile',
-            self::INAPPROPRIATE => 'Inappropriate Content',
-            self::OTHER => 'Other Policy Violation',
+            self::SCAM          => $locale === 'fr' ? 'Frauduleux / Escroquerie' : 'Fraudulent / Scam',
+            self::PROHIBITED    => $locale === 'fr' ? 'Article interdit / Illégal' : 'Prohibited / Illegal Item',
+            self::MISLEADING    => $locale === 'fr' ? 'Informations trompeuses' : 'Misleading Information',
+            self::DUPLICATE     => $locale === 'fr' ? 'Doublon / Pourriel' : 'Duplicate / Spam',
+            self::OFFENSIVE     => $locale === 'fr' ? 'Contenu offensant' : 'Offensive Content',
+            self::SPAM          => $locale === 'fr' ? 'Pourriel / Publicité' : 'Spam / Advertising',
+            self::FRAUD         => $locale === 'fr' ? 'Comportement frauduleux' : 'Fraudulent Behavior',
+            self::HARASSMENT    => $locale === 'fr' ? 'Harcèlement / Propos abusifs' : 'Harassment / Abusive Language',
+            self::IMPERSONATION => $locale === 'fr' ? 'Usurpation d\'identité' : 'Impersonation / Fake Profile',
+            self::INAPPROPRIATE => $locale === 'fr' ? 'Contenu inapproprié' : 'Inappropriate Content',
+            self::OTHER         => $locale === 'fr' ? 'Autre violation des règles' : 'Other Policy Violation',
         };
     }
 

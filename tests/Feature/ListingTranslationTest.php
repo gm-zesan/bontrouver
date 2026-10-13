@@ -38,7 +38,8 @@ class ListingTranslationTest extends TestCase
         ]);
 
         $this->province = Province::create([
-            'name' => 'Quebec',
+            'name_en' => 'Quebec',
+            'name_fr' => 'Québec',
             'code' => 'QC',
             'slug' => 'qc',
             'country_code' => 'CA',
@@ -46,7 +47,8 @@ class ListingTranslationTest extends TestCase
         ]);
 
         $this->city = City::create([
-            'name' => 'Montréal',
+            'name_en' => 'Montreal',
+            'name_fr' => 'Montréal',
             'slug' => 'montreal',
             'province_id' => $this->province->id,
             'latitude' => 45.5017,
@@ -55,7 +57,8 @@ class ListingTranslationTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Apartments & Housing',
+            'name_en' => 'Apartments & Housing',
+            'name_fr' => 'Appartements et logements',
             'slug' => 'apartments-housing',
             'is_active' => true,
         ]);

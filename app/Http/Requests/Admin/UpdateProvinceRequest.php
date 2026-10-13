@@ -13,6 +13,14 @@ class UpdateProvinceRequest extends FormRequest
         return $this->user() && ($this->user()->isAdmin() || $this->user()->isModerator());
     }
 
+    protected function prepareForValidation(): void
+    {
+        $nameEn = $this->name_en ?? $this->name;
+        if (!empty($nameEn)) {
+            $this->merge(['name_en' => $nameEn]);
+        }
+    }
+
     public function rules(): array
     {
         $provinceId = $this->route('province') instanceof Province 
@@ -20,7 +28,8 @@ class UpdateProvinceRequest extends FormRequest
             : $this->route('province');
 
         return [
-            'name'       => ['required', 'string', 'max:255'],
+            'name_en'    => ['required', 'string', 'max:255'],
+            'name_fr'    => ['nullable', 'string', 'max:255'],
             'code'       => ['required', 'string', 'max:10', Rule::unique('provinces', 'code')->ignore($provinceId)],
             'sort_order' => ['nullable', 'integer'],
             'is_active'  => ['nullable', 'boolean'],

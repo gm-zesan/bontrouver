@@ -326,11 +326,23 @@ class CitySeeder extends Seeder
             ['name' => 'Outside Canada', 'province_code' => 'OTHER', 'latitude' => 0.0, 'longitude' => 0.0, 'population' => null, 'is_featured' => false, 'sort_order' => 999],
         ];
 
+        $frenchCityMap = [
+            'Montreal'       => 'Montréal',
+            'Quebec City'    => 'Ville de Québec',
+            'Quebec'         => 'Québec',
+            'St. John\'s'    => 'Saint-Jean de Terre-Neuve',
+            'Outside Canada' => 'Hors du Canada',
+            'Saint John'     => 'Saint-Jean',
+        ];
+
         foreach ($cities as $cityData) {
             $provinceId = $provinceMap[$cityData['province_code']] ?? null;
             if (!$provinceId) {
                 continue;
             }
+
+            $nameEn = $cityData['name'];
+            $nameFr = $frenchCityMap[$nameEn] ?? $nameEn;
 
             $baseSlug = Str::slug($cityData['name']);
             // If another city has the same slug in a different province, make it unique
@@ -341,8 +353,9 @@ class CitySeeder extends Seeder
             }
 
             City::updateOrCreate(
-                ['province_id' => $provinceId, 'name' => $cityData['name']],
+                ['province_id' => $provinceId, 'name_en' => $nameEn],
                 [
+                    'name_fr'     => $nameFr,
                     'slug'        => $slug,
                     'latitude'    => $cityData['latitude'],
                     'longitude'   => $cityData['longitude'],
@@ -355,5 +368,7 @@ class CitySeeder extends Seeder
         }
 
         Cache::forget(City::CACHE_KEY);
+        Cache::forget(City::CACHE_KEY . '_en');
+        Cache::forget(City::CACHE_KEY . '_fr');
     }
 }

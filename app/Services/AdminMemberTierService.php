@@ -59,20 +59,32 @@ class AdminMemberTierService
     public function updateTier(MemberTier $tier, array $data): MemberTier
     {
         return DB::transaction(function () use ($tier, $data) {
-            $perks = $data['perks'] ?? [];
-            if (is_string($perks)) {
-                $perks = array_values(array_filter(array_map('trim', explode("\n", $perks))));
+            $nameEn = $data['name_en'] ?? $tier->name_en;
+            $nameFr = $data['name_fr'] ?? $tier->name_fr ?? $nameEn;
+            $descEn = $data['description_en'] ?? $tier->description_en;
+            $descFr = $data['description_fr'] ?? $tier->description_fr ?? null;
+
+            $perksEn = $data['perks_en'] ?? $tier->perks_en ?? [];
+            if (is_string($perksEn)) {
+                $perksEn = array_values(array_filter(array_map('trim', explode("\n", $perksEn))));
+            }
+            $perksFr = $data['perks_fr'] ?? $tier->perks_fr ?? [];
+            if (is_string($perksFr)) {
+                $perksFr = array_values(array_filter(array_map('trim', explode("\n", $perksFr))));
             }
 
             $tier->update([
-                'name'        => $data['name'] ?? $tier->name,
-                'icon'        => $data['icon'] ?? $tier->icon,
-                'badge_color' => $data['badge_color'] ?? $tier->badge_color,
-                'badge_class' => $data['badge_class'] ?? $tier->badge_class,
-                'min_points'  => isset($data['min_points']) ? (int) $data['min_points'] : $tier->min_points,
-                'max_points'  => (isset($data['max_points']) && $data['max_points'] !== '' && $data['max_points'] !== null) ? (int) $data['max_points'] : null,
-                'description' => $data['description'] ?? $tier->description,
-                'perks'       => $perks,
+                'name_en'        => $nameEn,
+                'name_fr'        => $nameFr,
+                'icon'           => $data['icon'] ?? $tier->icon,
+                'badge_color'    => $data['badge_color'] ?? $tier->badge_color,
+                'badge_class'    => $data['badge_class'] ?? $tier->badge_class,
+                'min_points'     => isset($data['min_points']) ? (int) $data['min_points'] : $tier->min_points,
+                'max_points'     => (isset($data['max_points']) && $data['max_points'] !== '' && $data['max_points'] !== null) ? (int) $data['max_points'] : null,
+                'description_en' => $descEn,
+                'description_fr' => $descFr,
+                'perks_en'       => $perksEn,
+                'perks_fr'       => $perksFr,
             ]);
 
             Cache::forget(MemberTier::CACHE_KEY);

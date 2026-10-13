@@ -63,7 +63,13 @@ class CategoryAttributeController extends Controller
         return response()->json([
             'success' => true,
             'attribute' => $attribute,
-            'options' => $attribute->options->pluck('label')->toArray(),
+            'options' => $attribute->options->map(function ($opt) {
+                return [
+                    'label' => $opt->label,
+                    'label_en' => $opt->label_en ?? $opt->label,
+                    'label_fr' => $opt->label_fr ?? '',
+                ];
+            })->toArray(),
         ]);
     }
 

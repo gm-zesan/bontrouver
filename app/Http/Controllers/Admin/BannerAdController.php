@@ -42,17 +42,23 @@ class BannerAdController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'in:search_sidebar,listing_detail_bottom,homepage_leaderboard,homepage_top,homepage_middle,homepage_bottom,community_sidebar'],
-            'image_path' => ['nullable', 'string', 'max:500'],
-            'target_url' => ['nullable', 'url', 'max:500'],
-            'html_code' => ['nullable', 'string'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'province' => ['nullable', 'string', 'max:10'],
-            'is_active' => ['nullable', 'boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'title'          => ['required_without:title_en', 'nullable', 'string', 'max:255'],
+            'title_en'       => ['required_without:title', 'nullable', 'string', 'max:255'],
+            'title_fr'       => ['nullable', 'string', 'max:255'],
+            'button_text_en' => ['nullable', 'string', 'max:50'],
+            'button_text_fr' => ['nullable', 'string', 'max:50'],
+            'position'       => ['required', 'in:search_sidebar,listing_detail_bottom,homepage_leaderboard,homepage_top,homepage_middle,homepage_bottom,community_sidebar'],
+            'image_path'     => ['nullable', 'string', 'max:500'],
+            'target_url'     => ['nullable', 'url', 'max:500'],
+            'html_code'      => ['nullable', 'string'],
+            'city'           => ['nullable', 'string', 'max:100'],
+            'province'       => ['nullable', 'string', 'max:10'],
+            'is_active'      => ['nullable', 'boolean'],
+            'sort_order'     => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $validated['title_en'] = $validated['title_en'] ?? $validated['title'];
+        $validated['title'] = $validated['title_en'];
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
@@ -75,17 +81,23 @@ class BannerAdController extends Controller
     public function update(Request $request, BannerAd $banner): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'in:search_sidebar,listing_detail_bottom,homepage_leaderboard,homepage_top,homepage_middle,homepage_bottom,community_sidebar'],
-            'image_path' => ['nullable', 'string', 'max:500'],
-            'target_url' => ['nullable', 'url', 'max:500'],
-            'html_code' => ['nullable', 'string'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'province' => ['nullable', 'string', 'max:10'],
-            'is_active' => ['nullable', 'boolean'],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'title'          => ['required_without:title_en', 'nullable', 'string', 'max:255'],
+            'title_en'       => ['required_without:title', 'nullable', 'string', 'max:255'],
+            'title_fr'       => ['nullable', 'string', 'max:255'],
+            'button_text_en' => ['nullable', 'string', 'max:50'],
+            'button_text_fr' => ['nullable', 'string', 'max:50'],
+            'position'       => ['required', 'in:search_sidebar,listing_detail_bottom,homepage_leaderboard,homepage_top,homepage_middle,homepage_bottom,community_sidebar'],
+            'image_path'     => ['nullable', 'string', 'max:500'],
+            'target_url'     => ['nullable', 'url', 'max:500'],
+            'html_code'      => ['nullable', 'string'],
+            'city'           => ['nullable', 'string', 'max:100'],
+            'province'       => ['nullable', 'string', 'max:10'],
+            'is_active'      => ['nullable', 'boolean'],
+            'sort_order'     => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $validated['title_en'] = $validated['title_en'] ?? $validated['title'] ?? $banner->title_en ?? $banner->title;
+        $validated['title'] = $validated['title_en'];
         $validated['is_active'] = $request->boolean('is_active');
         $validated['sort_order'] = $validated['sort_order'] ?? $banner->sort_order;
 

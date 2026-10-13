@@ -43,7 +43,8 @@ class MonetizationTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Vehicles',
+            'name_en' => 'Vehicles',
+            'name_fr' => 'Véhicules',
             'slug' => 'vehicles',
             'is_active' => true,
         ]);
@@ -64,7 +65,8 @@ class MonetizationTest extends TestCase
         ]);
 
         $this->sponsoredPkg = PromotionPackage::create([
-            'name' => 'Sponsored Spotlight',
+            'name_en' => 'Sponsored Spotlight',
+            'name_fr' => 'Pleins feux sponsorisés',
             'slug' => 'sponsored-spotlight',
             'type' => 'sponsored',
             'price' => 9.99,
@@ -74,7 +76,8 @@ class MonetizationTest extends TestCase
         ]);
 
         $this->featuredPkg = PromotionPackage::create([
-            'name' => 'Featured Highlight',
+            'name_en' => 'Featured Highlight',
+            'name_fr' => 'Mise en vedette',
             'slug' => 'featured-highlight',
             'type' => 'featured',
             'price' => 4.99,
@@ -198,7 +201,7 @@ class MonetizationTest extends TestCase
         $updateResponse->assertRedirect(route('admin.promotions.index'));
         $this->assertDatabaseHas('promotion_packages', [
             'id' => $this->sponsoredPkg->id,
-            'name' => 'Sponsored Spotlight Plus',
+            'name_en' => 'Sponsored Spotlight Plus',
             'price' => 14.99,
             'point_cost' => 450,
             'duration_days' => 10,
@@ -224,12 +227,12 @@ class MonetizationTest extends TestCase
 
         $createResponse->assertRedirect(route('admin.banners.index'));
         $this->assertDatabaseHas('banner_ads', [
-            'title' => 'Vancouver Clean Energy HVAC',
+            'title_en' => 'Vancouver Clean Energy HVAC',
             'city' => 'Vancouver',
             'position' => 'homepage_top',
         ]);
 
-        $banner = BannerAd::where('title', 'Vancouver Clean Energy HVAC')->first();
+        $banner = BannerAd::where('title_en', 'Vancouver Clean Energy HVAC')->first();
 
         // Toggle status
         $toggleResponse = $this->actingAs($this->admin)->post(route('admin.banners.toggle', $banner->id));
@@ -307,7 +310,7 @@ class MonetizationTest extends TestCase
         $response = $this->actingAs($this->user)->get(route('listings.show', $this->listing->slug));
 
         $response->assertStatus(200);
-        $response->assertSee('Promote & Boost Ad', false);
+        $response->assertSee('Promote &amp; Boost Ad', false);
         $response->assertSee('Your Listing');
     }
 
@@ -370,7 +373,8 @@ class MonetizationTest extends TestCase
         ]);
 
         $bumpPkg = PromotionPackage::create([
-            'name' => 'Instant Bump',
+            'name_en' => 'Instant Bump',
+            'name_fr' => 'Remontée instantanée',
             'slug' => 'instant-bump-test',
             'type' => 'bump_up',
             'price' => 1.99,

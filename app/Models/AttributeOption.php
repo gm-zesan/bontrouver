@@ -8,11 +8,28 @@ class AttributeOption extends Model
 {
     protected $fillable = [
         'category_attribute_id',
-        'label',
+        'label_en',
+        'label_fr',
         'value',
         'is_active',
         'sort_order',
     ];
+
+    protected $appends = [
+        'label',
+    ];
+
+    /**
+     * Context-aware localized option label.
+     */
+    public function getLabelAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['label_fr'])) {
+            return $this->attributes['label_fr'];
+        }
+        return $this->attributes['label_en'] ?? '';
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

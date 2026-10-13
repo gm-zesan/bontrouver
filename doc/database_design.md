@@ -37,9 +37,20 @@ Core authentication and profile table.
 ### `member_tiers`
 Configuration for member tiers based on community points.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
-- `name` (VARCHAR 255) - e.g., 'New', 'Active', 'Trusted', 'Highly Appreciated'
+- `name` (VARCHAR 255) - Legacy/fallback name
+- `name_en` (VARCHAR 255, NULLABLE) - Official English name (e.g., '🥉 New Member')
+- `name_fr` (VARCHAR 255, NULLABLE) - Official Canadian French name (e.g., '🥉 Nouveau membre')
+- `icon` (VARCHAR 50, NULLABLE)
+- `badge_color` (VARCHAR 50, NULLABLE)
+- `badge_class` (VARCHAR 100, NULLABLE)
 - `min_points` (INT)
 - `max_points` (INT, NULLABLE) - Nullable for the highest tier.
+- `description` (TEXT, NULLABLE)
+- `description_en` (TEXT, NULLABLE)
+- `description_fr` (TEXT, NULLABLE)
+- `perks` (JSON, NULLABLE)
+- `perks_en` (JSON, NULLABLE)
+- `perks_fr` (JSON, NULLABLE)
 - `created_at` (TIMESTAMP, NULLABLE)
 - `updated_at` (TIMESTAMP, NULLABLE)
 
@@ -61,10 +72,14 @@ Configurable rules governing point earning and spending amounts across the mutua
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `rule_key` (VARCHAR 64, UNIQUE) - e.g. 'identity_verification', 'positive_review', 'free_listing', 'featured_promotion'
 - `name` (VARCHAR 150)
+- `name_en` (VARCHAR 150, NULLABLE) - English rule title
+- `name_fr` (VARCHAR 150, NULLABLE) - French rule title
 - `type` (ENUM: 'earn', 'spend')
 - `points` (INT, UNSIGNED) - Points awarded or deducted
 - `category` (VARCHAR 100, NULLABLE)
 - `description` (TEXT, NULLABLE)
+- `description_en` (TEXT, NULLABLE)
+- `description_fr` (TEXT, NULLABLE)
 - `is_active` (BOOLEAN, DEFAULT TRUE)
 - `sort_order` (INT, UNSIGNED, DEFAULT 0)
 - `created_at` (TIMESTAMP, NULLABLE)
@@ -132,10 +147,14 @@ Showcase/ambiance photo gallery for public user profiles.
 Hierarchical category structure supporting unlimited nesting.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `parent_id` (FK → categories.id, NULLABLE, RESTRICT ON DELETE) - Null for root categories
-- `name` (VARCHAR 255)
+- `name` (VARCHAR 255) - Fallback/runtime dynamic name
+- `name_en` (VARCHAR 255, NULLABLE) - English category name
+- `name_fr` (VARCHAR 255, NULLABLE) - Canadian French category name
 - `slug` (VARCHAR 255, UNIQUE)
 - `icon` (VARCHAR 255, NULLABLE) - Bootstrap Icons class e.g., `bi-house-door`
-- `description` (TEXT, NULLABLE) - Short tagline displayed on category cards and drawer
+- `description` (TEXT, NULLABLE)
+- `description_en` (TEXT, NULLABLE)
+- `description_fr` (TEXT, NULLABLE)
 - `sort_order` (SMALLINT, UNSIGNED) - Default: 0. Controls display order within the same parent level
 - `is_active` (BOOLEAN) - Default: true
 - `created_at` (TIMESTAMP, NULLABLE)
@@ -147,9 +166,15 @@ Hierarchical category structure supporting unlimited nesting.
 Defines which attributes belong to which category (e.g., 'Make', 'Bedrooms').
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `category_id` (FK -> categories.id, CASCADE DELETE)
-- `name` (VARCHAR 255)
+- `name` (VARCHAR 255) - Machine identifier / fallback name
+- `name_en` (VARCHAR 255, NULLABLE) - English attribute label
+- `name_fr` (VARCHAR 255, NULLABLE) - French attribute label
 - `slug` (VARCHAR 255)
 - `type` (VARCHAR 50) - 'select', 'number', 'text', 'boolean'
+- `placeholder_en` (VARCHAR 255, NULLABLE)
+- `placeholder_fr` (VARCHAR 255, NULLABLE)
+- `help_text_en` (VARCHAR 255, NULLABLE)
+- `help_text_fr` (VARCHAR 255, NULLABLE)
 - `is_required` (BOOLEAN) - Default: false
 - `is_filterable` (BOOLEAN) - Default: false
 - `is_active` (BOOLEAN) - Default: true
@@ -163,6 +188,8 @@ Predefined options for 'select' type attributes (e.g., 'Toyota', 'Honda' for 'Ma
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `category_attribute_id` (FK -> category_attributes.id, CASCADE DELETE)
 - `label` (VARCHAR 255)
+- `label_en` (VARCHAR 255, NULLABLE) - English display label
+- `label_fr` (VARCHAR 255, NULLABLE) - French display label
 - `value` (VARCHAR 255)
 - `is_active` (BOOLEAN) - Default: true
 - `sort_order` (INT) - Default: 0
@@ -176,7 +203,9 @@ Predefined options for 'select' type attributes (e.g., 'Toyota', 'Honda' for 'Ma
 ### `provinces`
 Authoritative master table for Canada's 10 Provinces & 3 Territories.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
-- `name` (VARCHAR 255) - e.g., 'Ontario', 'Quebec', 'British Columbia'
+- `name` (VARCHAR 255)
+- `name_en` (VARCHAR 255, NULLABLE) - e.g., 'Quebec', 'Northwest Territories'
+- `name_fr` (VARCHAR 255, NULLABLE) - e.g., 'Québec', 'Territoires du Nord-Ouest'
 - `code` (VARCHAR 4, UNIQUE) - e.g., 'ON', 'QC', 'BC', 'AB'
 - `slug` (VARCHAR 255, UNIQUE) - e.g., 'ontario', 'quebec'
 - `country_code` (VARCHAR 3) - Default: 'CA'
@@ -189,7 +218,9 @@ Authoritative master table for Canada's 10 Provinces & 3 Territories.
 Normalized Canadian metropolitan centers, towns, and municipal regions.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `province_id` (FK -> provinces.id, CASCADE DELETE)
-- `name` (VARCHAR 255) - e.g., 'Toronto', 'Montreal', 'Vancouver'
+- `name` (VARCHAR 255)
+- `name_en` (VARCHAR 255, NULLABLE) - e.g., 'Montreal', 'Quebec City'
+- `name_fr` (VARCHAR 255, NULLABLE) - e.g., 'Montréal', 'Ville de Québec'
 - `slug` (VARCHAR 255, UNIQUE) - e.g., 'toronto', 'montreal'
 - `latitude` (DECIMAL 10,8) - Exact centroid coordinates for distance filtering
 - `longitude` (DECIMAL 11,8) - Exact centroid coordinates for distance filtering
@@ -416,16 +447,24 @@ Polymorphic table for users reporting listings, messages, or other users.
 Catalog of listing boost options, CAD pricing, and point redemption rates.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `name` (VARCHAR 255)
+- `name_en` (VARCHAR 255, NULLABLE)
+- `name_fr` (VARCHAR 255, NULLABLE)
 - `slug` (VARCHAR 255, UNIQUE)
 - `type` (VARCHAR 50) - 'sponsored', 'featured', 'bump_up'
 - `badge_text` (VARCHAR 50, NULLABLE)
+- `badge_text_en` (VARCHAR 50, NULLABLE)
+- `badge_text_fr` (VARCHAR 50, NULLABLE)
 - `badge_color` (VARCHAR 30) - Default: '#2563eb'
 - `badge_icon` (VARCHAR 50, NULLABLE)
 - `price` (DECIMAL 8,2) - CAD currency
 - `point_cost` (INT, NULLABLE) - Community points to redeem
 - `duration_days` (INT) - 0 for instant 1-time bump
 - `description` (TEXT, NULLABLE)
+- `description_en` (TEXT, NULLABLE)
+- `description_fr` (TEXT, NULLABLE)
 - `features` (JSON, NULLABLE)
+- `features_en` (JSON, NULLABLE)
+- `features_fr` (JSON, NULLABLE)
 - `is_active` (BOOLEAN) - Default: true
 - `sort_order` (INT) - Default: 0
 - `created_at` (TIMESTAMP, NULLABLE)
@@ -454,6 +493,10 @@ Ledger and active state for listing boosts purchased via CAD or Points.
 Geo-targeted Canadian sponsor banners and Google AdSense units.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `title` (VARCHAR 255)
+- `title_en` (VARCHAR 255, NULLABLE)
+- `title_fr` (VARCHAR 255, NULLABLE)
+- `button_text_en` (VARCHAR 50, NULLABLE)
+- `button_text_fr` (VARCHAR 50, NULLABLE)
 - `position` (VARCHAR 50) - 'search_sidebar', 'listing_detail_bottom', 'homepage_leaderboard', 'community_sidebar'
 - `image_path` (VARCHAR 500, NULLABLE)
 - `target_url` (VARCHAR 500, NULLABLE)

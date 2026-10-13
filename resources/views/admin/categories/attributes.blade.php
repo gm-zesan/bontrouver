@@ -331,18 +331,25 @@
 
                     <div class="modal-body p-4">
                         <div class="row g-3">
-                            {{-- Attribute Name --}}
-                            <div class="col-md-7">
-                                <label class="form-label small fw-semibold text-dark">Attribute Name <span
+                            {{-- Attribute Name EN & FR --}}
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark">Attribute Name (English) <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-sm" id="attr_name" name="name"
-                                    placeholder="e.g. Fuel Type, Transmission, Bedrooms, Condition" required
+                                <input type="text" class="form-control form-control-sm" id="attr_name_en" name="name_en"
+                                    placeholder="e.g. Fuel Type, Transmission, Bedrooms" required
                                     onkeyup="autoGenerateAttrSlug(this.value)"
                                     style="border: 1px solid #cbd5e1; border-radius: 6px;">
                             </div>
 
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-dark">Attribute Name (French / Français)</label>
+                                <input type="text" class="form-control form-control-sm" id="attr_name_fr" name="name_fr"
+                                    placeholder="ex. Carburant, Transmission, Chambres"
+                                    style="border: 1px solid #cbd5e1; border-radius: 6px;">
+                            </div>
+
                             {{-- Attribute Key --}}
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <label class="form-label small fw-semibold text-dark">Key <span
                                         class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
@@ -355,7 +362,7 @@
                                         style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
                                 </div>
                                 <div class="form-text mt-1 text-muted" style="font-size: 11px; line-height: 1.4;">
-                                    <i class="ri-information-line me-1 text-primary"></i> <strong>Key Rules:</strong> Lowercase letters, numbers, underscores (<code>_</code>) or dashes (<code>-</code>) only. No spaces.
+                                    <i class="ri-information-line me-1 text-primary"></i> Lowercase letters, numbers, underscores (<code>_</code>) or dashes (<code>-</code>).
                                 </div>
                             </div>
 
@@ -483,12 +490,20 @@
                 }
             };
 
-            // Add an option row (No native HTML required to avoid browser blocking on hidden fields)
-            window.addOptionInputRow = function (value) {
-                var rowHtml = '<div class="input-group input-group-sm option-row">' +
-                    '<span class="input-group-text bg-white text-muted" style="border: 1px solid #cbd5e1; border-right: none;"><i class="ri-drag-move-2-line"></i></span>' +
-                    '<input type="text" name="options[]" class="form-control form-control-sm option-value-input" value="' + (value ? $('<div>').text(value).html() : '') + '" placeholder="Option label (e.g. Automatic, 2 Bedrooms)..." style="border: 1px solid #cbd5e1;">' +
-                    '<button type="button" class="btn btn-light border text-danger" style="border-color: #cbd5e1 !important;" onclick="$(this).closest(\'.option-row\').remove()"><i class="ri-delete-bin-line"></i></button>' +
+            // Add an option row with English and French inputs
+            window.addOptionInputRow = function (optEn, optFr) {
+                var enVal = optEn ? $('<div>').text(optEn).html() : '';
+                var frVal = optFr ? $('<div>').text(optFr).html() : '';
+                var rowHtml = '<div class="row g-2 option-row align-items-center mb-1">' +
+                    '<div class="col-6">' +
+                        '<input type="text" class="form-control form-control-sm option-value-en" value="' + enVal + '" placeholder="EN (e.g. Automatic)" style="border: 1px solid #cbd5e1;">' +
+                    '</div>' +
+                    '<div class="col-5">' +
+                        '<input type="text" class="form-control form-control-sm option-value-fr" value="' + frVal + '" placeholder="FR (ex. Automatique)" style="border: 1px solid #cbd5e1;">' +
+                    '</div>' +
+                    '<div class="col-1 text-end">' +
+                        '<button type="button" class="btn btn-sm btn-light border text-danger p-1" style="border-color: #cbd5e1 !important;" onclick="$(this).closest(\'.option-row\').remove()"><i class="ri-delete-bin-line"></i></button>' +
+                    '</div>' +
                     '</div>';
                 $('#optionRowsList').append(rowHtml);
             };
@@ -515,8 +530,8 @@
                 $('#attr_is_filterable').prop('checked', true);
                 $('#attr_is_required').prop('checked', false);
                 $('#optionRowsList').empty();
-                addOptionInputRow('');
-                addOptionInputRow('');
+                addOptionInputRow('', '');
+                addOptionInputRow('', '');
                 $('#optionsContainer').show();
                 $('#btnSaveAttribute').prop('disabled', false).html('<i class="ri-save-line me-1"></i> Save Attribute');
                 $('#attributeModalLabel').text('Add Custom Attribute for {{ $category->name }}');
@@ -533,7 +548,8 @@
                             var a = res.attribute;
                             $('#attr_id').val(a.id);
                             $('#attr_method').val('PUT');
-                            $('#attr_name').val(a.name);
+                            $('#attr_name_en').val(a.name_en || '');
+                            $('#attr_name_fr').val(a.name_fr || '');
                             $('#attr_slug').val(a.slug);
                             $('#attr_type').val(a.type);
                             $('#attr_sort_order').val(a.sort_order || 0);
@@ -546,17 +562,21 @@
                                 $('#optionsContainer').show();
                                 if (res.options && res.options.length > 0) {
                                     res.options.forEach(function (opt) {
-                                        addOptionInputRow(opt);
+                                        if (typeof opt === 'object') {
+                                            addOptionInputRow(opt.label_en || '', opt.label_fr || '');
+                                        } else {
+                                            addOptionInputRow(opt, '');
+                                        }
                                     });
                                 } else {
-                                    addOptionInputRow('');
+                                    addOptionInputRow('', '');
                                 }
                             } else {
                                 $('#optionsContainer').hide();
                             }
 
                             $('#btnSaveAttribute').prop('disabled', false).html('<i class="ri-save-line me-1"></i> Save Attribute');
-                            $('#attributeModalLabel').text('Edit Attribute: ' + a.name);
+                            $('#attributeModalLabel').text('Edit Attribute: ' + (a.name_en || ''));
                             $('#attributeModal').modal('show');
                         }
                     }
@@ -573,9 +593,15 @@
 
                 var options = [];
                 if (attrType === 'select') {
-                    $('.option-value-input').each(function () {
-                        var val = $(this).val().trim();
-                        if (val) options.push(val);
+                    $('.option-row').each(function () {
+                        var enVal = $(this).find('.option-value-en').val()?.trim() || '';
+                        var frVal = $(this).find('.option-value-fr').val()?.trim() || '';
+                        if (enVal) {
+                            options.push({
+                                label_en: enVal,
+                                label_fr: frVal || enVal
+                            });
+                        }
                     });
 
                     if (options.length === 0) {
@@ -592,7 +618,8 @@
                     _token: "{{ csrf_token() }}",
                     _method: method,
                     category_id: "{{ $category->id }}",
-                    name: $('#attr_name').val(),
+                    name_en: $('#attr_name_en').val(),
+                    name_fr: $('#attr_name_fr').val(),
                     slug: $('#attr_slug').val(),
                     type: attrType,
                     sort_order: $('#attr_sort_order').val(),

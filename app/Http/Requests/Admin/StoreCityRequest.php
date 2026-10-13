@@ -11,11 +11,20 @@ class StoreCityRequest extends FormRequest
         return $this->user() && ($this->user()->isAdmin() || $this->user()->isModerator());
     }
 
+    protected function prepareForValidation(): void
+    {
+        $nameEn = $this->name_en ?? $this->name;
+        if (!empty($nameEn)) {
+            $this->merge(['name_en' => $nameEn]);
+        }
+    }
+
     public function rules(): array
     {
         return [
             'province_id' => ['required', 'exists:provinces,id'],
-            'name'        => ['required', 'string', 'max:255'],
+            'name_en'     => ['required', 'string', 'max:255'],
+            'name_fr'     => ['nullable', 'string', 'max:255'],
             'slug'        => ['nullable', 'string', 'max:255', 'unique:cities,slug'],
             'latitude'    => ['required', 'numeric', 'between:-90,90'],
             'longitude'   => ['required', 'numeric', 'between:-180,180'],

@@ -199,9 +199,13 @@
             </div>
             <div class="modal-body">
                 <div class="row g-3">
-                    <div class="col-12 col-md-8">
-                        <label class="form-label small fw-semibold">Banner Title / Sponsor Name <span class="text-danger">*</span></label>
-                        <input type="text" name="title" id="banner_title" class="form-control" placeholder="e.g. Maple Leaf Moving & Relocation" required>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-semibold">Banner Title (EN) <span class="text-danger">*</span></label>
+                        <input type="text" name="title_en" id="banner_title_en" class="form-control" placeholder="e.g. Maple Leaf Moving & Relocation" required>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label small fw-semibold">Banner Title (FR)</label>
+                        <input type="text" name="title_fr" id="banner_title_fr" class="form-control" placeholder="ex. Déménagement Feuille d'Érable">
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="form-label small fw-semibold">Placement Slot <span class="text-danger">*</span></label>
@@ -218,6 +222,14 @@
                                 <option value="community_sidebar">Community & Meetups Sidebar</option>
                             </optgroup>
                         </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-semibold">Button Text (EN)</label>
+                        <input type="text" name="button_text_en" id="banner_button_text_en" class="form-control" placeholder="e.g. Learn More">
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small fw-semibold">Button Text (FR)</label>
+                        <input type="text" name="button_text_fr" id="banner_button_text_fr" class="form-control" placeholder="ex. En savoir plus">
                     </div>
                     <div class="col-12 col-md-6">
                         <label class="form-label small fw-semibold">Banner Image URL</label>
@@ -293,6 +305,10 @@ $(document).ready(function () {
         $('#banner_method').val('POST');
         $('#bannerModalLabel').text('Add New Banner / Ad Slot');
         form.reset();
+        $('#banner_title_en').val('');
+        $('#banner_title_fr').val('');
+        $('#banner_button_text_en').val('');
+        $('#banner_button_text_fr').val('');
         $('#banner_is_active').prop('checked', true);
 
         const modal = new bootstrap.Modal(document.getElementById('bannerModal'));
@@ -307,7 +323,10 @@ $(document).ready(function () {
         $('#banner_method').val('PUT');
         $('#bannerModalLabel').text('Edit Banner / Ad Slot');
 
-        $('#banner_title').val(banner.title || '');
+        $('#banner_title_en').val(banner.title_en || banner.title || '');
+        $('#banner_title_fr').val(banner.title_fr || '');
+        $('#banner_button_text_en').val(banner.button_text_en || '');
+        $('#banner_button_text_fr').val(banner.button_text_fr || '');
         $('#banner_position').val(banner.position || 'search_sidebar');
         $('#banner_image_path').val(banner.image_path || '');
         $('#banner_target_url').val(banner.target_url || '');

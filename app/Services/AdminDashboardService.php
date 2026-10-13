@@ -198,10 +198,12 @@ class AdminDashboardService
      */
     private function getTopCities(): array
     {
+        $nameCol = app()->getLocale() === 'fr' ? 'cities.name_fr' : 'cities.name_en';
+
         return Listing::join('cities', 'listings.city_id', '=', 'cities.id')
-            ->select('cities.name as city', DB::raw('count(listings.id) as count'))
+            ->select("{$nameCol} as city", DB::raw('count(listings.id) as count'))
             ->whereNotNull('listings.city_id')
-            ->groupBy('cities.id', 'cities.name')
+            ->groupBy('cities.id', $nameCol)
             ->orderByDesc('count')
             ->limit(6)
             ->get()

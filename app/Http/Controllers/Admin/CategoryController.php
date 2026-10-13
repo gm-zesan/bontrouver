@@ -90,9 +90,11 @@ class CategoryController extends Controller
                 })
                 ->filterColumn('name', function ($query, $keyword) {
                     $query->where(function ($q) use ($keyword) {
-                        $q->where('name', 'like', "%{$keyword}%")
+                        $q->where('name_en', 'like', "%{$keyword}%")
+                          ->orWhere('name_fr', 'like', "%{$keyword}%")
                           ->orWhere('slug', 'like', "%{$keyword}%")
-                          ->orWhere('description', 'like', "%{$keyword}%");
+                          ->orWhere('description_en', 'like', "%{$keyword}%")
+                          ->orWhere('description_fr', 'like', "%{$keyword}%");
                     });
                 })
                 ->rawColumns(['name', 'parent_category', 'attributes_count', 'listings_count', 'sort_order', 'is_active', 'action'])

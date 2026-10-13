@@ -105,15 +105,40 @@ class PromotionController extends Controller
     public function updatePackage(Request $request, PromotionPackage $package): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'point_cost' => ['nullable', 'integer', 'min:0'],
-            'duration_days' => ['required', 'integer', 'min:0'],
-            'badge_text' => ['nullable', 'string', 'max:50'],
-            'badge_color' => ['nullable', 'string', 'max:30'],
-            'description' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
+            'name'           => ['required_without:name_en', 'nullable', 'string', 'max:255'],
+            'name_en'        => ['required_without:name', 'nullable', 'string', 'max:255'],
+            'name_fr'        => ['nullable', 'string', 'max:255'],
+            'price'          => ['required', 'numeric', 'min:0'],
+            'point_cost'     => ['nullable', 'integer', 'min:0'],
+            'duration_days'  => ['required', 'integer', 'min:0'],
+            'badge_text'     => ['nullable', 'string', 'max:50'],
+            'badge_text_en'  => ['nullable', 'string', 'max:50'],
+            'badge_text_fr'  => ['nullable', 'string', 'max:50'],
+            'badge_color'    => ['nullable', 'string', 'max:30'],
+            'description'    => ['nullable', 'string'],
+            'description_en' => ['nullable', 'string'],
+            'description_fr' => ['nullable', 'string'],
+            'features'       => ['nullable'],
+            'features_en'    => ['nullable'],
+            'features_fr'    => ['nullable'],
+            'is_active'      => ['nullable', 'boolean'],
         ]);
+
+        $validated['name_en'] = $validated['name_en'] ?? $validated['name'] ?? $package->name_en ?? $package->name;
+        $validated['name'] = $validated['name_en'];
+        if (isset($validated['badge_text_en'])) {
+            $validated['badge_text'] = $validated['badge_text_en'];
+        }
+        if (isset($validated['description_en'])) {
+            $validated['description'] = $validated['description_en'];
+        }
+        if (isset($validated['features_en']) && is_string($validated['features_en'])) {
+            $validated['features_en'] = array_values(array_filter(array_map('trim', explode("\n", $validated['features_en']))));
+            $validated['features'] = $validated['features_en'];
+        }
+        if (isset($validated['features_fr']) && is_string($validated['features_fr'])) {
+            $validated['features_fr'] = array_values(array_filter(array_map('trim', explode("\n", $validated['features_fr']))));
+        }
 
         $validated['is_active'] = $request->boolean('is_active');
 

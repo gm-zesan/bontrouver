@@ -4,7 +4,6 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class StoreCategoryRequest extends FormRequest
 {
@@ -15,9 +14,13 @@ class StoreCategoryRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if (empty($this->slug) && !empty($this->name)) {
+        $nameEn = $this->name_en ?? $this->name;
+        if (!empty($nameEn)) {
+            $this->merge(['name_en' => $nameEn]);
+        }
+        if (empty($this->slug) && !empty($nameEn)) {
             $this->merge([
-                'slug' => Str::slug($this->name),
+                'slug' => Str::slug($nameEn),
             ]);
         }
     }
@@ -25,11 +28,13 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
+            'name_en' => ['required', 'string', 'max:100'],
+            'name_fr' => ['nullable', 'string', 'max:100'],
             'slug' => ['required', 'string', 'max:120', 'unique:categories,slug'],
             'parent_id' => ['nullable', 'exists:categories,id'],
             'icon' => ['nullable', 'string', 'max:100'],
-            'description' => ['nullable', 'string', 'max:500'],
+            'description_en' => ['nullable', 'string', 'max:500'],
+            'description_fr' => ['nullable', 'string', 'max:500'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['nullable', 'boolean'],
         ];

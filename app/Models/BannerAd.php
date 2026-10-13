@@ -10,7 +10,10 @@ class BannerAd extends Model
     use HasFactory;
 
     protected $fillable = [
-        'title',
+        'title_en',
+        'title_fr',
+        'button_text_en',
+        'button_text_fr',
         'position',
         'image_path',
         'target_url',
@@ -24,6 +27,35 @@ class BannerAd extends Model
         'starts_at',
         'expires_at',
     ];
+
+    protected $appends = [
+        'title',
+        'button_text',
+    ];
+
+    /**
+     * Context-aware localized banner title.
+     */
+    public function getTitleAttribute(): string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['title_fr'])) {
+            return $this->attributes['title_fr'];
+        }
+        return $this->attributes['title_en'] ?? '';
+    }
+
+    /**
+     * Context-aware localized button text.
+     */
+    public function getButtonTextAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        if ($locale === 'fr' && !empty($this->attributes['button_text_fr'])) {
+            return $this->attributes['button_text_fr'];
+        }
+        return $this->attributes['button_text_en'] ?? null;
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

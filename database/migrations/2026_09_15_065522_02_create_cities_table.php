@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('province_id')->constrained('provinces')->cascadeOnDelete();
-            $table->string('name');
+            $table->string('name_en');
+            $table->string('name_fr')->nullable();
             $table->string('slug')->unique();
             $table->decimal('latitude', 10, 8);
             $table->decimal('longitude', 11, 8);

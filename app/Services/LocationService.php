@@ -35,7 +35,7 @@ class LocationService
      */
     public static function getProvinces(): array
     {
-        return Province::orderBy('sort_order')->pluck('name', 'code')->toArray();
+        return Province::where('is_active', true)->orderBy('sort_order')->get()->pluck('name', 'code')->toArray();
     }
 
     /**

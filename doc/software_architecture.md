@@ -404,3 +404,4 @@ app/
 - [x] Multilingual content architecture with on-demand "Traduire" translation pipeline
 - [x] High-capacity media pipeline with WebP optimization & `PostTooLargeException` graceful error trapping
 - [x] Production deployment configuration on cPanel / LiteSpeed / PHP 8.4 / MySQL / Cloudflare
+- [x] Database-driven bilingual master data with dedicated `_en` and `_fr` columns, seamless English fallback accessors, and localized platform Enums

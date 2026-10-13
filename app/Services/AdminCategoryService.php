@@ -25,9 +25,11 @@ class AdminCategoryService
             $search = trim((string) $search);
             if ($search !== '') {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
+                    $q->where('name_en', 'like', "%{$search}%")
+                      ->orWhere('name_fr', 'like', "%{$search}%")
                       ->orWhere('slug', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
+                      ->orWhere('description_en', 'like', "%{$search}%")
+                      ->orWhere('description_fr', 'like', "%{$search}%");
                 });
             }
         }
@@ -72,10 +74,10 @@ class AdminCategoryService
             ->with(['children' => function ($q) {
                 $q->withCount(['attributes', 'listings'])
                   ->orderBy('sort_order')
-                  ->orderBy('name');
+                  ->orderBy('name_en');
             }])
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy('name_en')
             ->get();
     }
 
@@ -104,8 +106,12 @@ class AdminCategoryService
      */
     public function createCategory(array $data): Category
     {
+        $nameEn = $data['name_en'] ?? $data['name'] ?? '';
+        $data['name_en'] = $nameEn;
+        unset($data['name']);
+
         if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
+            $data['slug'] = Str::slug($nameEn);
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : true;
@@ -119,8 +125,13 @@ class AdminCategoryService
      */
     public function updateCategory(Category $category, array $data): Category
     {
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']);
+        if (isset($data['name']) && !isset($data['name_en'])) {
+            $data['name_en'] = $data['name'];
+        }
+        unset($data['name']);
+
+        if (empty($data['slug']) && !empty($data['name_en'])) {
+            $data['slug'] = Str::slug($data['name_en']);
         }
 
         $data['is_active'] = isset($data['is_active']) ? (bool) $data['is_active'] : false;
@@ -185,8 +196,12 @@ class AdminCategoryService
     {
         return DB::transaction(function () use ($category, $data) {
             $data['category_id'] = $category->id;
+            $nameEn = $data['name_en'] ?? $data['name'] ?? '';
+            $data['name_en'] = $nameEn;
+            unset($data['name'], $data['placeholder'], $data['help_text']);
+
             if (empty($data['slug'])) {
-                $data['slug'] = Str::slug($data['name'], '_');
+                $data['slug'] = Str::slug($nameEn, '_');
             }
 
             $data['is_required'] = isset($data['is_required']) ? (bool) $data['is_required'] : false;
@@ -217,8 +232,13 @@ class AdminCategoryService
     public function updateAttribute(CategoryAttribute $attribute, array $data): CategoryAttribute
     {
         return DB::transaction(function () use ($attribute, $data) {
-            if (empty($data['slug'])) {
-                $data['slug'] = Str::slug($data['name'], '_');
+            if (isset($data['name']) && !isset($data['name_en'])) {
+                $data['name_en'] = $data['name'];
+            }
+            unset($data['name'], $data['placeholder'], $data['help_text']);
+
+            if (empty($data['slug']) && !empty($data['name_en'])) {
+                $data['slug'] = Str::slug($data['name_en'], '_');
             }
 
             $data['is_required'] = isset($data['is_required']) ? (bool) $data['is_required'] : false;
@@ -273,13 +293,23 @@ class AdminCategoryService
         $attribute->options()->delete();
 
         $sortOrder = 0;
-        foreach ($options as $optionText) {
-            $optionText = trim((string) $optionText);
-            if ($optionText !== '') {
+        foreach ($options as $option) {
+            if (is_array($option)) {
+                $labelEn = trim((string) ($option['label_en'] ?? $option['label'] ?? ''));
+                $labelFr = trim((string) ($option['label_fr'] ?? ''));
+                $value = $option['value'] ?? Str::slug($labelEn, '_');
+            } else {
+                $labelEn = trim((string) $option);
+                $labelFr = null;
+                $value = Str::slug($labelEn, '_');
+            }
+
+            if ($labelEn !== '') {
                 AttributeOption::create([
                     'category_attribute_id' => $attribute->id,
-                    'label' => $optionText,
-                    'value' => Str::slug($optionText, '_'),
+                    'label_en' => $labelEn,
+                    'label_fr' => $labelFr ?: $labelEn,
+                    'value' => $value,
                     'is_active' => true,
                     'sort_order' => $sortOrder++,
                 ]);

@@ -14,14 +14,17 @@ class UpdateMemberTierRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => ['required', 'string', 'max:100'],
-            'icon'        => ['nullable', 'string', 'max:50'],
-            'badge_color' => ['nullable', 'string', 'max:50'],
-            'badge_class' => ['nullable', 'string', 'max:100'],
-            'min_points'  => ['required', 'integer', 'min:0'],
-            'max_points'  => ['nullable', 'integer', 'gte:min_points'],
-            'description' => ['nullable', 'string', 'max:500'],
-            'perks'       => ['nullable'],
+            'name_en'        => ['required', 'string', 'max:100'],
+            'name_fr'        => ['nullable', 'string', 'max:100'],
+            'icon'           => ['nullable', 'string', 'max:50'],
+            'badge_color'    => ['nullable', 'string', 'max:50'],
+            'badge_class'    => ['nullable', 'string', 'max:100'],
+            'min_points'     => ['required', 'integer', 'min:0'],
+            'max_points'     => ['nullable', 'integer', 'gte:min_points'],
+            'description_en' => ['nullable', 'string', 'max:500'],
+            'description_fr' => ['nullable', 'string', 'max:500'],
+            'perks_en'       => ['nullable'],
+            'perks_fr'       => ['nullable'],
         ];
     }
 
