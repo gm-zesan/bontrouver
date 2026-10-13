@@ -13,10 +13,10 @@
             <!-- Breadcrumbs -->
             <nav aria-label="breadcrumb" class="mb-4">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none text-white-50">Home</a>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none text-white-50">{{ __('Home') }}</a>
                     </li>
                     <li class="breadcrumb-item"><a href="{{ route('community.index') }}"
-                            class="text-decoration-none text-white-50">Community Meetups</a></li>
+                            class="text-decoration-none text-white-50">{{ __('Community Meetups') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($meetup->title, 30) }}</li>
                 </ol>
             </nav>
@@ -28,27 +28,30 @@
                         <div class="pb-4 mb-4">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2">
-                                    {{ $meetup->type }}
+                                    {{ __($meetup->type) }}
                                 </span>
 
-                                @if($meetup->status == 'full')
-                                    <span class="badge bg-danger rounded-pill px-3 py-2">FULL</span>
-                                @elseif($meetup->status == 'cancelled')
-                                    <span class="badge bg-secondary rounded-pill px-3 py-2">CANCELLED</span>
-                                @elseif($meetup->status == 'completed')
-                                    <span class="badge bg-success rounded-pill px-3 py-2">COMPLETED</span>
-                                @else
-                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">OPEN</span>
-                                @endif
+                                <div class="d-flex align-items-center gap-2">
+                                    <x-community-translate-btn :meetup-id="$meetup->id" scope="detail" />
+                                    @if($meetup->status == 'full')
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">{{ __('FULL') }}</span>
+                                    @elseif($meetup->status == 'cancelled')
+                                        <span class="badge bg-secondary rounded-pill px-3 py-2">{{ __('CANCELLED') }}</span>
+                                    @elseif($meetup->status == 'completed')
+                                        <span class="badge bg-success rounded-pill px-3 py-2">{{ __('COMPLETED') }}</span>
+                                    @else
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">{{ __('OPEN') }}</span>
+                                    @endif
+                                </div>
                             </div>
                             <h1 class="static-hero-title mb-2" style="font-size: 2rem;">{{ $meetup->title }}</h1>
-                            <p class="text-white-50 mb-0"><i class="bi bi-clock me-1"></i> Posted
+                            <p class="text-white-50 mb-0"><i class="bi bi-clock me-1"></i> {{ __('Posted') }}
                                 {{ $meetup->created_at->diffForHumans() }}
                             </p>
                         </div>
 
                         <div>
-                            <h4 class="section-heading fs-5 mb-3">About this Meetup</h4>
+                            <h4 class="section-heading fs-5 mb-3">{{ __('About this Meetup') }}</h4>
                             <div class="section-subtext mb-5" style="white-space: pre-wrap;">{{ $meetup->description }}
                             </div>
 
@@ -61,7 +64,7 @@
                                             <i class="bi bi-calendar-check fs-5"></i>
                                         </div>
                                         <div>
-                                            <div class="small text-white-50 mb-1">Date & Time</div>
+                                            <div class="small text-white-50 mb-1">{{ __('Date & Time') }}</div>
                                             <div class="fw-bold">{{ $meetup->meetup_date_time->format('l, F j, Y') }}</div>
                                             <div>{{ $meetup->meetup_date_time->format('g:i A') }}</div>
                                         </div>
@@ -75,7 +78,7 @@
                                             <i class="bi bi-geo-alt fs-5"></i>
                                         </div>
                                         <div>
-                                            <div class="small text-white-50 mb-1">Location</div>
+                                            <div class="small text-white-50 mb-1">{{ __('Location') }}</div>
                                             <div class="fw-bold">{{ $meetup->location_name }}</div>
                                             <div>{{ $meetup->city }}, {{ $meetup->province }}</div>
                                         </div>
@@ -89,14 +92,14 @@
                                             <i class="bi bi-wallet2 fs-5"></i>
                                         </div>
                                         <div>
-                                            <div class="small text-white-50 mb-1">Expense Type</div>
+                                            <div class="small text-white-50 mb-1">{{ __('Expense Type') }}</div>
                                             <div class="fw-bold">
                                                 @if($meetup->expense_type == 'free')
-                                                    <span class="text-success">Free Activity</span>
+                                                    <span class="text-success">{{ __('Free Activity') }}</span>
                                                 @elseif($meetup->expense_type == 'split')
-                                                    <span>Split the Bill</span>
+                                                    <span>{{ __('Split the Bill') }}</span>
                                                 @elseif($meetup->expense_type == 'host_pays')
-                                                    <span class="text-warning">Host Pays</span>
+                                                    <span class="text-warning">{{ __('Host Pays') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -110,14 +113,14 @@
                                             <i class="bi bi-people fs-5"></i>
                                         </div>
                                         <div>
-                                            <div class="small text-white-50 mb-1">Headcount</div>
+                                            <div class="small text-white-50 mb-1">{{ __('Headcount') }}</div>
                                             @php
                                                 $approvedCount = $meetup->attendees->where('status', 'approved')->count();
                                             @endphp
                                             <div class="fw-bold">{{ $approvedCount }} /
-                                                {{ $meetup->headcount_limit ?? 'Unlimited' }}
+                                                {{ $meetup->headcount_limit ?? __('Unlimited') }}
                                             </div>
-                                            <div class="small text-white-50">Spots filled</div>
+                                            <div class="small text-white-50">{{ __('Spots filled') }}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -131,7 +134,7 @@
                             <div class="mt-4 pt-4 border-top border-secondary border-opacity-10">
                                 <h4 class="section-heading fs-5 mb-3 d-flex align-items-center gap-2">
                                     <i class="bi bi-people text-primary"></i>
-                                    <span>Joined Attendees ({{ $approvedAttendees->count() }})</span>
+                                    <span>{{ __('Joined Attendees') }} ({{ $approvedAttendees->count() }})</span>
                                 </h4>
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach($approvedAttendees as $att)
@@ -139,7 +142,7 @@
                                             class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-decoration-none border border-secondary border-opacity-25 text-white" 
                                             style="background: rgba(255,255,255,0.04); transition: all 0.2s ease;"
                                             target="_blank"
-                                            title="View {{ $att->user->name }}'s profile">
+                                            title="{{ __('View :name\'s profile', ['name' => $att->user->name]) }}">
                                             @if($att->user->avatar ?? false)
                                                 <img src="{{ $att->user->avatar }}" alt="{{ $att->user->name }}" class="rounded-circle object-fit-cover" style="width: 26px; height: 26px;">
                                             @else
@@ -157,9 +160,9 @@
 
                         <div class="mt-4 pt-4 border-top border-secondary border-opacity-10">
                             <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-                                <h4 class="section-heading fs-5 mb-0">Meetup Location & Area</h4>
+                                <h4 class="section-heading fs-5 mb-0">{{ __('Meetup Location & Area') }}</h4>
                                 <a href="https://maps.google.com/?q={{ urlencode(($meetup->latitude && $meetup->longitude) ? ($meetup->latitude . ',' . $meetup->longitude) : ($meetup->city . ', ' . $meetup->province . ', Canada')) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 text-white border border-white border-opacity-25 shadow-sm" style="font-size: 0.78rem;">
-                                    <i class="bi bi-cursor-fill text-success me-1"></i> Get Directions
+                                    <i class="bi bi-cursor-fill text-success me-1"></i> {{ __('Get Directions') }}
                                 </a>
                             </div>
                             <div class="rounded-4 overflow-hidden position-relative shadow-sm"
@@ -186,12 +189,12 @@
                             <h3 class="h5 fw-bold mb-1 d-flex align-items-center justify-content-center">
                                 {{ $meetup->user->name }}
                                 @if($meetup->user->is_verified)
-                                    <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="Verified Host">
-                                        <i class="bi bi-shield-check me-1"></i> Verified
+                                    <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="{{ __('Verified Host') }}">
+                                        <i class="bi bi-shield-check me-1"></i> {{ __('Verified') }}
                                     </span>
                                 @endif
                             </h3>
-                            <p class="text-white-50 small mb-2">Host • Member since {{ $meetup->user->created_at ? $meetup->user->created_at->format('Y') : '2024' }}</p>
+                            <p class="text-white-50 small mb-2">{{ __('Host') }} • {{ __('Member since :year', ['year' => $meetup->user->created_at ? $meetup->user->created_at->format('Y') : '2024']) }}</p>
 
                             @php $hostTier = $meetup->user->member_tier ?? null; @endphp
                             @if($hostTier)
@@ -205,26 +208,26 @@
                             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
                                 <div class="px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.05);">
                                     <div class="fw-bold">{{ $meetup->user->community_points ?? 0 }}</div>
-                                    <div class="small text-white-50" style="font-size: 0.7rem;">Points</div>
+                                    <div class="small text-white-50" style="font-size: 0.7rem;">{{ __('Points') }}</div>
                                 </div>
                                 <div class="px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.05);">
                                     <div class="fw-bold d-flex align-items-center gap-1">
                                         <i class="bi bi-star-fill text-warning"></i>
                                         <span>{{ number_format($meetup->user->rating ?? 0, 1) }}</span>
                                     </div>
-                                    <div class="small text-white-50" style="font-size: 0.7rem;">{{ $meetup->user->reviews_count ?? 0 }} Reviews</div>
+                                    <div class="small text-white-50" style="font-size: 0.7rem;">{{ __(':count Reviews', ['count' => $meetup->user->reviews_count ?? 0]) }}</div>
                                 </div>
                             </div>
 
                             <div class="d-flex flex-column gap-2">
                                 <a href="{{ route('profile.view', ['id' => $meetup->user->id]) }}"
                                     class="btn-theme-outline-secondary w-100 justify-content-center">
-                                    <span>View Profile</span>
+                                    <span>{{ __('View Profile') }}</span>
                                 </a>
                                 @if(Auth::check() && Auth::id() !== $meetup->user_id)
                                     <a href="{{ url('/messages?c=new&user=' . $meetup->user->id) }}"
                                         class="btn-theme-outline-primary w-100 justify-content-center">
-                                        <i class="bi bi-chat-dots me-1"></i> <span>Message Host</span>
+                                        <i class="bi bi-chat-dots me-1"></i> <span>{{ __('Message Host') }}</span>
                                     </a>
                                 @endif
                             </div>
@@ -234,7 +237,7 @@
                     <!-- Action Card -->
                     <div class="static-card h-auto mb-4">
                         <div>
-                            <h4 class="section-heading fs-5 mb-3">Join this Meetup</h4>
+                            <h4 class="section-heading fs-5 mb-3">{{ __('Join this Meetup') }}</h4>
 
                             @auth
                                 @if(auth()->id() == $meetup->user_id)

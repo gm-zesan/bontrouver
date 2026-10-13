@@ -33,7 +33,7 @@
                 <!-- Location Moniker -->
                 <div class="footer-country-tag">
                     <span class="country-flag-icon" aria-hidden="true">🇨🇦</span>
-                    <span>Canada's local marketplace</span>
+                    <span>{{ __("Canada's local marketplace") }}</span>
                 </div>
             </div>
 
@@ -41,40 +41,40 @@
             <div class="footer-nav-col">
                 <h3 class="footer-col-title">{{ $siteBrandName }}</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/about') }}" class="footer-link">About</a></li>
-                    <li><a href="{{ url('/member-benefits') }}" class="footer-link">Member Benefits</a></li>
-                    <li><a href="{{ url('/advertise') }}" class="footer-link">Advertise on {{ $siteBrandName }}</a></li>
+                    <li><a href="{{ url('/about') }}" class="footer-link">{{ __('About') }}</a></li>
+                    <li><a href="{{ url('/member-benefits') }}" class="footer-link">{{ __('Member Benefits') }}</a></li>
+                    <li><a href="{{ url('/advertise') }}" class="footer-link">{{ __('Advertise on :name', ['name' => $siteBrandName]) }}</a></li>
                 </ul>
             </div>
 
             <!-- Column 3: EXPLORE -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Explore</h3>
+                <h3 class="footer-col-title">{{ __('Explore') }}</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/promote-tools') }}" class="footer-link">Tools to promote ads</a></li>
+                    <li><a href="{{ url('/promote-tools') }}" class="footer-link">{{ __('Tools to promote ads') }}</a></li>
                 </ul>
             </div>
 
             <!-- Column 4: INFO -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Info</h3>
+                <h3 class="footer-col-title">{{ __('Info') }}</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/verification') }}" class="footer-link">Verification</a></li>
-                    <li><a href="{{ url('/terms') }}" class="footer-link">Terms of Use</a></li>
-                    <li><a href="{{ url('/privacy') }}" class="footer-link">Privacy Policy</a></li>
-                    <li><a href="{{ url('/posting-policy') }}" class="footer-link">Posting Policy</a></li>
-                    <li><a href="{{ url('/security') }}" class="footer-link">Security</a></li>
-                    <li><a href="{{ url('/ad-choices') }}" class="footer-link">AdChoices</a></li>
+                    <li><a href="{{ url('/verification') }}" class="footer-link">{{ __('Verification') }}</a></li>
+                    <li><a href="{{ url('/terms') }}" class="footer-link">{{ __('Terms of Use') }}</a></li>
+                    <li><a href="{{ url('/privacy') }}" class="footer-link">{{ __('Privacy Policy') }}</a></li>
+                    <li><a href="{{ url('/posting-policy') }}" class="footer-link">{{ __('Posting Policy') }}</a></li>
+                    <li><a href="{{ url('/security') }}" class="footer-link">{{ __('Security') }}</a></li>
+                    <li><a href="{{ url('/ad-choices') }}" class="footer-link">{{ __('AdChoices') }}</a></li>
                 </ul>
             </div>
 
             <!-- Column 5: SUPPORT -->
             <div class="footer-nav-col">
-                <h3 class="footer-col-title">Support</h3>
+                <h3 class="footer-col-title">{{ __('Support') }}</h3>
                 <ul class="footer-links-list">
-                    <li><a href="{{ url('/community-connect') }}" class="footer-link">Community Connect</a></li>
-                    <li><a href="{{ url('/fr') }}" class="footer-link">{{ $siteBrandName }} en Français</a></li>
-                    <li><a href="{{ url('/accessibility') }}" class="footer-link">Accessibility</a></li>
+                    <li><a href="{{ url('/community-connect') }}" class="footer-link">{{ __('Community Connect') }}</a></li>
+                    <li><a href="{{ route('locale.switch', 'fr') }}" class="footer-link">{{ $siteBrandName }} en Français</a></li>
+                    <li><a href="{{ url('/accessibility') }}" class="footer-link">{{ __('Accessibility') }}</a></li>
                 </ul>
             </div>
         </div>

@@ -727,6 +727,88 @@ body {
     font-size: 0.9rem;
 }
 
+/* Bilingual Language Switcher */
+.lang-switcher-wrap {
+    display: inline-flex;
+    align-items: center;
+}
+.lang-toggle-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    height: 2.5rem;
+}
+.btn-lang-switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.65rem;
+    height: calc(2.5rem - 6px);
+    border-radius: calc(var(--radius-md) - 2px);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition-fast);
+    line-height: 1;
+    border: none;
+}
+.btn-lang-switch:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.btn-lang-switch.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+}
+
+/* Listing Translate Button */
+.btn-listing-translate,
+.btn-community-translate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary, #94a3b8);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    line-height: 1.2;
+}
+.btn-listing-translate:hover,
+.btn-community-translate:hover {
+    color: var(--text-main, #f8fafc);
+    background: rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.4);
+}
+.btn-listing-translate.is-translated,
+.btn-community-translate.is-translated {
+    color: #60a5fa;
+    background: rgba(37, 99, 235, 0.2);
+    border-color: #3b82f6;
+}
+.btn-listing-translate.is-loading,
+.btn-community-translate.is-loading {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+}
+.btn-listing-translate .spinner-border,
+.btn-community-translate .spinner-border {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-width: 1.5px;
+}
+
 .dropdown-location-menu {
     background-color: #0A1E33 !important;
     background: #0B2238 !important;
@@ -5655,6 +5737,18 @@ svg {
 
 .btn-detail-action .heart-filled {
     color: #EF4444 !important;
+}
+
+.btn-detail-action.btn-listing-translate {
+    border-radius: var(--radius-md);
+    padding: 0.4375rem 0.875rem;
+    font-size: 0.85rem;
+    line-height: normal;
+}
+.btn-detail-action.btn-listing-translate.is-translated {
+    color: #60a5fa;
+    background: rgba(37, 99, 235, 0.2);
+    border-color: #3b82f6;
 }
 
 /* 2. Main Two-Column Layout Grid */

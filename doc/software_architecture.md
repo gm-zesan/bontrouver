@@ -193,11 +193,22 @@ SmartAlertTriggered Notification (database / email)
 
 ### 4.7. Multilingual Content & Dynamic "Traduire" (Translate) Pipeline
 
-- **Bilingual System with Open Multilingual Content**: The system operates natively in French and English, but user-submitted listings can be in any language (French, English, Arabic, Spanish, etc.).
-- **On-Demand Client/Server Translation Architecture**:
-  - Listing cards (`<x-listing-card />`) and the listing detail page (`listings/show.blade.php`) feature a reactive **"Traduire" (Translate)** action toggle.
-  - Clicking "Traduire" dynamically translates the title and description into the viewer's active language (French ↔ English) without reloading the page.
-  - Prevents database pollution: original listing text is preserved in MySQL `listings.title` and `listings.description`, while translations are rendered and cached dynamically.
+- **Bilingual Core UI with Open Multilingual Content**: The entire platform interface (navigation, search bars, category menus, filters, modals, user dashboards, and footers) operates in English and French. However, user-authored listings and companionship requests can be published in **any language** (French, English, Arabic, Spanish, etc.) without restriction or forced language validation.
+- **On-Demand Client/Server Translation Architecture (MVC-S Flow)**:
+  - **Endpoint & Routing**: `POST /listings/{listing}/translate` handled by `App\Http\Controllers\ListingTranslationController@translate`.
+  - **Service Layer (`App\Services\TranslationService`)**:
+    - Detects source text language dynamically.
+    - Translates listing `title` and `description` to the user's requested target locale (`fr` or `en`).
+    - Multi-driver support: Pluggable translation driver (Google Translate API / LibreTranslate / Stored Fallback) with automatic fallback.
+  - **Intelligent Caching Layer**:
+    - Every translated response is cached in Laravel Cache/Redis under key `listing_trans_{id}_{target_locale}` for 30 days.
+    - Subsequent translation requests for the same listing return instantly with 0ms translation latency and zero external API costs.
+  - **Zero Database Pollution**:
+    - The author's original submitted raw text in `listings.title` and `listings.description` is never overwritten or mutated.
+  - **Reactive Blade Component (`<x-listing-translate-btn :listing="$listing" />`)**:
+    - Pinned to listing cards (`<x-listing-card />`) and the listing detail page (`listings/show.blade.php`).
+    - Features a micro-animated "Traduire" (Translate) button with an inline loading state.
+    - On click, performs an asynchronous `fetch()` call, swaps the card's title and description seamlessly, and toggles into a "Voir l'original" / "Show Original" state for instant reverting.
 
 ### 4.8. High-Capacity Media Pipeline & Exception Interception
 

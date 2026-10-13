@@ -165,18 +165,26 @@ Bon Trouver utilizes a hybrid Canadian marketplace monetization model designed f
 
 ---
 
-## 8. Multilingual Architecture & Dynamic Content Translation ("Traduire" Feature)
+## 8. Multilingual Interface & Per-Listing Dynamic Translation ("Traduire" Action)
 
 ### Overview
-Canada is an officially bilingual country (English & French), and Bon Trouver accommodates diverse linguistic communities while maintaining French and English operational parity.
+Canada is an officially bilingual country (English & French). Bon Trouver bridges linguistic communities across Quebec and all Canadian provinces with a bilingual platform UI while respecting the linguistic freedom of its diverse multicultural user base.
 
-### Key Capabilities
-- **Platform Interface Language**: The core UI/UX is built to support French, English, and localized translations across all navigation, forms, buttons, and system alerts.
-- **Unrestricted Multilingual User Content**: Users have complete freedom to publish ads and community meetups in any language (French, English, Arabic, Spanish, etc.).
-- **On-Demand "Traduire" (Translate) Action Button**:
-  - Every listing card across search results, category browse pages, and the listing detail page features a visible **"Traduire" (Translate)** button/toggle.
-  - Allows visitors and buyers with a single click to instantly translate the title and description into their preferred language (French / English) without reloading the page or leaving the listing.
-  - Seamlessly bridges communication between anglophone and francophone buyers and sellers across Quebec and all Canadian provinces.
+### Three-Pillar Language Architecture
+
+1. **Website Interface Language (English & French UI Parity)**:
+   - The entire platform interface (navigation header, search bars, category menus, buttons, footers, modals, account settings, and system alert banners) operates in **English and French**.
+   - Users and visitors can switch the site interface language at any time via a dedicated language toggle in the header/footer (English ↔ Français), stored in session/cookie preferences.
+
+2. **Unrestricted Multilingual Ad Postings (Any Language Allowed)**:
+   - Users have complete freedom to publish classified ads and community meetups in **any language** they speak (French, English, Arabic, Spanish, etc.).
+   - The platform never imposes restrictions, character set limitations, or forced language validation during ad creation.
+
+3. **Per-Listing "Traduire" (Translate) Action Button**:
+   - **Placement**: Underneath every single listing card (homepage carousel, search results, category browse grid, seller profile) and on the listing detail page (`/listing/{id}`).
+   - **On-Demand Translation**: Clicking the "Traduire" (Translate) button translates **only that specific listing's title and description** into the reader's preferred language (e.g. French / English) dynamically via AJAX without reloading the page.
+   - **Seamless Bilingual Toggle**: Readers can toggle between the translated version and the author's original text with a single click.
+   - **Database Non-Destructive**: The original raw text remains untouched in the database (`listings.title`, `listings.description`), while translations are served on-demand and cached for instant sub-millisecond retrieval.
 
 ---
 
@@ -238,7 +246,7 @@ To accommodate high-resolution automotive galleries, detailed rental walkthrough
 | **Monetization & Ads** | `promotion_packages`, `listing_promotions`, `banner_ads` | `MonetizationSeeder.php` | ✅ Complete |
 | **Platform Settings** | `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
 | **High-Capacity Media Uploads** | `listings`, `listing_images`, `site_settings` | `SiteSettingSeeder.php` | ✅ Complete |
-| **Dynamic "Traduire" (Translate)** | `listings` (frontend translation integration) | Frontend components & translation API | ⏳ In Progress |
+| **Dynamic "Traduire" (Translate)** | `listings` (frontend translation integration) | `TranslationService.php`, `ListingTranslationController.php`, `<x-listing-translate-btn />` | ✅ Complete |
 | **Dual Registration (User vs. Merchant)** | `users`, `user_verifications`, `user_profiles` | `RegistrationService.php`, `DualTierRegistrationTest.php` | ✅ Complete |
 
 ---

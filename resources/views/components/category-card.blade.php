@@ -3,8 +3,8 @@
 @php
     $slug = $category['slug'] ?? '';
     $url = $category['url'] ?? ($slug ? url('/category/' . $slug) : '#');
-    $name = $category['name'] ?? '';
-    $description = $category['description'] ?? '';
+    $name = __($category['name'] ?? '');
+    $description = __($category['description'] ?? '');
     $icon = $category['icon'] ?? 'bi-grid';
 @endphp
 

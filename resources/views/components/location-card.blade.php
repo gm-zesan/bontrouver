@@ -25,7 +25,7 @@
     $url = $location['url'] ?? url('/listings?city=' . urlencode($city) . ($province ? '&province=' . urlencode($province) : ''));
 @endphp
 
-<a href="{{ $url }}" class="location-card" id="loc-{{ $slug }}" aria-label="{{ $city }}, {{ $province }} ({{ $provinceCode }}) - {{ $formattedCount }} listings">
+<a href="{{ $url }}" class="location-card" id="loc-{{ $slug }}" aria-label="{{ $city }}, {{ __($province) }} ({{ $provinceCode }}) - {{ $formattedCount }} {{ __('listings') }}">
     <div class="location-card-top">
         <div class="location-name-wrap">
             <div class="d-flex align-items-center gap-2 mb-1">
@@ -34,7 +34,7 @@
                     <span class="province-code-pill">{{ $provinceCode }}</span>
                 @endif
             </div>
-            <span class="location-province-name">{{ $province }}</span>
+            <span class="location-province-name">{{ __($province) }}</span>
         </div>
         <span class="location-pin-icon" aria-hidden="true">
             <i class="bi bi-geo-alt"></i>
@@ -43,7 +43,7 @@
 
     <div class="location-card-bottom">
         <span class="location-count-text">
-            <strong>{{ $formattedCount }}</strong> listings
+            <strong>{{ $formattedCount }}</strong> {{ __('listings') }}
         </span>
         <span class="location-arrow" aria-hidden="true">
             <i class="bi bi-arrow-right"></i>

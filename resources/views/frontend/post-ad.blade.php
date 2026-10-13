@@ -37,23 +37,23 @@
                     <div class="stepper-steps">
                         <button type="button" class="step-item active" data-step="1" onclick="goToStep(1)">
                             <span class="step-circle"><i class="bi bi-grid"></i></span>
-                            <span class="step-label">1. Category</span>
+                            <span class="step-label">1. {{ __('Category') }}</span>
                         </button>
                         <button type="button" class="step-item" data-step="2" onclick="goToStep(2)">
                             <span class="step-circle"><i class="bi bi-card-text"></i></span>
-                            <span class="step-label">2. Details</span>
+                            <span class="step-label">2. {{ __('Details') }}</span>
                         </button>
                         <button type="button" class="step-item" data-step="3" onclick="goToStep(3)">
                             <span class="step-circle"><i class="bi bi-images"></i></span>
-                            <span class="step-label">3. Photos</span>
+                            <span class="step-label">3. {{ __('Photos') }}</span>
                         </button>
                         <button type="button" class="step-item" data-step="4" onclick="goToStep(4)">
                             <span class="step-circle"><i class="bi bi-geo-alt"></i></span>
-                            <span class="step-label">4. Location</span>
+                            <span class="step-label">4. {{ __('Location') }}</span>
                         </button>
                         <button type="button" class="step-item" data-step="5" onclick="goToStep(5)">
                             <span class="step-circle"><i class="bi bi-check-circle"></i></span>
-                            <span class="step-label">5. Review</span>
+                            <span class="step-label">5. {{ __('Review') }}</span>
                         </button>
                     </div>
                 </div>

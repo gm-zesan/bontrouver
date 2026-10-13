@@ -81,4 +81,28 @@ class StaticPagesTest extends TestCase
             $response->assertStatus(200);
         }
     }
+
+    public function test_static_pages_render_french_when_locale_is_fr(): void
+    {
+        $aboutResponse = $this->withSession(['locale' => 'fr'])->get(route('pages.about'));
+        $aboutResponse->assertStatus(200)
+            ->assertSee("À propos de Bontrouver Canada")
+            ->assertSee("Petites annonces actives");
+
+        $benefitsResponse = $this->withSession(['locale' => 'fr'])->get(route('pages.member-benefits'));
+        $benefitsResponse->assertStatus(200)
+            ->assertSee("Niveaux de membres et points de réputation Bontrouver");
+
+        $termsResponse = $this->withSession(['locale' => 'fr'])->get(route('pages.terms'));
+        $termsResponse->assertStatus(200)
+            ->assertSee("Conditions d'utilisation");
+
+        $privacyResponse = $this->withSession(['locale' => 'fr'])->get(route('pages.privacy'));
+        $privacyResponse->assertStatus(200)
+            ->assertSee("Politique de confidentialité");
+
+        $securityResponse = $this->withSession(['locale' => 'fr'])->get(route('pages.security'));
+        $securityResponse->assertStatus(200)
+            ->assertSee("Transactions sûres et prévention de la fraude");
+    }
 }

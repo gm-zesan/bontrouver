@@ -185,6 +185,7 @@ class VerificationService
             'drivers_license' => UserVerification::where('document_type', 'drivers_license')->count(),
             'passport' => UserVerification::where('document_type', 'passport')->count(),
             'provincial_id' => UserVerification::whereIn('document_type', ['provincial_id', 'government_id'])->count(),
+            'dealer_license' => UserVerification::where('document_type', 'dealer_license')->count(),
         ];
     }
 }

@@ -6,7 +6,7 @@
 
 @foreach($items as $idx => $item)
     @php
-        $name = $item['name'] ?? 'Category';
+        $name = __($item['name'] ?? 'Category');
         $slug = $item['slug'] ?? 'item-' . $idx;
         if ($level === 3) {
             $url = $item['url'] ?? ($parentUrl ? $parentUrl . '&child=' . $slug : url('/category/' . $slug));

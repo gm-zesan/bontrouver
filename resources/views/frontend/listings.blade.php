@@ -459,8 +459,8 @@
                     <div class="search-col search-keyword-col">
                         <i class="bi bi-search search-icon"></i>
                         <input type="text" id="filterKeyword" class="search-field"
-                            placeholder="What are you looking for?" value="{{ $searchQuery ?? '' }}"
-                            autocomplete="off" aria-label="Search keywords">
+                            placeholder="{{ __('What are you looking for?') }}" value="{{ $searchQuery ?? '' }}"
+                            autocomplete="off" aria-label="{{ __('Search keywords') }}">
                         <button type="button" id="clearKeywordBtn" class="clear-input-btn" style="display: {{ !empty($searchQuery) ? 'block' : 'none' }};" onclick="clearKeywordInput()">
                             <i class="bi bi-x-circle-fill"></i>
                         </button>
@@ -469,8 +469,8 @@
                     <!-- Location Selector -->
                     <div class="search-col search-location-col">
                         <i class="bi bi-geo-alt search-icon"></i>
-                        <select id="filterLocation" class="search-field search-select" aria-label="Location" onchange="syncLocationFilter(this.value)">
-                            <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
+                        <select id="filterLocation" class="search-field search-select" aria-label="{{ __('Location') }}" onchange="syncLocationFilter(this.value)">
+                            <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
                             @if(!empty($canadianCities))
                                 @foreach($canadianCities as $cName => $cInfo)
                                     @php
@@ -485,21 +485,21 @@
                     <!-- Radius Distance Selector -->
                     <div class="search-col search-radius-col d-none d-md-flex">
                         <i class="bi bi-compass search-icon"></i>
-                        <select id="filterRadiusSelect" class="search-field search-select" aria-label="Distance Radius" onchange="syncRadius(this.value)">
-                            <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
-                            <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
-                            <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
-                            <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
-                            <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
-                            <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
-                            <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
+                        <select id="filterRadiusSelect" class="search-field search-select" aria-label="{{ __('Distance Radius') }}" onchange="syncRadius(this.value)">
+                            <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Any distance') }}</option>
+                            <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 5]) }}</option>
+                            <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 10]) }}</option>
+                            <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 25]) }}</option>
+                            <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 50]) }}</option>
+                            <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 100]) }}</option>
+                            <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>{{ __('Within :km km', ['km' => 250]) }}</option>
                         </select>
                     </div>
 
                     <!-- Search Action Button -->
                     <button type="button" class="btn-search-main" onclick="triggerLiveFilter()">
                         <i class="bi bi-search me-1"></i>
-                        <span>Search</span>
+                        <span>{{ __('Search') }}</span>
                     </button>
                 </form>
             </div>
@@ -518,19 +518,19 @@
                     <div class="filter-sidebar-header">
                         <h3 class="filter-sidebar-title">
                             <i class="bi bi-sliders2-vertical me-2"></i>
-                            <span>Filters</span>
+                            <span>{{ __('Filters') }}</span>
                         </h3>
-                        <button type="button" class="btn-reset-all" onclick="resetAllFilters()">Clear All</button>
+                        <button type="button" class="btn-reset-all" onclick="resetAllFilters()">{{ __('Clear All') }}</button>
                     </div>
 
                     <div class="filter-sections-accordion">
 
                         {{-- 1. CATEGORY HIERARCHY TREE --}}
                         <div class="filter-section">
-                            <div class="filter-section-title">Category</div>
+                            <div class="filter-section-title">{{ __('Category') }}</div>
                             <div class="filter-category-tree" id="desktopCategoryTree">
                                 <a href="javascript:void(0)" class="cat-tree-link {{ empty($activeCategory) ? 'active' : '' }}" onclick="selectCategoryFilter('')" data-category-slug="">
-                                    <span>All Categories</span>
+                                    <span>{{ __('All Categories') }}</span>
                                 </a>
 
                                 @foreach($categories as $catKey => $cat)
@@ -541,7 +541,7 @@
                                     <div class="cat-tree-group">
                                         <a href="javascript:void(0)" class="cat-tree-link {{ $isCatActive ? 'active' : '' }}" onclick="selectCategoryFilter('{{ $catKey }}')" data-category-slug="{{ $catKey }}">
                                             <i class="bi {{ $cat['icon'] ?? 'bi-tag' }} me-2 text-muted"></i>
-                                            <span>{{ $cat['name'] }}</span>
+                                            <span>{{ __($cat['name']) }}</span>
                                         </a>
 
                                         @if(!empty($subcats))
@@ -553,7 +553,7 @@
                                                     <a href="javascript:void(0)" class="subcat-tree-link {{ $isSubActive ? 'active' : '' }}"
                                                         onclick="selectSubcategoryFilter('{{ $catKey }}', '{{ $subcat['slug'] }}')"
                                                         data-category-slug="{{ $catKey }}" data-subcat-slug="{{ $subcat['slug'] }}">
-                                                        <span>{{ $subcat['name'] }}</span>
+                                                        <span>{{ __($subcat['name']) }}</span>
                                                     </a>
                                                 @endforeach
                                             </div>
@@ -565,22 +565,22 @@
 
                         {{-- 2. PRICE RANGE FILTER --}}
                         <div class="filter-section">
-                            <div class="filter-section-title">Price ($ CAD)</div>
+                            <div class="filter-section-title">{{ __('Price ($ CAD)') }}</div>
                             <div class="price-inputs-row">
                                 <div class="price-input-wrap">
                                     <span class="currency-prefix">$</span>
-                                    <input type="number" id="filterPriceMin" class="price-field" placeholder="Min" min="0" oninput="debouncedLiveFilter()">
+                                    <input type="number" id="filterPriceMin" class="price-field" placeholder="{{ __('Min') }}" min="0" oninput="debouncedLiveFilter()">
                                 </div>
-                                <span class="price-separator">to</span>
+                                <span class="price-separator">{{ __('to') }}</span>
                                 <div class="price-input-wrap">
                                     <span class="currency-prefix">$</span>
-                                    <input type="number" id="filterPriceMax" class="price-field" placeholder="Max" min="0" oninput="debouncedLiveFilter()">
+                                    <input type="number" id="filterPriceMax" class="price-field" placeholder="{{ __('Max') }}" min="0" oninput="debouncedLiveFilter()">
                                 </div>
                             </div>
 
                             <!-- Quick Price Quick-Chips -->
                             <div class="quick-price-chips mt-2">
-                                <button type="button" class="quick-chip" onclick="setQuickPrice(null, 100)">Under $100</button>
+                                <button type="button" class="quick-chip" onclick="setQuickPrice(null, 100)">{{ __('Under $100') }}</button>
                                 <button type="button" class="quick-chip" onclick="setQuickPrice(100, 500)">$100–$500</button>
                                 <button type="button" class="quick-chip" onclick="setQuickPrice(500, 2000)">$500–$2k</button>
                                 <button type="button" class="quick-chip" onclick="setQuickPrice(2000, null)">$2k+</button>
@@ -928,16 +928,16 @@
                 <div class="mobile-filter-bar d-lg-none">
                     <button type="button" class="mobile-filter-btn" onclick="openMobileFilterDrawer()">
                         <i class="bi bi-sliders2-vertical"></i>
-                        <span>Filters</span>
+                        <span>{{ __('Filters') }}</span>
                         <span class="mobile-filter-badge" id="mobileFilterBadge" style="display: none;">0</span>
                     </button>
 
                     <div class="mobile-sort-wrap">
                         <select id="mobileSortSelect" class="mobile-sort-select" onchange="syncSort(this.value)">
-                            <option value="recent">Most Recent</option>
-                            <option value="price_asc">Price: Low to High</option>
-                            <option value="price_desc">Price: High to Low</option>
-                            <option value="distance">Distance</option>
+                            <option value="recent">{{ __('Most Recent') }}</option>
+                            <option value="price_asc">{{ __('Price: Low to High') }}</option>
+                            <option value="price_desc">{{ __('Price: High to Low') }}</option>
+                            <option value="distance">{{ __('Distance') }}</option>
                         </select>
                     </div>
                 </div>
@@ -948,46 +948,46 @@
                         <div>
                             <h1 class="results-page-heading" id="resultsPageHeading">
                                 @if($activeChild)
-                                    {{ $activeChild['name'] }} in {{ $location }}
+                                    {{ $activeChild['name'] }} {{ __('in') }} {{ $location === 'All Canada' ? __('All Canada') : $location }}
                                 @elseif($activeSubcategory)
-                                    {{ $activeSubcategory['name'] }} in {{ $location }}
+                                    {{ $activeSubcategory['name'] }} {{ __('in') }} {{ $location === 'All Canada' ? __('All Canada') : $location }}
                                 @elseif($activeCategory)
-                                    {{ $activeCategory['name'] }} in {{ $location }}
+                                    {{ $activeCategory['name'] }} {{ __('in') }} {{ $location === 'All Canada' ? __('All Canada') : $location }}
                                 @elseif(!empty($searchQuery))
-                                    Search results for "{{ $searchQuery }}" in {{ $location }}
+                                    {{ __('Search results for ":query" in :location', ['query' => $searchQuery, 'location' => $location === 'All Canada' ? __('All Canada') : $location]) }}
                                 @else
-                                    All Classifieds & Listings in {{ $location }}
+                                    {{ __('All Classifieds & Listings in :location', ['location' => $location === 'All Canada' ? __('All Canada') : $location]) }}
                                 @endif
                             </h1>
                             <p class="results-count-text">
-                                Showing <span id="resultsCountTotal">{{ count($listings) }}</span> <span id="resultsCountNoun">{{ count($listings) === 1 ? 'result' : 'results' }}</span>
+                                {{ __('Showing') }} <span id="resultsCountTotal">{{ count($listings) }}</span> <span id="resultsCountNoun">{{ count($listings) === 1 ? __('result') : __('results') }}</span>
                             </p>
                         </div>
 
                         <!-- View Mode Switcher & Sorting Toolbar -->
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <!-- View Mode Switcher -->
-                            <div class="map-view-toggle-group" role="group" aria-label="View layout mode">
-                                <button type="button" class="btn-view-mode active" id="btnModeList" onclick="switchViewMode('list')" title="List & Grid View">
+                            <div class="map-view-toggle-group" role="group" aria-label="{{ __('View layout mode') }}">
+                                <button type="button" class="btn-view-mode active" id="btnModeList" onclick="switchViewMode('list')" title="{{ __('List & Grid View') }}">
                                     <i class="bi bi-view-list"></i>
-                                    <span>List</span>
+                                    <span>{{ __('List') }}</span>
                                 </button>
-                                <button type="button" class="btn-view-mode" id="btnModeMap" onclick="switchViewMode('map')" title="Interactive OpenStreetMap View">
+                                <button type="button" class="btn-view-mode" id="btnModeMap" onclick="switchViewMode('map')" title="{{ __('Interactive OpenStreetMap View') }}">
                                     <i class="bi bi-map-fill"></i>
-                                    <span>Map</span>
+                                    <span>{{ __('Map') }}</span>
                                 </button>
                             </div>
 
                             <!-- Desktop Sort By Dropdown -->
                             <div class="desktop-sort-wrap d-none d-lg-flex align-items-center gap-2 ms-1">
-                                <label for="desktopSortSelect" class="sort-label">Sort by:</label>
+                                <label for="desktopSortSelect" class="sort-label">{{ __('Sort by:') }}</label>
                                 <div class="sort-select-container">
                                     <select id="desktopSortSelect" class="desktop-sort-select" onchange="syncSort(this.value)">
-                                        <option value="recent">Most Recent</option>
-                                        <option value="price_asc">Price: Low to High</option>
-                                        <option value="price_desc">Price: High to Low</option>
-                                        <option value="distance">Distance</option>
-                                        <option value="relevance">Relevance</option>
+                                        <option value="recent">{{ __('Most Recent') }}</option>
+                                        <option value="price_asc">{{ __('Price: Low to High') }}</option>
+                                        <option value="price_desc">{{ __('Price: High to Low') }}</option>
+                                        <option value="distance">{{ __('Distance') }}</option>
+                                        <option value="relevance">{{ __('Relevance') }}</option>
                                     </select>
                                     <i class="bi bi-chevron-down sort-chevron"></i>
                                 </div>
@@ -997,11 +997,11 @@
 
                     <!-- Active Filter Chips Row -->
                     <div class="active-filters-wrapper" id="activeFilterChipsContainer" style="display: none;">
-                        <span class="active-filter-label">Active filters:</span>
+                        <span class="active-filter-label">{{ __('Active filters:') }}</span>
                         <div class="active-chips-list" id="activeChipsList">
                             <!-- Injected dynamically via JS -->
                         </div>
-                        <button type="button" class="btn-clear-chips" onclick="resetAllFilters()">Clear All</button>
+                        <button type="button" class="btn-clear-chips" onclick="resetAllFilters()">{{ __('Clear All') }}</button>
                     </div>
                 </div>
 
@@ -1046,7 +1046,7 @@
                                                 @if(!empty($item['badge_icon']))
                                                     <i class="bi {{ $item['badge_icon'] }} me-1"></i>
                                                 @endif
-                                                {{ $item['badge'] }}
+                                                {{ __($item['badge']) }}
                                             </span>
                                         @endif
                                     </div>
@@ -1054,7 +1054,7 @@
                                     <!-- Center: Title, Specs & Details -->
                                     <div class="listing-row-content">
                                         <div class="listing-row-header">
-                                            <div class="listing-category-tag">{{ $item['subcategory_name'] ?? $item['category_name'] }}</div>
+                                            <div class="listing-category-tag">{{ __($item['subcategory_name'] ?? $item['category_name']) }}</div>
                                             <h2 class="listing-row-title">
                                                 <a href="{{ $item['url'] }}" onclick="event.stopPropagation()">{{ $item['title'] }}</a>
                                             </h2>
@@ -1065,26 +1065,26 @@
                                         @if(!empty($item['specs_pills']))
                                             <div class="listing-specs-pills">
                                                 @foreach($item['specs_pills'] as $spec)
-                                                    <span class="spec-tag">{{ $spec }}</span>
+                                                    <span class="spec-tag">{{ __($spec) }}</span>
                                                 @endforeach
                                             </div>
                                         @endif
 
                                         <div class="listing-row-footer">
                                             <span class="listing-row-location">
-                                                <i class="bi bi-geo-alt-fill me-1"></i>{{ $item['location'] }}
+                                                <i class="bi bi-geo-alt-fill me-1"></i>{{ $item['location'] === 'All Canada' ? __('All Canada') : $item['location'] }}
                                             </span>
                                             <span class="listing-dot">•</span>
-                                            <span class="listing-row-time">{{ $item['posted_at'] }}</span>
+                                            <span class="listing-row-time">{{ __($item['posted_at']) }}</span>
                                             @if(!empty($item['distance_km']))
                                                 <span class="listing-dot">•</span>
-                                                <span class="listing-distance">{{ $item['distance_km'] }} km away</span>
+                                                <span class="listing-distance">{{ __(':km km away', ['km' => $item['distance_km']]) }}</span>
                                             @endif
                                             @if(!empty($item['seller_type_label']) || !empty($item['seller']['type']))
                                                 <span class="listing-dot">•</span>
                                                 <span class="listing-seller-pill">
                                                     <i class="bi bi-patch-check-fill"></i>
-                                                    <span>{{ $item['seller_type_label'] ?? $item['seller']['type'] }}</span>
+                                                    <span>{{ __($item['seller_type_label'] ?? $item['seller']['type']) }}</span>
                                                 </span>
                                             @endif
                                         </div>
@@ -1097,13 +1097,14 @@
                                             <span class="listing-currency">{{ $item['currency'] }}</span>
                                         </div>
 
-                                        <div class="listing-action-btns">
-                                            <button type="button" class="btn-favorite-icon {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'active' : '' }}" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="Save listing">
+                                        <div class="listing-action-btns d-flex align-items-center gap-1">
+                                            <x-listing-translate-btn :listing-id="$item['id']" scope="card" />
+                                            <button type="button" class="btn-favorite-icon {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'active' : '' }}" onclick="toggleFavoriteListing({{ $item['id'] }}, this, event)" aria-label="{{ __('Save listing') }}">
                                                 <i class="bi bi-heart heart-outline" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'none' : 'inline-block' }};"></i>
                                                 <i class="bi bi-heart-fill heart-filled" style="display: {{ in_array($item['id'], $userFavoriteIds ?? []) ? 'inline-block' : 'none' }};"></i>
                                             </button>
                                             <a href="{{ $item['url'] }}" class="btn-view-details" onclick="event.stopPropagation()">
-                                                <span>View</span>
+                                                <span>{{ __('View') }}</span>
                                                 <i class="bi bi-arrow-right"></i>
                                             </a>
                                         </div>
@@ -1117,18 +1118,18 @@
                             <div class="empty-state-icon">
                                 <i class="bi bi-search"></i>
                             </div>
-                            <h3 class="empty-state-title">No listings found</h3>
+                            <h3 class="empty-state-title">{{ __('No listings found') }}</h3>
                             <p class="empty-state-subtitle">
-                                We couldn't find any matches matching your current filters. Try removing some filters or broadening your search radius.
+                                {{ __("We couldn't find any matches matching your current filters. Try removing some filters or broadening your search radius.") }}
                             </p>
                             <div class="empty-state-actions">
                                 <button type="button" class="btn-reset-filters" onclick="resetAllFilters()">
                                     <i class="bi bi-arrow-clockwise me-1"></i>
-                                    <span>Clear all filters</span>
+                                    <span>{{ __('Clear all filters') }}</span>
                                 </button>
                                 <button type="button" class="btn-change-location" onclick="expandLocationFilter()">
                                     <i class="bi bi-geo-alt me-1"></i>
-                                    <span>Search All Canada</span>
+                                    <span>{{ __('Search All Canada') }}</span>
                                 </button>
                             </div>
                         </div>
@@ -1136,11 +1137,11 @@
                         <!-- Clean Pagination Controls -->
                         <div class="marketplace-pagination-wrap" id="paginationWrap">
                             <ul class="marketplace-pagination">
-                                <li class="page-item disabled"><a class="page-link" href="javascript:void(0)"><i class="bi bi-chevron-left"></i> Previous</a></li>
+                                <li class="page-item disabled"><a class="page-link" href="javascript:void(0)"><i class="bi bi-chevron-left"></i> {{ __('Previous') }}</a></li>
                                 <li class="page-item active"><a class="page-link" href="javascript:void(0)">1</a></li>
                                 <li class="page-item"><a class="page-link" href="javascript:void(0)">2</a></li>
                                 <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Next <i class="bi bi-chevron-right"></i></a></li>
+                                <li class="page-item"><a class="page-link" href="javascript:void(0)">{{ __('Next') }} <i class="bi bi-chevron-right"></i></a></li>
                             </ul>
                         </div>
                     </div>
@@ -1150,20 +1151,20 @@
                         <div class="listings-map-wrapper shadow-sm" id="listingsMapContainer">
                             <!-- Floating Map Controls -->
                             <div class="map-floating-ctrl">
-                                <button type="button" class="map-floating-btn" onclick="recenterLeafletMap()" title="Center map on selected location">
-                                    <i class="bi bi-crosshair me-1"></i> Recenter
+                                <button type="button" class="map-floating-btn" onclick="recenterLeafletMap()" title="{{ __('Center map on selected location') }}">
+                                    <i class="bi bi-crosshair me-1"></i> {{ __('Recenter') }}
                                 </button>
-                                <button type="button" class="map-floating-btn" onclick="locateUserOnMap()" title="Find listings near my device">
-                                    <i class="bi bi-geo-alt me-1"></i> Near Me
+                                <button type="button" class="map-floating-btn" onclick="locateUserOnMap()" title="{{ __('Find listings near my device') }}">
+                                    <i class="bi bi-geo-alt me-1"></i> {{ __('Near Me') }}
                                 </button>
-                                <button type="button" class="map-floating-btn d-none d-md-inline-flex" onclick="fitAllListingsBounds()" title="Fit map to all listings">
-                                    <i class="bi bi-arrows-fullscreen me-1"></i> Fit All
+                                <button type="button" class="map-floating-btn d-none d-md-inline-flex" onclick="fitAllListingsBounds()" title="{{ __('Fit map to all listings') }}">
+                                    <i class="bi bi-arrows-fullscreen me-1"></i> {{ __('Fit All') }}
                                 </button>
                             </div>
 
                             <!-- Floating Search This Area Pill -->
                             <div class="map-search-area-pill" id="mapSearchAreaPill" style="display: none;" onclick="searchThisMapArea()">
-                                <i class="bi bi-search me-1"></i> Search this map area
+                                <i class="bi bi-search me-1"></i> {{ __('Search this map area') }}
                             </div>
 
                             <div id="listingsLeafletMap"></div>
@@ -1171,11 +1172,11 @@
                             <!-- Sleek Bottom Legend -->
                             <div class="map-bottom-legend d-flex align-items-center justify-content-between px-3 py-2 text-white-50 small" style="background: rgba(6, 24, 43, 0.95); border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.78rem;">
                                 <div class="d-flex align-items-center gap-3">
-                                    <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> Active Listings</span>
-                                    <span><i class="bi bi-star-fill text-warning me-1" style="font-size: 0.7rem;"></i> Featured / Sponsored</span>
-                                    <span class="d-none d-sm-inline"><i class="bi bi-circle text-info me-1" style="font-size: 0.7rem;"></i> Radius Range</span>
+                                    <span><i class="bi bi-circle-fill text-success me-1" style="font-size: 0.5rem;"></i> {{ __('Active Listings') }}</span>
+                                    <span><i class="bi bi-star-fill text-warning me-1" style="font-size: 0.7rem;"></i> {{ __('Featured / Sponsored') }}</span>
+                                    <span class="d-none d-sm-inline"><i class="bi bi-circle text-info me-1" style="font-size: 0.7rem;"></i> {{ __('Radius Range') }}</span>
                                 </div>
-                                <span class="font-monospace text-muted" id="mapMarkersCountLabel">0 on map</span>
+                                <span class="font-monospace text-muted" id="mapMarkersCountLabel">0 {{ __('on map') }}</span>
                             </div>
                         </div>
                     </div>

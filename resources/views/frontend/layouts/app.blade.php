@@ -216,6 +216,9 @@
     <!-- Global Bon Trouver Live Support Chat Widget -->
     <x-support-chat-widget />
 
+    <!-- Per-Listing Translation Engine -->
+    <script src="{{ asset('js/listing-translator.js') }}" defer></script>
+
     @stack('scripts')
     @if ($errors->any())
         @php

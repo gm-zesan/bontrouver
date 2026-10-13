@@ -104,15 +104,16 @@
 
                 @if($listing)
                     <div class="d-flex align-items-center gap-2">
+                        <x-listing-translate-btn :listing-id="$listing['id'] ?? $listing->id" scope="detail" btn-class="btn-detail-action" />
                         <button type="button" class="btn-detail-action"
                             onclick="toggleSaveListing(this, '{{ $listing['id'] }}')" id="topSaveBtn">
                             <i class="bi bi-heart heart-outline" style="display: {{ ($isSaved ?? false) ? 'none' : 'inline-block' }};"></i>
                             <i class="bi bi-heart-fill heart-filled text-danger" style="display: {{ ($isSaved ?? false) ? 'inline-block' : 'none' }};"></i>
-                            <span>Save</span>
+                            <span>{{ __('Save') }}</span>
                         </button>
                         <button type="button" class="btn-detail-action" onclick="openShareModal()" id="topShareBtn">
                             <i class="bi bi-share"></i>
-                            <span>Share</span>
+                            <span>{{ __('Share') }}</span>
                         </button>
                         <!-- <button type="button" class="btn-detail-action text-secondary" onclick="openReportModal()"
                             id="topReportBtn" title="Report this ad">
@@ -128,17 +129,16 @@
                     <div class="unavailable-icon-wrap mb-3">
                         <i class="bi bi-exclamation-octagon text-warning"></i>
                     </div>
-                    <h1 class="h3 fw-bold text-white mb-2">Listing No Longer Available</h1>
+                    <h1 class="h3 fw-bold text-white mb-2">{{ __('Listing No Longer Available') }}</h1>
                     <p class="text-secondary max-w-md mx-auto mb-4">
-                        This listing may have been sold, expired, or removed by the seller. Discover other great listings in the
-                        same category below.
+                        {{ __('This listing may have been sold, expired, or removed by the seller. Discover other great listings in the same category below.') }}
                     </p>
                     <div class="d-flex justify-content-center gap-3 flex-wrap">
                         <a href="{{ url('/listings') }}" class="btn btn-primary-custom px-4 py-2">
-                            <i class="bi bi-search me-1"></i> Browse All Listings
+                            <i class="bi bi-search me-1"></i> {{ __('Browse All Listings') }}
                         </a>
                         <a href="{{ url('/') }}" class="btn btn-outline-secondary text-white px-4 py-2">
-                            <i class="bi bi-house-door me-1"></i> Return Home
+                            <i class="bi bi-house-door me-1"></i> {{ __('Return Home') }}
                         </a>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                 @if(!empty($similarListings))
                     <div class="mt-5 pt-3">
                         <div class="section-header-wrap mb-4">
-                            <h2 class="section-heading">You May Also Like</h2>
+                            <h2 class="section-heading">{{ __('You May Also Like') }}</h2>
                         </div>
                         <div class="row g-3 g-lg-4">
                             @foreach($similarListings as $similar)
@@ -187,7 +187,7 @@
                                 @if(!empty($listing['badge']))
                                     <div class="gallery-badge-wrap">
                                         <span class="listing-status-badge badge-{{ $listing['badge_type'] ?? 'featured' }}">
-                                            {{ $listing['badge'] }}
+                                            {{ __($listing['badge']) }}
                                         </span>
                                     </div>
                                 @endif
@@ -195,18 +195,18 @@
                                 <!-- Top Right Fullscreen Trigger Button -->
                                 <button type="button" class="btn-gallery-fullscreen"
                                     onclick="event.stopPropagation(); openLightbox(currentGalleryIndex);"
-                                    title="View Fullscreen Lightbox" aria-label="View Fullscreen">
+                                    title="{{ __('View Fullscreen Lightbox') }}" aria-label="{{ __('View Fullscreen') }}">
                                     <i class="bi bi-arrows-fullscreen"></i>
                                 </button>
 
                                 <!-- Navigation Arrows -->
                                 @if($totalPhotos > 1)
                                     <button type="button" class="gallery-arrow gallery-prev"
-                                        onclick="event.stopPropagation(); navigateGallery(-1);" aria-label="Previous photo">
+                                        onclick="event.stopPropagation(); navigateGallery(-1);" aria-label="{{ __('Previous photo') }}">
                                         <i class="bi bi-chevron-left"></i>
                                     </button>
                                     <button type="button" class="gallery-arrow gallery-next"
-                                        onclick="event.stopPropagation(); navigateGallery(1);" aria-label="Next photo">
+                                        onclick="event.stopPropagation(); navigateGallery(1);" aria-label="{{ __('Next photo') }}">
                                         <i class="bi bi-chevron-right"></i>
                                     </button>
                                 @endif
@@ -236,8 +236,10 @@
                             <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
                                 <span
                                     class="mobile-cat-badge">{{ $listing['subcategory_name'] ?? $listing['category_name'] }}</span>
-                                <span class="mobile-time-text"><i
-                                        class="bi bi-clock me-1"></i>{{ $listing['posted_at'] }}</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="mobile-time-text"><i
+                                            class="bi bi-clock me-1"></i>{{ $listing['posted_at'] }}</span>
+                                </div>
                             </div>
                             <h1 class="mobile-detail-title">{{ $listing['title'] }}</h1>
                             <div class="mobile-price-row mt-2">
@@ -258,25 +260,25 @@
                                 <div class="section-card-header">
                                     <h2 class="section-card-title">
                                         <i class="bi bi-sliders text-primary-custom me-2"></i>
-                                        <span>Overview & Key Details</span>
+                                        <span>{{ __('Overview & Key Details') }}</span>
                                     </h2>
                                 </div>
                                 <div class="section-card-body">
                                     <div class="specs-attributes-grid">
                                         @foreach($listing['attributes'] as $attrKey => $attrVal)
                                             <div class="spec-attribute-item">
-                                                <div class="attr-label">{{ $attrKey }}</div>
-                                                <div class="attr-value">{{ $attrVal }}</div>
+                                                <div class="attr-label">{{ __($attrKey) }}</div>
+                                                <div class="attr-value">{{ __($attrVal) }}</div>
                                             </div>
                                         @endforeach
                                     </div>
 
                                     @if(!empty($listing['specs_pills']))
                                         <div class="specs-tags-wrap mt-3 pt-3 border-top border-secondary border-opacity-10">
-                                            <div class="specs-tags-label">Tags & Highlights:</div>
+                                            <div class="specs-tags-label">{{ __('Tags & Highlights:') }}</div>
                                             <div class="d-flex flex-wrap gap-2 mt-2">
                                                 @foreach($listing['specs_pills'] as $pill)
-                                                    <span class="spec-pill-badge">{{ $pill }}</span>
+                                                    <span class="spec-pill-badge">{{ __($pill) }}</span>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -290,11 +292,13 @@
                             <div class="section-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
                                 <h2 class="section-card-title mb-0">
                                     <i class="bi bi-card-text text-primary-custom me-2"></i>
-                                    <span>Description</span>
+                                    <span>{{ __('Description') }}</span>
                                 </h2>
-                                <span class="desc-badge text-secondary small">
-                                    <i class="bi bi-shield-check text-success me-1"></i> Verified Content
-                                </span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="desc-badge text-secondary small">
+                                        <i class="bi bi-shield-check text-success me-1"></i> {{ __('Verified Content') }}
+                                    </span>
+                                </div>
                             </div>
                             <div class="section-card-body">
                                 <div class="listing-description-content" id="descriptionContent">
@@ -302,7 +306,7 @@
                                 </div>
                                 <button type="button" class="btn-toggle-description mt-3" id="toggleDescBtn"
                                     onclick="toggleDescription()" style="display: none;">
-                                    <span id="toggleDescText">Read Full Description</span>
+                                    <span id="toggleDescText">{{ __('Read Full Description') }}</span>
                                     <i class="bi bi-chevron-down ms-1" id="toggleDescIcon"></i>
                                 </button>
                             </div>
@@ -313,10 +317,10 @@
                             <div class="section-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
                                 <h2 class="section-card-title mb-0">
                                     <i class="bi bi-geo-alt-fill text-primary-custom me-2"></i>
-                                    <span>Location & Neighbourhood</span>
+                                    <span>{{ __('Location & Neighbourhood') }}</span>
                                 </h2>
                                 <span class="location-privacy-badge">
-                                    <i class="bi bi-shield-lock me-1"></i> Approximate Area
+                                    <i class="bi bi-shield-lock me-1"></i> {{ __('Approximate Area') }}
                                 </span>
                             </div>
                             <div class="section-card-body">
@@ -325,7 +329,7 @@
                                         <div class="location-primary-text">
                                             {{ $listing['neighbourhood'] ?? $listing['location'] }}</div>
                                         <div class="location-sub-text text-secondary small">
-                                            Near {{ $listing['location'] }}
+                                            {{ __('Near') }} {{ $listing['location'] }}
                                             {{ !empty($listing['postal_code_prefix']) ? '• ' . $listing['postal_code_prefix'] : '' }}
                                         </div>
                                     </div>
@@ -333,7 +337,7 @@
                                         rel="noopener noreferrer"
                                         class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-1">
                                         <i class="bi bi-cursor-fill text-primary-custom"></i>
-                                        <span>Get Directions</span>
+                                        <span>{{ __('Get Directions') }}</span>
                                     </a>
                                 </div>
 
@@ -344,12 +348,12 @@
                                         <a href="https://maps.google.com/?q={{ urlencode((!empty($listing['latitude']) && !empty($listing['longitude'])) ? ($listing['latitude'] . ',' . $listing['longitude']) : ($listing['city'] . ', ' . $listing['province'] . ', Canada')) }}" target="_blank"
                                             rel="noopener noreferrer"
                                             class="btn btn-sm btn-dark rounded-pill px-3 py-1 text-white border border-white border-opacity-25 shadow" style="background: rgba(13,36,60,0.9); backdrop-filter: blur(8px); font-size: 0.78rem;">
-                                            <i class="bi bi-geo-alt-fill text-success me-1"></i> Google Maps
+                                            <i class="bi bi-geo-alt-fill text-success me-1"></i> {{ __('Google Maps') }}
                                         </a>
                                     </div>
                                 </div>
                                 <div class="location-disclaimer mt-2 text-secondary small">
-                                    <i class="bi bi-info-circle me-1"></i> Approximate area shown to protect seller privacy. Exact meeting location is arranged securely upon agreement.
+                                    <i class="bi bi-info-circle me-1"></i> {{ __('Approximate area shown to protect seller privacy. Exact meeting location is arranged securely upon agreement.') }}
                                 </div>
                             </div>
                         </div>
@@ -359,30 +363,27 @@
                             <div class="section-card-header">
                                 <h2 class="section-card-title text-white">
                                     <i class="bi bi-shield-check text-success me-2"></i>
-                                    <span>Bontrouver Buyer Safety Tips</span>
+                                    <span>{{ __('Bontrouver Buyer Safety Tips') }}</span>
                                 </h2>
                             </div>
                             <div class="section-card-body">
                                 <ul class="safety-checklist">
                                     <li>
                                         <i class="bi bi-check-circle-fill text-success"></i>
-                                        <span><strong>Meet in a safe public place:</strong> Police station exchange zones, busy
-                                            transit hubs, or bank lobbies.</span>
+                                        <span><strong>{{ __('Meet in a safe public place:') }}</strong> {{ __('Police station exchange zones, busy transit hubs, or bank lobbies.') }}</span>
                                     </li>
                                     <li>
                                         <i class="bi bi-check-circle-fill text-success"></i>
-                                        <span><strong>Inspect before paying:</strong> Examine items, test electronics, and
-                                            verify vehicle titles in person.</span>
+                                        <span><strong>{{ __('Inspect before paying:') }}</strong> {{ __('Examine items, test electronics, and verify vehicle titles in person.') }}</span>
                                     </li>
                                     <li>
                                         <i class="bi bi-check-circle-fill text-success"></i>
-                                        <span><strong>Never send advance deposits:</strong> Avoid wire transfers, gift cards, or
-                                            crypto payments to unverified parties.</span>
+                                        <span><strong>{{ __('Never send advance deposits:') }}</strong> {{ __('Avoid wire transfers, gift cards, or crypto payments to unverified parties.') }}</span>
                                     </li>
                                 </ul>
                                 <div
                                     class="safety-card-footer mt-3 pt-3 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                    <span class="text-secondary small">Notice anything suspicious about this ad?</span>
+                                    <span class="text-secondary small">{{ __('Notice anything suspicious about this ad?') }}</span>
                                     <!-- <button type="button" class="btn-report-link" onclick="openReportModal()">
                                         <i class="bi bi-flag me-1"></i> Report this listing
                                     </button> -->
@@ -404,26 +405,26 @@
                                 <div class="sidebar-card mb-3 p-3 shadow-sm border border-warning" style="background: linear-gradient(145deg, #0f2742 0%, #081d33 100%); border-radius: 14px;">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <span class="badge bg-warning text-dark fw-bold px-2 py-1">
-                                            <i class="bi bi-person-check-fill me-1"></i> Your Listing
+                                            <i class="bi bi-person-check-fill me-1"></i> {{ __('Your Listing') }}
                                         </span>
                                         <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">
-                                            {{ ucfirst($listing['status'] ?? 'Active') }}
+                                            {{ __($listing['status'] ?? 'Active') }}
                                         </span>
                                     </div>
                                     <p class="text-white-50 small mb-3">
-                                        Boost views by up to 10x with Top Placement, Featured Blue Badge, or Instant Search Bump.
+                                        {{ __('Boost views by up to 10x with Top Placement, Featured Blue Badge, or Instant Search Bump.') }}
                                     </p>
                                     <div class="d-flex flex-column gap-2">
                                         <a href="{{ route('listings.promote.show', $listing['id']) }}" class="btn btn-warning text-dark fw-bold py-2 w-100 rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                                             <i class="bi bi-rocket-takeoff-fill fs-5"></i>
-                                            <span>Promote & Boost Ad</span>
+                                            <span>{{ __('Promote & Boost Ad') }}</span>
                                         </a>
                                         <div class="d-flex gap-2">
                                             <a href="{{ url('/post-ad?edit=' . $listing['id']) }}" class="btn btn-outline-light btn-sm flex-grow-1 py-1.5 rounded-3 d-flex align-items-center justify-content-center gap-1">
-                                                <i class="bi bi-pencil"></i> Edit Ad
+                                                <i class="bi bi-pencil"></i> {{ __('Edit Ad') }}
                                             </a>
                                             <a href="{{ route('listings.my') }}" class="btn btn-outline-light btn-sm flex-grow-1 py-1.5 rounded-3 d-flex align-items-center justify-content-center gap-1">
-                                                <i class="bi bi-grid"></i> My Listings
+                                                <i class="bi bi-grid"></i> {{ __('My Listings') }}
                                             </a>
                                         </div>
                                     </div>
@@ -436,12 +437,14 @@
                                 <div class="sidebar-price-row mb-2">
                                     <div class="sidebar-price-val">{{ $listing['price_formatted'] }}</div>
                                     @if(!empty($listing['price_type_label']))
-                                        <span class="sidebar-price-badge">{{ $listing['price_type_label'] }}</span>
+                                        <span class="sidebar-price-badge">{{ __($listing['price_type_label']) }}</span>
                                     @endif
                                 </div>
 
                                 <!-- Listing Title -->
-                                <h1 class="sidebar-listing-title mb-2">{{ $listing['title'] }}</h1>
+                                <div class="mb-2">
+                                    <h1 class="sidebar-listing-title mb-0">{{ $listing['title'] }}</h1>
+                                </div>
 
                                 <!-- Location & Time Meta -->
                                 <div class="sidebar-meta-list mb-3">
@@ -455,7 +458,7 @@
                                     </div>
                                     <div class="sidebar-meta-item">
                                         <i class="bi bi-eye"></i>
-                                        <span>{{ $listing['views_count'] ?? '120+' }} views</span>
+                                        <span>{{ $listing['views_count'] ?? '120+' }} {{ __('views') }}</span>
                                     </div>
                                 </div>
 
@@ -464,13 +467,13 @@
                                     @if(Auth::check() && Auth::id() == ($listing['user_id'] ?? null))
                                         <a href="{{ route('listings.promote.show', $listing['id']) }}" class="btn-message-seller-primary text-decoration-none d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;">
                                             <i class="bi bi-rocket-takeoff-fill me-2"></i>
-                                            <span>Promote & Boost Ad</span>
+                                            <span>{{ __('Promote & Boost Ad') }}</span>
                                         </a>
                                     @else
                                         <button type="button" class="btn-message-seller-primary" onclick="openMessageModal()"
                                             id="sidebarMessageBtn">
                                             <i class="bi bi-chat-dots-fill"></i>
-                                            <span>Message Seller</span>
+                                            <span>{{ __('Message Seller') }}</span>
                                         </button>
                                     @endif
 
@@ -478,7 +481,7 @@
                                         <button type="button" class="btn-buy-now-accent" onclick="initiateBuyNow()"
                                             id="sidebarBuyNowBtn">
                                             <i class="bi bi-bag-check-fill"></i>
-                                            <span>Buy Now / Secure Checkout</span>
+                                            <span>{{ __('Buy Now / Secure Checkout') }}</span>
                                         </button>
                                     @endif
 
@@ -487,12 +490,12 @@
                                             onclick="toggleSaveListing(this, '{{ $listing['id'] }}')" id="sidebarSaveBtn">
                                             <i class="bi bi-heart heart-outline" style="display: {{ $isSaved ? 'none' : 'inline-block' }};"></i>
                                             <i class="bi bi-heart-fill heart-filled text-danger" style="display: {{ $isSaved ? 'inline-block' : 'none' }};"></i>
-                                            <span>Save</span>
+                                            <span>{{ __('Save') }}</span>
                                         </button>
                                         <button type="button" class="btn-sidebar-sec" onclick="openShareModal()"
                                             id="sidebarShareBtn">
                                             <i class="bi bi-share"></i>
-                                            <span>Share</span>
+                                            <span>{{ __('Share') }}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -532,13 +535,13 @@
                                                 {{ $seller['name'] }}
                                             </a>
                                             @if(!empty($seller['is_verified']) || !empty($seller['badges']['identity_verified']))
-                                                <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="Verified Seller">
-                                                    <i class="bi bi-shield-check me-1"></i> Verified
+                                                <span class="ms-1 d-inline-flex align-items-center text-success fw-medium" style="font-size: 0.75rem;" title="{{ __('Verified Seller') }}">
+                                                    <i class="bi bi-shield-check me-1"></i> {{ __('Verified') }}
                                                 </span>
                                             @endif
                                         </div>
                                         <div class="d-flex align-items-center gap-1.5 flex-wrap mt-1">
-                                            <div class="seller-type-tag">{{ $seller['type'] }}</div>
+                                            <div class="seller-type-tag">{{ __($seller['type']) }}</div>
                                             @if(!empty($seller['member_tier']))
                                                 @php $sTier = $seller['member_tier']; @endphp
                                                 <span class="badge {{ $sTier['badge_class'] ?? 'tier-badge tier-bronze' }}" style="font-size: 10px; padding: 2px 7px;" title="Community Tier: {{ $sTier['name'] }}">
@@ -549,7 +552,7 @@
                                         <div class="seller-rating-row d-flex align-items-center gap-1 mt-1">
                                             <span class="star-rating"><i class="bi bi-star-fill text-warning"></i>
                                                 <strong>{{ $seller['rating'] }}</strong></span>
-                                            <span class="reviews-count">({{ $seller['reviews_count'] }} reviews)</span>
+                                            <span class="reviews-count">({{ $seller['reviews_count'] }} {{ __('reviews') }})</span>
                                             @if(!empty($seller['community_points']))
                                                 <span class="text-success small ms-1 font-monospace" style="font-size: 11px;">
                                                     • {{ number_format($seller['community_points']) }} pts
@@ -563,15 +566,15 @@
                                 <div class="seller-trust-badges-row mb-3">
                                     @if(!empty($seller['badges']['email_verified']))
                                         <span class="trust-badge" title="Email Address Verified"><i
-                                                class="bi bi-check-circle-fill text-success"></i> Email</span>
+                                                class="bi bi-check-circle-fill text-success"></i> {{ __('Email') }}</span>
                                     @endif
                                     @if(!empty($seller['badges']['phone_verified']))
                                         <span class="trust-badge" title="Phone Number Verified"><i
-                                                class="bi bi-check-circle-fill text-success"></i> Phone</span>
+                                                class="bi bi-check-circle-fill text-success"></i> {{ __('Phone') }}</span>
                                     @endif
                                     @if(!empty($seller['badges']['identity_verified']))
                                         <span class="trust-badge" title="Government ID Verified"><i
-                                                class="bi bi-patch-check-fill text-primary"></i> ID Verified</span>
+                                                class="bi bi-patch-check-fill text-primary"></i> {{ __('ID Verified') }}</span>
                                     @endif
                                 </div>
 
@@ -580,7 +583,7 @@
                                     class="seller-card-footer mt-3 pt-3 border-top border-secondary border-opacity-10 text-center">
                                     <a href="{{ $sellerAdsUrl }}"
                                         class="seller-profile-link">
-                                        <span>View all ads by {{ Str::words($seller['name'], 1, '') }}</span>
+                                        <span>{{ __('View all ads by :name', ['name' => Str::words($seller['name'], 1, '')]) }}</span>
                                         <i class="bi bi-arrow-right ms-1"></i>
                                     </a>
                                 </div>
@@ -596,11 +599,11 @@
                     <section class="similar-listings-section mt-5 pt-4">
                         <div class="section-header-wrap d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
                             <div>
-                                <span class="section-eyebrow">RECOMMENDED</span>
-                                <h2 class="section-heading mb-0">You May Also Like</h2>
+                                <span class="section-eyebrow">{{ __('RECOMMENDED') }}</span>
+                                <h2 class="section-heading mb-0">{{ __('You May Also Like') }}</h2>
                             </div>
                             <a href="{{ url('/category/' . $listing['category']) }}" class="view-all-btn">
-                                <span>See more in {{ $listing['category_name'] }}</span>
+                                <span>{{ __('See more in :category', ['category' => $listing['category_name']]) }}</span>
                                 <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
@@ -620,11 +623,11 @@
                     <section class="seller-more-section mt-5 pt-4">
                         <div class="section-header-wrap d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
                             <div>
-                                <span class="section-eyebrow">MORE FROM SELLER</span>
-                                <h2 class="section-heading mb-0">More From {{ $seller['name'] }}</h2>
+                                <span class="section-eyebrow">{{ __('MORE FROM SELLER') }}</span>
+                                <h2 class="section-heading mb-0">{{ __('More From :name', ['name' => $seller['name']]) }}</h2>
                             </div>
                             <a href="{{ url('/listings?seller=' . urlencode($seller['name'])) }}" class="view-all-btn">
-                                <span>View all ({{ $seller['active_ads_count'] }})</span>
+                                <span>{{ __('View all (:count)', ['count' => $seller['active_ads_count']]) }}</span>
                                 <i class="bi bi-arrow-right"></i>
                             </a>
                         </div>
@@ -649,8 +652,8 @@
                             @php $dBanner->recordImpression(); @endphp
                             <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
                                 <div class="px-3 py-2 bg-light border-bottom d-flex align-items-center justify-content-between">
-                                    <span class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">Sponsored Partner</span>
-                                    <span class="text-muted small" style="font-size: 11px;">Verified Canadian Advertiser</span>
+                                    <span class="text-uppercase text-muted fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">{{ __('Sponsored Partner') }}</span>
+                                    <span class="text-muted small" style="font-size: 11px;">{{ __('Verified Canadian Advertiser') }}</span>
                                 </div>
                                 @if(!empty($dBanner->html_code))
                                     <div class="p-3">
@@ -662,7 +665,7 @@
                                         <div class="p-3 bg-light d-flex align-items-center justify-content-between">
                                             <div class="fw-semibold text-dark">{{ $dBanner->title }}</div>
                                             @if($dBanner->target_url)
-                                                <span class="btn btn-sm btn-outline-primary rounded-pill px-3">Learn More <i class="bi bi-arrow-right ms-1"></i></span>
+                                                <span class="btn btn-sm btn-outline-primary rounded-pill px-3">{{ __('Learn More') }} <i class="bi bi-arrow-right ms-1"></i></span>
                                             @endif
                                         </div>
                                     </a>
@@ -695,7 +698,7 @@
                     </button>
                     <button type="button" class="btn-mobile-sticky-message" onclick="openMessageModal()">
                         <i class="bi bi-chat-dots-fill me-1"></i>
-                        <span>Message</span>
+                        <span>{{ __('Message') }}</span>
                     </button>
                 </div>
             </div>
@@ -764,10 +767,10 @@
                             class="modal-header-box d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-10">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-chat-dots-fill text-primary-custom fs-5"></i>
-                                <h3 class="h5 fw-bold text-white mb-0" id="msgModalTitle">Message {{ $seller['name'] }}</h3>
+                                <h3 class="h5 fw-bold text-white mb-0" id="msgModalTitle">{{ __('Message :name', ['name' => $seller['name']]) }}</h3>
                             </div>
                             <button type="button" class="btn-close-modal" onclick="closeMessageModal()"
-                                aria-label="Close modal">
+                                aria-label="{{ __('Close modal') }}">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
@@ -786,41 +789,39 @@
 
                             <!-- Suggested Quick Messages -->
                             <div class="mb-3">
-                                <div class="text-secondary small fw-bold mb-2">Tap a quick reply or write your own:</div>
+                                <div class="text-secondary small fw-bold mb-2">{{ __('Tap a quick reply or write your own:') }}</div>
                                 <div class="d-flex flex-wrap gap-2">
                                     <button type="button" class="quick-chip-btn"
-                                        onclick="setMessageModalText('Hi, is this still available?')">
-                                        "Is this available?"
+                                        onclick="setMessageModalText('{{ __('Hi, is this still available?') }}')">
+                                        "{{ __('Is this available?') }}"
                                     </button>
                                     <button type="button" class="quick-chip-btn"
-                                        onclick="setMessageModalText('Is the price negotiable?')">
-                                        "Is price negotiable?"
+                                        onclick="setMessageModalText('{{ __('Is the price negotiable?') }}')">
+                                        "{{ __('Is price negotiable?') }}"
                                     </button>
                                     <button type="button" class="quick-chip-btn"
-                                        onclick="setMessageModalText('Can I come inspect and pick this up today?')">
-                                        "Can I pick up today?"
+                                        onclick="setMessageModalText('{{ __('Can I come inspect and pick this up today?') }}')">
+                                        "{{ __('Can I pick up today?') }}"
                                     </button>
                                 </div>
                             </div>
 
                             <form id="modalMessageForm" onsubmit="event.preventDefault(); submitSellerMessage();">
                                 <div class="mb-3">
-                                    <label for="modalMessageText" class="form-label text-secondary small fw-bold">Your
-                                        Message:</label>
+                                    <label for="modalMessageText" class="form-label text-secondary small fw-bold">{{ __('Your Message:') }}</label>
                                     <textarea id="modalMessageText" class="form-control marketplace-textarea" rows="4"
-                                        placeholder="Hello, I am interested in your listing..."></textarea>
+                                        placeholder="{{ __('Hello, I am interested in your listing...') }}"></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="modalSenderPhone" class="form-label text-secondary small fw-bold">Phone Number
-                                        (Optional):</label>
+                                    <label for="modalSenderPhone" class="form-label text-secondary small fw-bold">{{ __('Phone Number (Optional):') }}</label>
                                     <input type="tel" id="modalSenderPhone" class="form-control marketplace-input"
-                                        placeholder="e.g. +1 (416) 555-0199">
+                                        placeholder="{{ __('e.g. +1 (416) 555-0199') }}">
                                 </div>
                                 <div class="d-flex justify-content-end gap-2 pt-2">
                                     <button type="button" class="btn btn-outline-secondary text-white btn-sm px-3"
-                                        onclick="closeMessageModal()">Cancel</button>
+                                        onclick="closeMessageModal()">{{ __('Cancel') }}</button>
                                     <button type="submit" class="btn btn-primary-custom btn-sm px-4" id="submitModalMsgBtn">
-                                        <i class="bi bi-send-fill me-1"></i> Send Message
+                                        <i class="bi bi-send-fill me-1"></i> {{ __('Send Message') }}
                                     </button>
                                 </div>
                             </form>
@@ -838,17 +839,16 @@
                             class="modal-header-box d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-10">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-flag-fill text-danger fs-5"></i>
-                                <h3 class="h5 fw-bold text-white mb-0" id="reportModalTitle">Report this Listing</h3>
+                                <h3 class="h5 fw-bold text-white mb-0" id="reportModalTitle">{{ __('Report this Listing') }}</h3>
                             </div>
-                            <button type="button" class="btn-close-modal" onclick="closeReportModal()" aria-label="Close modal">
+                            <button type="button" class="btn-close-modal" onclick="closeReportModal()" aria-label="{{ __('Close modal') }}">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
 
                         <div class="modal-body-box p-3">
                             <p class="text-secondary small mb-3">
-                                Please select the reason for reporting this ad. Our Canadian moderation team will review this
-                                listing within 24 hours.
+                                {{ __('Please select the reason for reporting this ad. Our Canadian moderation team will review this listing within 24 hours.') }}
                             </p>
 
                             <form id="reportForm" onsubmit="event.preventDefault(); submitReport();">
@@ -857,23 +857,21 @@
                                         <label class="custom-report-radio">
                                             <input type="radio" name="report_reason" value="{{ $rCase->value }}" {{ $idx === 0 ? 'checked' : '' }}>
                                             <span class="radio-box"></span>
-                                            <span class="radio-text">{{ $rCase->label() }}</span>
+                                            <span class="radio-text">{{ __($rCase->label()) }}</span>
                                         </label>
                                     @endforeach
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="reportComments" class="form-label text-secondary small fw-bold">Additional
-                                        details (Optional):</label>
+                                    <label for="reportComments" class="form-label text-secondary small fw-bold">{{ __('Additional details (Optional):') }}</label>
                                     <textarea id="reportComments" class="form-control marketplace-textarea" rows="2"
-                                        placeholder="Describe the issue..."></textarea>
+                                        placeholder="{{ __('Describe the issue...') }}"></textarea>
                                 </div>
 
                                 <div class="d-flex justify-content-end gap-2 pt-2">
                                     <button type="button" class="btn btn-outline-secondary text-white btn-sm px-3"
-                                        onclick="closeReportModal()">Cancel</button>
-                                    <button type="submit" class="btn btn-danger btn-sm px-4" id="submitReportBtn">Submit
-                                        Report</button>
+                                        onclick="closeReportModal()">{{ __('Cancel') }}</button>
+                                    <button type="submit" class="btn btn-danger btn-sm px-4" id="submitReportBtn">{{ __('Submit Report') }}</button>
                                 </div>
                             </form>
                         </div>
@@ -890,28 +888,28 @@
                             class="modal-header-box d-flex align-items-center justify-content-between p-3 border-bottom border-secondary border-opacity-10">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-share-fill text-primary-custom fs-5"></i>
-                                <h3 class="h5 fw-bold text-white mb-0" id="shareModalTitle">Share this Listing</h3>
+                                <h3 class="h5 fw-bold text-white mb-0" id="shareModalTitle">{{ __('Share this Listing') }}</h3>
                             </div>
-                            <button type="button" class="btn-close-modal" onclick="closeShareModal()" aria-label="Close modal">
+                            <button type="button" class="btn-close-modal" onclick="closeShareModal()" aria-label="{{ __('Close modal') }}">
                                 <i class="bi bi-x-lg"></i>
                             </button>
                         </div>
 
                         <div class="modal-body-box p-3">
                             <div class="mb-3">
-                                <label class="form-label text-secondary small fw-bold">Copy Link:</label>
+                                <label class="form-label text-secondary small fw-bold">{{ __('Copy Link:') }}</label>
                                 <div class="input-group">
                                     <input type="text" id="shareLinkInput" class="form-control marketplace-input"
                                         value="{{ url()->current() }}" readonly>
                                     <button type="button" class="btn btn-primary-custom" onclick="copyShareLink()"
                                         id="copyShareBtn">
-                                        <i class="bi bi-clipboard me-1"></i> Copy
+                                        <i class="bi bi-clipboard me-1"></i> {{ __('Copy') }}
                                     </button>
                                 </div>
                             </div>
 
                             <div class="pt-2">
-                                <div class="text-secondary small fw-bold mb-2">Share via:</div>
+                                <div class="text-secondary small fw-bold mb-2">{{ __('Share via:') }}</div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     <a href="https://api.whatsapp.com/send?text={{ urlencode($listing['title'] . ' ' . url()->current()) }}"
                                         target="_blank" rel="noopener noreferrer"
@@ -925,7 +923,7 @@
                                     </a>
                                     <a href="mailto:?subject={{ urlencode($listing['title']) }}&body={{ urlencode(url()->current()) }}"
                                         class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-2">
-                                        <i class="bi bi-envelope-fill text-warning"></i> Email
+                                        <i class="bi bi-envelope-fill text-warning"></i> {{ __('Email') }}
                                     </a>
                                 </div>
                             </div>

@@ -17,6 +17,16 @@
     $badgeClass = $badge ? 'badge-' . strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $badge)) : '';
     $isFeatured = $featured || (strtolower($badge ?? '') === 'featured');
     $category = $listing['category'] ?? null;
+
+    // Localize common string prices
+    $cleanPrice = trim(strtolower($price));
+    if ($cleanPrice === 'free') {
+        $displayPrice = __('Free');
+    } elseif ($cleanPrice === 'contact for price' || $cleanPrice === 'contact') {
+        $displayPrice = __('Contact for price');
+    } else {
+        $displayPrice = $price;
+    }
 @endphp
 
 <article class="listing-card {{ $isFeatured ? 'is-featured' : '' }}">
@@ -40,7 +50,7 @@
                     @if($isFeatured)
                         <i class="bi bi-star-fill me-1" aria-hidden="true"></i>
                     @endif
-                    {{ $badge }}
+                    {{ __($badge) }}
                 </span>
             </div>
         @endif
@@ -48,7 +58,7 @@
         <!-- Top-Right Floating Favorite Button -->
         <button type="button" 
                 class="btn-listing-favorite {{ $isSaved ? 'active' : '' }}" 
-                aria-label="Save {{ $title }} to favorites"
+                aria-label="{{ __('Save') }} {{ $title }}"
                 data-listing-id="{{ $id }}"
                 onclick="toggleListingFavorite(this, event)">
             <i class="bi bi-heart heart-outline" aria-hidden="true" style="display: {{ $isSaved ? 'none' : 'inline-block' }};"></i>
@@ -57,7 +67,7 @@
 
         <!-- Bottom-Right Photo Count Indicator -->
         @if(!empty($photosCount) && $photosCount > 1)
-            <div class="listing-photo-count" aria-label="{{ $photosCount }} photos available">
+            <div class="listing-photo-count" aria-label="{{ __(':count photos available', ['count' => $photosCount]) }}">
                 <i class="bi bi-camera-fill" aria-hidden="true"></i>
                 <span>{{ $photosCount }}</span>
             </div>
@@ -69,19 +79,19 @@
         <!-- Price, Original Price, Price Drop & Category -->
         <div class="listing-price-row">
             <div class="listing-price-group">
-                <span class="listing-price">{{ $price }}</span>
+                <span class="listing-price">{{ $displayPrice }}</span>
                 @if(!empty($originalPrice))
                     <del class="listing-original-price">{{ $originalPrice }}</del>
                 @endif
                 @if(!empty($priceDrop))
-                    <span class="price-drop-badge" title="Price reduced by {{ $priceDrop }}">
+                    <span class="price-drop-badge" title="{{ __('Price reduced by :amount', ['amount' => $priceDrop]) }}">
                         <i class="bi bi-arrow-down-short"></i>{{ $priceDrop }}
                     </span>
                 @endif
             </div>
             
             @if($category)
-                <span class="listing-category-tag">{{ $category }}</span>
+                <span class="listing-category-tag">{{ __($category) }}</span>
             @endif
         </div>
 
@@ -92,9 +102,14 @@
         <div class="listing-footer-meta">
             <span class="listing-location">
                 <i class="bi bi-geo-alt" aria-hidden="true"></i>
-                <span class="text-truncate">{{ $location }}</span>
+                <span class="text-truncate">{{ $location === 'All Canada' ? __('All Canada') : $location }}</span>
             </span>
-            <span class="listing-time">{{ $postedAt }}</span>
+            <div class="d-flex align-items-center gap-1 gap-sm-2">
+                <span class="listing-time">{{ __($postedAt) }}</span>
+                @if(!empty($id))
+                    <x-listing-translate-btn :listing-id="$id" scope="card" />
+                @endif
+            </div>
         </div>
     </div>
 </article>

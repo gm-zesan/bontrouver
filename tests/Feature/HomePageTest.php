@@ -79,4 +79,35 @@ class HomePageTest extends TestCase
         $response->assertViewHas('locationName', 'Montreal');
         $response->assertViewHas('selectedCity', 'Montreal');
     }
+
+    public function test_home_page_renders_french_translations_when_french_active(): void
+    {
+        $response = $this->withSession(['locale' => 'fr'])->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Explorer les catégories');
+        $response->assertSee('Tendances près de chez vous');
+        $response->assertSee('Annonces en vedette');
+        $response->assertSee('Alertes intelligentes');
+        $response->assertSee('Besoin de compagnie ?');
+        $response->assertSee('Parcourir par région');
+        $response->assertSee('PUBLIEZ EN MOINS DE 2 MINUTES');
+        $response->assertSee('Tout ce qui est local');
+    }
+
+    public function test_home_page_renders_english_content_when_english_active(): void
+    {
+        $response = $this->withSession(['locale' => 'en'])->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Explore Categories');
+        $response->assertSee('Trending Near You');
+        $response->assertSee('Featured Listings');
+        $response->assertSee('Smart Alerts');
+        $response->assertSee('Need Companionship?');
+        $response->assertSee('Browse by Location');
+        $response->assertSee('POST IN UNDER 2 MINUTES');
+        $response->assertSee('Everything Local');
+    }
 }
+

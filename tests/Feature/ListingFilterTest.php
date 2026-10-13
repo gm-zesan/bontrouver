@@ -116,4 +116,17 @@ class ListingFilterTest extends TestCase
         $response->assertSee(route('user.profile', $listing->user_id), false);
         $response->assertSee(route('listings.index', ['seller_id' => $listing->user_id]), false);
     }
+
+    public function test_listings_page_renders_french_translations_when_french_active(): void
+    {
+        $response = $this->withSession(['locale' => 'fr'])->get('/listings');
+
+        $response->assertStatus(200);
+        $response->assertSee('Filtres');
+        $response->assertSee('Tout effacer');
+        $response->assertSee('Catégorie');
+        $response->assertSee('Plus récentes');
+        $response->assertSee('Vue liste &amp; grille', false);
+    }
 }
+

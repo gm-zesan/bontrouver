@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
             EnsureNotSuspended::class,
         ]);
         $middleware->validateCsrfTokens(except: [

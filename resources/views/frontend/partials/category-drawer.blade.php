@@ -7,14 +7,14 @@
     <div class="category-drawer-header">
         <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
             <!-- Back Button (Shown when in subcategory or child views) -->
-            <button type="button" class="drawer-back-btn" id="drawerBackBtn" onclick="handleDrawerBack()" aria-label="Back" style="display: none;">
+            <button type="button" class="drawer-back-btn" id="drawerBackBtn" onclick="handleDrawerBack()" aria-label="{{ __('Back') }}" style="display: none;">
                 <i class="bi bi-arrow-left"></i>
             </button>
-            <h2 class="category-drawer-title" id="drawerTitle">All Categories</h2>
+            <h2 class="category-drawer-title" id="drawerTitle">{{ __('All Categories') }}</h2>
         </div>
 
         <!-- Close Button (X) -->
-        <button type="button" class="drawer-close-btn" onclick="closeCategoryDrawer()" aria-label="Close category menu">
+        <button type="button" class="drawer-close-btn" onclick="closeCategoryDrawer()" aria-label="{{ __('Close category menu') }}">
             <i class="bi bi-x-lg"></i>
         </button>
     </div>
@@ -24,7 +24,7 @@
         
         <!-- View 1: All Main Categories List -->
         <div class="drawer-view" id="drawerViewAllCategories">
-            <div class="drawer-section-label">Browse by Category</div>
+            <div class="drawer-section-label">{{ __('Browse by Category') }}</div>
             <div class="drawer-categories-list">
                 @foreach($categoryData as $key => $cat)
                     <button type="button" class="drawer-cat-item" onclick="openCategoryInDrawer('{{ $key }}')">
@@ -33,7 +33,7 @@
                                 <i class="bi {{ $cat['icon'] }}"></i>
                             </span>
                             <div class="drawer-cat-info">
-                                <div class="drawer-cat-name">{{ $cat['name'] }}</div>
+                                <div class="drawer-cat-name">{{ __($cat['name']) }}</div>
                                 <div class="drawer-cat-desc">{{ $cat['description'] ?? '' }}</div>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                 
                 <!-- See All in [Category] Link -->
                 <a href="{{ $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $key)) }}" class="drawer-see-all-link">
-                    <span>See all in {{ $cat['name'] }}</span>
+                    <span>{{ __('See all in :name', ['name' => __($cat['name'])]) }}</span>
                     <i class="bi bi-arrow-right"></i>
                 </a>
 
@@ -67,7 +67,7 @@
                         @endphp
                         @if($hasKids)
                             <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('{{ $key }}', '{{ $subSlug }}')">
-                                <span class="drawer-subcat-name">{{ $subcat['name'] }}</span>
+                                <span class="drawer-subcat-name">{{ __($subcat['name']) }}</span>
                                 <span class="d-flex align-items-center gap-1">
                                     <span class="mega-sub-badge">{{ count($subChildren) }}</span>
                                     <i class="bi bi-chevron-right drawer-chevron"></i>
@@ -75,7 +75,7 @@
                             </button>
                         @else
                             <a href="{{ $subUrl }}" class="drawer-subcat-item">
-                                <span class="drawer-subcat-name">{{ $subcat['name'] }}</span>
+                                <span class="drawer-subcat-name">{{ __($subcat['name']) }}</span>
                             </a>
                         @endif
                     @endforeach
@@ -99,7 +99,7 @@
                         
                         <!-- See All in [Subcategory] Link -->
                         <a href="{{ $subUrl }}" class="drawer-see-all-link">
-                            <span>See all in {{ $subcat['name'] }}</span>
+                            <span>{{ __('See all in :name', ['name' => __($subcat['name'])]) }}</span>
                             <i class="bi bi-arrow-right"></i>
                         </a>
 
@@ -113,7 +113,7 @@
                                 @endphp
                                 <div class="drawer-child-block">
                                     <a href="{{ $childUrl }}" class="drawer-subcat-item drawer-child-item">
-                                        <span class="drawer-subcat-name">{{ $child['name'] }}</span>
+                                        <span class="drawer-subcat-name">{{ __($child['name']) }}</span>
                                         <i class="bi bi-arrow-right-short drawer-child-arrow"></i>
                                     </a>
                                     @if(!empty($grandChildren))
@@ -123,7 +123,7 @@
                                                     $gcSlug = $gc['slug'] ?? '';
                                                     $gcUrl = $gc['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
                                                 @endphp
-                                                <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ $gc['name'] }}</a>
+                                                <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ __($gc['name']) }}</a>
                                             @endforeach
                                         </div>
                                     @endif

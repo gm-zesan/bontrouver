@@ -59,6 +59,16 @@
             </nav>
     @endif
 
+    @if($isOwnProfile && $user->is_dealer && !$user->is_verified)
+        <!-- Dealer License Verification Alert for Owner -->
+        <div class="alert d-flex align-items-center justify-content-between rounded-4 py-2.5 px-3 mb-3 small shadow-sm"
+             style="background: rgba(245, 158, 11, 0.12) !important; border: 1px solid rgba(245, 158, 11, 0.35) !important; color: #FDE68A !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shield-exclamation fs-5 flex-shrink-0" style="color: #FBBF24;"></i>
+                <span><strong style="color: #FBBF24;">Dealer License Under Review:</strong> Your commercial dealer permit is currently being reviewed by our moderation team. Your storefront and listings are live, and your Certified Dealer badge will be activated upon approval.</span>
+            </div>
+        </div>
+    @endif
 
         <!-- 1. Profile Header Hero Banner Card -->
         <div class="dark-surface-card mb-4 position-relative overflow-hidden rounded-4"
@@ -103,18 +113,21 @@
                                     @endif
                                 </h1>
                                 @if($user->is_dealer)
-                                    <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-1 small">
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(56, 189, 248, 0.15) !important; color: #38BDF8 !important; border: 1px solid rgba(56, 189, 248, 0.35) !important;">
                                         <i class="bi bi-building me-1"></i> Certified Dealer
                                     </span>
                                 @endif
                                 @if(!empty($user->profile?->features['dealer_category']))
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; border: 1px solid rgba(16, 185, 129, 0.35) !important;">
                                         <i class="bi bi-tags-fill me-1"></i> {{ $user->profile->features['dealer_category'] }}
                                     </span>
                                 @endif
                                 @if(!empty($user->profile?->website_url))
                                     <a href="{{ $user->profile->website_url }}" target="_blank" rel="noopener noreferrer" 
-                                       class="badge bg-dark text-light border border-secondary px-2 py-1 small text-decoration-none hover-white">
+                                       class="badge px-2.5 py-1 small rounded-pill fw-semibold text-decoration-none hover-white"
+                                       style="background: rgba(255, 255, 255, 0.08) !important; color: #E2E8F0 !important; border: 1px solid rgba(255, 255, 255, 0.2) !important;">
                                         <i class="bi bi-globe me-1 text-primary"></i> {{ parse_url($user->profile->website_url, PHP_URL_HOST) ?? 'Website' }}
                                     </a>
                                 @endif
@@ -207,7 +220,7 @@
         <div class="row g-4">
 
             <!-- Tabs and Main Content Column -->
-            <div class="{{ $hasStorefrontInfo ? 'col-12 col-lg-8' : 'col-12' }}">
+            <div class="{{ $hasStorefrontInfo ? ($isAccountView ? 'col-12 col-xl-8' : 'col-12 col-lg-8') : 'col-12' }}">
                 <!-- 2. Profile Tabs Navigation -->
                 <div class="dark-surface-card p-2 p-md-3 mb-4 rounded-4"
                     style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
@@ -500,28 +513,33 @@
                                             <li class="d-flex align-items-center justify-content-between text-secondary">
                                                 <span><i class="bi bi-envelope-check text-success me-2"></i>Email
                                                     Address</span>
-                                                <span class="badge bg-success bg-opacity-10 text-success">Verified</span>
+                                                <span class="badge px-2 py-0.5 small rounded-pill fw-semibold"
+                                                      style="background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; border: 1px solid rgba(16, 185, 129, 0.35) !important;">Verified</span>
                                             </li>
                                             <li class="d-flex align-items-center justify-content-between text-secondary">
                                                 <span><i
                                                         class="bi bi-telephone-check {{ $user->phone ? 'text-success' : 'text-secondary' }} me-2"></i>Phone
                                                     Number</span>
-                                                <span
-                                                    class="badge {{ $user->phone ? 'bg-success bg-opacity-10 text-success' : 'bg-secondary bg-opacity-10 text-secondary' }}">
-                                                    {{ $user->phone ? 'Connected' : 'Not Provided' }}
-                                                </span>
+                                                @if($user->phone)
+                                                    <span class="badge px-2 py-0.5 small rounded-pill fw-semibold"
+                                                          style="background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; border: 1px solid rgba(16, 185, 129, 0.35) !important;">Connected</span>
+                                                @else
+                                                    <span class="badge px-2 py-0.5 small rounded-pill fw-semibold"
+                                                          style="background: rgba(148, 163, 184, 0.15) !important; color: #94A3B8 !important; border: 1px solid rgba(148, 163, 184, 0.3) !important;">Not Provided</span>
+                                                @endif
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div> <!-- End Tab 4 (trust-content) -->
                 </div> <!-- End Tab Panes -->
             </div> <!-- End Left/Main Column -->
 
             @if($hasStorefrontInfo)
                 <!-- Storefront & Operating Hours Sidebar Column -->
-                <div class="col-12 col-lg-4">
+                <div class="{{ $isAccountView ? 'col-12 col-xl-4' : 'col-12 col-lg-4' }}">
                     <!-- 1. Storefront & Business Contact Card -->
                     <div class="dark-surface-card p-4 rounded-4 mb-4"
                         style="background: #0D243C; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">
@@ -532,9 +550,17 @@
                                 <span>{{ $user->is_dealer ? 'Storefront & Dealer Info' : 'Business Information' }}</span>
                             </h3>
                             @if($user->is_dealer)
-                                <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 small px-2 py-1">
-                                    <i class="bi bi-patch-check-fill me-1"></i> Verified
-                                </span>
+                                @if($user->is_verified)
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; border: 1px solid rgba(16, 185, 129, 0.35) !important;">
+                                        <i class="bi bi-patch-check-fill me-1"></i> Verified Dealer
+                                    </span>
+                                @else
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(245, 158, 11, 0.15) !important; color: #FBBF24 !important; border: 1px solid rgba(245, 158, 11, 0.35) !important;">
+                                        <i class="bi bi-hourglass-split me-1"></i> Verification Pending
+                                    </span>
+                                @endif
                             @endif
                         </div>
 
@@ -552,12 +578,18 @@
                             @if(!empty($user->location))
                                 <li class="d-flex align-items-start gap-2">
                                     <i class="bi bi-geo-alt-fill text-danger fs-6 mt-1 flex-shrink-0"></i>
-                                    <div>
+                                    <div class="flex-grow-1 min-w-0">
                                         <span class="text-secondary d-block" style="font-size: 0.75rem;">Storefront Physical Address</span>
                                         <span class="text-white fw-semibold">{{ $user->location }}</span>
                                         @if(!empty($user->postal_code))
                                             <span class="badge bg-secondary bg-opacity-25 text-light ms-1">{{ $user->postal_code }}</span>
                                         @endif
+                                        <div class="mt-1">
+                                            <a href="https://maps.google.com/?q={{ urlencode($user->location . ', ' . ($user->city ?? '') . ', ' . ($user->province ?? '')) }}" 
+                                               target="_blank" rel="noopener noreferrer" class="text-success small text-decoration-none hover-underline d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-geo-alt"></i> Get Directions
+                                            </a>
+                                        </div>
                                     </div>
                                 </li>
                             @endif
@@ -567,9 +599,17 @@
                                     <i class="bi bi-telephone-fill text-success fs-6 mt-1 flex-shrink-0"></i>
                                     <div>
                                         <span class="text-secondary d-block" style="font-size: 0.75rem;">Business Phone / Direct Line</span>
-                                        <a href="tel:{{ $user->phone }}" class="text-white fw-semibold text-decoration-none hover-brand-green">
-                                            {{ $user->phone }}
-                                        </a>
+                                        <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                            <a href="tel:{{ $user->phone }}" class="text-white fw-semibold text-decoration-none hover-brand-green">
+                                                {{ $user->phone }}
+                                            </a>
+                                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $user->phone) }}" target="_blank" rel="noopener noreferrer"
+                                               class="btn btn-sm py-0.5 px-2.5 fw-semibold d-inline-flex align-items-center gap-1 rounded-pill"
+                                               style="background: rgba(37, 211, 102, 0.15) !important; color: #25D366 !important; border: 1px solid rgba(37, 211, 102, 0.35) !important; font-size: 0.78rem;"
+                                               title="Chat on WhatsApp">
+                                                <i class="bi bi-whatsapp"></i> WhatsApp
+                                            </a>
+                                        </div>
                                     </div>
                                 </li>
                             @endif
@@ -596,6 +636,35 @@
                                     </div>
                                 </li>
                             @endif
+
+                            @if(!empty($user->profile?->social_links) && is_array($user->profile->social_links) && count(array_filter($user->profile->social_links)) > 0)
+                                <li class="d-flex align-items-start gap-2 pt-2 border-top border-secondary border-opacity-10">
+                                    <i class="bi bi-share text-info fs-6 mt-1 flex-shrink-0"></i>
+                                    <div>
+                                        <span class="text-secondary d-block" style="font-size: 0.75rem;">Official Social Channels</span>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            @if(!empty($user->profile->social_links['facebook']))
+                                                <a href="{{ $user->profile->social_links['facebook'] }}" target="_blank" rel="noopener noreferrer" 
+                                                   class="btn btn-sm btn-outline-secondary text-light p-1 lh-1 rounded" title="Facebook">
+                                                    <i class="bi bi-facebook text-primary"></i>
+                                                </a>
+                                            @endif
+                                            @if(!empty($user->profile->social_links['instagram']))
+                                                <a href="{{ $user->profile->social_links['instagram'] }}" target="_blank" rel="noopener noreferrer" 
+                                                   class="btn btn-sm btn-outline-secondary text-light p-1 lh-1 rounded" title="Instagram">
+                                                    <i class="bi bi-instagram text-danger"></i>
+                                                </a>
+                                            @endif
+                                            @if(!empty($user->profile->social_links['twitter']))
+                                                <a href="{{ $user->profile->social_links['twitter'] }}" target="_blank" rel="noopener noreferrer" 
+                                                   class="btn btn-sm btn-outline-secondary text-light p-1 lh-1 rounded" title="X (Twitter)">
+                                                    <i class="bi bi-twitter-x text-light"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </li>
+                            @endif
                         </ul>
                     </div>
 
@@ -616,11 +685,13 @@
                                     $isOpenToday = !empty($todayHours) && !str_contains(strtolower($todayHours), 'closed');
                                 @endphp
                                 @if($isOpenToday)
-                                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 small px-2 py-1">
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; border: 1px solid rgba(16, 185, 129, 0.35) !important;">
                                         <i class="bi bi-circle-fill me-1" style="font-size: 0.45rem;"></i> Open Today
                                     </span>
                                 @else
-                                    <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-25 small px-2 py-1">
+                                    <span class="badge px-2.5 py-1 small rounded-pill fw-semibold"
+                                          style="background: rgba(148, 163, 184, 0.15) !important; color: #94A3B8 !important; border: 1px solid rgba(148, 163, 184, 0.3) !important;">
                                         Closed Today
                                     </span>
                                 @endif

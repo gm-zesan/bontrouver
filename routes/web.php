@@ -45,11 +45,23 @@ Route::get('/listings', [ListingController::class, 'index'])->name('listings.ind
 Route::get('/category/{categorySlug}', [ListingController::class, 'index'])->name('listings.category');
 Route::get('/location/{cityOrSlug}', [ListingController::class, 'locationRedirect'])->name('listings.location');
 Route::get('/listing/{idOrSlug}', [ListingController::class, 'show'])->name('listings.show');
+Route::post('/listings/translate-batch', [\App\Http\Controllers\ListingTranslationController::class, 'translateBatch'])
+    ->name('listings.translate.batch')
+    ->middleware('throttle:60,1');
+Route::post('/listings/{listing}/translate', [\App\Http\Controllers\ListingTranslationController::class, 'translate'])
+    ->name('listings.translate')
+    ->middleware('throttle:30,1');
 Route::get('/search/suggestions', [ListingController::class, 'suggestions'])->name('search.suggestions');
 
 // Community Hub & Meetups
 Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
 Route::get('/community/meetup/{id}', [CommunityController::class, 'show'])->name('community.show');
+Route::post('/community/translate-batch', [\App\Http\Controllers\CommunityTranslationController::class, 'translateBatch'])
+    ->name('community.translate.batch')
+    ->middleware('throttle:60,1');
+Route::post('/community/{meetup}/translate', [\App\Http\Controllers\CommunityTranslationController::class, 'translate'])
+    ->name('community.translate')
+    ->middleware('throttle:30,1');
 
 // Public User / Seller Profiles
 Route::get('/user/{user}', [SellerProfileController::class, 'show'])->name('user.profile');
@@ -273,6 +285,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/', [AdminSettingController::class, 'update'])->name('update');
     });
 });
+
+// Locale Language Switcher (EN <-> FR)
+Route::get('/locale/{locale}', [\App\Http\Controllers\LocaleController::class, 'switch'])->name('locale.switch');
 
 // Static Marketplace Info & Footer Pages
 Route::controller(StaticPageController::class)->group(function () {

@@ -263,6 +263,13 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Dedicated Form Requests: `RegisterGeneralUserRequest` and `RegisterMerchantRequest`.
 - Merchant onboarding atomically creates `User` (`is_dealer = true`), `UserProfile` (storefront features, operating hours, website), and `UserVerification` (`document_type = 'dealer_license'`, license ID, and uploaded permit document up to 25MB).
 
+### TranslationService & Multilingual "Traduire" Pipeline (`App\Services\Translation\TranslationService`, `App\Http\Controllers\ListingTranslationController`, `App\Http\Controllers\LocaleController`)
+- Pluggable driver architecture (`TranslationDriverInterface`: `MyMemoryDriver`, `LibreTranslateDriver`, `MockTranslationDriver`) supporting cPanel environments without Python or Docker.
+- Content-aware SHA-256 fingerprint caching (`listing_trans_{id}_{sha256}_{locale}_{driver}`) with 30-day retention and automatic invalidation upon ad edits.
+- Route: `POST /listings/{listing}/translate` with `throttle:30,1` and `ListingStatus::ACTIVE` visibility check.
+- Blade Component: `<x-listing-translate-btn />` with instant 1-click in-memory DOM toggle ("Traduire" ⇄ "Voir l'original").
+- 100% database non-destructive: original user-submitted texts (`listings.title`, `listings.description`) remain untouched.
+
 ---
 
 ## 3. Code Standards & Development Rules
@@ -282,10 +289,12 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - **No Hardcoded Defaults**: When authenticated users navigate to `/post-ad`, the form must automatically default the location select to the user's registered `city` and `province` from `$user->city` and `$user->province` (e.g. Montreal, QC).
 - **Fallback**: Only if the user is unauthenticated or has not set their home city should standard province/city dropdown fallbacks be presented.
 
-### B. Multilingual "Traduire" (Translate) Action Button
-- **Bilingual Interface**: UI strings support English and French.
-- **Multilingual Content Freedom**: Ad postings and meetup descriptions can be authored in any language (English, French, Arabic, etc.).
-- **On-Demand Translate Action**: Listing cards and the listing detail page feature a "Traduire" (Translate) button/component that dynamically fetches/toggles translated titles and descriptions into French/English without requiring a full page refresh.
+### B. Multilingual "Traduire" (Translate) Action Button, Batch Aggregation & Community Translations
+- **Bilingual Interface**: Platform UI strings (navigation, search bars, categories, footers, buttons, spotlight sections, and all 12 informational pages) operate in English and French via `__()`, `lang/en.json`, and `lang/fr.json` (880 synchronized bilingual keys).
+- **Multilingual Content Freedom**: Ad postings and meetup descriptions can be authored in any language (English, French, Arabic, Spanish, etc.) without restriction or forced validation.
+- **On-Demand Translate Action ("Traduire")**: Pinned directly under each ad card (`<x-listing-card />`), hero carousel slide (`<x-listing-translate-btn scope="hero" />`), community meetup card (`<x-community-translate-btn />`), and detail views (`listings/show.blade.php`, `community/show.blade.php`). On click, triggers AJAX call to `POST /listings/{listing}/translate` or `POST /community/{meetup}/translate` via `TranslationService` to translate title and description (FR ↔ EN) with a loading spinner.
+- **Automatic French Translation & Single-Request Batch Aggregation**: When the site locale is set to French (`fr`), the listing detail, community detail pages, and homepage hero carousel slides automatically translate to French upon page load. Card collections across the page are batch translated via `POST /listings/translate-batch` (supporting `scope=card` and `scope=hero`) and `POST /community/translate-batch` using indexed token aggregation (`[[[BT_n]]]`, `[[[BT_n_T]]]`, `[[[BT_n_D]]]`) inside a single HTTP request, completely preventing Google 429 rate-limiting and timeouts, with instant 1-click toggle back to "Voir l'original".
+- **Caching & Non-Destructive**: Original raw DB text is never modified; translated payloads are cached for 30 days (`listing_trans_{id}_{target_locale}`, `meetup_trans_{id}_{target_locale}`) for sub-millisecond instant switching and zero repeated API costs. Users can toggle back ("Voir l'original" / "Show Original") at any time.
 
 ### C. Dual-Tier User Registration Separation
 - **General User Account (`/register`)**: Minimalist, frictionless onboarding for private individuals, buyers, and casual sellers. Fields: Name, Email, Password, Confirmation, City, and Province. Zero commercial complexity.

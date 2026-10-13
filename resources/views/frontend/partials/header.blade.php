@@ -27,22 +27,22 @@
                     <button class="btn-categories" type="button" id="categoriesMenuBtn" aria-haspopup="true"
                         aria-expanded="false">
                         <i class="bi bi-grid"></i>
-                        <span>Categories</span>
+                        <span>{{ __('Categories') }}</span>
                         <i class="bi bi-chevron-down ms-1" style="font-size: 0.72rem;"></i>
                     </button>
 
                     <!-- Desktop 3-Column Mega Menu (Clean, Modern, Uncluttered) -->
                     <div class="desktop-mega-menu shadow-lg" id="desktopMegaMenu" role="region"
-                        aria-label="Explore Marketplace Categories">
+                        aria-label="{{ __('Explore Marketplace Categories') }}">
                         <div class="mega-menu-grid">
 
                             <!-- Col 1: Main Categories List -->
                             <div class="mega-menu-left">
-                                <div class="mega-menu-heading">Categories</div>
+                                <div class="mega-menu-heading">{{ __('Categories') }}</div>
                                 <div class="mega-categories-list">
                                     @foreach($categoryData as $catSlug => $cat)
                                         @php
-                                            $catName = $cat['name'] ?? ucfirst($catSlug);
+                                            $catName = __($cat['name'] ?? ucfirst($catSlug));
                                             $catIcon = $cat['icon'] ?? 'bi-tag';
                                             $catUrl = $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug));
                                         @endphp
@@ -63,7 +63,7 @@
                             <div class="mega-menu-middle">
                                 @foreach($categoryData as $catSlug => $cat)
                                     @php
-                                        $catName = $cat['name'] ?? ucfirst($catSlug);
+                                        $catName = __($cat['name'] ?? ucfirst($catSlug));
                                         $catUrl = $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug));
                                         $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
                                     @endphp
@@ -72,14 +72,14 @@
                                         <div class="mega-pane-header">
                                             <h3 class="mega-pane-title">{{ $catName }}</h3>
                                             <a href="{{ $catUrl }}" class="mega-see-all">
-                                                <span>See all</span>
+                                                <span>{{ __('See all') }}</span>
                                                 <i class="bi bi-arrow-right ms-1"></i>
                                             </a>
                                         </div>
                                         <div class="mega-subcat-list">
                                             @foreach($subcategories as $subIdx => $subcat)
                                                 @php
-                                                    $subName = $subcat['name'] ?? 'Subcategory';
+                                                    $subName = __($subcat['name'] ?? 'Subcategory');
                                                     $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
                                                     $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
                                                     $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
@@ -108,7 +108,7 @@
                                     @endphp
                                     @foreach($subcategories as $subIdx => $subcat)
                                         @php
-                                            $subName = $subcat['name'] ?? 'Subcategory';
+                                            $subName = __($subcat['name'] ?? 'Subcategory');
                                             $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
                                             $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
                                             $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
@@ -121,7 +121,7 @@
                                             <div class="mega-pane-header">
                                                 <h4 class="mega-children-title">{{ $subName }}</h4>
                                                 <a href="{{ $subUrl }}" class="mega-see-all">
-                                                    <span>See all</span>
+                                                    <span>{{ __('See all') }}</span>
                                                     <i class="bi bi-arrow-right ms-1"></i>
                                                 </a>
                                             </div>
@@ -167,14 +167,14 @@
                     <div class="search-input-group">
                         <i class="bi bi-search search-icon"></i>
                         <input type="text" class="search-input header-search-input" id="desktopSearchInput" name="q"
-                            placeholder="What are you looking for?" autocomplete="off" aria-label="Search listings"
+                            placeholder="{{ __('What are you looking for?') }}" autocomplete="off" aria-label="{{ __('Search listings') }}"
                             aria-expanded="false" aria-controls="desktopSearchSuggestions">
                         <button type="button" class="btn-clear-search-input" id="desktopClearSearchBtn"
-                            style="display: none;" aria-label="Clear search input"
+                            style="display: none;" aria-label="{{ __('Clear search input') }}"
                             onclick="clearHeaderSearch('desktop')">
                             <i class="bi bi-x-circle-fill"></i>
                         </button>
-                        <button type="submit" class="btn-search-submit" aria-label="Search">
+                        <button type="submit" class="btn-search-submit" aria-label="{{ __('Search') }}">
                             <i class="bi bi-arrow-right"></i>
                         </button>
                     </div>
@@ -188,13 +188,32 @@
             <!-- Right: Location Selector, Auth & Post Button -->
             <div class="d-flex align-items-center gap-2 gap-sm-3">
 
+                <!-- Bilingual Language Switcher (EN | FR) -->
+                @php
+                    $activeLocale = app()->getLocale();
+                @endphp
+                <div class="lang-switcher-wrap" role="group" aria-label="{{ __('Language selector') }}">
+                    <div class="lang-toggle-pill shadow-xs" role="group">
+                        <a href="{{ route('locale.switch', 'en') }}"
+                            class="btn-lang-switch {{ $activeLocale === 'en' ? 'active' : '' }}"
+                            title="{{ __('English interface') }}"
+                            aria-label="{{ __('Switch to English') }}"
+                            aria-pressed="{{ $activeLocale === 'en' ? 'true' : 'false' }}">EN</a>
+                        <a href="{{ route('locale.switch', 'fr') }}"
+                            class="btn-lang-switch {{ $activeLocale === 'fr' ? 'active' : '' }}"
+                            title="{{ __('Interface en français') }}"
+                            aria-label="{{ __('Passer au français') }}"
+                            aria-pressed="{{ $activeLocale === 'fr' ? 'true' : 'false' }}">FR</a>
+                    </div>
+                </div>
+
                 <!-- Location Selector (Desktop/Tablet >= 576px) -->
                 <div class="dropdown d-none d-sm-block position-relative">
                     <button class="btn-location" type="button" id="locationDropdownBtn" data-bs-toggle="dropdown"
-                        data-bs-auto-close="outside" aria-expanded="false" title="Change location">
+                        data-bs-auto-close="outside" aria-expanded="false" title="{{ __('Change location') }}">
                         <i class="bi bi-geo-alt-fill text-primary"></i>
                         <span id="headerLocationLabel" class="text-truncate"
-                            style="max-width: 130px;">{{ $currentLocationLabel ?? 'All Canada' }}</span>
+                            style="max-width: 130px;">{{ empty($currentLocationLabel) || $currentLocationLabel === 'All Canada' ? __('All Canada') : $currentLocationLabel }}</span>
                         <i class="bi bi-chevron-down ms-1 text-secondary" style="font-size: 0.65rem;"></i>
                     </button>
 
@@ -205,14 +224,14 @@
                             <div class="location-search-wrap position-relative mb-1">
                                 <i class="bi bi-search location-search-icon"></i>
                                 <input type="text" class="location-search-input w-100" id="locationFilterInput"
-                                    placeholder="Search city..." onkeyup="filterLocationList(this.value)"
+                                    placeholder="{{ __('Search city...') }}" onkeyup="filterLocationList(this.value)"
                                     autocomplete="off">
                             </div>
                             <button type="button"
                                 class="btn-autodetect-location w-100 d-flex align-items-center justify-content-center gap-1"
                                 id="btnAutoDetectLocation" onclick="autoDetectUserLocation()">
                                 <i class="bi bi-crosshair" id="autoDetectIcon" style="font-size: 0.75rem;"></i>
-                                <span id="autoDetectText">Use current location</span>
+                                <span id="autoDetectText">{{ __('Use current location') }}</span>
                             </button>
                         </div>
 
@@ -221,12 +240,12 @@
                             <!-- All Canada Option -->
                             <button type="button"
                                 class="location-dropdown-item {{ empty($currentSelectedCity) ? 'active' : '' }}"
-                                onclick="selectAppLocation('', 'All Canada')"
-                                data-city-name="all canada countrywide nationwide">
+                                onclick="selectAppLocation('', '{{ __('All Canada') }}')"
+                                data-city-name="all canada countrywide nationwide tout le canada">
                                 <span class="location-item-title d-flex align-items-center gap-2">
                                     <i class="bi bi-globe-americas text-primary" style="font-size: 0.8rem;"></i>
                                     &nbsp;&nbsp;
-                                    <span> All Canada</span>
+                                    <span> {{ __('All Canada') }}</span>
                                 </span>
                                 @if(empty($currentSelectedCity))
                                     <i class="bi bi-check2 text-primary fw-bold" style="font-size: 0.85rem;"></i>
@@ -283,17 +302,17 @@
                                         </span>
                                     </div>
                                     <div class="text-secondary small text-truncate mt-1" style="font-size: 0.75rem;">
-                                        {{ Auth::user()->email ?? 'Admin Account' }}
+                                        {{ Auth::user()->email ?? __('Admin Account') }}
                                     </div>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                                        <i class="bi bi-speedometer2 me-2 text-primary"></i> Admin Dashboard
+                                        <i class="bi bi-speedometer2 me-2 text-primary"></i> {{ __('Admin Dashboard') }}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('listings.my') }}">
-                                        <i class="bi bi-card-list me-2 text-info"></i> My Listings
+                                        <i class="bi bi-card-list me-2 text-info"></i> {{ __('My Listings') }}
                                     </a>
                                 </li>
                                 <li>
@@ -303,7 +322,7 @@
                                     <form method="POST" action="{{ route('logout') }}" class="m-0">
                                         @csrf
                                         <button type="submit" class="dropdown-item text-danger">
-                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                            <i class="bi bi-box-arrow-right me-2"></i> {{ __('Logout') }}
                                         </button>
                                     </form>
                                 </li>
@@ -321,33 +340,33 @@
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between gap-2 mt-1">
                                         <div class="text-secondary small text-truncate" style="font-size: 0.75rem;">
-                                            {{ Auth::user()->email ?? 'Active Account' }}
+                                            {{ Auth::user()->email ?? __('Active Account') }}
                                         </div>
                                         <span class="text-success fw-bold font-monospace" style="font-size: 0.78rem;">
                                             <i
                                                 class="bi bi-coin me-1"></i>{{ number_format(Auth::user()->community_points ?? 0) }}
-                                            pts
+                                            {{ __('pts') }}
                                         </span>
                                     </div>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('listings.my') }}">
-                                        <i class="bi bi-card-list me-2 text-info"></i> My Listings
+                                        <i class="bi bi-card-list me-2 text-info"></i> {{ __('My Listings') }}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('account.alerts.index') }}">
-                                        <i class="bi bi-bell me-2 text-danger"></i> Smart Alerts
+                                        <i class="bi bi-bell me-2 text-danger"></i> {{ __('Smart Alerts') }}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('account.points') }}">
-                                        <i class="bi bi-coin me-2 text-success"></i> My Points &amp; Standing
+                                        <i class="bi bi-coin me-2 text-success"></i> {{ __('My Points & Standing') }}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('settings.index') }}">
-                                        <i class="bi bi-person-gear me-2 text-warning"></i> Account Settings
+                                        <i class="bi bi-person-gear me-2 text-warning"></i> {{ __('Account Settings') }}
                                     </a>
                                 </li>
                                 <li>
@@ -357,7 +376,7 @@
                                     <form method="POST" action="{{ route('logout') }}" class="m-0">
                                         @csrf
                                         <button type="submit" class="dropdown-item text-danger">
-                                            <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                            <i class="bi bi-box-arrow-right me-2"></i> {{ __('Logout') }}
                                         </button>
                                     </form>
                                 </li>
@@ -366,16 +385,16 @@
                     </div>
                 @else
                     @if (Route::has('login'))
-                        <a href="{{ route('login') }}" class="auth-nav-link">Sign In</a>
+                        <a href="{{ route('login') }}" class="auth-nav-link">{{ __('Sign In') }}</a>
                     @else
-                        <a href="{{ url('/login') }}" class="auth-nav-link">Sign In</a>
+                        <a href="{{ url('/login') }}" class="auth-nav-link">{{ __('Sign In') }}</a>
                     @endif
                 @endauth
 
                 <!-- Post an Ad Primary Button -->
                 <a href="{{ url('/post-ad') }}" class="btn-post-ad" id="headerPostAdBtn">
                     <i class="bi bi-plus-lg"></i>
-                    <span>Post</span>
+                    <span>{{ __('Post') }}</span>
                 </a>
             </div>
         </div>
@@ -391,13 +410,13 @@
             <div class="search-input-group mobile-search-group">
                 <i class="bi bi-search search-icon"></i>
                 <input type="text" class="search-input header-search-input" id="mobileSearchInput" name="q"
-                    placeholder="What are you looking for?" autocomplete="off" aria-label="Search marketplace"
+                    placeholder="{{ __('What are you looking for?') }}" autocomplete="off" aria-label="{{ __('Search marketplace') }}"
                     aria-expanded="false" aria-controls="mobileSearchSuggestions">
                 <button type="button" class="btn-clear-search-input" id="mobileClearSearchBtn" style="display: none;"
-                    aria-label="Clear search input" onclick="clearHeaderSearch('mobile')">
+                    aria-label="{{ __('Clear search input') }}" onclick="clearHeaderSearch('mobile')">
                     <i class="bi bi-x-circle-fill"></i>
                 </button>
-                <button type="submit" class="btn-search-submit" aria-label="Search">
+                <button type="submit" class="btn-search-submit" aria-label="{{ __('Search') }}">
                     <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
@@ -417,11 +436,11 @@
                 @foreach($categoryData as $slug => $cat)
                     <div class="swiper-slide">
                         <button type="button" class="mobile-cat-pill btn p-0 border-0 bg-transparent text-start"
-                            onclick="openCategoryDrawer('{{ $slug }}')" aria-label="Open {{ $cat['name'] }} subcategories">
+                            onclick="openCategoryDrawer('{{ $slug }}')" aria-label="Open {{ __($cat['name']) }} subcategories">
                             <div class="mobile-cat-icon">
                                 <i class="bi {{ $cat['icon'] }}"></i>
                             </div>
-                            <span class="mobile-cat-name">{{ $cat['short_name'] ?? $cat['name'] }}</span>
+                            <span class="mobile-cat-name">{{ __($cat['short_name'] ?? $cat['name']) }}</span>
                         </button>
                     </div>
                 @endforeach
@@ -576,14 +595,14 @@
                 html += `
                     <div class="suggestion-group">
                         <div class="suggestion-group-header">
-                            <span><i class="bi bi-clock-history me-1"></i> Recent Searches</span>
-                            <button type="button" class="btn-clear-history" onmousedown="clearAllRecentSearches(event, '${mode}')" onclick="clearAllRecentSearches(event, '${mode}')">Clear history</button>
+                            <span><i class="bi bi-clock-history me-1"></i> {{ __('Recent Searches') }}</span>
+                            <button type="button" class="btn-clear-history" onmousedown="clearAllRecentSearches(event, '${mode}')" onclick="clearAllRecentSearches(event, '${mode}')">{{ __('Clear history') }}</button>
                         </div>
                         <div class="recent-chips-wrap">
                             ${recents.map(r => `
                                 <div class="recent-search-chip" onmousedown="executeSuggestionSearch('${escapeHTML(r)}', '${mode}')">
                                     <span class="chip-text">${escapeHTML(r)}</span>
-                                    <button type="button" class="btn-remove-recent" title="Remove" onmousedown="removeRecentSearch(event, '${escapeHTML(r)}', '${mode}')" onclick="removeRecentSearch(event, '${escapeHTML(r)}', '${mode}')">
+                                    <button type="button" class="btn-remove-recent" title="{{ __('Remove') }}" onmousedown="removeRecentSearch(event, '${escapeHTML(r)}', '${mode}')" onclick="removeRecentSearch(event, '${escapeHTML(r)}', '${mode}')">
                                         <i class="bi bi-x"></i>
                                     </button>
                                 </div>
@@ -597,7 +616,7 @@
             html += `
                 <div class="suggestion-group">
                     <div class="suggestion-group-header">
-                        <span><i class="bi bi-fire text-warning me-1"></i> Trending on Bontrouver</span>
+                        <span><i class="bi bi-fire text-warning me-1"></i> {{ __('Trending on Bontrouver') }}</span>
                     </div>
                     <div class="trending-list">
                         ${trending.map(t => `
@@ -606,7 +625,7 @@
                                     <i class="bi bi-search suggest-item-icon"></i>
                                     <span class="suggest-item-text">${escapeHTML(t)}</span>
                                 </div>
-                                <span class="suggest-item-badge">Trending</span>
+                                <span class="suggest-item-badge">{{ __('Trending') }}</span>
                             </a>
                         `).join('')}
                     </div>
@@ -617,13 +636,13 @@
             html += `
                 <div class="suggestion-group border-top border-secondary border-opacity-10 pt-2">
                     <div class="suggestion-group-header">
-                        <span><i class="bi bi-grid-fill me-1 text-primary-custom"></i> Popular Categories</span>
+                        <span><i class="bi bi-grid-fill me-1 text-primary-custom"></i> {{ __('Popular Categories') }}</span>
                     </div>
                     <div class="suggest-quick-categories">
-                        <a href="{{ url('/category/cars-vehicles') }}" class="suggest-cat-pill"><i class="bi bi-car-front-fill me-1"></i> Cars & Vehicles</a>
-                        <a href="{{ url('/category/buy-sell') }}" class="suggest-cat-pill"><i class="bi bi-bag-check-fill me-1"></i> Buy & Sell</a>
-                        <a href="{{ url('/category/real-estate') }}" class="suggest-cat-pill"><i class="bi bi-house-door-fill me-1"></i> Housing & Rentals</a>
-                        <a href="{{ url('/category/jobs') }}" class="suggest-cat-pill"><i class="bi bi-briefcase-fill me-1"></i> Jobs</a>
+                        <a href="{{ url('/category/cars-vehicles') }}" class="suggest-cat-pill"><i class="bi bi-car-front-fill me-1"></i> {{ __('Cars & Vehicles') }}</a>
+                        <a href="{{ url('/category/buy-sell') }}" class="suggest-cat-pill"><i class="bi bi-bag-check-fill me-1"></i> {{ __('Buy & Sell') }}</a>
+                        <a href="{{ url('/category/real-estate') }}" class="suggest-cat-pill"><i class="bi bi-house-door-fill me-1"></i> {{ __('Housing & Rentals') }}</a>
+                        <a href="{{ url('/category/jobs') }}" class="suggest-cat-pill"><i class="bi bi-briefcase-fill me-1"></i> {{ __('Jobs') }}</a>
                     </div>
                 </div>
             `;
@@ -647,14 +666,14 @@
                 html += `
                     <div class="suggestion-group">
                         <div class="suggestion-group-header">
-                            <span><i class="bi bi-folder2-open me-1"></i> Search in Categories</span>
+                            <span><i class="bi bi-folder2-open me-1"></i> {{ __('Search in Categories') }}</span>
                         </div>
                         <div class="suggestion-items-list">
                             ${categories.map(c => `
                                 <a href="${c.url}" class="suggestion-item suggest-cat-match" onclick="saveSearchAndGo('${escapeHTML(query)}')">
                                     <div class="d-flex align-items-center gap-2 min-w-0">
                                         <i class="bi ${c.icon || 'bi-tag'} suggest-item-icon text-success"></i>
-                                        <span class="suggest-item-text text-truncate">Search for "<strong class="text-white">${escapeHTML(query)}</strong>" in <span class="text-primary-custom fw-semibold">${escapeHTML(c.category_name)}</span></span>
+                                        <span class="suggest-item-text text-truncate">{{ __('Search for') }} "<strong class="text-white">${escapeHTML(query)}</strong>" {{ __('in') }} <span class="text-primary-custom fw-semibold">${escapeHTML(c.category_name)}</span></span>
                                     </div>
                                     <i class="bi bi-arrow-right-short suggest-action-icon"></i>
                                 </a>
@@ -669,7 +688,7 @@
                 html += `
                     <div class="suggestion-group">
                         <div class="suggestion-group-header">
-                            <span><i class="bi bi-search me-1"></i> Suggested Searches</span>
+                            <span><i class="bi bi-search me-1"></i> {{ __('Suggested Searches') }}</span>
                         </div>
                         <div class="suggestion-items-list">
                             ${keywords.map(kw => `
@@ -691,7 +710,7 @@
                 html += `
                     <div class="suggestion-group">
                         <div class="suggestion-group-header">
-                            <span><i class="bi bi-box-seam me-1"></i> Matching Listings</span>
+                            <span><i class="bi bi-box-seam me-1"></i> {{ __('Matching Listings') }}</span>
                         </div>
                         <div class="suggest-listings-list">
                             ${listings.map(l => `
@@ -715,7 +734,7 @@
             html += `
                 <div class="suggestion-footer">
                     <a href="{{ url('/listings') }}?q=${encodeURIComponent(query)}" class="suggest-view-all-link" onclick="saveSearchAndGo('${escapeHTML(query)}')">
-                        <span>See all results for "<strong class="text-white">${escapeHTML(query)}</strong>"</span>
+                        <span>{{ __('See all results for') }} "<strong class="text-white">${escapeHTML(query)}</strong>"</span>
                         <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -956,11 +975,11 @@
 
             if (btn) btn.disabled = true;
             if (icon) icon.className = 'spinner-border spinner-border-sm text-primary';
-            if (text) text.textContent = 'Detecting GPS...';
+            if (text) text.textContent = '{{ __('Detecting GPS...') }}';
 
             navigator.geolocation.getCurrentPosition(
                 function (position) {
-                    if (text) text.textContent = 'Matching city...';
+                    if (text) text.textContent = '{{ __('Matching city...') }}';
 
                     fetch('{{ url("/api/location/detect") }}', {
                         method: 'POST',
@@ -980,7 +999,7 @@
                                 if (data.is_outside_canada) {
                                     if (text) text.textContent = 'All Canada (Intl)';
                                     const headerLabel = document.getElementById('headerLocationLabel');
-                                    if (headerLabel) headerLabel.textContent = 'All Canada';
+                                    if (headerLabel) headerLabel.textContent = '{{ __('All Canada') }}';
 
                                     setTimeout(() => {
                                         const currentUrl = new URL(window.location.href);
@@ -1028,7 +1047,7 @@
             function resetBtn() {
                 if (btn) btn.disabled = false;
                 if (icon) icon.className = 'bi bi-crosshair fs-14';
-                if (text) text.textContent = 'Auto-Detect My Location';
+                if (text) text.textContent = '{{ __('Auto-Detect My Location') }}';
             }
         };
 
@@ -1053,7 +1072,7 @@
                     noResults = document.createElement('div');
                     noResults.id = 'locationNoResults';
                     noResults.className = 'text-center py-3 text-secondary small';
-                    noResults.innerHTML = '<i class="bi bi-search me-1"></i> No matching Canadian city';
+                    noResults.innerHTML = '<i class="bi bi-search me-1"></i> {{ __('No matching Canadian city') }}';
                     document.getElementById('locationItemsList').appendChild(noResults);
                 }
                 noResults.style.display = 'block';

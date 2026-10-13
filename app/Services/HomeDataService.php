@@ -318,15 +318,18 @@ class HomeDataService
         $badge = ($count > 0 ? "{$count}{$badgeSuffix}" : $badgeFallback) . ($minPrice ? ' • From $' . number_format((float) $minPrice, 0) : '');
 
         return [
-            'category'    => mb_strtoupper($cat['name'] ?? strtoupper($slugKeys[0])),
-            'heading'     => $opts['heading'],
-            'description' => $cat['description'] ?? $opts['description'],
-            'tags'        => !empty($tags) ? $tags : [$opts['default_tag']],
-            'cta_text'    => $opts['cta_text'],
-            'url'         => url('/category/' . ($cat['slug'] ?? $slugKeys[0])),
-            'image'       => $image,
-            'alt'         => $cat['name'] ?? $slugKeys[0],
-            'badge'       => $badge,
+            'category'       => mb_strtoupper($cat['name'] ?? strtoupper($slugKeys[0])),
+            'heading'        => $opts['heading'],
+            'description'    => $cat['description'] ?? $opts['description'],
+            'tags'           => !empty($tags) ? $tags : [$opts['default_tag']],
+            'cta_text'       => $opts['cta_text'],
+            'url'            => url('/category/' . ($cat['slug'] ?? $slugKeys[0])),
+            'image'          => $image,
+            'alt'            => $cat['name'] ?? $slugKeys[0],
+            'badge'          => $badge,
+            'count'          => $count,
+            'min_price'      => $minPrice,
+            'badge_fallback' => $badgeFallback,
         ];
     }
 
@@ -358,13 +361,15 @@ class HomeDataService
         }
 
         return [
-            'category'    => mb_strtoupper($cat['name'] ?? 'BUY & SELL'),
-            'heading'     => 'Everyday finds, local deals & more.',
-            'description' => $cat['description'] ?? 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
-            'cta_text'    => 'Browse Classifieds',
-            'url'         => url('/category/' . ($cat['slug'] ?? 'buy-sell')),
-            'items'       => !empty($items) ? $items : [['image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80', 'label' => 'Gear', 'alt' => 'Gear', 'url' => url('/category/buy-sell')]],
-            'badge'       => $count > 0 ? "{$count}+ Local Items" : 'Pre-loved Finds',
+            'category'       => mb_strtoupper($cat['name'] ?? 'BUY & SELL'),
+            'heading'        => 'Everyday finds, local deals & more.',
+            'description'    => $cat['description'] ?? 'Discover pre-loved gear, tech, furniture, vehicles, and unique items from nearby sellers.',
+            'cta_text'       => 'Browse Classifieds',
+            'url'            => url('/category/' . ($cat['slug'] ?? 'buy-sell')),
+            'items'          => !empty($items) ? $items : [['image' => 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=320&q=80', 'label' => 'Gear', 'alt' => 'Gear', 'url' => url('/category/buy-sell')]],
+            'badge'          => $count > 0 ? "{$count}+ Local Items" : 'Pre-loved Finds',
+            'count'          => $count,
+            'badge_fallback' => 'Pre-loved Finds',
         ];
     }
 
