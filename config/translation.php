@@ -4,16 +4,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Translation Driver
+    | Default Translation Driver & Pluggable Provider Architecture
     |--------------------------------------------------------------------------
     |
     | Supported drivers:
-    |   - "google_web"     : Google Translate Web (Fast, robust, free)
-    |   - "mymemory"       : Free public API via MyMemory
-    |   - "libretranslate" : Public or self-hosted LibreTranslate HTTP endpoint
-    |   - "mock"           : Deterministic mock driver for automated tests & offline mode
-    |   - "deepl"          : DeepL API (future paid upgrade via driver)
-    |   - "google_cloud"   : Google Cloud Translation API (future paid upgrade)
+    |   - "google_web"     : Unofficial Google web endpoint (gtx). Fast & zero-config,
+    |                        but is NOT the official Google Cloud Translation API,
+    |                        has NO SLA, NO uptime guarantee, and is subject to
+    |                        unannounced rate limiting (HTTP 429) or IP throttling.
+    |   - "mymemory"       : Free public REST API via MyMemory. Limited daily quota;
+    |                        anonymous requests may be stored in public memory.
+    |   - "libretranslate" : Self-hosted or public LibreTranslate HTTP endpoint.
+    |                        Recommended when self-hosted for full privacy & zero quota.
+    |   - "mock"           : Deterministic mock driver for automated tests & CI/CD.
+    |
+    | COMMERCIAL / PAID PROVIDER SAFEGUARD:
+    | The platform will NEVER silently fall back to a paid provider (such as
+    | Google Cloud Translation API or DeepL Pro). Paid services strictly require
+    | explicit operator configuration in .env and prior client budget authorization.
     |
     */
     'driver' => env('TRANSLATION_DRIVER', 'google_web'),

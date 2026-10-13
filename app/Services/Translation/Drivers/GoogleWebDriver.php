@@ -7,6 +7,23 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
+/**
+ * GoogleWebDriver
+ *
+ * Pluggable driver utilizing Google's unofficial web client translation endpoint.
+ *
+ * CRITICAL ARCHITECTURAL & LEGAL NOTICE:
+ * 1. UNOFFICIAL ENDPOINT: This driver accesses `https://translate.googleapis.com/translate_a/single?client=gtx`.
+ *    This is an undocumented/unofficial web endpoint, NOT the official Google Cloud Translation API (Cloud Translation v2/v3).
+ * 2. NO SLA OR GUARANTEE: This endpoint is NOT guaranteed to remain free, is NOT approved by Google for commercial
+ *    production use, and is NOT backed by any Service Level Agreement (SLA), uptime commitment, or enterprise contract.
+ * 3. RATE LIMITING & BREAKING RISK: Google may return HTTP 429 (Too Many Requests), require CAPTCHA challenges, or
+ *    modify its response schema without prior warning.
+ * 4. PRIVACY IMPLICATIONS: Uncached listing titles and descriptions sent through this endpoint transit Google's public
+ *    infrastructure. No confidentiality or GDPR/PIPEDA enterprise compliance is contractually guaranteed for this endpoint.
+ * 5. PRODUCTION RESILIENCE: All requests are guarded by short timeouts, graceful null fallback, and 30-day SHA-256
+ *    caching to minimize external network requests. Provider failures must never break user-facing pages.
+ */
 class GoogleWebDriver implements TranslationDriverInterface
 {
     public function translate(string $text, string $targetLocale, string $sourceLocale = 'auto'): ?string
@@ -16,6 +33,7 @@ class GoogleWebDriver implements TranslationDriverInterface
             return '';
         }
 
+        // Unofficial Google web translation client endpoint (NOT Google Cloud Translation API)
         $endpoint = 'https://translate.googleapis.com/translate_a/single';
         $timeout = (int) config('translation.timeout', 5);
 

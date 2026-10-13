@@ -54,6 +54,10 @@ class TranslationService
 
     /**
      * Translate single text string with automatic fallback if primary driver fails.
+     *
+     * IMPORTANT SAFEGUARD:
+     * Fallback is strictly restricted between configured free web drivers (GoogleWebDriver <-> MyMemoryDriver).
+     * The system will NEVER silently fall back to a paid provider. If free drivers fail, null is returned safely.
      */
     public function translateText(string $text, string $targetLocale, string $sourceLocale = 'auto'): ?string
     {
@@ -65,7 +69,7 @@ class TranslationService
             return $translated;
         }
 
-        // Automatic secondary fallback for free web environments
+        // Automatic secondary fallback strictly between free web environments (never paid)
         try {
             $fallback = ($driver instanceof GoogleWebDriver)
                 ? new MyMemoryDriver()
@@ -254,7 +258,7 @@ class TranslationService
             $translatedBatch = $this->translateText($batchPayload, $targetLocale);
 
             if ($translatedBatch !== null) {
-                preg_match_all('/\[\[\[\s*BT_(\d+)\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+\s*\]\]\]|$))/si', $translatedBatch, $matches, PREG_SET_ORDER);
+                preg_match_all('/\[\[\[\s*BT_(\d+)\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+\s*\]\]\]|$))/siu', $translatedBatch, $matches, PREG_SET_ORDER);
                 foreach ($matches as $match) {
                     $idx = (int) $match[1];
                     $transTitle = trim($match[2]);
@@ -286,11 +290,11 @@ class TranslationService
             if ($translatedBatch !== null) {
                 $titles = [];
                 $descriptions = [];
-                preg_match_all('/\[\[\[\s*BT_(\d+)_T\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+_[TD]\s*\]\]\]|$))/si', $translatedBatch, $tMatches, PREG_SET_ORDER);
+                preg_match_all('/\[\[\[\s*BT_(\d+)_T\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+_[TD]\s*\]\]\]|$))/siu', $translatedBatch, $tMatches, PREG_SET_ORDER);
                 foreach ($tMatches as $m) {
                     $titles[(int) $m[1]] = trim($m[2]);
                 }
-                preg_match_all('/\[\[\[\s*BT_(\d+)_D\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+_[TD]\s*\]\]\]|$))/si', $translatedBatch, $dMatches, PREG_SET_ORDER);
+                preg_match_all('/\[\[\[\s*BT_(\d+)_D\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+_[TD]\s*\]\]\]|$))/siu', $translatedBatch, $dMatches, PREG_SET_ORDER);
                 foreach ($dMatches as $m) {
                     $descriptions[(int) $m[1]] = trim($m[2]);
                 }
@@ -455,7 +459,7 @@ class TranslationService
             $translatedBatch = $this->translateText($batchPayload, $targetLocale);
 
             if ($translatedBatch !== null) {
-                preg_match_all('/\[\[\[\s*BT_(\d+)\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+\s*\]\]\]|$))/si', $translatedBatch, $matches, PREG_SET_ORDER);
+                preg_match_all('/\[\[\[\s*BT_(\d+)\s*\]\]\]\s*(.*?)(?=(?:\[\[\[\s*BT_\d+\s*\]\]\]|$))/siu', $translatedBatch, $matches, PREG_SET_ORDER);
                 foreach ($matches as $match) {
                     $idx = (int) $match[1];
                     $transTitle = trim($match[2]);

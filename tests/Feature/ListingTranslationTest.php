@@ -415,5 +415,232 @@ class ListingTranslationTest extends TestCase
         $this->assertNotEmpty($response->json('translated.title'));
         $this->assertNotEmpty($response->json('translated.description'));
     }
+
+    /**
+     * Test 14: GoogleWebDriver handles network timeout gracefully without throwing unhandled exceptions.
+     */
+    public function test_google_web_driver_handles_timeout_gracefully(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'translate.googleapis.com/*' => function () {
+                throw new \Illuminate\Http\Client\ConnectionException('Connection timed out after 5000ms');
+            },
+        ]);
+
+        $driver = new \App\Services\Translation\Drivers\GoogleWebDriver();
+        $result = $driver->translate('Hello world', 'fr');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test 15: GoogleWebDriver handles rate limiting (HTTP 429) gracefully without looping.
+     */
+    public function test_google_web_driver_handles_rate_limiting_429_gracefully(): void
+    {
+        \Illuminate\Support\Facades\Http::fake([
+            'translate.googleapis.com/*' => \Illuminate\Support\Facades\Http::response('Too Many Requests', 429),
+        ]);
+
+        $driver = new \App\Services\Translation\Drivers\GoogleWebDriver();
+        $result = $driver->translate('Hello world', 'fr');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test 16: GoogleWebDriver handles invalid or malformed JSON responses safely.
+     */
+    public function test_google_web_driver_handles_invalid_or_malformed_provider_payload(): void
+    {
+        // Malformed structure (empty array / non-standard format)
+        \Illuminate\Support\Facades\Http::fake([
+            'translate.googleapis.com/*' => \Illuminate\Support\Facades\Http::response('<html><body>Blocked</body></html>', 200),
+        ]);
+
+        $driver = new \App\Services\Translation\Drivers\GoogleWebDriver();
+        $result = $driver->translate('Hello world', 'fr');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test 17: Cache reuse prevents repeated external provider requests for identical content.
+     */
+    public function test_cache_reuse_prevents_repeated_external_provider_requests(): void
+    {
+        config(['translation.driver' => 'google_web']);
+
+        $requestCount = 0;
+        \Illuminate\Support\Facades\Http::fake([
+            'translate.googleapis.com/*' => function () use (&$requestCount) {
+                $requestCount++;
+                return \Illuminate\Support\Facades\Http::response([
+                    [
+                        ['Appartement lumineux sur le Plateau', 'Bright 2-Bedroom Apartment in Plateau']
+                    ]
+                ], 200);
+            },
+        ]);
+
+        // First request triggers provider HTTP call
+        $firstResponse = $this->postJson(route('listings.translate', $this->activeListing), [
+            'target_locale' => 'fr',
+            'scope' => 'card',
+        ]);
+        $firstResponse->assertStatus(200);
+        $this->assertEquals(1, $requestCount);
+
+        // Second request for identical content MUST reuse cache and NOT call provider again
+        $secondResponse = $this->postJson(route('listings.translate', $this->activeListing), [
+            'target_locale' => 'fr',
+            'scope' => 'card',
+        ]);
+        $secondResponse->assertStatus(200);
+        $this->assertTrue($secondResponse->json('cached'));
+        $this->assertEquals(1, $requestCount, 'Cache hit must prevent repeated provider network requests');
+    }
+
+    /**
+     * Test 18: Provider failure preserves raw listing content and listing page renders seamlessly.
+     */
+    public function test_provider_failure_preserves_original_listing_content_and_pages_do_not_break(): void
+    {
+        MockTranslationDriver::simulateFailure(true);
+
+        $originalTitle = $this->activeListing->title;
+        $originalDesc = $this->activeListing->description;
+
+        // Translation API returns 503 error without crashing
+        $transResponse = $this->postJson(route('listings.translate', $this->activeListing), [
+            'target_locale' => 'fr',
+            'scope' => 'detail',
+        ]);
+        $transResponse->assertStatus(503)
+            ->assertJson([
+                'success' => false,
+            ]);
+
+        // Raw database listing content is 100% preserved
+        $this->activeListing->refresh();
+        $this->assertEquals($originalTitle, $this->activeListing->title);
+        $this->assertEquals($originalDesc, $this->activeListing->description);
+
+        // Public listing detail page loads with 200 OK and intact original content
+        $pageResponse = $this->get('/listing/' . $this->activeListing->slug);
+        $pageResponse->assertStatus(200);
+        $pageResponse->assertSee($originalTitle);
+    }
+
+    /**
+     * Test 19: TranslationService never silently falls back to a paid provider.
+     */
+    public function test_translation_service_never_silently_falls_back_to_paid_provider(): void
+    {
+        // Simulate both free web drivers failing
+        \Illuminate\Support\Facades\Http::fake([
+            'translate.googleapis.com/*' => \Illuminate\Support\Facades\Http::response('Rate limited', 429),
+            'api.mymemory.translated.net/*' => \Illuminate\Support\Facades\Http::response('Quota exceeded', 429),
+        ]);
+
+        config(['translation.driver' => 'google_web']);
+
+        $service = new TranslationService();
+        $result = $service->translateText('Sample text', 'fr');
+
+        // Must return null safely rather than invoking any paid API
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test 20: Long description with paragraph breaks, special characters, and quotes translates cleanly.
+     */
+    public function test_long_description_with_paragraph_breaks_and_special_characters_translates_cleanly(): void
+    {
+        $longDescription = "Paragraph 1: Executive 3-Bedroom Penthouse in downtown Montreal with high ceilings & hardwood floors.\n\n" .
+            "Paragraph 2: Key Amenities & Features:\n" .
+            "• Heated indoor pool & 24/7 fitness center\n" .
+            "• Underground parking spot #42 included\n" .
+            "• High-end stainless steel appliances (Fridge, Stove & Dishwasher)\n\n" .
+            "Paragraph 3: Terms & Contact:\n" .
+            "Price: $2,850.00 / month. Available \"immediately\"! No smoking, pets allowed with deposit. Call (514) 555-0199 or email <owner@montreal-condos.ca>.";
+
+        $detailedListing = Listing::create([
+            'user_id' => $this->user->id,
+            'category_id' => $this->category->id,
+            'province_id' => $this->province->id,
+            'city_id' => $this->city->id,
+            'title' => 'Executive 3-Bedroom Penthouse & Terrace <Rare Find>',
+            'description' => $longDescription,
+            'price' => 2850.00,
+            'price_type' => 'fixed',
+            'status' => ListingStatus::ACTIVE,
+            'slug' => 'executive-penthouse-terrace-montreal',
+        ]);
+
+        $response = $this->postJson(route('listings.translate', $detailedListing), [
+            'target_locale' => 'fr',
+            'scope' => 'detail',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'target_locale' => 'fr',
+                'scope' => 'detail',
+            ]);
+
+        $translated = $response->json('translated');
+        $this->assertNotEmpty($translated['title']);
+        $this->assertNotEmpty($translated['description']);
+        // Verify line breaks are maintained in translated payload
+        $this->assertStringContainsString("\n", $translated['description']);
+
+        // Verify raw database values remain completely unmodified
+        $detailedListing->refresh();
+        $this->assertEquals($longDescription, $detailedListing->description);
+    }
+
+    /**
+     * Test 21: Arabic text with emojis and token batching matches accurately.
+     */
+    public function test_arabic_text_with_emojis_and_token_batching_matches_accurately(): void
+    {
+        $arabicListing = Listing::create([
+            'user_id' => $this->user->id,
+            'category_id' => $this->category->id,
+            'province_id' => $this->province->id,
+            'city_id' => $this->city->id,
+            'title' => 'شقة فاخرة للإيجار 🏡 وسط المدينة',
+            'description' => 'شقة مفروشة بالكامل بالقرب من محطة المترو 🚇 مع موقف سيارات خاص 🚗 وتدفئة مجانية.',
+            'price' => 1500.00,
+            'price_type' => 'fixed',
+            'status' => ListingStatus::ACTIVE,
+            'is_sponsored' => true,
+            'slug' => 'luxury-arabic-furnished-apartment-downtown',
+        ]);
+
+        $response = $this->postJson(route('listings.translate.batch'), [
+            'listing_ids' => [$arabicListing->id],
+            'target_locale' => 'fr',
+            'scope' => 'hero',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'target_locale' => 'fr',
+                'scope' => 'hero',
+            ]);
+
+        $translations = $response->json('translations');
+        $this->assertArrayHasKey((string) $arabicListing->id, $translations);
+        $this->assertNotEmpty($translations[$arabicListing->id]['title']);
+        $this->assertNotEmpty($translations[$arabicListing->id]['description']);
+
+        // Verify Arabic text in database remains strictly unmodified
+        $arabicListing->refresh();
+        $this->assertEquals('شقة فاخرة للإيجار 🏡 وسط المدينة', $arabicListing->title);
+    }
 }
 
