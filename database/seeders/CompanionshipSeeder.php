@@ -128,11 +128,12 @@ class CompanionshipSeeder extends Seeder
             unset($reqData['attendees']);
 
             $cityModel = City::where('slug', Str::slug($reqData['city']))
-                ->orWhere('name', 'like', '%' . $reqData['city'] . '%')
+                ->orWhere('name_en', 'like', '%' . $reqData['city'] . '%')
+                ->orWhere('name_fr', 'like', '%' . $reqData['city'] . '%')
                 ->first();
 
             $reqData['city_id'] = $cityModel?->id;
-            $reqData['city'] = $cityModel?->name ?? $reqData['city'];
+            $reqData['city'] = $cityModel?->name_en ?? $reqData['city'];
             $reqData['province'] = $cityModel?->province?->code ?? $reqData['province'];
             $reqData['latitude'] = $cityModel?->latitude;
             $reqData['longitude'] = $cityModel?->longitude;

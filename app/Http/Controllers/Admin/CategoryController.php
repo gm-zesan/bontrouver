@@ -25,16 +25,29 @@ class CategoryController extends Controller
     public function index(Request $request): View|JsonResponse
     {
         if ($request->ajax() || $request->wantsJson() || $request->has('draw')) {
+            $search = is_array($request->get('search')) ? ($request->get('search')['value'] ?? null) : $request->get('search');
             $filters = [
-                'level' => $request->get('level'),
+                'level'     => $request->get('level'),
                 'parent_id' => $request->get('parent_id'),
                 'is_active' => $request->get('is_active'),
+                'search'    => $search,
             ];
 
             $query = $this->categoryService->getCategoriesQuery($filters);
 
             return DataTables::of($query)
                 ->addIndexColumn()
+                ->orderColumn('name', function ($query, $order) {
+                    $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
+                    $query->orderBy($nameCol, $order);
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('name_en', 'like', "%{$keyword}%")
+                          ->orWhere('name_fr', 'like', "%{$keyword}%")
+                          ->orWhere('slug', 'like', "%{$keyword}%");
+                    });
+                })
                 ->editColumn('name', function ($row) {
                     $iconHtml = '<i class="' . e($row->icon_class) . ' me-2 text-primary fs-6"></i>';
                     $isChild = $row->parent_id ? true : false;

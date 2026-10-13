@@ -520,7 +520,8 @@ class ListingSeeder extends Seeder
 
             $citySlug = Str::slug($data['city']);
             $cityModel = City::where('slug', $citySlug)
-                ->orWhere('name', 'like', '%' . $data['city'] . '%')
+                ->orWhere('name_en', 'like', '%' . $data['city'] . '%')
+                ->orWhere('name_fr', 'like', '%' . $data['city'] . '%')
                 ->first();
 
             $provinceId = $cityModel?->province_id ?? $provModel?->id ?? Province::where('code', 'OTHER')->first()?->id;

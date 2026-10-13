@@ -58,9 +58,10 @@ class AdminCategoryService
      */
     public function getParentCategories()
     {
+        $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
         return Category::whereNull('parent_id')
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy($nameCol)
             ->get();
     }
 

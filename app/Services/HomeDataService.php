@@ -375,10 +375,11 @@ class HomeDataService
 
     public function getAvailableCities(): array
     {
+        $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
         return City::where('is_active', true)
             ->with('province')
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy($nameCol)
             ->limit(12)
             ->get()
             ->mapWithKeys(fn ($c) => [$c->name => $c->name . ', ' . ($c->province?->code ?? 'CA')])

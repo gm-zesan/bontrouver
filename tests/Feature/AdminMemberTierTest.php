@@ -144,6 +144,9 @@ class AdminMemberTierTest extends TestCase
         $response->assertSee('Active Member');
         $response->assertSee('Trusted Member');
         $response->assertSee('Highly Appreciated Member');
+        $response->assertSee('id="adjustPointsModal"', false);
+        $response->assertSee('Adjust User Points');
+        $response->assertSee('openAdjustPointsModal');
     }
 
     public function test_admin_can_view_single_tier_details_json(): void

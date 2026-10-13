@@ -67,7 +67,17 @@ class AdminLocationTest extends TestCase
             'is_featured' => true,
         ]);
 
-        $response = $this->actingAs($admin)->getJson(route('admin.locations.index'), [
+        $response = $this->actingAs($admin)->getJson(route('admin.locations.index', [
+            'draw' => 1,
+            'columns' => [
+                ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false],
+                ['data' => 'name', 'name' => 'name', 'orderable' => true, 'searchable' => true],
+            ],
+            'order' => [
+                ['column' => 1, 'dir' => 'asc'],
+            ],
+            'search' => ['value' => 'Calg', 'regex' => false],
+        ]), [
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
         ]);
 
@@ -78,6 +88,7 @@ class AdminLocationTest extends TestCase
                 'recordsFiltered',
                 'data',
             ]);
+        $this->assertCount(1, $response->json('data'));
     }
 
     public function test_admin_can_create_new_city(): void

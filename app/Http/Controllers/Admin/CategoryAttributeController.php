@@ -24,10 +24,11 @@ class CategoryAttributeController extends Controller
      */
     public function index(Category $category): View
     {
+        $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
         $category->load([
             'parent',
-            'attributes' => function ($query) {
-                $query->with('options')->orderBy('sort_order')->orderBy('name');
+            'attributes' => function ($query) use ($nameCol) {
+                $query->with('options')->orderBy('sort_order')->orderBy($nameCol);
             },
         ]);
 

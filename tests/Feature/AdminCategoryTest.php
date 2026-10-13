@@ -102,13 +102,23 @@ class AdminCategoryTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->actingAs($this->admin)->getJson(route('admin.categories.index'), [
+        $response = $this->actingAs($this->admin)->getJson(route('admin.categories.index', [
+            'draw' => 1,
+            'columns' => [
+                ['data' => 'DT_RowIndex', 'name' => 'DT_RowIndex', 'orderable' => false, 'searchable' => false],
+                ['data' => 'name', 'name' => 'name', 'orderable' => true, 'searchable' => true],
+            ],
+            'order' => [
+                ['column' => 1, 'dir' => 'asc'],
+            ],
+            'search' => ['value' => 'Apartment', 'regex' => false],
+        ]), [
             'HTTP_X-Requested-With' => 'XMLHttpRequest',
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonStructure(['data', 'recordsTotal', 'recordsFiltered']);
-        $this->assertGreaterThanOrEqual(2, $response->json('recordsTotal'));
+        $this->assertCount(1, $response->json('data'));
     }
 
     public function test_admin_can_create_root_category(): void

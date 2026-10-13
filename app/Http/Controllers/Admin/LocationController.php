@@ -36,6 +36,17 @@ class LocationController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
+                ->orderColumn('name', function ($query, $order) {
+                    $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
+                    $query->orderBy($nameCol, $order);
+                })
+                ->filterColumn('name', function ($query, $keyword) {
+                    $query->where(function ($q) use ($keyword) {
+                        $q->where('name_en', 'like', "%{$keyword}%")
+                          ->orWhere('name_fr', 'like', "%{$keyword}%")
+                          ->orWhere('slug', 'like', "%{$keyword}%");
+                    });
+                })
                 ->editColumn('name', function ($row) {
                     $provCode = $row->province ? $row->province->code : 'CA';
                     $provName = $row->province ? $row->province->name : 'Canada';

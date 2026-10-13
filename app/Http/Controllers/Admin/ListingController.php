@@ -126,10 +126,11 @@ class ListingController extends Controller
                 ->make(true);
         }
 
+        $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
         $categories = Category::whereNull('parent_id')
             ->where('is_active', true)
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy($nameCol)
             ->get();
 
         return view('admin.listings.index', [

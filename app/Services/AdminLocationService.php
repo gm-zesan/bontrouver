@@ -185,9 +185,10 @@ class AdminLocationService
      */
     public function getProvincesList()
     {
+        $nameCol = app()->getLocale() === 'fr' ? 'name_fr' : 'name_en';
         return Province::withCount(['cities', 'listings'])
             ->orderBy('sort_order')
-            ->orderBy('name')
+            ->orderBy($nameCol)
             ->get();
     }
 

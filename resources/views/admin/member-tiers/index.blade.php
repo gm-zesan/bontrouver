@@ -104,6 +104,7 @@
                         {{-- 2. Header Actions --}}
                         <div class="d-flex align-items-center flex-wrap gap-2">
                             <button type="button" class="btn btn-primary d-flex align-items-center gap-1"
+                                data-bs-toggle="modal" data-bs-target="#adjustPointsModal"
                                 onclick="openAdjustPointsModal()" style="height: 34px; font-size: 13px;">
                                 <i class="ri-add-circle-line fs-6"></i>
                                 <span>Adjust User Points</span>
@@ -454,6 +455,7 @@
 
                                     <div class="d-flex align-items-center gap-2">
                                         <button type="button" class="btn btn-primary d-flex align-items-center gap-1"
+                                            data-bs-toggle="modal" data-bs-target="#adjustPointsModal"
                                             onclick="openAdjustPointsModal()" style="height: 34px; font-size: 13px;">
                                             <i class="ri-add-circle-line fs-6"></i>
                                             <span>Manual Point Adjustment</span>
@@ -803,7 +805,7 @@
         // ─────────────────────────────────────────────────────────────
         // 2. TIER EDIT MODAL
         // ─────────────────────────────────────────────────────────────
-        function openEditTierModal(tierId) {
+        window.openEditTierModal = function (tierId) {
             var url = "{{ url('admin/member-tiers') }}/" + tierId;
 
             $.get(url, function (res) {
@@ -826,12 +828,13 @@
                     $('#tier_perks_fr').val(perksFrText);
 
                     $('#editTierModal').modal('show');
+                }
             }).fail(function () {
                 window.showToast("Failed to fetch tier details.", true, "Error");
             });
-        }
+        };
 
-        function handleTierFormSubmit(e) {
+        window.handleTierFormSubmit = function (e) {
             e.preventDefault();
             var tierId = $('#tier_id').val();
             var url = "{{ url('admin/member-tiers') }}/" + tierId;
@@ -862,12 +865,12 @@
                     window.showToast(msg, true, "Validation Error");
                 }
             });
-        }
+        };
 
         // ─────────────────────────────────────────────────────────────
         // 3. POINT RULES FORM
         // ─────────────────────────────────────────────────────────────
-        function handleSavePointRules(e) {
+        window.handleSavePointRules = function (e) {
             e.preventDefault();
             var btn = $('#btnSaveRules');
             btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
@@ -887,20 +890,31 @@
                     window.showToast("Failed to save rules.", true, "Error");
                 }
             });
-        }
+        };
 
         // ─────────────────────────────────────────────────────────────
         // 4. MANUAL POINT ADJUSTMENT
         // ─────────────────────────────────────────────────────────────
-        function openAdjustPointsModal(userId) {
-            $('#adjustPointsForm')[0].reset();
+        window.openAdjustPointsModal = function (userId) {
+            var form = document.getElementById('adjustPointsForm');
+            if (form) {
+                form.reset();
+            }
             if (userId) {
                 $('#adj_user_id').val(userId);
             }
-            $('#adjustPointsModal').modal('show');
-        }
+            var modalEl = document.getElementById('adjustPointsModal');
+            if (modalEl) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                } else {
+                    $('#adjustPointsModal').modal('show');
+                }
+            }
+        };
 
-        function handleAdjustPointsSubmit(e) {
+        window.handleAdjustPointsSubmit = function (e) {
             e.preventDefault();
             var btn = $('#btnSubmitAdjustment');
             btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Applying...');
@@ -912,7 +926,13 @@
                 success: function (res) {
                     btn.prop('disabled', false).html('<i class="ri-check-line fs-6"></i> <span>Apply Adjustment</span>');
                     if (res.success) {
-                        $('#adjustPointsModal').modal('hide');
+                        var modalEl = document.getElementById('adjustPointsModal');
+                        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        } else {
+                            $('#adjustPointsModal').modal('hide');
+                        }
                         window.showToast(res.message || "Points adjusted successfully.", false, "Adjustment Applied");
                         $('#point-ledger-table').DataTable().ajax.reload();
                     }
@@ -926,6 +946,6 @@
                     window.showToast(msg, true, "Adjustment Error");
                 }
             });
-        }
+        };
     </script>
 @endpush

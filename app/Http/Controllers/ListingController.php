@@ -326,7 +326,8 @@ class ListingController extends Controller
     public function locationRedirect(Request $request, string $cityOrSlug): RedirectResponse
     {
         $cityModel = City::where('slug', Str::slug($cityOrSlug))
-            ->orWhere('name', 'like', '%' . $cityOrSlug . '%')
+            ->orWhere('name_en', 'like', '%' . $cityOrSlug . '%')
+            ->orWhere('name_fr', 'like', '%' . $cityOrSlug . '%')
             ->first();
 
         $city = $cityModel?->name ?? ucwords(str_replace('-', ' ', $cityOrSlug));
