@@ -8,6 +8,10 @@ test('reset password link screen can be rendered', function () {
     $response = $this->get('/forgot-password');
 
     $response->assertStatus(200);
+    $response->assertSee('Forgot Password?');
+    $response->assertSee('BON<span class="accent">TROUVER</span>', false);
+    $response->assertSee('Email Password Reset Link');
+    $response->assertSee('Back to Sign In');
 });
 
 test('reset password link can be requested', function () {
@@ -31,6 +35,8 @@ test('reset password screen can be rendered', function () {
         $response = $this->get('/reset-password/'.$notification->token);
 
         $response->assertStatus(200);
+        $response->assertSee('Set New Password');
+        $response->assertSee('Reset Password & Sign In', false);
 
         return true;
     });

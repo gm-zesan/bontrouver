@@ -11,6 +11,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RegistrationService
 {
@@ -116,6 +117,69 @@ class RegistrationService
                     'status'        => 'pending',
                 ]);
             }
+
+            event(new Registered($user));
+
+            return $user;
+        });
+    }
+
+    /**
+     * Find existing user or register a new user from Google OAuth profile.
+     */
+    public function findOrCreateGoogleUser(object $googleUser): User
+    {
+        $googleId = (string) $googleUser->getId();
+        $email = strtolower(trim((string) $googleUser->getEmail()));
+        $avatar = $googleUser->getAvatar();
+        $name = trim((string) $googleUser->getName());
+        if (empty($name)) {
+            $name = explode('@', $email)[0];
+        }
+
+        // 1. Existing user with this Google ID
+        $user = User::where('google_id', $googleId)->first();
+        if ($user) {
+            if (empty($user->avatar) && !empty($avatar)) {
+                $user->avatar = $avatar;
+                $user->save();
+            }
+            return $user;
+        }
+
+        // 2. Existing user with same Email (Link Google account)
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->google_id = $googleId;
+            if (empty($user->avatar) && !empty($avatar)) {
+                $user->avatar = $avatar;
+            }
+            if (empty($user->email_verified_at)) {
+                $user->email_verified_at = now();
+            }
+            $user->save();
+            return $user;
+        }
+
+        // 3. Register brand new General User via Google
+        return DB::transaction(function () use ($googleId, $email, $name, $avatar) {
+            $user = User::create([
+                'name'              => $name,
+                'email'             => $email,
+                'google_id'         => $googleId,
+                'email_verified_at' => now(),
+                'password'          => Hash::make(Str::random(32)),
+                'role'              => UserRole::USER->value,
+                'is_dealer'         => false,
+                'is_verified'       => false,
+                'avatar'            => $avatar,
+                'city'              => 'Montreal',
+                'province'          => 'QC',
+                'location'          => 'Montreal, QC',
+                'community_points'  => 50,
+            ]);
+
+            UserProfile::firstOrCreate(['user_id' => $user->id]);
 
             event(new Registered($user));
 

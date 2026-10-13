@@ -8350,6 +8350,30 @@ svg {
     color: #FFFFFF;
 }
 
+.btn-auth-google {
+    background: #FFFFFF;
+    color: #1F2937;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 0.6875rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid #E5E7EB;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-fast);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn-auth-google:hover {
+    background: #F9FAFB;
+    color: #111827;
+    border-color: #D1D5DB;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
 .auth-divider {
     position: relative;
     text-align: center;

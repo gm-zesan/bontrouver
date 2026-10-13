@@ -56,7 +56,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - `$user->gallery()` → `hasMany(UserGallery::class)->orderBy('sort_order')`
 - Accessors: `$user->avatar_url` (safe URL for remote & local avatars), `$user->rating` (avg rating), `$user->reviews_count` (total count), `$user->member_tier` (array of tier name, icon, level, progress %), `$user->completed_transactions_count` (total completed deals), `$user->verification_status`
 - Helpers: `$user->isAdmin()`, `$user->isModerator()`, `$user->wantsNotification(string $type)`
-- Fields: `name`, `email`, `password`, `role`, `is_dealer`, `phone`, `city`, `province`, `postal_code`, `location`, `avatar`, `bio`, `community_points`, `is_verified`, `notification_preferences` (json)
+- Fields: `name`, `email`, `google_id`, `password`, `role`, `is_dealer`, `phone`, `city`, `province`, `postal_code`, `location`, `avatar`, `bio`, `community_points`, `is_verified`, `notification_preferences` (json)
 
 ### Category (`App\Models\Category`)
 - `$category->parent()` → `belongsTo(Category::class, 'parent_id')`

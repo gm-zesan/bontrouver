@@ -11,7 +11,8 @@ Core authentication and profile table.
 - `id` (PK, BIGINT, UNSIGNED, AUTO_INCREMENT)
 - `name` (VARCHAR 255)
 - `email` (VARCHAR 255, UNIQUE)
-- `password` (VARCHAR 255)
+- `google_id` (VARCHAR 255, UNIQUE, NULLABLE) - Google OAuth user ID for 1-click social registration and login.
+- `password` (VARCHAR 255, NULLABLE) - Hashed account password (nullable for OAuth accounts).
 - `role` (VARCHAR 50) - Default: 'user'. Enum: 'user', 'admin', 'moderator'
 - `is_dealer` (BOOLEAN) - Default: false. Flags commercial merchant / dealer status (set to `true` during Merchant Registration).
 - `phone` (VARCHAR 50, NULLABLE) - Merchant business phone / WhatsApp line (required for merchants; optional for general users).
