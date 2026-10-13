@@ -18,14 +18,21 @@ class CommunityTest extends TestCase
     {
         parent::setUp();
         
-        $province = Province::create(['code' => 'ON', 'name' => 'Ontario', 'slug' => 'ontario']);
+        $province = Province::create([
+            'code'         => 'ON',
+            'name_en'      => 'Ontario',
+            'name_fr'      => 'Ontario',
+            'slug'         => 'ontario',
+            'country_code' => 'CA',
+        ]);
         City::create([
             'province_id' => $province->id,
-            'name' => 'Toronto',
-            'slug' => 'toronto',
-            'latitude' => 43.7001,
-            'longitude' => -79.4163,
-            'is_active' => true,
+            'name_en'     => 'Toronto',
+            'name_fr'     => 'Toronto',
+            'slug'        => 'toronto',
+            'latitude'    => 43.7001,
+            'longitude'   => -79.4163,
+            'is_active'   => true,
         ]);
     }
 

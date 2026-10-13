@@ -25,7 +25,8 @@ class ReportTest extends TestCase
         parent::setUp();
 
         $province = Province::create([
-            'name' => 'Ontario',
+            'name_en' => 'Ontario',
+            'name_fr' => 'Ontario',
             'code' => 'ON',
             'slug' => 'ontario',
             'country_code' => 'CA',
@@ -33,7 +34,8 @@ class ReportTest extends TestCase
 
         $city = City::create([
             'province_id' => $province->id,
-            'name' => 'Toronto',
+            'name_en' => 'Toronto',
+            'name_fr' => 'Toronto',
             'slug' => 'toronto',
             'latitude' => 43.6532,
             'longitude' => -79.3832,
@@ -51,7 +53,8 @@ class ReportTest extends TestCase
         ]);
 
         $category = Category::create([
-            'name' => 'Vehicles',
+            'name_en' => 'Vehicles',
+            'name_fr' => 'Véhicules',
             'slug' => 'vehicles',
         ]);
 

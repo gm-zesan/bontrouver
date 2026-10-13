@@ -25,10 +25,11 @@ class MemberTierEnhancementsTest extends TestCase
         parent::setUp();
 
         // Seed Canadian provinces & cities
-        $qc = Province::create(['name' => 'Quebec', 'code' => 'QC', 'slug' => 'quebec']);
+        $qc = Province::create(['name_en' => 'Quebec', 'name_fr' => 'Québec', 'code' => 'QC', 'slug' => 'quebec']);
         City::create([
             'province_id' => $qc->id,
-            'name'        => 'Montreal',
+            'name_en'     => 'Montreal',
+            'name_fr'     => 'Montréal',
             'slug'        => 'montreal',
             'latitude'    => 45.5017,
             'longitude'   => -73.5673,
@@ -36,38 +37,7 @@ class MemberTierEnhancementsTest extends TestCase
         ]);
 
         // Seed Member Tiers
-        MemberTier::create([
-            'name' => '🥉 New Member',
-            'icon' => '🥉',
-            'badge_color' => '#cd7f32',
-            'badge_class' => 'bg-secondary',
-            'min_points' => 0,
-            'max_points' => 99,
-            'description' => 'Entry level member',
-            'perks' => ['Post basic ads'],
-        ]);
-
-        MemberTier::create([
-            'name' => '🥈 Active Member',
-            'icon' => '🥈',
-            'badge_color' => '#c0c0c0',
-            'badge_class' => 'bg-info',
-            'min_points' => 100,
-            'max_points' => 299,
-            'description' => 'Active participant',
-            'perks' => ['Featured discounts'],
-        ]);
-
-        MemberTier::create([
-            'name' => '🥇 Trusted Member',
-            'icon' => '🥇',
-            'badge_color' => '#ffd700',
-            'badge_class' => 'bg-warning text-dark',
-            'min_points' => 300,
-            'max_points' => 699,
-            'description' => 'Trusted Canadian neighbor',
-            'perks' => ['Verified trust badge'],
-        ]);
+        $this->seed(\Database\Seeders\MemberTierSeeder::class);
     }
 
     /**

@@ -28,7 +28,8 @@ class AdminListingTest extends TestCase
         $this->seed(\Database\Seeders\MemberTierSeeder::class);
 
         $province = Province::create([
-            'name' => 'Ontario',
+            'name_en' => 'Ontario',
+            'name_fr' => 'Ontario',
             'code' => 'ON',
             'slug' => 'ontario',
             'country_code' => 'CA',
@@ -36,7 +37,8 @@ class AdminListingTest extends TestCase
 
         $city = City::create([
             'province_id' => $province->id,
-            'name' => 'Toronto',
+            'name_en' => 'Toronto',
+            'name_fr' => 'Toronto',
             'slug' => 'toronto',
             'latitude' => 43.6532,
             'longitude' => -79.3832,
@@ -56,7 +58,8 @@ class AdminListingTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Electronics',
+            'name_en' => 'Electronics',
+            'name_fr' => 'Électronique',
             'slug' => 'electronics',
         ]);
 
@@ -223,8 +226,9 @@ class AdminListingTest extends TestCase
     {
         $subCat = Category::create([
             'parent_id' => $this->category->id,
-            'name' => 'Smartphones',
-            'slug' => 'smartphones',
+            'name_en'   => 'Smartphones',
+            'name_fr'   => 'Téléphones intelligents',
+            'slug'      => 'smartphones',
         ]);
 
         $this->assertEquals('Electronics → Smartphones', $subCat->full_path);

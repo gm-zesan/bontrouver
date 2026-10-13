@@ -36,14 +36,14 @@ class NewEnhancementsTest extends TestCase
 
         // Seed basic dependencies if not present
         if (Category::count() === 0) {
-            Category::create(['name' => 'Electronics', 'slug' => 'electronics']);
+            Category::create(['name_en' => 'Electronics', 'name_fr' => 'Électronique', 'slug' => 'electronics']);
         }
         if (Province::count() === 0) {
-            Province::create(['name' => 'Ontario', 'code' => 'ON', 'slug' => 'ontario', 'country_code' => 'CA']);
+            Province::create(['name_en' => 'Ontario', 'name_fr' => 'Ontario', 'code' => 'ON', 'slug' => 'ontario', 'country_code' => 'CA']);
         }
         if (City::count() === 0) {
             $prov = Province::first();
-            City::create(['province_id' => $prov->id, 'name' => 'Toronto', 'slug' => 'toronto', 'latitude' => 43.6532, 'longitude' => -79.3832]);
+            City::create(['province_id' => $prov->id, 'name_en' => 'Toronto', 'name_fr' => 'Toronto', 'slug' => 'toronto', 'latitude' => 43.6532, 'longitude' => -79.3832]);
         }
     }
 

@@ -66,7 +66,8 @@ class SmartAlertTest extends TestCase
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
         $category = Category::create([
-            'name' => 'Real Estate',
+            'name_en' => 'Real Estate',
+            'name_fr' => 'Immobilier',
             'slug' => 'real-estate',
             'is_active' => true,
         ]);

@@ -28,9 +28,9 @@ class AdminDashboardTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $user = User::factory()->create(['role' => 'user']);
         
-        $category = Category::create(['name' => 'Automotive', 'slug' => 'automotive']);
-        $province = Province::create(['name' => 'Quebec', 'slug' => 'quebec', 'code' => 'QC']);
-        $city = City::create(['name' => 'Montreal', 'slug' => 'montreal', 'province_id' => $province->id, 'latitude' => 45.5017, 'longitude' => -73.5673]);
+        $category = Category::create(['name_en' => 'Automotive', 'name_fr' => 'Automobile', 'slug' => 'automotive']);
+        $province = Province::create(['name_en' => 'Quebec', 'name_fr' => 'Québec', 'slug' => 'quebec', 'code' => 'QC', 'country_code' => 'CA']);
+        $city = City::create(['name_en' => 'Montreal', 'name_fr' => 'Montréal', 'slug' => 'montreal', 'province_id' => $province->id, 'latitude' => 45.5017, 'longitude' => -73.5673]);
 
         Listing::create([
             'user_id'     => $user->id,

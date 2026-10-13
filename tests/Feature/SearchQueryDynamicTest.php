@@ -75,9 +75,9 @@ class SearchQueryDynamicTest extends TestCase
     public function test_fallback_to_active_listing_titles_when_no_search_history(): void
     {
         $user = User::factory()->create();
-        $category = Category::create(['name' => 'Tech', 'slug' => 'tech']);
-        $province = Province::create(['name' => 'Ontario', 'slug' => 'ontario', 'code' => 'ON']);
-        $city = City::create(['name' => 'Toronto', 'slug' => 'toronto', 'province_id' => $province->id, 'latitude' => 43.6532, 'longitude' => -79.3832]);
+        $category = Category::create(['name_en' => 'Tech', 'name_fr' => 'Techno', 'slug' => 'tech']);
+        $province = Province::create(['name_en' => 'Ontario', 'name_fr' => 'Ontario', 'slug' => 'ontario', 'code' => 'ON', 'country_code' => 'CA']);
+        $city = City::create(['name_en' => 'Toronto', 'name_fr' => 'Toronto', 'slug' => 'toronto', 'province_id' => $province->id, 'latitude' => 43.6532, 'longitude' => -79.3832]);
 
         Listing::create([
             'user_id'     => $user->id,

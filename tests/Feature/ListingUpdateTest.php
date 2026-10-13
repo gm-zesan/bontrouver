@@ -26,7 +26,8 @@ class ListingUpdateTest extends TestCase
         parent::setUp();
 
         $this->province = Province::create([
-            'name' => 'Ontario',
+            'name_en' => 'Ontario',
+            'name_fr' => 'Ontario',
             'code' => 'ON',
             'slug' => 'ontario',
             'country_code' => 'CA',
@@ -36,7 +37,8 @@ class ListingUpdateTest extends TestCase
 
         $this->city = City::create([
             'province_id' => $this->province->id,
-            'name' => 'Toronto',
+            'name_en' => 'Toronto',
+            'name_fr' => 'Toronto',
             'slug' => 'toronto',
             'latitude' => 43.6532,
             'longitude' => -79.3832,
@@ -44,7 +46,8 @@ class ListingUpdateTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Electronics',
+            'name_en' => 'Electronics',
+            'name_fr' => 'Électronique',
             'slug' => 'electronics',
             'icon' => 'bi-laptop',
             'is_active' => true,

@@ -26,19 +26,21 @@ class SellerListingManagementTest extends TestCase
         $this->seed(\Database\Seeders\MemberTierSeeder::class);
 
         $province = Province::create([
-            'name' => 'Quebec',
-            'code' => 'QC',
-            'slug' => 'quebec',
+            'name_en'      => 'Quebec',
+            'name_fr'      => 'Québec',
+            'code'         => 'QC',
+            'slug'         => 'quebec',
             'country_code' => 'CA',
         ]);
 
         $city = City::create([
             'province_id' => $province->id,
-            'name' => 'Montreal',
-            'slug' => 'montreal',
-            'latitude' => 45.5017,
-            'longitude' => -73.5673,
-            'is_active' => true,
+            'name_en'     => 'Montreal',
+            'name_fr'     => 'Montréal',
+            'slug'        => 'montreal',
+            'latitude'    => 45.5017,
+            'longitude'   => -73.5673,
+            'is_active'   => true,
         ]);
 
         $this->seller = User::factory()->create([
@@ -48,9 +50,10 @@ class SellerListingManagementTest extends TestCase
         ]);
 
         $category = Category::create([
-            'name' => 'Electronics',
-            'slug' => 'electronics',
-            'icon' => 'bi-laptop',
+            'name_en'   => 'Electronics',
+            'name_fr'   => 'Électronique',
+            'slug'      => 'electronics',
+            'icon'      => 'bi-laptop',
             'is_active' => true,
         ]);
 

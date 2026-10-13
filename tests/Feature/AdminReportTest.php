@@ -176,9 +176,9 @@ class AdminReportTest extends TestCase
 
     public function test_admin_can_resolve_listing_report_and_takedown_listing(): void
     {
-        $province = Province::create(['name' => 'Ontario', 'code' => 'ON', 'slug' => 'ontario', 'country_code' => 'CA']);
-        $city = City::create(['province_id' => $province->id, 'name' => 'Toronto', 'slug' => 'toronto', 'latitude' => 43.65, 'longitude' => -79.38, 'is_active' => true]);
-        $category = \App\Models\Category::create(['name' => 'Phones', 'slug' => 'phones']);
+        $province = Province::create(['name_en' => 'Ontario', 'name_fr' => 'Ontario', 'code' => 'ON', 'slug' => 'ontario', 'country_code' => 'CA']);
+        $city = City::create(['province_id' => $province->id, 'name_en' => 'Toronto', 'name_fr' => 'Toronto', 'slug' => 'toronto', 'latitude' => 43.65, 'longitude' => -79.38, 'is_active' => true]);
+        $category = \App\Models\Category::create(['name_en' => 'Phones', 'name_fr' => 'Téléphones', 'slug' => 'phones']);
 
         $seller = User::factory()->create();
         $listing = Listing::create([
@@ -251,8 +251,8 @@ class AdminReportTest extends TestCase
 
     public function test_admin_can_resolve_meetup_report_and_cancel_meetup(): void
     {
-        $province = Province::create(['name' => 'Quebec', 'code' => 'QC', 'slug' => 'quebec', 'country_code' => 'CA']);
-        $city = City::create(['province_id' => $province->id, 'name' => 'Montreal', 'slug' => 'montreal', 'latitude' => 45.5, 'longitude' => -73.5, 'is_active' => true]);
+        $province = Province::create(['name_en' => 'Quebec', 'name_fr' => 'Québec', 'code' => 'QC', 'slug' => 'quebec', 'country_code' => 'CA']);
+        $city = City::create(['province_id' => $province->id, 'name_en' => 'Montreal', 'name_fr' => 'Montréal', 'slug' => 'montreal', 'latitude' => 45.5, 'longitude' => -73.5, 'is_active' => true]);
 
         $host = User::factory()->create();
         $meetup = CompanionshipRequest::create([

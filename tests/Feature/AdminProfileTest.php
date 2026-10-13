@@ -22,7 +22,8 @@ class AdminProfileTest extends TestCase
         Storage::fake('public');
 
         Province::create([
-            'name'         => 'Quebec',
+            'name_en'      => 'Quebec',
+            'name_fr'      => 'Québec',
             'code'         => 'QC',
             'slug'         => 'quebec',
             'country_code' => 'CA',

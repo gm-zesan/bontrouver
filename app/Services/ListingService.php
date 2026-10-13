@@ -433,7 +433,11 @@ class ListingService
         }
 
         $now = now();
-        $slug = Str::slug($validated['title']) . '-' . rand(1000, 9999);
+        $baseSlug = Str::slug($validated['title']) ?: 'ad';
+        $slug = $baseSlug . '-' . rand(1000, 9999);
+        while (Listing::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . rand(10000, 99999);
+        }
         $listing = Listing::create([
             'user_id'         => $userId,
             'category_id'     => $category?->id ?? 1,
@@ -589,19 +593,19 @@ class ListingService
         if ($isSponsored) {
             $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'sponsored'],
-                ['name' => 'Sponsored Spotlight', 'slug' => 'sponsored-spotlight', 'price' => 9.99, 'point_cost' => 300, 'duration_days' => 7, 'is_active' => true]
+                ['name_en' => 'Sponsored Spotlight', 'name_fr' => 'Pleins feux commandités', 'slug' => 'sponsored-spotlight', 'price' => 9.99, 'point_cost' => 300, 'duration_days' => 7, 'is_active' => true]
             );
         }
         if ($isFeatured) {
             $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'featured'],
-                ['name' => 'Featured Highlight', 'slug' => 'featured-highlight', 'price' => 4.99, 'point_cost' => 150, 'duration_days' => 7, 'is_active' => true]
+                ['name_en' => 'Featured Highlight', 'name_fr' => 'Mise en vedette', 'slug' => 'featured-highlight', 'price' => 4.99, 'point_cost' => 150, 'duration_days' => 7, 'is_active' => true]
             );
         }
         if ($isBumped) {
             $selectedPackages[] = PromotionPackage::firstOrCreate(
                 ['type' => 'bump_up'],
-                ['name' => 'Instant Bump-Up', 'slug' => 'instant-bump-up', 'price' => 1.99, 'point_cost' => 60, 'duration_days' => 1, 'is_active' => true]
+                ['name_en' => 'Instant Bump-Up', 'name_fr' => 'Remontée instantanée', 'slug' => 'instant-bump-up', 'price' => 1.99, 'point_cost' => 60, 'duration_days' => 1, 'is_active' => true]
             );
         }
 

@@ -31,7 +31,8 @@ class UserProfileTest extends TestCase
         $this->seed(\Database\Seeders\MemberTierSeeder::class);
 
         $this->province = Province::create([
-            'name' => 'Quebec',
+            'name_en' => 'Quebec',
+            'name_fr' => 'Québec',
             'code' => 'QC',
             'slug' => 'quebec',
             'country_code' => 'CA',
@@ -39,7 +40,8 @@ class UserProfileTest extends TestCase
 
         $this->city = City::create([
             'province_id' => $this->province->id,
-            'name' => 'Montréal',
+            'name_en' => 'Montréal',
+            'name_fr' => 'Montréal',
             'slug' => 'montreal',
             'latitude' => 45.5017,
             'longitude' => -73.5673,
@@ -47,7 +49,8 @@ class UserProfileTest extends TestCase
         ]);
 
         $this->category = Category::create([
-            'name' => 'Electronics',
+            'name_en' => 'Electronics',
+            'name_fr' => 'Électronique',
             'slug' => 'electronics',
             'icon' => 'bi-laptop',
             'is_active' => true,

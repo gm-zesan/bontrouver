@@ -33,20 +33,22 @@ class CommunityTranslationTest extends TestCase
         ]);
 
         $this->province = Province::create([
-            'name' => 'Quebec',
-            'code' => 'QC',
-            'slug' => 'qc',
+            'name_en'      => 'Quebec',
+            'name_fr'      => 'Québec',
+            'code'         => 'QC',
+            'slug'         => 'qc',
             'country_code' => 'CA',
-            'is_active' => true,
+            'is_active'    => true,
         ]);
 
         $this->city = City::create([
-            'name' => 'Montréal',
-            'slug' => 'montreal',
+            'name_en'     => 'Montréal',
+            'name_fr'     => 'Montréal',
+            'slug'        => 'montreal',
             'province_id' => $this->province->id,
-            'latitude' => 45.5017,
-            'longitude' => -73.5673,
-            'is_active' => true,
+            'latitude'    => 45.5017,
+            'longitude'   => -73.5673,
+            'is_active'   => true,
         ]);
 
         $this->meetup = CompanionshipRequest::create([
