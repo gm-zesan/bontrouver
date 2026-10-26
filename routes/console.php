@@ -5,5 +5,5 @@ use Illuminate\Support\Facades\Artisan;
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('listings:check-expiry')->hourly()->withoutOverlapping();
+Schedule::command('listings:check-expiry')->daily()->withoutOverlapping();
 
