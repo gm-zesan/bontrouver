@@ -59,98 +59,18 @@
                                 </div>
                             </div>
 
-                            <!-- Col 2: Subcategories List (Per Active Main Category) -->
-                            <div class="mega-menu-middle">
-                                @foreach($categoryData as $catSlug => $cat)
-                                    @php
-                                        $catName = __($cat['name'] ?? ucfirst($catSlug));
-                                        $catUrl = $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug));
-                                        $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
-                                    @endphp
-                                    <div class="mega-subcat-pane {{ $loop->first ? 'active' : '' }}"
-                                        id="megaSubcatPane-{{ $catSlug }}">
-                                        <div class="mega-pane-header">
-                                            <h3 class="mega-pane-title">{{ $catName }}</h3>
-                                            <a href="{{ $catUrl }}" class="mega-see-all">
-                                                <span>{{ __('See all') }}</span>
-                                                <i class="bi bi-arrow-right ms-1"></i>
-                                            </a>
-                                        </div>
-                                        <div class="mega-subcat-list">
-                                            @foreach($subcategories as $subIdx => $subcat)
-                                                @php
-                                                    $subName = __($subcat['name'] ?? 'Subcategory');
-                                                    $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                                                    $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
-                                                    $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
-                                                    $hasKids = !empty($children);
-                                                @endphp
-                                                <a href="{{ $subUrl }}"
-                                                    class="mega-subcat-item {{ $subIdx === 0 ? 'active' : '' }} {{ $hasKids ? 'has-children' : '' }}"
-                                                    data-cat="{{ $catSlug }}" data-subcat="{{ $subSlug }}"
-                                                    onmouseenter="selectDesktopSubcategory('{{ $catSlug }}', '{{ $subSlug }}')">
-                                                    <span class="mega-subcat-name">{{ $subName }}</span>
-                                                    @if($hasKids)
-                                                        <i class="bi bi-chevron-right mega-sub-arrow"></i>
-                                                    @endif
-                                                </a>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
+                            <!-- Col 2: Subcategories List (Dynamic Container) -->
+                            <div class="mega-menu-middle" id="megaSubcatMiddleContainer">
+                                <div class="mega-subcat-pane active" id="megaSubcatDynamicPane">
+                                    <!-- Populated dynamically via selectDesktopCategory() -->
+                                </div>
                             </div>
 
-                            <!-- Col 3: 3rd-Level Child Categories (Clean 2-Column Grid) -->
-                            <div class="mega-menu-right">
-                                @foreach($categoryData as $catSlug => $cat)
-                                    @php
-                                        $subcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
-                                    @endphp
-                                    @foreach($subcategories as $subIdx => $subcat)
-                                        @php
-                                            $subName = __($subcat['name'] ?? 'Subcategory');
-                                            $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                                            $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catSlug) . '?sub=' . $subSlug);
-                                            $children = $subcat['children'] ?? $subcat['subcategories'] ?? [];
-                                            $hasKids = !empty($children);
-                                            $isFirst = ($loop->parent->first && $subIdx === 0);
-                                        @endphp
-                                        <div class="mega-children-pane {{ $isFirst ? 'active' : '' }}"
-                                            id="megaChildrenPane-{{ $catSlug }}-{{ $subSlug }}">
-
-                                            <div class="mega-pane-header">
-                                                <h4 class="mega-children-title">{{ $subName }}</h4>
-                                                <a href="{{ $subUrl }}" class="mega-see-all">
-                                                    <span>{{ __('See all') }}</span>
-                                                    <i class="bi bi-arrow-right ms-1"></i>
-                                                </a>
-                                            </div>
-
-                                            @if($hasKids)
-                                                <div class="mega-children-grid">
-                                                    @include('frontend.partials.category-tree-node', [
-                                                        'items' => $children,
-                                                        'level' => 3,
-                                                        'parentUrl' => $subUrl
-                                                    ])
-                                                </div>
-                                            @else
-                                                <div class="mega-no-children-card">
-                                                    <div class="mega-no-children-icon">
-                                                        <i class="bi bi-grid"></i>
-                                                    </div>
-                                                    <h5 class="text-white fw-bold mb-1">{{ $subName }}</h5>
-                                                    <p class="text-secondary small mb-3">Browse all listings and ads in
-                                                        <strong>{{ $subName }}</strong>.
-                                                    </p>
-                                                    <a href="{{ $subUrl }}" class="btn btn-sm btn-primary-custom">
-                                                        Explore {{ $subName }}
-                                                    </a>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                @endforeach
+                            <!-- Col 3: 3rd-Level Child Categories (Dynamic Container) -->
+                            <div class="mega-menu-right" id="megaChildrenRightContainer">
+                                <div class="mega-children-pane active" id="megaChildrenDynamicPane">
+                                    <!-- Populated dynamically via selectDesktopSubcategory() -->
+                                </div>
                             </div>
 
                         </div>
@@ -449,7 +369,22 @@
     </div>
 </div>
 
+<script id="categoryNavTreeData" type="application/json">
+{!! json_encode($categoryNavTree ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+
 <script>
+    const BT_NAV_TREE = (function() {
+        try {
+            const el = document.getElementById('categoryNavTreeData');
+            return el ? JSON.parse(el.textContent) : {};
+        } catch(e) {
+            return {};
+        }
+    })();
+
+    const SEE_ALL_TEXT = "{{ __('See all') }}";
+
     function selectDesktopCategory(catSlug) {
         // Highlight active Category in Col 1
         document.querySelectorAll('.mega-cat-item').forEach(item => {
@@ -460,45 +395,137 @@
             }
         });
 
-        // Show corresponding subcategory pane in Col 2
-        document.querySelectorAll('.mega-subcat-pane').forEach(pane => {
-            if (pane.id === 'megaSubcatPane-' + catSlug) {
-                pane.classList.add('active');
+        const cat = BT_NAV_TREE[catSlug];
+        const subcatPane = document.getElementById('megaSubcatDynamicPane');
+        if (!cat || !subcatPane) return;
 
-                // Select first subcategory of this newly active category
-                const firstSubcatItem = pane.querySelector('.mega-subcat-item');
-                if (firstSubcatItem) {
-                    const subcatSlug = firstSubcatItem.getAttribute('data-subcat');
-                    selectDesktopSubcategory(catSlug, subcatSlug);
-                }
-            } else {
-                pane.classList.remove('active');
-            }
+        const subcategories = cat.children || [];
+        const firstSub = subcategories[0] || null;
+
+        let html = `
+            <div class="mega-pane-header">
+                <h3 class="mega-pane-title">${cat.name}</h3>
+                <a href="${cat.url}" class="mega-see-all">
+                    <span>${SEE_ALL_TEXT}</span>
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="mega-subcat-list">
+        `;
+
+        subcategories.forEach((subcat, idx) => {
+            const hasKids = subcat.children && subcat.children.length > 0;
+            const isFirst = (idx === 0);
+            html += `
+                <a href="${subcat.url}"
+                    class="mega-subcat-item ${isFirst ? 'active' : ''} ${hasKids ? 'has-children' : ''}"
+                    data-cat="${catSlug}" data-subcat="${subcat.slug}"
+                    onmouseenter="selectDesktopSubcategory('${catSlug}', '${subcat.slug}')">
+                    <span class="mega-subcat-name">${subcat.name}</span>
+                    ${hasKids ? '<i class="bi bi-chevron-right mega-sub-arrow"></i>' : ''}
+                </a>
+            `;
         });
+
+        html += `</div>`;
+        subcatPane.innerHTML = html;
+
+        if (firstSub) {
+            selectDesktopSubcategory(catSlug, firstSub.slug);
+        } else {
+            const childPane = document.getElementById('megaChildrenDynamicPane');
+            if (childPane) childPane.innerHTML = '';
+        }
     }
 
     function selectDesktopSubcategory(catSlug, subcatSlug) {
         // Highlight active Subcategory in Col 2
-        const currentPane = document.getElementById('megaSubcatPane-' + catSlug);
-        if (currentPane) {
-            currentPane.querySelectorAll('.mega-subcat-item').forEach(item => {
-                if (item.getAttribute('data-subcat') === subcatSlug) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-        }
-
-        // Show corresponding Children pane in Col 3
-        document.querySelectorAll('.mega-children-pane').forEach(pane => {
-            if (pane.id === 'megaChildrenPane-' + catSlug + '-' + subcatSlug) {
-                pane.classList.add('active');
+        document.querySelectorAll('#megaSubcatDynamicPane .mega-subcat-item').forEach(item => {
+            if (item.getAttribute('data-subcat') === subcatSlug) {
+                item.classList.add('active');
             } else {
-                pane.classList.remove('active');
+                item.classList.remove('active');
             }
         });
+
+        const cat = BT_NAV_TREE[catSlug];
+        const subcat = cat?.children?.find(s => s.slug === subcatSlug);
+        const childPane = document.getElementById('megaChildrenDynamicPane');
+        if (!subcat || !childPane) return;
+
+        const children = subcat.children || [];
+        const hasKids = children.length > 0;
+
+        let html = `
+            <div class="mega-pane-header">
+                <h4 class="mega-children-title">${subcat.name}</h4>
+                <a href="${subcat.url}" class="mega-see-all">
+                    <span>${SEE_ALL_TEXT}</span>
+                    <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        `;
+
+        if (hasKids) {
+            html += `<div class="mega-children-grid">`;
+            children.forEach(child => {
+                const subchildren = child.children || [];
+                const hasSubs = subchildren.length > 0;
+                html += `
+                    <div class="mega-child-block ${hasSubs ? 'has-subchildren' : ''}">
+                        <a href="${child.url}" class="mega-child-link" title="${child.name}">
+                            <i class="bi bi-chevron-right mega-child-bullet"></i>
+                            <span class="mega-child-text">${child.name}</span>
+                        </a>
+                        ${hasSubs ? `
+                            <div class="mega-subchild-tags">
+                                ${subchildren.map(sc => {
+                                    const deepKids = sc.children || [];
+                                    const hasDeep = deepKids.length > 0;
+                                    return `
+                                        <div class="mega-subchild-wrapper">
+                                            <a href="${sc.url}" class="mega-subchild-tag ${hasDeep ? 'has-kids' : ''}" title="${sc.name}">
+                                                ${sc.name}
+                                            </a>
+                                            ${hasDeep ? `
+                                                <div class="mega-deepchild-pills">
+                                                    ${deepKids.map(dk => `<a href="${dk.url}" class="mega-deepchild-tag" title="${dk.name}">${dk.name}</a>`).join('')}
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            html += `</div>`;
+        } else {
+            html += `
+                <div class="mega-no-children-card">
+                    <div class="mega-no-children-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-1">${subcat.name}</h5>
+                    <p class="text-secondary small mb-3">Browse all listings and ads in <strong>${subcat.name}</strong>.</p>
+                    <a href="${subcat.url}" class="btn btn-sm btn-primary-custom">
+                        Explore ${subcat.name}
+                    </a>
+                </div>
+            `;
+        }
+
+        childPane.innerHTML = html;
     }
+
+    // Auto-initialize first active category on page ready
+    document.addEventListener('DOMContentLoaded', function () {
+        const firstCat = Object.keys(BT_NAV_TREE)[0];
+        if (firstCat) {
+            selectDesktopCategory(firstCat);
+        }
+    });
 
     // =========================================================================
     // Master Instant Search Autocomplete & Suggestions Engine

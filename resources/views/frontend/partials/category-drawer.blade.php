@@ -43,119 +43,19 @@
             </div>
         </div>
 
-        <!-- View 2: Subcategories List (Per Category) -->
-        @foreach($categoryData as $key => $cat)
-            @php
-                $catSubcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
-            @endphp
-            <div class="drawer-view drawer-subcat-view" id="drawerViewSubcat-{{ $key }}" style="display: none;">
-                
-                <!-- See All in [Category] Link -->
-                <a href="{{ $cat['url'] ?? url('/category/' . ($cat['slug'] ?? $key)) }}" class="drawer-see-all-link">
-                    <span>{{ __('See all in :name', ['name' => __($cat['name'])]) }}</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
+        <!-- View 2: Subcategories List (Dynamic Container) -->
+        <div class="drawer-view drawer-subcat-view" id="drawerViewSubcatDynamic" style="display: none;"></div>
 
-                <!-- Subcategories Divider List -->
-                <div class="drawer-subcategories-list">
-                    @foreach($catSubcategories as $subIdx => $subcat)
-                        @php
-                            $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                            $subChildren = $subcat['children'] ?? $subcat['subcategories'] ?? [];
-                            $hasKids = !empty($subChildren);
-                            $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $key) . '?sub=' . $subSlug);
-                        @endphp
-                        @if($hasKids)
-                            <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('{{ $key }}', '{{ $subSlug }}')">
-                                <span class="drawer-subcat-name">{{ __($subcat['name']) }}</span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <span class="mega-sub-badge">{{ count($subChildren) }}</span>
-                                    <i class="bi bi-chevron-right drawer-chevron"></i>
-                                </span>
-                            </button>
-                        @else
-                            <a href="{{ $subUrl }}" class="drawer-subcat-item">
-                                <span class="drawer-subcat-name">{{ __($subcat['name']) }}</span>
-                            </a>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
-
-        <!-- View 3: Child Subcategories List (Per Subcategory) -->
-        @foreach($categoryData as $catKey => $cat)
-            @php
-                $catSubcategories = $cat['children'] ?? $cat['subcategories'] ?? [];
-            @endphp
-            @foreach($catSubcategories as $subIdx => $subcat)
-                @php
-                    $subSlug = $subcat['slug'] ?? 'sub-' . $subIdx;
-                    $subChildren = $subcat['children'] ?? $subcat['subcategories'] ?? [];
-                    $subUrl = $subcat['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug);
-                @endphp
-                @if(!empty($subChildren))
-                    <div class="drawer-view drawer-child-view" id="drawerViewChildren-{{ $catKey }}-{{ $subSlug }}" style="display: none;">
-                        
-                        <!-- See All in [Subcategory] Link -->
-                        <a href="{{ $subUrl }}" class="drawer-see-all-link">
-                            <span>{{ __('See all in :name', ['name' => __($subcat['name'])]) }}</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
-
-                        <!-- Children items list -->
-                        <div class="drawer-subcategories-list">
-                            @foreach($subChildren as $childIdx => $child)
-                                @php
-                                    $childSlug = $child['slug'] ?? 'child-' . $childIdx;
-                                    $childUrl = $child['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug);
-                                    $grandChildren = $child['children'] ?? $child['subcategories'] ?? [];
-                                @endphp
-                                <div class="drawer-child-block">
-                                    <a href="{{ $childUrl }}" class="drawer-subcat-item drawer-child-item">
-                                        <span class="drawer-subcat-name">{{ __($child['name']) }}</span>
-                                        <i class="bi bi-arrow-right-short drawer-child-arrow"></i>
-                                    </a>
-                                    @if(!empty($grandChildren))
-                                        <div class="drawer-subchild-tags px-3 pb-2 pt-1 d-flex flex-wrap gap-1">
-                                            @foreach($grandChildren as $gc)
-                                                @php
-                                                    $gcSlug = $gc['slug'] ?? '';
-                                                    $gcUrl = $gc['url'] ?? url('/category/' . ($cat['slug'] ?? $catKey) . '?sub=' . $subSlug . '&child=' . $childSlug . '&subchild=' . $gcSlug);
-                                                @endphp
-                                                <a href="{{ $gcUrl }}" class="mega-subchild-tag">{{ __($gc['name']) }}</a>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-            @endforeach
-        @endforeach
+        <!-- View 3: Child Subcategories List (Dynamic Container) -->
+        <div class="drawer-view drawer-child-view" id="drawerViewChildrenDynamic" style="display: none;"></div>
 
     </div>
 </div>
 
 <script>
     (function() {
-        const categoryTitlesMap = {
-            @foreach($categoryData as $key => $cat)
-                '{{ $key }}': '{{ addslashes($cat['name']) }}',
-            @endforeach
-        };
-
-        const subcatTitlesMap = {
-            @foreach($categoryData as $catKey => $cat)
-                @php
-                    $catSubs = $cat['children'] ?? $cat['subcategories'] ?? [];
-                @endphp
-                @foreach($catSubs as $subcat)
-                    '{{ $catKey }}__{{ $subcat['slug'] }}': '{{ addslashes($subcat['name']) }}',
-                @endforeach
-            @endforeach
-        };
+        const SEE_ALL_IN_TEXT = "{{ __('See all in :name') }}";
+        const ALL_CATEGORIES_TEXT = "{{ __('All Categories') }}";
 
         let currentLevel = 'all'; // 'all' | 'category' | 'child'
         let currentCatKey = null;
@@ -176,7 +76,7 @@
             panel.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            if (categorySlug && categoryTitlesMap[categorySlug]) {
+            if (categorySlug && window.BT_NAV_TREE && window.BT_NAV_TREE[categorySlug]) {
                 window.openCategoryInDrawer(categorySlug);
             } else {
                 window.showAllCategoriesInDrawer();
@@ -205,53 +105,121 @@
 
             const titleEl = document.getElementById('drawerTitle');
             const backBtn = document.getElementById('drawerBackBtn');
-            if (titleEl) titleEl.textContent = 'All Categories';
+            if (titleEl) titleEl.textContent = ALL_CATEGORIES_TEXT;
             if (backBtn) backBtn.style.display = 'none';
         };
 
         window.openCategoryInDrawer = function(categorySlug) {
+            const cat = window.BT_NAV_TREE ? window.BT_NAV_TREE[categorySlug] : null;
+            if (!cat) return;
+
             currentLevel = 'category';
             currentCatKey = categorySlug;
             currentSubcatSlug = null;
 
             hideAllViews();
 
-            const subView = document.getElementById('drawerViewSubcat-' + categorySlug);
-            if (subView) subView.style.display = 'block';
+            const subView = document.getElementById('drawerViewSubcatDynamic');
+            if (subView) {
+                const subcategories = cat.children || [];
+                const seeAllLabel = SEE_ALL_IN_TEXT.replace(':name', cat.name);
+
+                let html = `
+                    <a href="${cat.url}" class="drawer-see-all-link">
+                        <span>${seeAllLabel}</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <div class="drawer-subcategories-list">
+                `;
+
+                subcategories.forEach(subcat => {
+                    const hasKids = subcat.children && subcat.children.length > 0;
+                    if (hasKids) {
+                        html += `
+                            <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('${categorySlug}', '${subcat.slug}')">
+                                <span class="drawer-subcat-name">${subcat.name}</span>
+                                <span class="d-flex align-items-center gap-1">
+                                    <span class="mega-sub-badge">${subcat.children.length}</span>
+                                    <i class="bi bi-chevron-right drawer-chevron"></i>
+                                </span>
+                            </button>
+                        `;
+                    } else {
+                        html += `
+                            <a href="${subcat.url}" class="drawer-subcat-item">
+                                <span class="drawer-subcat-name">${subcat.name}</span>
+                            </a>
+                        `;
+                    }
+                });
+
+                html += `</div>`;
+                subView.innerHTML = html;
+                subView.style.display = 'block';
+            }
 
             const titleEl = document.getElementById('drawerTitle');
             const backBtn = document.getElementById('drawerBackBtn');
-            if (titleEl && categoryTitlesMap[categorySlug]) {
-                titleEl.textContent = categoryTitlesMap[categorySlug];
-            }
+            if (titleEl) titleEl.textContent = cat.name;
             if (backBtn) backBtn.style.display = 'inline-flex';
         };
 
         window.openChildCategoryInDrawer = function(categorySlug, subcatSlug) {
+            const cat = window.BT_NAV_TREE ? window.BT_NAV_TREE[categorySlug] : null;
+            const subcat = cat?.children?.find(s => s.slug === subcatSlug);
+            if (!subcat) return;
+
             currentLevel = 'child';
             currentCatKey = categorySlug;
             currentSubcatSlug = subcatSlug;
 
             hideAllViews();
 
-            const childView = document.getElementById('drawerViewChildren-' + categorySlug + '-' + subcatSlug);
-            if (childView) childView.style.display = 'block';
+            const childView = document.getElementById('drawerViewChildrenDynamic');
+            if (childView) {
+                const subChildren = subcat.children || [];
+                const seeAllLabel = SEE_ALL_IN_TEXT.replace(':name', subcat.name);
 
-            const lookupKey = categorySlug + '__' + subcatSlug;
+                let html = `
+                    <a href="${subcat.url}" class="drawer-see-all-link">
+                        <span>${seeAllLabel}</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                    <div class="drawer-subcategories-list">
+                `;
+
+                subChildren.forEach(child => {
+                    const grandChildren = child.children || [];
+                    html += `
+                        <div class="drawer-child-block">
+                            <a href="${child.url}" class="drawer-subcat-item drawer-child-item">
+                                <span class="drawer-subcat-name">${child.name}</span>
+                                <i class="bi bi-arrow-right-short drawer-child-arrow"></i>
+                            </a>
+                            ${grandChildren.length > 0 ? `
+                                <div class="drawer-subchild-tags px-3 pb-2 pt-1 d-flex flex-wrap gap-1">
+                                    ${grandChildren.map(gc => `<a href="${gc.url}" class="mega-subchild-tag">${gc.name}</a>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+                childView.innerHTML = html;
+                childView.style.display = 'block';
+            }
+
             const titleEl = document.getElementById('drawerTitle');
             const backBtn = document.getElementById('drawerBackBtn');
-            if (titleEl && subcatTitlesMap[lookupKey]) {
-                titleEl.textContent = subcatTitlesMap[lookupKey];
-            }
+            if (titleEl) titleEl.textContent = subcat.name;
             if (backBtn) backBtn.style.display = 'inline-flex';
         };
 
         window.handleDrawerBack = function() {
             if (currentLevel === 'child') {
-                // Back from Child view to Parent Category Subcategory view
                 window.openCategoryInDrawer(currentCatKey);
             } else if (currentLevel === 'category') {
-                // Back from Subcategory view to All Categories view
                 window.showAllCategoriesInDrawer();
             } else {
                 window.showAllCategoriesInDrawer();

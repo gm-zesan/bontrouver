@@ -49,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with([
                 'categoryData'          => CategoryService::getAll(),
+                'categoryNavTree'       => CategoryService::getNavTree(),
                 'canadianCities'        => $citiesMap,
                 'currentSelectedCity'   => $city,
                 'currentLocationLabel'  => $label ?: 'All Canada',
