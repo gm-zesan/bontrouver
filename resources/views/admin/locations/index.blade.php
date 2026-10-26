@@ -45,7 +45,7 @@
                         </button>
 
                         {{-- Add City Button --}}
-                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1 ms-1" onclick="openCreateCityModal()" style="height: 34px; font-size: 13px; font-weight: 500;">
+                        <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-1 ms-1" onclick="openCreateCityModal()" style="height: 34px; font-size: 13px; font-weight: 600;">
                             <i class="ri-add-line fs-6"></i>
                             <span>Add New City</span>
                         </button>

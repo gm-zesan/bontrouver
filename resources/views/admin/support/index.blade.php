@@ -519,7 +519,7 @@
 
         .bt-search-input::placeholder {
             color: #94a3b8 !important;
-            font-weight: 400;
+            font-weight: 600;
         }
 
         .bt-search-input:hover {

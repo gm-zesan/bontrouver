@@ -8,7 +8,7 @@
             color: #94A3B8;
             border-radius: 50rem;
             padding: 0.55rem 1.5rem;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.2s ease;
         }

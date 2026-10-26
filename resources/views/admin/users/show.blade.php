@@ -267,7 +267,7 @@
                                 </div>
                             </div>
                             <div class="text-end border-top pt-3 mt-4">
-                                <button type="submit" class="btn btn-primary px-4 shadow-sm" style="font-weight: 500; border-radius: 6px; background-color: #3b82f6; border-color: #3b82f6;">Save Changes</button>
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm" style="font-weight: 600; border-radius: 6px; background-color: #3b82f6; border-color: #3b82f6;">Save Changes</button>
                             </div>
                         </form>
                     </div>
@@ -345,7 +345,7 @@
                                     <tbody>
                                         @foreach($listings as $listing)
                                             <tr>
-                                                <td style="font-size: 13.5px; font-weight: 500;"><a href="{{ route('admin.listings.show', $listing->id) }}" class="text-decoration-none" style="color: #000; font-weight: 600;">{{ $listing->title }}</a></td>
+                                                <td style="font-size: 13.5px; font-weight: 600;"><a href="{{ route('admin.listings.show', $listing->id) }}" class="text-decoration-none" style="color: #000; font-weight: 600;">{{ $listing->title }}</a></td>
                                                 <td style="font-size: 13px; color: #475569;">{{ $listing->category->name ?? 'N/A' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">${{ number_format($listing->price, 2) }}</td>
                                                 <td>
@@ -386,7 +386,7 @@
                                     <tbody>
                                         @foreach($meetupsHosted as $req)
                                             <tr>
-                                                <td style="font-size: 13.5px; font-weight: 500; color: #1e293b;">{{ $req->activity_type ?? 'Event' }}</td>
+                                                <td style="font-size: 13.5px; font-weight: 600; color: #1e293b;">{{ $req->activity_type ?? 'Event' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">{{ $req->cityRelation->name ?? 'Unknown' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">{{ \Carbon\Carbon::parse($req->meetup_date)->format('M d, Y') }}</td>
                                                 <td><span class="badge" style="background-color: #eafbf1; color: #49D17D; font-size: 11px; padding: 4px 8px;">{{ ucfirst($req->status ?? 'Active') }}</span></td>
@@ -419,7 +419,7 @@
                                     <tbody>
                                         @foreach($meetupsJoined as $att)
                                             <tr>
-                                                <td style="font-size: 13.5px; font-weight: 500; color: #1e293b;">{{ $att->companionshipRequest->user->name ?? 'Deleted User' }}</td>
+                                                <td style="font-size: 13.5px; font-weight: 600; color: #1e293b;">{{ $att->companionshipRequest->user->name ?? 'Deleted User' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">{{ $att->companionshipRequest->activity_type ?? 'Event' }}</td>
                                                 <td style="font-size: 13px; color: #475569;">{{ $att->companionshipRequest ? \Carbon\Carbon::parse($att->companionshipRequest->meetup_date)->format('M d, Y') : 'N/A' }}</td>
                                                 <td>
@@ -469,7 +469,7 @@
                                                         <span class="badge bg-danger-subtle text-danger" style="font-size: 12px; padding: 4px 8px;">{{ $pt->points }}</span>
                                                     @endif
                                                 </td>
-                                                <td style="font-size: 13px; color: #1e293b; font-weight: 500;">{{ $pt->description }}</td>
+                                                <td style="font-size: 13px; color: #1e293b; font-weight: 600;">{{ $pt->description }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>

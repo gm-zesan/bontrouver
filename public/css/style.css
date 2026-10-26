@@ -50,12 +50,19 @@ html {
 }
 
 /* Base Body Styles */
+/* Ensure minimum font-weight 600 across entire platform */
+.fw-light,
+.fw-normal,
+.fw-medium {
+    font-weight: 600 !important;
+}
+
 body {
     background-color: var(--bg-base);
     color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-weight: 500;
-    --bs-body-font-weight: 500;
+    font-weight: 600;
+    --bs-body-font-weight: 600;
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
@@ -283,7 +290,7 @@ body {
     text-decoration: none;
     border-radius: var(--radius-sm);
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
@@ -383,7 +390,7 @@ body {
     color: #94A3B8;
     text-decoration: none;
     font-size: 0.86rem;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: var(--radius-sm);
     transition: color 0.15s ease, background-color 0.15s ease, padding-left 0.15s ease;
 }
@@ -470,7 +477,7 @@ body {
     color: #CBD5E1;
     text-decoration: none;
     font-size: 0.86rem;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: var(--radius-sm);
     min-width: 0;
     transition: color 0.15s ease, background-color 0.15s ease, padding-left 0.15s ease;
@@ -674,7 +681,7 @@ body {
 
 .search-input::placeholder {
     color: var(--text-secondary);
-    font-weight: 400;
+    font-weight: 600;
 }
 
 .btn-search-submit {
@@ -706,7 +713,7 @@ body {
     padding: 0 0.75rem;
     border-radius: var(--radius-md);
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
@@ -828,7 +835,7 @@ body {
     color: #E2E8F0 !important;
     background: transparent !important;
     font-size: 0.82rem;
-    font-weight: 500;
+    font-weight: 600;
     padding: 0.4375rem 0.75rem;
     border-radius: 0.375rem;
     transition: all 0.15s ease;
@@ -863,7 +870,7 @@ body {
     border-radius: 0.375rem;
     padding: 0.3125rem 0.5rem;
     font-size: 0.74rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.15s ease;
     cursor: pointer;
 }
@@ -973,7 +980,7 @@ body {
 
 .location-item-title {
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .location-dropdown-item.active .location-item-title {
@@ -1244,7 +1251,7 @@ body {
 .hero-location {
     color: var(--text-secondary);
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.375rem;
@@ -1271,7 +1278,7 @@ body {
     padding: 0.25rem 0.625rem;
     border-radius: var(--radius-sm);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Description (Open Line Height) */
@@ -1859,7 +1866,7 @@ body {
 
 .listing-original-price {
     font-size: 0.86rem;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-muted);
     text-decoration: line-through;
 }
@@ -2086,7 +2093,7 @@ body {
 .location-province-name {
     color: var(--text-secondary);
     font-size: 0.8rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.2;
 }
 
@@ -2125,7 +2132,7 @@ body {
 .location-count-text {
     font-size: 0.8rem;
     color: var(--text-muted);
-    font-weight: 400;
+    font-weight: 600;
 }
 
 .location-count-text strong {
@@ -3748,7 +3755,7 @@ svg {
 .footer-link {
     color: #94A3B8;
     font-size: 0.86rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     transition: color 0.15s ease, transform 0.15s ease;
     display: inline-block;
@@ -3784,7 +3791,7 @@ svg {
 .footer-copyright {
     color: #94A3B8;
     font-size: 0.82rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .footer-legal-links {
@@ -3799,7 +3806,7 @@ svg {
 .legal-link {
     color: #94A3B8;
     font-size: 0.82rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     transition: color 0.15s ease;
 }
@@ -4065,7 +4072,7 @@ svg {
     text-decoration: none;
     color: #CBD5E1;
     font-size: 0.94rem;
-    font-weight: 500;
+    font-weight: 600;
     text-align: left;
     cursor: pointer;
     transition: color 0.2s ease, padding-left 0.2s ease, background-color 0.2s ease;
@@ -4215,7 +4222,7 @@ svg {
     outline: none;
     color: #FFFFFF;
     font-size: 0.92rem;
-    font-weight: 500;
+    font-weight: 600;
     width: 100%;
 }
 
@@ -4368,7 +4375,7 @@ svg {
     border-radius: var(--radius-sm);
     color: #94A3B8;
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
@@ -4529,7 +4536,7 @@ svg {
 .checkbox-label {
     color: #94A3B8;
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: color 0.15s ease;
 }
 
@@ -4878,7 +4885,7 @@ svg {
     gap: 0.5rem;
     font-size: 0.8rem;
     color: #64748B;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .listing-row-location {
@@ -5614,7 +5621,7 @@ svg {
     border: 1px solid rgba(255, 255, 255, 0.07);
     color: #94A3B8;
     font-size: 0.78rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     transition: all 0.15s ease;
 }
@@ -5672,7 +5679,7 @@ svg {
 .suggest-listing-cat {
     font-size: 0.72rem;
     color: #64748B;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .suggestion-footer {
@@ -6444,7 +6451,7 @@ svg {
 .seller-type-tag {
     font-size: 0.74rem;
     color: #94A3B8;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .seller-rating-row {
@@ -8992,7 +8999,7 @@ svg {
     padding: 0.6rem 1rem;
     color: var(--text-secondary, #94A3B8);
     font-size: 0.92rem;
-    font-weight: 500;
+    font-weight: 600;
     text-decoration: none;
     border-radius: var(--radius-md, 0.5rem);
     transition: all 0.15s ease-in-out;
@@ -9235,7 +9242,7 @@ svg {
     border-radius: 624.9375rem !important;
     padding: 0.4375rem 1rem !important;
     font-size: 0.85rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     color: var(--text-secondary, #94A3B8) !important;
     background: #0D243C !important;
     border: 1px solid var(--border-color, #18344D) !important;
@@ -9463,7 +9470,7 @@ svg {
     border-radius: 0.625rem !important;
     padding: 0.5625rem 2.25rem 0.5625rem 0.875rem !important;
     font-size: 0.9rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.75rem center !important;

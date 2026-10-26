@@ -18,7 +18,7 @@
                 <form id="confirmModalForm" action="#" method="POST" class="m-0">
                     @csrf
                     <input type="hidden" name="_method" id="confirmModalMethod" value="POST">
-                    <button type="submit" id="confirmModalBtn" class="btn btn-sm px-4 shadow-sm" style="font-weight: 500; border-radius: 6px;">
+                    <button type="submit" id="confirmModalBtn" class="btn btn-sm px-4 shadow-sm" style="font-weight: 600; border-radius: 6px;">
                         Confirm
                     </button>
                 </form>

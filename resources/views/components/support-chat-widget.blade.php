@@ -489,7 +489,7 @@
 .bt-msg-outgoing .bt-msg-bubble {
     background: linear-gradient(135deg, #49D17D 0%, #10B981 100%);
     color: #06182B;
-    font-weight: 500;
+    font-weight: 600;
     border-bottom-right-radius: 3px;
 }
 .bt-msg-incoming .bt-msg-bubble {
@@ -701,7 +701,7 @@
     border-radius: 14px;
     color: rgba(255, 255, 255, 0.75);
     font-size: 0.72rem;
-    font-weight: 500;
+    font-weight: 600;
     padding: 3px 8px;
     cursor: pointer;
     display: inline-flex;

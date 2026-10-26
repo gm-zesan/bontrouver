@@ -234,7 +234,7 @@
                     <div class="text-muted small" style="font-size: 12px;">
                         <i class="ri-shield-keyhole-line me-1 text-primary"></i> Changes apply immediately to all active members across Canada.
                     </div>
-                    <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-1 shadow-sm" id="btnSaveQuota" style="height: 36px; font-weight: 500; font-size: 13px;">
+                    <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-1 shadow-sm" id="btnSaveQuota" style="height: 36px; font-weight: 600; font-size: 13px;">
                         <i class="ri-save-line"></i> Save Policy Rules
                     </button>
                 </div>
@@ -299,7 +299,7 @@
                 <small class="text-muted">Search, sort, and review all listing promotion purchases across Canada</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('admin.promotions.export-csv') }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 shadow-sm px-3" style="height: 34px; font-weight: 500; font-size: 13px;">
+                <a href="{{ route('admin.promotions.export-csv') }}" class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1 shadow-sm px-3" style="height: 34px; font-weight: 600; font-size: 13px;">
                     <i class="ri-file-excel-2-line"></i> Export Revenue CSV
                 </a>
             </div>

@@ -33,7 +33,7 @@
     .select2-container--default .select2-selection--single .select2-selection__rendered {
         color: #FFFFFF !important;
         font-size: 0.95rem !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
         padding-left: 0 !important;
         line-height: normal !important;
     }

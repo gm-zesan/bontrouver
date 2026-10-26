@@ -244,7 +244,7 @@
                                 @endif
                             </div>
 
-                            <span class="text-muted d-block text-truncate mb-2" style="font-size: 12px; font-weight: 500; max-width: 220px;">
+                            <span class="text-muted d-block text-truncate mb-2" style="font-size: 12px; font-weight: 600; max-width: 220px;">
                                 {{ Auth::user()->email ?? '' }}
                             </span>
 
@@ -267,7 +267,7 @@
 
                         {{-- Navigation Links: Profile & Settings and Logout --}}
                         <div class="p-2">
-                            <a class="dropdown-item d-flex align-items-center justify-content-between py-2 px-2 rounded mb-1" href="{{ route('admin.profile.index') }}" style="font-size: 13px; font-weight: 500; color: #334155;">
+                            <a class="dropdown-item d-flex align-items-center justify-content-between py-2 px-2 rounded mb-1" href="{{ route('admin.profile.index') }}" style="font-size: 13px; font-weight: 600; color: #334155;">
                                 <div class="d-flex align-items-center">
                                     <div class="d-flex align-items-center justify-content-center rounded me-2" style="width: 28px; height: 28px; background-color: rgba(73, 209, 125, 0.15); color: #49D17D;">
                                         <i class="ri-user-settings-line" style="font-size: 15px;"></i>

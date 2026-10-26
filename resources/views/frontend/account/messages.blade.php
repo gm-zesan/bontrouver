@@ -237,7 +237,7 @@
                 @php $isMe = ($msg['sender'] === 'me'); @endphp
                 <div class="d-flex flex-column {{ $isMe ? 'align-items-end' : 'align-items-start' }} mb-1">
                     <div class="p-3 rounded-4 message-bubble {{ $isMe ? 'my-bubble' : 'their-bubble' }}" 
-                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; {{ $isMe ? 'background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;' : 'background: #0D243C; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;' }}">
+                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; {{ $isMe ? 'background: #49D17D; color: #06182B; font-weight: 600; border-bottom-right-radius: 4px !important;' : 'background: #0D243C; color: #E2E8F0; border: 1px solid rgba(255,255,255,0.08); border-bottom-left-radius: 4px !important;' }}">
                         @if(!empty($msg['attachments']))
                             <div class="d-flex flex-wrap gap-2 mb-2">
                                 @foreach($msg['attachments'] as $att)
@@ -431,7 +431,7 @@ function sendChatMessage() {
             bubble.className = 'd-flex flex-column align-items-end mb-2';
             bubble.innerHTML = `
                 <div class="p-3 rounded-4 message-bubble my-bubble" 
-                     style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;">
+                     style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 600; border-bottom-right-radius: 4px !important;">
                     <div class="text-break mt-1">${escapeHtml(text)}</div>
                 </div>
                 <span class="text-secondary small mt-1 px-1" style="font-size: 0.7rem;">${timeNow}</span>
@@ -501,7 +501,7 @@ function sendChatMessage() {
                 bubble.className = 'd-flex flex-column align-items-end mb-2';
                 bubble.innerHTML = `
                     <div class="p-3 rounded-4 message-bubble my-bubble" 
-                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 500; border-bottom-right-radius: 4px !important;">
+                         style="max-width: 80%; font-size: 0.88rem; line-height: 1.45; background: #49D17D; color: #06182B; font-weight: 600; border-bottom-right-radius: 4px !important;">
                         ${attachmentHtml}
                         ${data.message.text ? `<div class="text-break mt-1">${escapeHtml(data.message.text)}</div>` : ''}
                     </div>

@@ -170,7 +170,7 @@
 .search-col .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #FFFFFF !important;
     font-size: 0.92rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     padding-left: 0 !important;
     padding-right: 1.5rem !important;
     line-height: normal !important;
@@ -206,7 +206,7 @@
 .mobile-drawer-select-wrap .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #FFFFFF !important;
     font-size: 0.9rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     padding: 0 !important;
 }
 .mobile-drawer-select-wrap .select2-container--default .select2-selection--single .select2-selection__arrow {

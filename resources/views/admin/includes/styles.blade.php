@@ -117,7 +117,7 @@
     .toast-message {
         font-family: 'Inter', -apple-system, sans-serif !important;
         font-size: 12.5px !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
         line-height: 1.45 !important;
         color: #475569 !important;
         word-break: break-word !important;
@@ -130,7 +130,7 @@
         height: 22px !important;
         font-size: 16px !important;
         line-height: 20px !important;
-        font-weight: 400 !important;
+        font-weight: 600 !important;
         color: #94a3b8 !important;
         opacity: 0.8 !important;
         border-radius: 6px !important;

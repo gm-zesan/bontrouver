@@ -157,7 +157,7 @@
 
                             <div class="d-flex justify-content-end pt-3 border-top">
                                 <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveGeneral"
-                                    style="height: 36px; font-weight: 500;">
+                                    style="height: 36px; font-weight: 600;">
                                     <i class="ri-save-line me-1"></i> Save General Settings
                                 </button>
                             </div>
@@ -319,7 +319,7 @@
 
                             <div class="d-flex justify-content-end pt-3 border-top">
                                 <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveBranding"
-                                    style="height: 36px; font-weight: 500;">
+                                    style="height: 36px; font-weight: 600;">
                                     <i class="ri-save-line me-1"></i> Save Branding Assets
                                 </button>
                             </div>
@@ -457,7 +457,7 @@
 
                             <div class="d-flex justify-content-end pt-3 border-top">
                                 <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveSeo"
-                                    style="height: 36px; font-weight: 500;">
+                                    style="height: 36px; font-weight: 600;">
                                     <i class="ri-save-line me-1"></i> Save SEO &amp; Social
                                 </button>
                             </div>
@@ -538,7 +538,7 @@
 
                             <div class="d-flex justify-content-end pt-3 border-top">
                                 <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveMarketplace"
-                                    style="height: 36px; font-weight: 500;">
+                                    style="height: 36px; font-weight: 600;">
                                     <i class="ri-save-line me-1"></i> Save Marketplace Rules
                                 </button>
                             </div>

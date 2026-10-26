@@ -143,7 +143,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveInfo" style="height: 36px; font-weight: 500;">
+                                    <button type="submit" class="btn btn-sm btn-primary px-4 shadow-sm" id="btnSaveInfo" style="height: 36px; font-weight: 600;">
                                         <i class="ri-save-line me-1"></i> Save Changes
                                     </button>
                                 </div>
@@ -192,7 +192,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-sm btn-dark px-4 shadow-sm" id="btnSavePassword" style="height: 36px; font-weight: 500;">
+                                    <button type="submit" class="btn btn-sm btn-dark px-4 shadow-sm" id="btnSavePassword" style="height: 36px; font-weight: 600;">
                                         <i class="ri-lock-2-line me-1"></i> Update Password
                                     </button>
                                 </div>

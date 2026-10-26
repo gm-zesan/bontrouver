@@ -155,7 +155,7 @@ select,
 
             a {
                 color: #94A3B8;
-                font-weight: 500;
+                font-weight: 600;
                 position: relative;
                 font-size: 13.5px;
                 height: 32px;
@@ -242,7 +242,7 @@ select,
                             font-size: 12.5px;
                             padding: 0 10px;
                             color: #94A3B8;
-                            font-weight: 500;
+                            font-weight: 600;
                             border-radius: 5px;
 
                             .submenu-icon {
@@ -543,7 +543,7 @@ header {
                     .dropdown-item {
                         padding: 8px 12px;
                         font-size: 13px;
-                        font-weight: 500;
+                        font-weight: 600;
                         color: #334155;
                         border-radius: 6px;
                         transition: all 0.2s ease;
@@ -687,7 +687,7 @@ header {
             border-radius: 6px;
             padding: 5px 14px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             color: #0f172a;
             height: 32px;
             margin-bottom: 12px;
@@ -696,7 +696,7 @@ header {
 
             &::placeholder {
                 color: #94a3b8;
-                font-weight: 400;
+                font-weight: 600;
             }
 
             &:focus {
@@ -716,7 +716,7 @@ header {
 
         .custom-checkbox-label {
             font-size: 13.5px;
-            font-weight: 500;
+            font-weight: 600;
             color: #334155;
             text-transform: capitalize;
             cursor: pointer;
@@ -898,7 +898,7 @@ header {
                     }
 
                     .badge-role-permission {
-                        font-weight: 400;
+                        font-weight: 600;
                         font-size: 12px;
                         line-height: 18px;
                         color: #64748b;
@@ -956,7 +956,7 @@ header {
 
             p {
                 font-size: 13px;
-                font-weight: 500;
+                font-weight: 600;
                 color: #334155;
                 margin-bottom: 0;
                 line-height: 1.2;
@@ -1819,7 +1819,7 @@ td img.rounded-circle {
     background-color: #49D17D !important;
     border-color: #49D17D !important;
     color: #ffffff !important;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.2s ease;
 
     &:hover,
@@ -1837,7 +1837,7 @@ td img.rounded-circle {
     color: #49D17D !important;
     border-color: #49D17D !important;
     background-color: transparent !important;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.2s ease;
 
     &:hover,
