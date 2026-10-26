@@ -119,7 +119,7 @@ class HomeDataService
 
     public function getTrendingListings(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active');
+        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->withCount('images')->where('status', 'active');
         if ($city) {
             $base->where(function ($q) use ($city) {
                 $q->whereHas('city', fn ($cq) => $cq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%"))
@@ -130,7 +130,7 @@ class HomeDataService
         $models = (clone $base)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
 
         if ($models->isEmpty() && $city) {
-            $models = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
+            $models = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->withCount('images')->where('status', 'active')->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8)->get();
         }
 
         return $models->map(function (Listing $l) {
@@ -155,7 +155,7 @@ class HomeDataService
                 'slug'        => $l->slug,
                 'title'       => $l->title,
                 'price'       => '$' . number_format((float) $l->price, 2),
-                'photos_count'=> $l->images()->count(),
+                'photos_count'=> $l->images_count ?? 0,
                 'location'    => $l->location,
                 'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
                 'category'    => $l->category->name ?? '',
@@ -170,7 +170,7 @@ class HomeDataService
 
     public function getFeaturedListings(?string $city): Collection
     {
-        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->featured();
+        $base = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->withCount('images')->where('status', 'active')->featured();
         if ($city) {
             $base->where(function ($q) use ($city) {
                 $q->whereHas('city', fn ($cq) => $cq->where('name_en', 'like', "%{$city}%")->orWhere('name_fr', 'like', "%{$city}%"))
@@ -182,12 +182,12 @@ class HomeDataService
 
         if ($models->count() < 6) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->featured()->whereNotIn('id', $existingIds)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8 - count($existingIds))->get();
+            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->withCount('images')->where('status', 'active')->featured()->whereNotIn('id', $existingIds)->orderByRaw('COALESCE(bumped_at, created_at) DESC')->limit(8 - count($existingIds))->get();
             $models      = $models->merge($supplement);
         }
         if ($models->count() < 4) {
             $existingIds = $models->pluck('id')->toArray();
-            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->where('status', 'active')->whereNotIn('id', $existingIds)->orderByDesc('views_count')->limit(8 - count($existingIds))->get();
+            $supplement  = Listing::with(['category', 'primaryImage', 'city.province', 'province'])->withCount('images')->where('status', 'active')->whereNotIn('id', $existingIds)->orderByDesc('views_count')->limit(8 - count($existingIds))->get();
             $models      = $models->merge($supplement);
         }
 
@@ -196,7 +196,7 @@ class HomeDataService
             'slug'        => $l->slug,
             'title'       => $l->title,
             'price'       => '$' . number_format((float) $l->price, 2),
-            'photos_count'=> $l->images()->count(),
+            'photos_count'=> $l->images_count ?? 0,
             'location'    => $l->location,
             'posted_at'   => ($l->bumped_at ?? $l->created_at)->diffForHumans(),
             'category'    => $l->category->name ?? '',

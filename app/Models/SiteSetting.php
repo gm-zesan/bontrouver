@@ -61,11 +61,20 @@ class SiteSetting extends Model
     }
 
     /**
+     * Per-request in-memory cache to prevent repeated database cache hits.
+     */
+    private static ?array $runtimeSettingsCache = null;
+
+    /**
      * Retrieve all settings mapped as key => ['value', 'type', 'group'].
      */
     public static function getAllSettingsMap(): array
     {
-        return Cache::rememberForever(self::CACHE_ALL_KEY, function () {
+        if (self::$runtimeSettingsCache !== null) {
+            return self::$runtimeSettingsCache;
+        }
+
+        return self::$runtimeSettingsCache = Cache::rememberForever(self::CACHE_ALL_KEY, function () {
             return self::all()->keyBy('key')->map(function ($setting) {
                 return [
                     'value'       => $setting->value,
@@ -131,6 +140,7 @@ class SiteSetting extends Model
      */
     public static function flushCache(): void
     {
+        self::$runtimeSettingsCache = null;
         Cache::forget(self::CACHE_ALL_KEY);
     }
 }

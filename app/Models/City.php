@@ -67,15 +67,25 @@ class City extends Model
     }
 
     /**
+     * Per-request in-memory cache to prevent repeated database cache hits.
+     */
+    private static array $runtimeMapCache = [];
+
+    /**
      * Get cached Canadian cities array map
      */
     public static function getCitiesMap(): array
     {
         $locale = app()->getLocale();
+
+        if (isset(self::$runtimeMapCache[$locale])) {
+            return self::$runtimeMapCache[$locale];
+        }
+
         $cacheKey = self::CACHE_KEY . '_' . $locale;
 
         try {
-            return cache()->remember($cacheKey, 3600, function () {
+            return self::$runtimeMapCache[$locale] = cache()->remember($cacheKey, 3600, function () {
                 return self::with('province')
                     ->where('is_active', true)
                     ->orderBy('sort_order')
@@ -106,6 +116,7 @@ class City extends Model
      */
     public static function clearMapCache(): void
     {
+        self::$runtimeMapCache = [];
         cache()->forget(self::CACHE_KEY);
         cache()->forget(self::CACHE_KEY . '_en');
         cache()->forget(self::CACHE_KEY . '_fr');
