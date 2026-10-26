@@ -33,7 +33,27 @@ class UpdateListingRequest extends FormRequest
             'latitude'         => ['nullable', 'numeric'],
             'longitude'        => ['nullable', 'numeric'],
             'images'           => ['nullable', 'array', 'max:' . site_setting('max_images_per_listing', 15)],
-            'images.*'         => ['nullable'],
+            'images.*'         => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/jpg'];
+                        if (!in_array($value->getMimeType(), $allowedMimes)) {
+                            $fail('Each image must be a valid image file (JPG, PNG, or WEBP).');
+                        }
+                        $maxKb = (int) site_setting('max_image_upload_size_kb', 25600);
+                        if ($value->getSize() > $maxKb * 1024) {
+                            $fail('Image exceeds the maximum allowed upload size.');
+                        }
+                    } elseif (is_string($value)) {
+                        if (!str_starts_with($value, 'data:image/') && !str_starts_with($value, '/storage/') && !str_starts_with($value, 'http://') && !str_starts_with($value, 'https://')) {
+                            $fail('Invalid image format provided.');
+                        }
+                    } else {
+                        $fail('Invalid image data provided.');
+                    }
+                },
+            ],
             'existing_images'  => ['nullable', 'array'],
             'deleted_images'   => ['nullable', 'array'],
             'attributes'       => ['nullable', 'array'],

@@ -19,6 +19,12 @@ class ImageOptimizationService
         int $maxHeight = 1600,
         int $quality = 85
     ): string {
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/jpg'];
+        $mime = $file->getMimeType();
+        if (!in_array($mime, $allowedMimes)) {
+            throw new \InvalidArgumentException("Uploaded file is not a supported image format.");
+        }
+
         $realPath = $file->getRealPath();
         if (!$realPath || !file_exists($realPath)) {
             $saved = $file->store($directory, 'public');
@@ -29,6 +35,10 @@ class ImageOptimizationService
             return $this->processAndSaveWebp($realPath, $directory, $maxWidth, $maxHeight, $quality);
         } catch (\Throwable $e) {
             Log::warning("WebP optimization failed, falling back to original upload: " . $e->getMessage());
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'heic'])) {
+                throw new \InvalidArgumentException("Invalid image extension.");
+            }
             $saved = $file->store($directory, 'public');
             return '/storage/' . $saved;
         }
