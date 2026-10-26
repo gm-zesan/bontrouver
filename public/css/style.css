@@ -54,6 +54,8 @@ body {
     background-color: var(--bg-base);
     color: var(--text-primary);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 500;
+    --bs-body-font-weight: 500;
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
