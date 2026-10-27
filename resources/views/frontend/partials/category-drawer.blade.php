@@ -52,6 +52,10 @@
     </div>
 </div>
 
+<script id="categoryDrawerNavTreeData" type="application/json">
+{!! json_encode($categoryNavTree ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+
 <script>
     (function() {
         const SEE_ALL_IN_TEXT = "{{ __('See all in :name') }}";
@@ -60,6 +64,22 @@
         let currentLevel = 'all'; // 'all' | 'category' | 'child'
         let currentCatKey = null;
         let currentSubcatSlug = null;
+
+        function getNavTree() {
+            if (window.BT_NAV_TREE && typeof window.BT_NAV_TREE === 'object' && Object.keys(window.BT_NAV_TREE).length > 0) {
+                return window.BT_NAV_TREE;
+            }
+            try {
+                const el = document.getElementById('categoryDrawerNavTreeData') || document.getElementById('categoryNavTreeData');
+                if (el) {
+                    window.BT_NAV_TREE = JSON.parse(el.textContent);
+                    return window.BT_NAV_TREE;
+                }
+            } catch (e) {
+                console.error('Error loading category nav tree:', e);
+            }
+            return {};
+        }
 
         function hideAllViews() {
             document.querySelectorAll('.drawer-view').forEach(function(v) {
@@ -76,7 +96,8 @@
             panel.classList.add('active');
             document.body.style.overflow = 'hidden';
 
-            if (categorySlug && window.BT_NAV_TREE && window.BT_NAV_TREE[categorySlug]) {
+            const tree = getNavTree();
+            if (categorySlug && tree && tree[categorySlug]) {
                 window.openCategoryInDrawer(categorySlug);
             } else {
                 window.showAllCategoriesInDrawer();
@@ -110,8 +131,12 @@
         };
 
         window.openCategoryInDrawer = function(categorySlug) {
-            const cat = window.BT_NAV_TREE ? window.BT_NAV_TREE[categorySlug] : null;
-            if (!cat) return;
+            const tree = getNavTree();
+            const cat = tree ? tree[categorySlug] : null;
+            if (!cat) {
+                console.warn('Category not found for slug:', categorySlug);
+                return;
+            }
 
             currentLevel = 'category';
             currentCatKey = categorySlug;
@@ -132,26 +157,34 @@
                     <div class="drawer-subcategories-list">
                 `;
 
-                subcategories.forEach(subcat => {
-                    const hasKids = subcat.children && subcat.children.length > 0;
-                    if (hasKids) {
-                        html += `
-                            <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('${categorySlug}', '${subcat.slug}')">
-                                <span class="drawer-subcat-name">${subcat.name}</span>
-                                <span class="d-flex align-items-center gap-1">
-                                    <span class="mega-sub-badge">${subcat.children.length}</span>
-                                    <i class="bi bi-chevron-right drawer-chevron"></i>
-                                </span>
-                            </button>
-                        `;
-                    } else {
-                        html += `
-                            <a href="${subcat.url}" class="drawer-subcat-item">
-                                <span class="drawer-subcat-name">${subcat.name}</span>
-                            </a>
-                        `;
-                    }
-                });
+                if (subcategories.length === 0) {
+                    html += `
+                        <div class="text-muted p-3 text-center" style="font-size: 0.9rem;">
+                            {{ __('No subcategories available') }}
+                        </div>
+                    `;
+                } else {
+                    subcategories.forEach(subcat => {
+                        const hasKids = subcat.children && subcat.children.length > 0;
+                        if (hasKids) {
+                            html += `
+                                <button type="button" class="drawer-subcat-item is-parent" onclick="openChildCategoryInDrawer('${categorySlug}', '${subcat.slug}')">
+                                    <span class="drawer-subcat-name">${subcat.name}</span>
+                                    <span class="d-flex align-items-center gap-1">
+                                        <span class="mega-sub-badge">${subcat.children.length}</span>
+                                        <i class="bi bi-chevron-right drawer-chevron"></i>
+                                    </span>
+                                </button>
+                            `;
+                        } else {
+                            html += `
+                                <a href="${subcat.url}" class="drawer-subcat-item">
+                                    <span class="drawer-subcat-name">${subcat.name}</span>
+                                </a>
+                            `;
+                        }
+                    });
+                }
 
                 html += `</div>`;
                 subView.innerHTML = html;
@@ -165,7 +198,8 @@
         };
 
         window.openChildCategoryInDrawer = function(categorySlug, subcatSlug) {
-            const cat = window.BT_NAV_TREE ? window.BT_NAV_TREE[categorySlug] : null;
+            const tree = getNavTree();
+            const cat = tree ? tree[categorySlug] : null;
             const subcat = cat?.children?.find(s => s.slug === subcatSlug);
             if (!subcat) return;
 

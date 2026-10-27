@@ -374,7 +374,7 @@
 </script>
 
 <script>
-    const BT_NAV_TREE = (function() {
+    window.BT_NAV_TREE = (function() {
         try {
             const el = document.getElementById('categoryNavTreeData');
             return el ? JSON.parse(el.textContent) : {};
@@ -382,6 +382,7 @@
             return {};
         }
     })();
+    const BT_NAV_TREE = window.BT_NAV_TREE;
 
     const SEE_ALL_TEXT = "{{ __('See all') }}";
 
