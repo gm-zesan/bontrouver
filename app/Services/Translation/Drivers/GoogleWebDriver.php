@@ -35,19 +35,38 @@ class GoogleWebDriver implements TranslationDriverInterface
 
         // Unofficial Google web translation client endpoint (NOT Google Cloud Translation API)
         $endpoint = 'https://translate.googleapis.com/translate_a/single';
-        $timeout = (int) config('translation.timeout', 5);
+        $timeout = (int) config('translation.timeout', 8);
+
+        $headers = [
+            'User-Agent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept'          => '*/*',
+            'Accept-Language' => 'en-US,en;q=0.9,fr;q=0.8',
+            'Referer'         => 'https://translate.google.com/',
+        ];
+
+        $payload = [
+            'client' => 'gtx',
+            'sl'     => ($sourceLocale === 'auto' || empty($sourceLocale)) ? 'auto' : $sourceLocale,
+            'tl'     => $targetLocale,
+            'dt'     => 't',
+            'q'      => $trimmed,
+        ];
 
         try {
+            // First attempt: POST form payload with desktop browser headers (prevents datacenter IP blocks)
             $response = Http::withoutVerifying()
+                ->withHeaders($headers)
                 ->timeout($timeout)
-                ->retry(1, 50, when: fn ($exception) => !($exception instanceof \Illuminate\Http\Client\RequestException && $exception->response?->status() === 429), throw: false)
-                ->get($endpoint, [
-                    'client' => 'gtx',
-                    'sl'     => ($sourceLocale === 'auto' || empty($sourceLocale)) ? 'auto' : $sourceLocale,
-                    'tl'     => $targetLocale,
-                    'dt'     => 't',
-                    'q'      => $trimmed,
-                ]);
+                ->asForm()
+                ->post($endpoint, $payload);
+
+            // Fallback to GET if POST was not successful
+            if (!$response->successful()) {
+                $response = Http::withoutVerifying()
+                    ->withHeaders($headers)
+                    ->timeout($timeout)
+                    ->get($endpoint, $payload);
+            }
 
             if (!$response->successful()) {
                 Log::warning('GoogleWeb translation request failed with status ' . $response->status());

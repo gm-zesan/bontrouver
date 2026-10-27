@@ -35,6 +35,10 @@ class MyMemoryDriver implements TranslationDriverInterface
             }
 
             $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'Accept'     => 'application/json',
+                ])
                 ->timeout($timeout)
                 ->retry(2, 200, throw: false)
                 ->get($endpoint, $params);
@@ -49,7 +53,13 @@ class MyMemoryDriver implements TranslationDriverInterface
 
             $data = $response->json();
             $status = $data['responseStatus'] ?? null;
+            $details = (string) ($data['responseDetails'] ?? '');
             $translated = $data['responseData']['translatedText'] ?? null;
+
+            // Handle case where text is already in the target language (status 403: PLEASE SELECT TWO DISTINCT LANGUAGES)
+            if ($status === 403 && str_contains(strtoupper($details), 'PLEASE SELECT TWO DISTINCT LANGUAGES')) {
+                return $trimmed;
+            }
 
             // MyMemory returns responseStatus = 200 on success
             if ($status === 200 && is_string($translated) && trim($translated) !== '') {
