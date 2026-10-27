@@ -282,6 +282,12 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Blade Component: `<x-listing-translate-btn />` with instant 1-click in-memory DOM toggle ("Traduire" ⇄ "Voir l'original").
 - 100% database non-destructive: original user-submitted texts (`listings.title`, `listings.description`) remain untouched.
 
+### Admin Clear System Cache Hub (`App\Http\Controllers\Admin\DashboardController::clearCache`)
+- Header Action: Top navbar toolbar button with animated spinner feedback (`#headerClearCacheIcon`, `ri-brush-line` ➔ `ri-loader-4-line`).
+- Route: `POST /admin/clear-cache` (`admin.clear-cache`) protected by `auth` and `admin` middleware.
+- Full Cache Pipeline: Flushes application cache (`Cache::flush()`), hierarchical category trees (`CategoryService::clearCache()`), Canadian cities map (`City::clearMapCache()`), site settings cache (`SiteSetting::flushCache()`), framework compiled views (`view:clear`), and configuration cache (`config:clear`).
+- Live Toast Feedback: Uses `window.showToast()` / Toastr for instant AJAX feedback without page reload.
+
 ---
 
 ## 3. Code Standards & Development Rules
