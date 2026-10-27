@@ -168,6 +168,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/clear-cache', [AdminDashboardController::class, 'clearCache'])->name('clear-cache');
 
     // Admin Profile & Security Settings
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');

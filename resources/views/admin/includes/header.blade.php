@@ -295,3 +295,72 @@
         </div>
     </div>
 </header>
+
+<script>
+window.clearAdminCache = function (event, btn) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    const icon = document.getElementById('headerClearCacheIcon');
+    if (btn) btn.style.pointerEvents = 'none';
+
+    // Show spinning animation
+    if (icon) {
+        icon.className = 'ri-loader-4-line text-warning';
+        icon.style.animation = 'spin 0.8s linear infinite';
+    }
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    fetch('{{ route('admin.clear-cache') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(data.message || 'System cache cleared successfully!', false, 'Cache Cleared');
+            } else if (typeof toastr !== 'undefined') {
+                toastr.success(data.message || 'System cache cleared successfully!', 'Cache Cleared');
+            }
+        } else {
+            const err = data.message || 'Failed to clear cache.';
+            if (typeof window.showToast === 'function') {
+                window.showToast(err, true, 'Error');
+            } else if (typeof toastr !== 'undefined') {
+                toastr.error(err, 'Error');
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Clear cache error:', err);
+        if (typeof window.showToast === 'function') {
+            window.showToast('Network error while clearing cache.', true, 'Error');
+        } else if (typeof toastr !== 'undefined') {
+            toastr.error('Network error while clearing cache.', 'Error');
+        }
+    })
+    .finally(() => {
+        if (btn) btn.style.pointerEvents = '';
+        if (icon) {
+            icon.className = 'ri-brush-line text-warning';
+            icon.style.animation = '';
+        }
+    });
+};
+</script>
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
