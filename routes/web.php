@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\MemberTierController as AdminMemberTierController
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\SupportManagementController as AdminSupportManagementController;
+use App\Http\Controllers\Admin\PlatformControlController as AdminPlatformControlController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -285,6 +286,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [AdminSettingController::class, 'index'])->name('index');
         Route::put('/', [AdminSettingController::class, 'update'])->name('update');
+    });
+
+    // SuperAdmin Exclusive: Platform Master Switch & Site Lockdown
+    Route::middleware('superadmin')->prefix('platform-control')->name('platform-control.')->group(function () {
+        Route::get('/', [AdminPlatformControlController::class, 'index'])->name('index');
+        Route::post('/', [AdminPlatformControlController::class, 'update'])->name('update');
+        Route::post('/clear-bypass', [AdminPlatformControlController::class, 'clearBypass'])->name('clear-bypass');
     });
 });
 

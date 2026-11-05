@@ -106,7 +106,12 @@ class MemberTierController extends Controller
         $tiers = $this->tierService->getTiersWithStats();
         $rules = $this->tierService->getPointRules();
         $kpis  = $this->tierService->getPointsKpis();
-        $users = User::select('id', 'name', 'email', 'avatar', 'community_points')->orderBy('name')->get();
+        
+        $userQuery = User::select('id', 'name', 'email', 'avatar', 'community_points')->orderBy('name');
+        if (!auth()->user()->isSuperAdmin()) {
+            $userQuery->where('role', '!=', \App\Enums\UserRole::SUPERADMIN);
+        }
+        $users = $userQuery->get();
 
         return view('admin.member-tiers.index', compact('tiers', 'rules', 'kpis', 'users'));
     }

@@ -26,6 +26,11 @@ class UserController extends Controller
                 }
             ]);
 
+            // Stealth Security: Regular Admins can NEVER see or manage SuperAdmin accounts
+            if (!auth()->user()->isSuperAdmin()) {
+                $query->where('role', '!=', UserRole::SUPERADMIN);
+            }
+
             if ($request->filled('status')) {
                 if ($request->status === 'active') {
                     $query->where('is_suspended', false);
@@ -135,6 +140,11 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        // Stealth Security: If target is SuperAdmin and current user is not SuperAdmin, hide with 404
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
+
         $user->loadCount([
             'listings',
             'reviewsReceived',
@@ -191,6 +201,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Stealth Security: SuperAdmin accounts cannot be edited by non-SuperAdmins
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
+
         $validated = $request->validate([
             'role' => ['required', Rule::enum(UserRole::class)],
             'is_verified' => 'boolean',
@@ -199,6 +214,11 @@ class UserController extends Controller
             'city' => 'nullable|string|max:100',
             'province' => 'nullable|string|max:50',
         ]);
+
+        // Only superadmin can assign superadmin role
+        if ($validated['role'] === UserRole::SUPERADMIN->value && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Unauthorized to assign Super Admin role.');
+        }
 
         // Prevent admin from removing their own admin role to avoid lockout
         if ($user->id === auth()->id() && $validated['role'] !== UserRole::ADMIN->value && $user->role === UserRole::ADMIN) {
@@ -222,6 +242,16 @@ class UserController extends Controller
      */
     public function toggleSuspend(User $user)
     {
+        // Stealth Security: SuperAdmin accounts are invisible to regular admins
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
+
+        // SuperAdmin accounts can never be suspended
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Super Admin accounts cannot be suspended.');
+        }
+
         // Prevent suspending self
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot suspend your own account.');
@@ -292,8 +322,11 @@ class UserController extends Controller
         $action = $request->action;
         $userIds = $request->user_ids;
 
-        // Prevent self-action for admins if needed
-        $userIds = array_diff($userIds, [auth()->id()]);
+        // Prevent self-action and protect all SuperAdmin accounts from bulk actions
+        $protectedIds = [auth()->id()];
+        $superAdminIds = User::where('role', UserRole::SUPERADMIN)->pluck('id')->toArray();
+        $protectedIds = array_merge($protectedIds, $superAdminIds);
+        $userIds = array_diff($userIds, $protectedIds);
 
         if (empty($userIds)) {
             return response()->json(['success' => false, 'message' => 'No valid users selected.']);
@@ -323,6 +356,15 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
+        // Stealth Security: SuperAdmin accounts are invisible to regular admins
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
+
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Super Admin accounts cannot be deleted.');
+        }
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'You cannot delete your own account.');
         }
@@ -343,6 +385,15 @@ class UserController extends Controller
         ]);
 
         $user = User::where('email', $request->email)->firstOrFail();
+
+        // Prevent managing superadmin accounts or assigning superadmin role by non-superadmin
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
+
+        if ($request->role === UserRole::SUPERADMIN->value && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Unauthorized to assign Super Admin role.');
+        }
 
         // Prevent admin from removing their own admin role to avoid lockout
         if ($user->id === auth()->id() && $request->role !== UserRole::ADMIN->value && $user->role === UserRole::ADMIN) {

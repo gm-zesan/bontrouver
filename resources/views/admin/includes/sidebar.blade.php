@@ -134,6 +134,19 @@
                 <span class="link_names">Site Settings</span>
             </a>
         </li>
+
+        @if(auth()->check() && auth()->user()->isSuperAdmin())
+        <!-- 6. SuperAdmin Master Control (Invisible to regular admin) -->
+        <li class="category-li">
+            <span class="link_names" style="color: #F59E0B !important;">Super Admin</span>
+        </li>
+        <li>
+            <a href="{{ route('admin.platform-control.index') }}" class="{{ Route::is('admin.platform-control.*') ? ' active-focus' : '' }}">
+                <i class="ri-shield-keyhole-line text-warning"></i>
+                <span class="link_names" style="color: #F59E0B; font-weight: 700;">Platform Control</span>
+            </a>
+        </li>
+        @endif
     </ul>
 
 </div>

@@ -331,4 +331,19 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - **Locale-Aware City Caching**: `City::getCitiesMap()` caches Canadian location records per locale (`canadian_cities_map_en`, `canadian_cities_map_fr`) with automated invalidation via `City::clearMapCache()`.
 - **Admin Panel Dual-Language CRUD**: All administrative create/edit modals and forms provide side-by-side English and French inputs with auto-fallback validation in FormRequests (`prepareForValidation`).
 
+### F. SuperAdmin Stealth Isolation & Platform Lockdown Master Switch
+- **Role Hierarchy**: Three discrete user tiers in `UserRole`: `USER ('user')`, `ADMIN ('admin')`, and `SUPERADMIN ('superadmin')`.
+- **Stealth Isolation (Invisibility)**: Regular admins (`UserRole::ADMIN`) have zero visibility into SuperAdmin accounts:
+  - SuperAdmin accounts are filtered out of all DataTables user lists and KPI counters (`AdminDashboardService`, `UserController`).
+  - Direct URL inspections, edits, suspensions, role modifications, or deletions by non-superadmins abort with a 404 (pretends the account does not exist).
+  - Bulk moderation actions automatically exclude SuperAdmin account IDs.
+- **Platform Lockdown & Master Kill-Switch**:
+  - Located at `/admin/platform-control` protected by `superadmin` middleware (`EnsureUserIsSuperAdmin`).
+  - Sidebar navigation item is exclusively visible to `isSuperAdmin()`.
+  - Modes: `active` (normal live site), `image_splash` (full-screen image splash), `maintenance_notice` (branded Canadian maintenance layout).
+  - Public requests during lockdown return 503 via `CheckPlatformStatus` middleware.
+  - Safe Exclusions: `/admin*`, `/login*`, `/logout*`, `/storage/*`, Stripe webhooks, and authenticated SuperAdmin sessions remain fully accessible.
+  - Emergency Developer Bypass: Accessing any URL with `?bt_master_key=<bypass_key>` automatically sets a 30-day encrypted bypass cookie (`bt_master_bypass`), allowing complete site access even if logged out.
+
+
 

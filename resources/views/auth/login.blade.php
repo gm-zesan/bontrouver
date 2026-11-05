@@ -111,24 +111,6 @@
                             <span>Continue with Google</span>
                         </a>
 
-                        <!-- Demo Quick Fill Accounts Selector -->
-                        <div class="demo-accounts-card mt-4 mb-2">
-                            <div class="demo-card-header">
-                                <i class="bi bi-key-fill text-warning me-1"></i> Quick Demo Logins
-                            </div>
-                            <div class="demo-btn-grid demo-btn-grid-3">
-                                <button type="button" class="btn-demo-fill" onclick="fillLogin('seller@bontrouver.ca', 'password123')">
-                                    <i class="bi bi-shop me-1 text-success"></i> Seller
-                                </button>
-                                <button type="button" class="btn-demo-fill" onclick="fillLogin('admin@bontrouver.ca', 'password123')">
-                                    <i class="bi bi-shield-check me-1 text-danger"></i> Admin
-                                </button>
-                                <button type="button" class="btn-demo-fill" onclick="fillLogin('buyer@bontrouver.ca', 'password123')">
-                                    <i class="bi bi-person me-1 text-info"></i> Buyer
-                                </button>
-                            </div>
-                        </div>
-
                         <!-- Divider -->
                         <div class="auth-divider my-4">
                             <span>New to Bontrouver?</span>
@@ -169,11 +151,6 @@ function togglePasswordVisibility(inputId, btn) {
         icon.classList.remove('bi-eye-slash');
         icon.classList.add('bi-eye-warning');
     }
-}
-
-function fillLogin(email, pass) {
-    document.getElementById('email').value = email;
-    document.getElementById('password').value = pass;
 }
 </script>
 @endpush

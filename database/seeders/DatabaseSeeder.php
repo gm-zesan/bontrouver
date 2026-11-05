@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database based on customer requirements.
+     * Seed the application's database.
+     * Seeds essential Canadian master data and administrators for production.
      */
     public function run(): void
     {
@@ -22,16 +23,6 @@ class DatabaseSeeder extends Seeder
             CategoryAttributeSeeder::class,
             ProvinceSeeder::class,
             CitySeeder::class,
-            ListingSeeder::class,
-            FavoriteSeeder::class,
-            SmartAlertSeeder::class,
-            TransactionSeeder::class,
-            ReviewSeeder::class,
-            ConversationSeeder::class,
-            CompanionshipSeeder::class,
-            PointTransactionSeeder::class,
-            VerificationSeeder::class,
-            SearchQuerySeeder::class,
             SiteSettingSeeder::class,
             MonetizationSeeder::class,
         ]);

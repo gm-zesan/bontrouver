@@ -49,10 +49,10 @@ class AdminDashboardService
                 'sponsored'      => Listing::where('is_sponsored', true)->count(),
             ],
             'users' => [
-                'total'     => User::count(),
-                'verified'  => User::where('is_verified', true)->count(),
-                'dealers'   => User::where('is_dealer', true)->count(),
-                'suspended' => User::where('is_suspended', true)->count(),
+                'total'     => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->count(),
+                'verified'  => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_verified', true)->count(),
+                'dealers'   => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_dealer', true)->count(),
+                'suspended' => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_suspended', true)->count(),
             ],
             'verifications' => [
                 'total'    => UserVerification::count(),

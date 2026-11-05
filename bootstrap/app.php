@@ -19,10 +19,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->encryptCookies(except: [
+            'bt_master_bypass',
+        ]);
         $middleware->web(append: [
             SecurityHeaders::class,
             SetLocale::class,
             EnsureNotSuspended::class,
+            \App\Http\Middleware\CheckPlatformStatus::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
@@ -30,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'superadmin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

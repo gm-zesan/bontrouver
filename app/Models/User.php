@@ -59,14 +59,19 @@ class User extends Authenticatable
         'role' => UserRole::class,
     ];
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SUPERADMIN;
+    }
+
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return $this->role === UserRole::ADMIN || $this->role === UserRole::SUPERADMIN;
     }
 
     public function isModerator(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return $this->role === UserRole::ADMIN || $this->role === UserRole::SUPERADMIN;
     }
 
     public function wantsNotification(string $type): bool
