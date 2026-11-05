@@ -81,8 +81,15 @@ class MessageService
         // Load relationships needed for broadcasting
         $message->load('sender', 'conversation');
 
-        // Broadcast the event over Reverb
-        broadcast(new MessageSent($message))->toOthers();
+        // Broadcast the event over Reverb (safely caught if offline)
+        try {
+            broadcast(new MessageSent($message))->toOthers();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('User message broadcast failed: ' . $e->getMessage(), [
+                'message_id' => $message->id,
+                'conversation_id' => $conversationId,
+            ]);
+        }
 
         return $message;
     }

@@ -269,4 +269,31 @@ class SupportChatTest extends TestCase
         $this->assertStringContainsString('Alice Martin', $response->json('conversations.0.user_name'));
         $this->assertStringContainsString('Need help with boosted ad', $response->json('conversations.0.latest_message'));
     }
+
+    /**
+     * Test Authenticated user can send support message directly without specifying conversation ID.
+     */
+    public function test_authenticated_user_can_send_support_message_without_conversation_id(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson(route('support-chat.send.direct'), [
+            'message' => 'Hello from direct send route!',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'status' => 'success',
+            'message' => [
+                'message' => 'Hello from direct send route!',
+                'sender_type' => 'user',
+            ],
+        ]);
+
+        $this->assertDatabaseHas('support_messages', [
+            'sender_id' => $user->id,
+            'sender_type' => 'user',
+            'message' => 'Hello from direct send route!',
+        ]);
+    }
 }

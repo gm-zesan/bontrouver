@@ -106,7 +106,7 @@ class SupportChatController extends Controller
     /**
      * Send a new message from the user.
      */
-    public function sendMessage(Request $request, SupportConversation $conversation): JsonResponse
+    public function sendMessage(Request $request, ?SupportConversation $conversation = null): JsonResponse
     {
         if (!Auth::check()) {
             return response()->json([
@@ -115,7 +115,9 @@ class SupportChatController extends Controller
             ], 401);
         }
 
-        if ($conversation->user_id !== Auth::id()) {
+        if (!$conversation || !$conversation->exists) {
+            $conversation = $this->supportChatService->getOrCreateActiveConversation(Auth::user());
+        } elseif ($conversation->user_id !== Auth::id()) {
             return response()->json(['error' => 'Unauthorized action.'], 403);
         }
 
@@ -125,30 +127,42 @@ class SupportChatController extends Controller
             'attachments.*' => 'file|mimes:jpg,jpeg,png,webp,gif,svg,pdf,doc,docx,txt,rtf,xls,xlsx,csv|max:10240',
         ]);
 
-        $message = $this->supportChatService->sendMessage(
-            $conversation,
-            Auth::user(),
-            $request->input('message') ?? '',
-            $request->file('attachments', []),
-            'user'
-        );
+        try {
+            $message = $this->supportChatService->sendMessage(
+                $conversation,
+                Auth::user(),
+                $request->input('message') ?? '',
+                $request->file('attachments', []),
+                'user'
+            );
 
-        return response()->json([
-            'status' => 'success',
-            'message' => [
-                'id' => $message->id,
-                'sender_id' => $message->sender_id,
-                'sender_type' => $message->sender_type,
-                'sender_name' => Auth::user()->name,
-                'sender_avatar' => Auth::user()->avatar_url,
-                'message' => $message->message,
-                'attachments' => $message->attachment_urls,
-                'attachment_files' => $message->attachment_files,
-                'created_at_human' => $message->created_at->format('M d, g:i A'),
-                'created_at_time' => $message->created_at->format('g:i A'),
-                'is_sender' => true,
-            ],
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'conversation_id' => $conversation->id,
+                'message' => [
+                    'id' => $message->id,
+                    'sender_id' => $message->sender_id,
+                    'sender_type' => $message->sender_type,
+                    'sender_name' => Auth::user()->name,
+                    'sender_avatar' => Auth::user()->avatar_url,
+                    'message' => $message->message,
+                    'attachments' => $message->attachment_urls,
+                    'attachment_files' => $message->attachment_files,
+                    'created_at_human' => $message->created_at->format('M d, g:i A'),
+                    'created_at_time' => $message->created_at->format('g:i A'),
+                    'is_sender' => true,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('SupportChat sendMessage error: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'error' => 'An error occurred while sending your message. Please try again.',
+            ], 500);
+        }
     }
 
     /**

@@ -77,7 +77,8 @@ Route::prefix('support-chat')->name('support-chat.')->group(function () {
     Route::get('/init', [SupportChatController::class, 'init'])->name('init');
     Route::get('/faqs', [SupportChatController::class, 'getFaqs'])->name('faqs');
     Route::get('/messages/{conversation}', [SupportChatController::class, 'getMessages'])->name('messages');
-    Route::post('/messages/{conversation}/send', [SupportChatController::class, 'sendMessage'])->name('send');
+    Route::post('/messages/{conversation?}/send', [SupportChatController::class, 'sendMessage'])->name('send');
+    Route::post('/send', [SupportChatController::class, 'sendMessage'])->name('send.direct');
 });
 
 // Stripe Payment Webhook

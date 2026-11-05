@@ -107,13 +107,22 @@ class SupportChatService
 
             $conversation->update($conversationUpdates);
 
-            $supportMessage->load(['sender', 'conversation']);
-
-            // Broadcast real-time support message event via Laravel Reverb
-            broadcast(new \App\Events\SupportMessageSent($supportMessage));
-
             return $supportMessage;
         });
+
+        $supportMessage->load(['sender', 'conversation']);
+
+        // Broadcast real-time support message event via Laravel Reverb (safely caught if offline)
+        try {
+            broadcast(new \App\Events\SupportMessageSent($supportMessage));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Support message broadcast failed: ' . $e->getMessage(), [
+                'message_id' => $supportMessage->id,
+                'conversation_id' => $conversation->id,
+            ]);
+        }
+
+        return $supportMessage;
     }
 
     /**

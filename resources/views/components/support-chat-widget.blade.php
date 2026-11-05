@@ -1,6 +1,9 @@
 @php
     $isGuest = !auth()->check();
     $currentUser = auth()->user();
+    $initialConversationId = (!$isGuest && $currentUser)
+        ? (optional(\App\Models\SupportConversation::where('user_id', $currentUser->id)->whereIn('status', ['open', 'in_progress'])->latest('last_message_at')->first())->id)
+        : null;
 @endphp
 
 <!-- Bon Trouver Professional Support & Live Chat Widget -->
@@ -791,7 +794,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isWidgetOpen = false;
     let isAuthenticated = {{ $isGuest ? 'false' : 'true' }};
-    let currentConversationId = null;
+    let currentConversationId = {{ $initialConversationId ? $initialConversationId : 'null' }};
     let lastMessageId = 0;
     let pollInterval = null;
     let cachedFaqs = [];
@@ -1255,7 +1258,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const hasFiles = selectedFiles.length > 0;
 
             if (!text && !hasFiles) return;
-            if (!currentConversationId) return;
 
             const sendBtn = document.getElementById('btSendMessageBtn');
             sendBtn.disabled = true;
@@ -1270,27 +1272,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 formData.append('attachments[]', file);
             });
 
-            fetch(`/support-chat/messages/${currentConversationId}/send`, {
+            const sendUrl = currentConversationId 
+                ? `/support-chat/messages/${currentConversationId}/send` 
+                : '{{ route("support-chat.send.direct") }}';
+
+            fetch(sendUrl, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: formData
             })
-            .then(res => res.json())
+            .then(async res => {
+                const data = await res.json().catch(() => null);
+                if (!res.ok) {
+                    throw new Error(data?.error || data?.message || `Server error (${res.status})`);
+                }
+                return data;
+            })
             .then(data => {
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = '<i class="bi bi-send-fill" style="font-size: 0.85rem; margin-left: 2px;"></i>';
                 if (typingIndicator) typingIndicator.classList.add('d-none');
 
-                if (data.status === 'success' && data.message) {
+                if (data && data.status === 'success' && data.message) {
+                    if (data.conversation_id) {
+                        currentConversationId = data.conversation_id;
+                    }
                     chatInput.value = '';
                     selectedFiles = [];
                     renderAttachmentPreviews();
                     renderMessages([data.message], true);
-                } else if (data.error) {
+                } else if (data && data.error) {
                     alert(data.error);
+                } else {
+                    alert('Message could not be processed. Please try again.');
                 }
             })
             .catch(err => {
@@ -1298,6 +1316,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 sendBtn.innerHTML = '<i class="bi bi-send-fill" style="font-size: 0.85rem; margin-left: 2px;"></i>';
                 if (typingIndicator) typingIndicator.classList.add('d-none');
                 console.error('Send failed:', err);
+                alert(err.message || 'Failed to send message. Please check your connection and try again.');
             });
         });
     }

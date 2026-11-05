@@ -257,7 +257,7 @@ All models are located in `app/Models/`. Use these exact relationship methods:
 - Global floating chat wizard `<x-support-chat-widget />` pinned on every page with direct live chat, pre-send attachment previews, rich file cards, and image lightbox viewer.
 - Real-Time WebSocket Infrastructure: Powered by **Laravel Reverb** via `App\Events\SupportMessageSent` on channels `support.conversation.{id}`, `admin.support`, and `App.Models.User.{id}` for instant sub-millisecond bidirectional communication across both the floating widget and `/admin/support` desk.
 - Guest Protection: Unauthenticated visitors see a friendly login/registration gate with return URL redirect and browsable instant FAQ topics.
-- Authenticated Users: Instant conversation initiation with direct messaging, multi-file attachments (images, PDF, Word doc, Excel), and real-time WebSocket updates.
+- Authenticated Users: Instant conversation initiation with direct messaging, multi-file attachments (images, PDF, Word doc, Excel), and real-time WebSocket updates with offline-resilient graceful HTTP fallback and auto-resolved active conversation routing (`POST /support-chat/send`).
 - Admin Hub: `/admin/support` with live WebSocket stream, instant thread insertion and dynamic sidebar re-ordering, image lightbox modal, and direct downloads.
 
 ### AdminNotificationService & Notifications Hub (`App\Services\AdminNotificationService`, `App\Http\Controllers\Admin\NotificationController`)
