@@ -98,6 +98,9 @@
                         <div class="d-flex flex-column gap-2 pt-1">
                             @php
                                 $roles = \App\Enums\UserRole::cases();
+                                if (!auth()->user()->isSuperAdmin()) {
+                                    $roles = array_filter($roles, fn($r) => $r !== \App\Enums\UserRole::SUPERADMIN);
+                                }
                             @endphp
 
                             @foreach ($roles as $role)

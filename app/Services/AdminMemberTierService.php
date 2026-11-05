@@ -22,13 +22,14 @@ class AdminMemberTierService
     public function getTiersWithStats(): array
     {
         $tiers = MemberTier::orderBy('min_points', 'asc')->get();
-        $totalUsers = User::count();
+        $userBaseQuery = User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+        $totalUsers = (clone $userBaseQuery)->count();
 
-        return $tiers->map(function ($tier, $idx) use ($tiers, $totalUsers) {
+        return $tiers->map(function ($tier, $idx) use ($tiers, $totalUsers, $userBaseQuery) {
             $min = (int) $tier->min_points;
             $max = $tier->max_points !== null ? (int) $tier->max_points : null;
 
-            $usersCountQuery = User::where('community_points', '>=', $min);
+            $usersCountQuery = (clone $userBaseQuery)->where('community_points', '>=', $min);
             if ($max !== null) {
                 $usersCountQuery->where('community_points', '<=', $max);
             }
@@ -99,6 +100,10 @@ class AdminMemberTierService
     public function getPointLedgerQuery(array $filters = []): Builder
     {
         $query = PointTransaction::with(['user'])->latest('id');
+
+        if (!auth()->user()?->isSuperAdmin()) {
+            $query->whereHas('user', fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+        }
 
         if (!empty($filters['action_type']) && $filters['action_type'] !== 'all') {
             $query->where('action_type', $filters['action_type']);

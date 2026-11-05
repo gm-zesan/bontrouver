@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\CompanionshipRequest;
 use App\Models\Listing;
@@ -12,10 +13,21 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Models\UserVerification;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class AdminDashboardService
 {
+    /**
+     * Get base query for users, stealth-filtered to hide SuperAdmin from regular admins.
+     */
+    private function userQuery(): Builder
+    {
+        return User::query()->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+            $q->where('role', '!=', UserRole::SUPERADMIN);
+        });
+    }
+
     /**
      * Compile complete dashboard analytical metrics and datasets.
      */
@@ -29,7 +41,7 @@ class AdminDashboardService
         // 1. Today's Real-Time Operations Pulse
         $todayStats = [
             'listings_created'        => Listing::whereDate('created_at', $today)->count(),
-            'users_joined'            => User::whereDate('created_at', $today)->count(),
+            'users_joined'            => $this->userQuery()->whereDate('created_at', $today)->count(),
             'meetups_created'         => CompanionshipRequest::whereDate('created_at', $today)->count(),
             'verifications_submitted' => UserVerification::whereDate('created_at', $today)->count(),
             'reports_submitted'       => Report::whereDate('created_at', $today)->count(),
@@ -49,16 +61,16 @@ class AdminDashboardService
                 'sponsored'      => Listing::where('is_sponsored', true)->count(),
             ],
             'users' => [
-                'total'     => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->count(),
-                'verified'  => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_verified', true)->count(),
-                'dealers'   => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_dealer', true)->count(),
-                'suspended' => User::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN))->where('is_suspended', true)->count(),
+                'total'     => $this->userQuery()->count(),
+                'verified'  => $this->userQuery()->where('is_verified', true)->count(),
+                'dealers'   => $this->userQuery()->where('is_dealer', true)->count(),
+                'suspended' => $this->userQuery()->where('is_suspended', true)->count(),
             ],
             'verifications' => [
-                'total'    => UserVerification::count(),
-                'pending'  => UserVerification::where('status', 'pending')->count(),
-                'approved' => UserVerification::where('status', 'approved')->count(),
-                'rejected' => UserVerification::where('status', 'rejected')->count(),
+                'total'    => UserVerification::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))->count(),
+                'pending'  => UserVerification::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))->where('status', 'pending')->count(),
+                'approved' => UserVerification::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))->where('status', 'approved')->count(),
+                'rejected' => UserVerification::when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))->where('status', 'rejected')->count(),
             ],
             'meetups' => [
                 'total'     => CompanionshipRequest::count(),
@@ -74,8 +86,8 @@ class AdminDashboardService
         ];
 
         // 3. Core Growth Deltas (Last 30 days vs previous 30 days)
-        $usersLast30 = User::where('created_at', '>=', $thirtyDaysAgo)->count();
-        $usersPrev30 = User::whereBetween('created_at', [$sixtyDaysAgo, $thirtyDaysAgo])->count();
+        $usersLast30 = $this->userQuery()->where('created_at', '>=', $thirtyDaysAgo)->count();
+        $usersPrev30 = $this->userQuery()->whereBetween('created_at', [$sixtyDaysAgo, $thirtyDaysAgo])->count();
         $userGrowth = $this->calculateGrowthPercent($usersLast30, $usersPrev30);
 
         $listingsLast30 = Listing::where('created_at', '>=', $thirtyDaysAgo)->count();
@@ -88,17 +100,22 @@ class AdminDashboardService
         $topCities = $this->getTopCities();
 
         $recentVerifications = UserVerification::with('user')
+            ->when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
         $recentListings = Listing::with(['user', 'category'])
+            ->when(!auth()->user()?->isSuperAdmin(), fn($q) => $q->whereHas('user', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN)))
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
 
         $recentReports = Report::with(['reporter', 'reportable'])
             ->whereNull('reviewed_at')
+            ->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+                $q->whereHas('reporter', fn($uq) => $uq->where('role', '!=', UserRole::SUPERADMIN));
+            })
             ->orderByDesc('created_at')
             ->limit(5)
             ->get();
@@ -118,7 +135,7 @@ class AdminDashboardService
                 'sponsored_listings'    => $lifecycle['listings']['sponsored'],
                 'total_meetups'         => $lifecycle['meetups']['total'],
                 'active_meetups'        => $lifecycle['meetups']['open'],
-                'circulating_points'    => (int) User::sum('community_points'),
+                'circulating_points'    => (int) $this->userQuery()->sum('community_points'),
                 'pending_verifications' => $lifecycle['verifications']['pending'],
                 'pending_reports'       => $lifecycle['reports']['unresolved'],
                 'pending_listings'      => $lifecycle['listings']['pending_review'],
@@ -150,7 +167,7 @@ class AdminDashboardService
             $dates[] = $day->format('M d');
 
             $listingCounts[] = Listing::whereDate('created_at', $dateStr)->count();
-            $userCounts[] = User::whereDate('created_at', $dateStr)->count();
+            $userCounts[] = $this->userQuery()->whereDate('created_at', $dateStr)->count();
             
             $earned = PointTransaction::whereDate('created_at', $dateStr)->where('points', '>', 0)->sum('points');
             $spent = abs(PointTransaction::whereDate('created_at', $dateStr)->where('points', '<', 0)->sum('points'));

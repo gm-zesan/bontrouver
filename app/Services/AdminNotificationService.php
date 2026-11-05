@@ -18,11 +18,18 @@ class AdminNotificationService
         // 1. Pending Abuse & Safety Reports (Urgent Priority)
         $pendingReports = Report::with('reporter')
             ->whereNull('reviewed_at')
+            ->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+                $q->whereHas('reporter', fn($uq) => $uq->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+            })
             ->latest()
             ->take(10)
             ->get();
 
-        $unresolvedReportsCount = Report::whereNull('reviewed_at')->count();
+        $unresolvedReportsCount = Report::whereNull('reviewed_at')
+            ->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+                $q->whereHas('reporter', fn($uq) => $uq->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+            })
+            ->count();
 
         foreach ($pendingReports as $report) {
             $reasonText = $report->reason?->label() ?? 'Safety Concern';
@@ -47,11 +54,18 @@ class AdminNotificationService
         // 2. Pending ID Verification Submissions (High Priority)
         $pendingVerifications = UserVerification::with('user')
             ->where('status', 'pending')
+            ->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+                $q->whereHas('user', fn($uq) => $uq->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+            })
             ->latest()
             ->take(10)
             ->get();
 
-        $pendingVerificationsCount = UserVerification::where('status', 'pending')->count();
+        $pendingVerificationsCount = UserVerification::where('status', 'pending')
+            ->when(!auth()->user()?->isSuperAdmin(), function ($q) {
+                $q->whereHas('user', fn($uq) => $uq->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+            })
+            ->count();
 
         foreach ($pendingVerifications as $verif) {
             $docType = ucfirst(str_replace('_', ' ', $verif->document_type ?? 'ID'));

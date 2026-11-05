@@ -224,7 +224,13 @@
                                 <div class="col-md-6 mb-3 mb-md-0">
                                     <label class="form-label-custom">Account Role</label>
                                     <select name="role" class="form-select form-control-custom">
-                                        @foreach(\App\Enums\UserRole::cases() as $roleEnum)
+                                        @php
+                                            $selectableRoles = \App\Enums\UserRole::cases();
+                                            if (!auth()->user()->isSuperAdmin()) {
+                                                $selectableRoles = array_filter($selectableRoles, fn($r) => $r !== \App\Enums\UserRole::SUPERADMIN);
+                                            }
+                                        @endphp
+                                        @foreach($selectableRoles as $roleEnum)
                                             <option value="{{ $roleEnum->value }}" {{ $user->role === $roleEnum ? 'selected' : '' }}>
                                                 {{ $roleEnum->label() }}
                                             </option>

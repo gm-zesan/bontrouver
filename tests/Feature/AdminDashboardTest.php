@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\Listing;
 use App\Models\User;
@@ -110,5 +111,29 @@ class AdminDashboardTest extends TestCase
                     ],
                 ],
             ]);
+    }
+
+    public function test_superadmin_is_completely_invisible_in_dashboard_metrics_for_regular_admin(): void
+    {
+        $superAdmin = User::factory()->create(['role' => UserRole::SUPERADMIN]);
+        $admin = User::factory()->create(['role' => UserRole::ADMIN]);
+        $regularUser = User::factory()->create(['role' => UserRole::USER]);
+
+        // Regular admin checks dashboard
+        $response = $this->actingAs($admin)->getJson(route('admin.dashboard'));
+        $response->assertOk();
+        
+        $data = $response->json('data');
+        // Total users must be 2 (admin + regularUser), NOT 3
+        $this->assertEquals(2, $data['lifecycle']['users']['total']);
+        $this->assertEquals(2, $data['today']['users_joined']);
+
+        // Superadmin checks dashboard
+        $superResponse = $this->actingAs($superAdmin)->getJson(route('admin.dashboard'));
+        $superResponse->assertOk();
+        $superData = $superResponse->json('data');
+        // Superadmin sees all 3
+        $this->assertEquals(3, $superData['lifecycle']['users']['total']);
+        $this->assertEquals(3, $superData['today']['users_joined']);
     }
 }

@@ -148,6 +148,10 @@ class MemberTierController extends Controller
     {
         $validated = $request->validated();
         $user = User::findOrFail($validated['user_id']);
+
+        if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
+            abort(404);
+        }
         $amount = $validated['type'] === 'deduct' ? -abs((int) $validated['amount']) : abs((int) $validated['amount']);
         $actionType = (!empty($validated['action_type'])) ? $validated['action_type'] : ($validated['type'] === 'deduct' ? 'admin_deduct' : 'admin_award');
 

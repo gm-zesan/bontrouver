@@ -76,6 +76,10 @@ class VerificationService
     {
         $query = UserVerification::with(['user', 'reviewer']);
 
+        if (!auth()->user()?->isSuperAdmin()) {
+            $query->whereHas('user', fn($q) => $q->where('role', '!=', \App\Enums\UserRole::SUPERADMIN));
+        }
+
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
