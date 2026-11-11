@@ -97,10 +97,16 @@
                                             onclick="selectCategory('{{ $catSlug }}', '{{ addslashes($catName) }}')">
                                             <div class="choice-card-icon"><i class="bi {{ $catIcon }}"></i></div>
                                             <div class="choice-card-title">{{ $catName }}</div>
+                                            @if($catSlug === 'services')
+                                                <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 mt-1 small" style="font-size: 0.68rem; padding: 2px 6px;">{{ __('Offer Services') }}</span>
+                                            @elseif($catSlug === 'jobs')
+                                                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 mt-1 small" style="font-size: 0.68rem; padding: 2px 6px;">{{ __('Hiring Staff') }}</span>
+                                            @endif
                                             <div class="choice-card-check"><i class="bi bi-check-lg"></i></div>
                                         </div>
                                     @endforeach
                                 </div>
+                                <div id="categoryIntentBanner" class="mt-3" style="display: none;"></div>
                                 <input type="hidden" name="category_id" id="selectedCategoryId" value="">
                                 <input type="hidden" name="category_slug" id="selectedCategorySlug"
                                     value="{{ $preselectedCategory }}" required>
@@ -161,7 +167,7 @@
                                         name="title"
                                         placeholder="{{ __('e.g. 2024 Toyota RAV4 Hybrid XSE AWD or Apple iPhone 16 Pro Max') }}"
                                         maxlength="100" required oninput="updateTitlePreview(this.value)">
-                                    <div class="form-hint-text">
+                                    <div class="form-hint-text" id="titleHintText">
                                         <i class="bi bi-info-circle me-1"></i> {{ __('Use a clear, specific title including brand, model, and key specs.') }}
                                     </div>
                                     <div class="invalid-feedback-custom" id="err-title"></div>
@@ -170,7 +176,7 @@
                                 <!-- Price & Price Type Row -->
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-4">
-                                        <label class="form-label-custom">{{ __('Price (CAD)') }} <span
+                                        <label class="form-label-custom" id="priceInputLabel">{{ __('Price (CAD)') }} <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-group-custom">
                                             <span class="input-prefix">$</span>
@@ -1096,6 +1102,8 @@
                 if (cat) {
                     selectCategory(postAdState.categorySlug, cat.name || postAdState.categorySlug);
                 }
+            } else {
+                adaptFormToCategory('');
             }
         }
 
@@ -1147,7 +1155,86 @@
             // Update breadcrumbs, dynamic attributes & previews
             updateCategoryBreadcrumbs();
             fetchCategoryAttributes(slug, '');
+            adaptFormToCategory(slug);
             updateLivePreview();
+        }
+
+        function adaptFormToCategory(categorySlug) {
+            const isJob = (categorySlug === 'jobs');
+            const isService = (categorySlug === 'services');
+            const isHousing = (categorySlug === 'housing' || categorySlug === 'real-estate');
+            const isNonPhysical = (isJob || isService || isHousing || categorySlug === 'community' || categorySlug === 'ridesharing');
+
+            // 1. Intent helper banner in Step 1
+            const intentBanner = document.getElementById('categoryIntentBanner');
+            if (intentBanner) {
+                if (isService) {
+                    intentBanner.style.display = 'block';
+                    intentBanner.innerHTML = `<div class="alert alert-info py-2 px-3 mb-0 d-flex align-items-center gap-2 rounded-3" style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.25); color: #93C5FD;"><i class="bi bi-briefcase-fill text-primary fs-5"></i> <div><strong>{{ __('Offering Services') }}:</strong> {{ __('Use this category to promote your business, freelance services, skilled trade or repairs to local customers.') }}</div></div>`;
+                } else if (isJob) {
+                    intentBanner.style.display = 'block';
+                    intentBanner.innerHTML = `<div class="alert alert-success py-2 px-3 mb-0 d-flex align-items-center gap-2 rounded-3" style="background: rgba(73, 209, 125, 0.12); border: 1px solid rgba(73, 209, 125, 0.25); color: #49D17D;"><i class="bi bi-person-badge-fill text-success fs-5"></i> <div><strong>{{ __('Hiring / Job Offers') }}:</strong> {{ __('Use this category if you are an employer or recruiter seeking to hire workers, staff or contractors.') }}</div></div>`;
+                } else {
+                    intentBanner.style.display = 'none';
+                    intentBanner.innerHTML = '';
+                }
+            }
+
+            // 2. Condition Section (Completely hide for Jobs, Services, Housing, Community)
+            const condSec = document.getElementById('conditionSection');
+            if (condSec) {
+                condSec.style.display = isNonPhysical ? 'none' : 'block';
+                if (isNonPhysical) {
+                    document.querySelectorAll('input[name="condition"]').forEach(r => r.checked = false);
+                    postAdState.condition = '';
+                    const revCond = document.getElementById('revConditionVal');
+                    if (revCond) revCond.textContent = '—';
+                }
+            }
+
+            // 3. Dynamic Title Placeholder & Guidance Hint
+            const titleInput = document.getElementById('listingTitleInput');
+            const titleHint = document.getElementById('titleHintText');
+            if (titleInput) {
+                if (isJob) {
+                    titleInput.placeholder = "{{ __('e.g. Hiring Licensed Automotive Mechanic (Full-time)') }}";
+                    if (titleHint) titleHint.innerHTML = '<i class="bi bi-info-circle me-1"></i> ' + "{{ __('Specify the job title, seniority level, and employment type.') }}";
+                } else if (isService) {
+                    titleInput.placeholder = "{{ __('e.g. Professional Mobile Auto Mechanic & Engine Diagnostics') }}";
+                    if (titleHint) titleHint.innerHTML = '<i class="bi bi-info-circle me-1"></i> ' + "{{ __('Describe the service you offer, specialty, and coverage area.') }}";
+                } else if (isHousing) {
+                    titleInput.placeholder = "{{ __('e.g. Bright 2-Bedroom Apartment with Balcony in Montreal') }}";
+                    if (titleHint) titleHint.innerHTML = '<i class="bi bi-info-circle me-1"></i> ' + "{{ __('Include property type, number of bedrooms, and location.') }}";
+                } else {
+                    titleInput.placeholder = "{{ __('e.g. 2024 Toyota RAV4 Hybrid XSE AWD or Apple iPhone 16 Pro Max') }}";
+                    if (titleHint) titleHint.innerHTML = '<i class="bi bi-info-circle me-1"></i> ' + "{{ __('Use a clear, specific title including brand, model, and key specs.') }}";
+                }
+            }
+
+            // 4. Price Label & Default Price Period
+            const priceLabel = document.getElementById('priceInputLabel');
+            if (priceLabel) {
+                if (isJob) {
+                    priceLabel.innerHTML = '{{ __("Offered Wage / Compensation (CAD)") }} <span class="text-danger">*</span>';
+                } else if (isService) {
+                    priceLabel.innerHTML = '{{ __("Service Rate / Base Price (CAD)") }} <span class="text-danger">*</span>';
+                } else if (isHousing) {
+                    priceLabel.innerHTML = '{{ __("Rent Price (CAD)") }} <span class="text-danger">*</span>';
+                } else {
+                    priceLabel.innerHTML = '{{ __("Price (CAD)") }} <span class="text-danger">*</span>';
+                }
+            }
+
+            const periodSelect = document.getElementById('pricePeriodSelect');
+            if (periodSelect) {
+                if (isJob && (periodSelect.value === 'one_time' || !periodSelect.value)) {
+                    periodSelect.value = 'hour';
+                    handlePricePeriodChange('hour');
+                } else if (isHousing && (periodSelect.value === 'one_time' || !periodSelect.value)) {
+                    periodSelect.value = 'month';
+                    handlePricePeriodChange('month');
+                }
+            }
         }
 
         function renderCategoryLayer(level, items, parentName) {

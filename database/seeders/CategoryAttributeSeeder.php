@@ -160,6 +160,10 @@ class CategoryAttributeSeeder extends Seeder
 
         // --- CARS & VEHICLES ---
         if ($rootSlug === 'cars-vehicles' || $rootSlug === 'vehicles') {
+            // Automotive Services & Repair (Trades & Services under vehicles: NO Year, NO Kilometers)
+            if (Str::contains($combined, ['automotive-services', 'auto-mechanic', 'mechanic', 'auto-detailing', 'detailing', 'towing', 'auto-body', 'paint-repair', 'roadside'])) {
+                return $archetypes['automotive_services'];
+            }
             if (Str::contains($combined, ['classic-cars', 'vintage-cars', 'muscle-cars'])) {
                 return $archetypes['classic_cars'];
             }
@@ -175,7 +179,7 @@ class CategoryAttributeSeeder extends Seeder
             if (Str::contains($combined, ['tire', 'wheel', 'rim', 'parts', 'accessories', 'audio', 'auto-parts'])) {
                 return $archetypes['auto_parts'];
             }
-            if (Str::contains($combined, ['heavy-equipment', 'farming', 'tractor', 'excavator', 'bobcat', 'industrial-machinery'])) {
+            if (Str::contains($combined, ['heavy-equipment', 'farming-equipment', 'farming', 'tractor', 'excavator', 'bobcat', 'industrial-machinery', 'harvester', 'seeder', 'hay-livestock'])) {
                 return $archetypes['heavy_equipment'];
             }
             return $archetypes['cars_trucks'];
@@ -247,9 +251,6 @@ class CategoryAttributeSeeder extends Seeder
 
         // --- VACATION RENTALS ---
         if ($rootSlug === 'vacation-rentals') {
-            if (Str::contains($combined, ['rvs-campgrounds', 'rv-campsites', 'campground'])) {
-                return $archetypes['rvs_campers'];
-            }
             return $archetypes['vacation_rentals'];
         }
 
@@ -1399,6 +1400,41 @@ class CategoryAttributeSeeder extends Seeder
             // ─────────────────────────────────────────────────────────────
             // 🛠️ SERVICES ARCHETYPES
             // ─────────────────────────────────────────────────────────────
+            'automotive_services' => [
+                [
+                    'name'          => 'Service Specialty',
+                    'slug'          => 'service-specialty',
+                    'type'          => 'select',
+                    'is_required'   => true,
+                    'is_filterable' => true,
+                    'options'       => ['General Auto Repair & Maintenance', 'Engine Diagnostics & Tuning', 'Brake Repair & Replacement', 'Transmission & Clutch Service', 'Auto Detailing & Ceramic Coating', 'Auto Body & Paint Repair', 'Towing & 24/7 Roadside Assistance', 'Tire Change & Balancing', 'Oil Change & Fluid Flush', 'Windshield & Auto Glass']
+                ],
+                [
+                    'name'          => 'Service Format / Location',
+                    'slug'          => 'service-location-type',
+                    'type'          => 'select',
+                    'is_required'   => true,
+                    'is_filterable' => true,
+                    'options'       => ['Licensed Auto Repair Shop', 'Mobile Mechanic (Comes to You)', 'Towing / Roadside Service']
+                ],
+                [
+                    'name'          => 'Licensed / Certified Mechanic',
+                    'slug'          => 'certified-mechanic',
+                    'type'          => 'select',
+                    'is_required'   => false,
+                    'is_filterable' => true,
+                    'options'       => ['Yes (Red Seal / Licensed Mechanic)', 'Certified Detailer / Specialist', 'Experienced Automotive Professional']
+                ],
+                [
+                    'name'          => 'Free Estimates Available',
+                    'slug'          => 'free-estimates',
+                    'type'          => 'select',
+                    'is_required'   => false,
+                    'is_filterable' => true,
+                    'options'       => ['Yes (Free Estimate / Diagnostic)', 'Diagnostic Fee Applied to Repair', 'Fixed Rate by Job']
+                ],
+            ],
+
             'services_home_trade' => [
                 [
                     'name'          => 'Service Specialty',

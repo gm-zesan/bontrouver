@@ -16,7 +16,11 @@ class HomeController extends Controller
 
     public function index(Request $request): \Illuminate\View\View
     {
-        $selectedCity = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
+        $user = auth()->user();
+        $selectedCity = $request->query('city') 
+            ?? $request->cookie('bontrouver_city') 
+            ?? session('selected_city')
+            ?? $user?->city;
         $viewData = $this->homeDataService->getHomepageData($selectedCity);
 
         return view('frontend.index', $viewData);
@@ -45,6 +49,21 @@ class HomeController extends Controller
         session(['selected_city' => $result['city'], 'selected_location_label' => $result['label']]);
         $cookieCity = cookie('bontrouver_city', $result['city'], 60 * 24 * 30);
         $cookieLabel = cookie('bontrouver_location_label', $result['label'], 60 * 24 * 30);
+
+        // If user is logged in, synchronize their profile home city as well
+        if (auth()->check()) {
+            $user = auth()->user();
+            if (empty($user->city) || strcasecmp($user->city, $result['city']) !== 0) {
+                $user->city = $result['city'];
+                if (!empty($result['label'])) {
+                    $parts = explode(',', $result['label']);
+                    if (isset($parts[1])) {
+                        $user->province = trim($parts[1]);
+                    }
+                }
+                $user->save();
+            }
+        }
 
         return response()->json([
             'success' => true,

@@ -214,9 +214,11 @@ class CategorySeeder extends Seeder
             ],
             'jobs' => [
                 'name' => 'Jobs',
+                'name_fr' => 'Emplois',
                 'slug' => 'jobs',
                 'icon' => 'bi-briefcase',
-                'description' => 'Find local jobs or hire great talent',
+                'description' => 'Post job offers or find employment opportunities',
+                'description_fr' => 'Publiez des offres d\'emploi ou trouvez des opportunités professionnelles',
                 'subcategories' => [
                     [
                         'name' => 'Accounting & Management',
@@ -783,9 +785,11 @@ class CategorySeeder extends Seeder
             ],
             'services' => [
                 'name' => 'Services',
+                'name_fr' => 'Services',
                 'slug' => 'services',
                 'icon' => 'bi-tools',
-                'description' => 'Skilled trades, repairs & professional services',
+                'description' => 'Offer your services or hire skilled local providers',
+                'description_fr' => 'Offrez vos services ou engagez des prestataires locaux qualifiés',
                 'subcategories' => [
                     [
                         'name' => 'Automotive Services & Repair',

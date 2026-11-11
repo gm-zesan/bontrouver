@@ -822,8 +822,8 @@
                         {{-- 5B. DYNAMIC CATEGORY ATTRIBUTES FILTER (Auto-populated when admin toggles "Enable in Search Filter") --}}
                         <div id="dynamicCategoryAttributesDesktop" class="dynamic-category-attributes-container"></div>
 
-                        {{-- 6. GENERIC CONDITION FILTER (Hidden for Housing & Jobs) --}}
-                        <div class="filter-section generic-facet" id="genericConditionSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
+                        {{-- 6. GENERIC CONDITION FILTER (Hidden for Housing, Jobs & Services) --}}
+                        <div class="filter-section generic-facet" id="genericConditionSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs', 'services']) ? 'none' : 'block' }};">
                             <div class="filter-section-title">{{ __('Condition') }}</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
@@ -959,9 +959,22 @@
                                     {{ __('All Classifieds & Listings in :location', ['location' => $location === 'All Canada' ? __('All Canada') : $location]) }}
                                 @endif
                             </h1>
-                            <p class="results-count-text">
+                            <p class="results-count-text mb-1">
                                 {{ __('Showing') }} <span id="resultsCountTotal">{{ count($listings) }}</span> <span id="resultsCountNoun">{{ count($listings) === 1 ? __('result') : __('results') }}</span>
                             </p>
+                            @if($categorySlug === 'services')
+                                <div class="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 px-2 py-1"><i class="bi bi-tools me-1"></i> {{ __('Professional & Local Services') }}</span>
+                                    <span class="small text-muted">{{ __('Offer your professional services or hire skilled local providers.') }}</span>
+                                    <a href="{{ url('/post-ad?category=services') }}" class="small text-primary fw-medium text-decoration-none ms-1"><i class="bi bi-plus-circle me-1"></i>{{ __('Offer Your Services') }} &rarr;</a>
+                                </div>
+                            @elseif($categorySlug === 'jobs')
+                                <div class="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25 px-2 py-1"><i class="bi bi-briefcase me-1"></i> {{ __('Employment & Hiring') }}</span>
+                                    <span class="small text-muted">{{ __('Browse job openings or post a listing to hire local talent.') }}</span>
+                                    <a href="{{ url('/post-ad?category=jobs') }}" class="small text-success fw-medium text-decoration-none ms-1"><i class="bi bi-plus-circle me-1"></i>{{ __('Post a Job Opening') }} &rarr;</a>
+                                </div>
+                            @endif
                         </div>
 
                         <!-- View Mode Switcher & Sorting Toolbar -->
@@ -1378,7 +1391,7 @@
         <div id="dynamicCategoryAttributesMobile" class="dynamic-category-attributes-container"></div>
 
         {{-- Mobile Generic Condition --}}
-        <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericConditionGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
+        <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericConditionGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs', 'services']) ? 'none' : 'block' }};">
             <label class="mobile-group-label">{{ __('Condition') }}</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
@@ -2189,6 +2202,17 @@
             }
         }
         triggerLiveFilter();
+
+        // Persist to server session and 30-day cookie so location is never lost
+        fetch('{{ url("/api/location/set") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ city: val })
+        }).catch(err => console.debug('Location sync notice:', err));
     }
 
     function resetLocationFilter() {
@@ -2232,6 +2256,7 @@
         const isHousing = (catSlug === 'housing' || catSlug === 'real-estate');
         const isCars = (catSlug === 'cars-vehicles');
         const isJobs = (catSlug === 'jobs');
+        const isServices = (catSlug === 'services');
 
         // 1. Mobile Drawer Category Select
         const mobCatSel = document.getElementById('mobileCategorySelect');
@@ -2285,13 +2310,13 @@
 
         // 6. Generic Condition (Desktop)
         const condSec = document.getElementById('genericConditionSection');
-        if (condSec) condSec.style.display = (isHousing || isJobs) ? 'none' : 'block';
+        if (condSec) condSec.style.display = (isHousing || isJobs || isServices) ? 'none' : 'block';
 
         // 7. Mobile Facet Display
         const mobHousing = document.getElementById('mobileFacetHousing');
         const mobCond = document.getElementById('mobileGenericConditionGroup');
         if (mobHousing) mobHousing.style.display = isHousing ? 'block' : 'none';
-        if (mobCond) mobCond.style.display = (isHousing || isJobs) ? 'none' : 'block';
+        if (mobCond) mobCond.style.display = (isHousing || isJobs || isServices) ? 'none' : 'block';
 
         // 8. Load and render dynamic category attributes (Filterable attributes enabled in Admin)
         loadCategoryFilterableAttributes(catSlug, subSlug);

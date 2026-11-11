@@ -37,14 +37,23 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('*', function ($view) {
             $request = request();
-            $city = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
+            $user = auth()->user();
+            $city = $request->query('city') 
+                ?? $request->cookie('bontrouver_city') 
+                ?? session('selected_city') 
+                ?? $user?->city;
             $label = $request->cookie('bontrouver_location_label') ?? session('selected_location_label');
 
             $citiesMap = City::getCitiesMap();
 
             if (!$label && $city) {
                 $matched = $citiesMap[$city] ?? null;
-                $label = $matched['label'] ?? (ucfirst($city) . ', Canada');
+                $label = $matched['label'] ?? ($user?->city && $user?->province ? "{$user->city}, {$user->province}" : (ucfirst($city) . ', Canada'));
+            }
+
+            // If user is authenticated and session doesn't have the city yet, persist it
+            if ($user?->city && !session()->has('selected_city')) {
+                session(['selected_city' => $city, 'selected_location_label' => $label]);
             }
 
             $view->with([

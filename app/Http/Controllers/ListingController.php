@@ -36,10 +36,18 @@ class ListingController extends Controller
         $childSlug    = $request->query('child');
         $searchQuery  = $request->query('q');
 
-        $selectedCity = $request->query('city') ?? $request->cookie('bontrouver_city') ?? session('selected_city');
+        $user         = auth()->user();
+        $selectedCity = $request->query('city') 
+            ?? $request->cookie('bontrouver_city') 
+            ?? session('selected_city')
+            ?? $user?->city;
         $citiesMap    = LocationService::getCitiesMap();
-        $location     = $request->query('location') ?? ($selectedCity ? ($citiesMap[$selectedCity]['label'] ?? $selectedCity) : 'All Canada');
+        $location     = $request->query('location') ?? ($selectedCity ? ($citiesMap[$selectedCity]['label'] ?? ($user?->city && $user?->province ? "{$user->city}, {$user->province}" : $selectedCity)) : 'All Canada');
         $radius       = $request->query('radius', 'all');
+
+        if ($user?->city && !session()->has('selected_city')) {
+            session(['selected_city' => $selectedCity]);
+        }
 
         $categories = CategoryService::getAll();
         $resolved   = $this->listingService->resolveCategory($categorySlug, $subSlug, $childSlug, $categories);
