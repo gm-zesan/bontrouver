@@ -470,13 +470,24 @@
                     <div class="search-col search-location-col">
                         <i class="bi bi-geo-alt search-icon"></i>
                         <select id="filterLocation" class="search-field search-select" aria-label="{{ __('Location') }}" onchange="syncLocationFilter(this.value)">
-                            <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
+                            @php
+                                $selectedCitySlug = \Illuminate\Support\Str::slug($selectedCity ?? '');
+                                $locationSlug = \Illuminate\Support\Str::slug($location ?? '');
+                                $isAllCanada = (empty($selectedCity) || $selectedCitySlug === 'all-canada' || $selectedCity === 'All Canada' || empty($selectedCitySlug));
+                            @endphp
+                            <option value="All Canada" {{ $isAllCanada ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
                             @if(!empty($canadianCities))
+                                @php $seenCities = []; @endphp
                                 @foreach($canadianCities as $cName => $cInfo)
                                     @php
-                                        $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
+                                        $cId = $cInfo['id'] ?? $cName;
+                                        if (isset($seenCities[$cId])) continue;
+                                        $seenCities[$cId] = true;
+
+                                        $cSlug = \Illuminate\Support\Str::slug($cInfo['name_en'] ?? $cInfo['name'] ?? $cName);
+                                        $isCitySelected = (!$isAllCanada && ($selectedCitySlug === $cSlug || $locationSlug === $cSlug || str_contains($locationSlug, $cSlug)));
                                     @endphp
-                                    <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
+                                    <option value="{{ $cInfo['name'] ?? $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
                                 @endforeach
                             @endif
                         </select>
@@ -1255,13 +1266,24 @@
             <label class="mobile-group-label" for="mobileFilterLocation">{{ __('Location') }}</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileFilterLocation" class="mobile-drawer-select" onchange="syncLocationFilter(this.value)">
-                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
+                    @php
+                        $selectedCitySlug = \Illuminate\Support\Str::slug($selectedCity ?? '');
+                        $locationSlug = \Illuminate\Support\Str::slug($location ?? '');
+                        $isAllCanada = (empty($selectedCity) || $selectedCitySlug === 'all-canada' || $selectedCity === 'All Canada' || empty($selectedCitySlug));
+                    @endphp
+                    <option value="All Canada" {{ $isAllCanada ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
                     @if(!empty($canadianCities))
+                        @php $seenCities = []; @endphp
                         @foreach($canadianCities as $cName => $cInfo)
                             @php
-                                $isCitySelected = (strtolower($selectedCity ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cName) || strtolower($location ?? '') === strtolower($cInfo['label'] ?? ''));
+                                $cId = $cInfo['id'] ?? $cName;
+                                if (isset($seenCities[$cId])) continue;
+                                $seenCities[$cId] = true;
+
+                                $cSlug = \Illuminate\Support\Str::slug($cInfo['name_en'] ?? $cInfo['name'] ?? $cName);
+                                $isCitySelected = (!$isAllCanada && ($selectedCitySlug === $cSlug || $locationSlug === $cSlug || str_contains($locationSlug, $cSlug)));
                             @endphp
-                            <option value="{{ $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
+                            <option value="{{ $cInfo['name'] ?? $cName }}" {{ $isCitySelected ? 'selected' : '' }}>{{ $cInfo['label'] ?? $cName }}</option>
                         @endforeach
                     @endif
                 </select>

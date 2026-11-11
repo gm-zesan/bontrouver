@@ -13,8 +13,17 @@ class UserLocationService
 
         if ($city && strtolower($city) !== 'all' && strtolower($city) !== 'all canada') {
             $matched = null;
+            $citySlug = \Illuminate\Support\Str::slug($city);
             foreach ($citiesMap as $key => $data) {
-                if (strcasecmp($key, $city) === 0 || strcasecmp($data['label'], $city) === 0 || strcasecmp($data['name'], $city) === 0) {
+                if (
+                    strcasecmp($key, $city) === 0 || 
+                    \Illuminate\Support\Str::slug($key) === $citySlug ||
+                    \Illuminate\Support\Str::slug($data['name'] ?? '') === $citySlug ||
+                    \Illuminate\Support\Str::slug($data['name_en'] ?? '') === $citySlug ||
+                    \Illuminate\Support\Str::slug($data['name_fr'] ?? '') === $citySlug ||
+                    strcasecmp($data['label'] ?? '', $city) === 0 ||
+                    \Illuminate\Support\Str::slug($data['label'] ?? '') === $citySlug
+                ) {
                     $matched = $data;
                     break;
                 }
