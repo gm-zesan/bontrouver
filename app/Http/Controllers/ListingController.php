@@ -53,7 +53,33 @@ class ListingController extends Controller
         $sellerId     = $request->query('seller_id') ? (int) $request->query('seller_id') : ($request->query('user_id') ? (int) $request->query('user_id') : null);
         $sellerName   = $request->query('seller');
 
-        $listings = $this->listingService->getDatabaseListings($selectedCity, $radius, $sellerId, $sellerName);
+        $categoryIds = null;
+        if (!empty($resolved['activeChild'])) {
+            $categoryIds = [$resolved['activeChild']['id']];
+        } elseif (!empty($resolved['activeSubcategory'])) {
+            $categoryIds = CategoryService::collectCategoryIds($resolved['activeSubcategory']);
+        } elseif (!empty($resolved['activeCategory'])) {
+            $categoryIds = CategoryService::collectCategoryIds($resolved['activeCategory']);
+            // Support housing / real-estate synonyms
+            if (in_array($resolved['categorySlug'], ['housing', 'real-estate'])) {
+                $otherSlug = ($resolved['categorySlug'] === 'housing') ? 'real-estate' : 'housing';
+                if (isset($categories[$otherSlug])) {
+                    $categoryIds = array_values(array_unique(array_merge(
+                        $categoryIds,
+                        CategoryService::collectCategoryIds($categories[$otherSlug])
+                    )));
+                }
+            }
+        }
+
+        $listings = $this->listingService->getDatabaseListings(
+            $selectedCity,
+            $radius,
+            $sellerId,
+            $sellerName,
+            $categoryIds,
+            $searchQuery
+        );
 
         if (!empty($searchQuery)) {
             SearchQuery::recordSearch($searchQuery, count($listings));

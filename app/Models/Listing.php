@@ -138,13 +138,15 @@ class Listing extends Model
             }
         }
 
-        if ($this->primaryImage && !empty($this->primaryImage->image_path)) {
+        if (!$this->relationLoaded('primaryImage') && $this->primaryImage && !empty($this->primaryImage->image_path)) {
             return $this->primaryImage->url;
         }
 
-        $firstImage = $this->images()->first();
-        if ($firstImage && !empty($firstImage->image_path)) {
-            return $firstImage->url;
+        if (!$this->relationLoaded('images')) {
+            $firstImage = $this->images()->first();
+            if ($firstImage && !empty($firstImage->image_path)) {
+                return $firstImage->url;
+            }
         }
 
         return asset('images/no-image.svg');

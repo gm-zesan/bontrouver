@@ -57,6 +57,22 @@ class CategoryService
     }
 
     /**
+     * Recursively collect all category IDs from a category tree node and all its descendants.
+     */
+    public static function collectCategoryIds(array $categoryNode): array
+    {
+        $ids = [];
+        if (!empty($categoryNode['id'])) {
+            $ids[] = (int) $categoryNode['id'];
+        }
+        $children = $categoryNode['children'] ?? $categoryNode['subcategories'] ?? [];
+        foreach ($children as $child) {
+            $ids = array_merge($ids, self::collectCategoryIds($child));
+        }
+        return array_values(array_unique($ids));
+    }
+
+    /**
      * Cache key for lightweight navigation tree.
      */
     public const NAV_CACHE_KEY = 'marketplace_nav_tree';

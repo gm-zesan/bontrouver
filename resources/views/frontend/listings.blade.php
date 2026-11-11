@@ -1026,7 +1026,7 @@
                         </div>
 
                         <!-- Listing Cards Stream Container -->
-                        <div class="listings-stream" id="listingsStreamContainer">
+                        <div class="listings-stream" id="listingsStreamContainer" style="{{ count($listings) === 0 ? 'display: none;' : '' }}">
                             @foreach($listings as $item)
                                 <article class="listing-row-card {{ !empty($item['badge']) ? 'has-badge' : '' }}" id="listing-card-{{ $item['id'] }}" onclick="handleCardClick(event, '{{ $item['url'] }}')" onmouseenter="highlightMapPin({{ $item['id'] }})" onmouseleave="unhighlightMapPin({{ $item['id'] }})">
                                     <!-- Left: Listing Image & Quick Action -->
@@ -1114,7 +1114,7 @@
                         </div>
 
                         <!-- Beautiful Empty State (Zero results fallback) -->
-                        <div class="empty-results-card" id="emptyResultsCard" style="display: none;">
+                        <div class="empty-results-card" id="emptyResultsCard" style="{{ count($listings) === 0 ? 'display: block;' : 'display: none;' }}">
                             <div class="empty-state-icon">
                                 <i class="bi bi-search"></i>
                             </div>
@@ -1614,17 +1614,22 @@
 
         // Filter calculation
         let filtered = allListingsData.filter(item => {
-            // Category check (supporting synonyms like real-estate / housing)
+            // Category check (supporting full category ancestry and synonyms like real-estate / housing)
             if (currentCategory) {
-                const itemCat = item.category;
-                const matchesCat = (itemCat === currentCategory) || 
-                                   (currentCategory === 'real-estate' && itemCat === 'housing') ||
-                                   (currentCategory === 'housing' && itemCat === 'real-estate');
+                const catSlugs = item.category_slugs || [item.category];
+                const matchesCat = catSlugs.includes(currentCategory) || 
+                                   (currentCategory === 'real-estate' && catSlugs.includes('housing')) ||
+                                   (currentCategory === 'housing' && catSlugs.includes('real-estate'));
                 if (!matchesCat) return false;
             }
             if (currentSubcategory) {
-                const matchesSub = item.subcategory === currentSubcategory || (item.subcategory || '').includes(currentSubcategory);
+                const catSlugs = item.category_slugs || [item.subcategory];
+                const matchesSub = catSlugs.includes(currentSubcategory) || item.subcategory === currentSubcategory || (item.subcategory || '').includes(currentSubcategory);
                 if (!matchesSub) return false;
+            }
+            if (currentChild) {
+                const catSlugs = item.category_slugs || [];
+                if (!catSlugs.includes(currentChild)) return false;
             }
 
             // Keyword check
@@ -1639,12 +1644,13 @@
             // Price range check
             if (item.price < minPrice || item.price > maxPrice) return false;
 
-            // Location & Radius distance check
+            // Location & Radius distance check (accent-insensitive)
             if (locationVal && locationVal !== 'all canada' && locationVal !== '') {
-                const cityName = locationVal.split(',')[0].trim().toLowerCase();
-                const itemCity = (item.city || '').toLowerCase();
-                const itemLoc = (item.location || '').toLowerCase();
-                const matchesDirectCity = itemCity.includes(cityName) || itemLoc.includes(cityName);
+                const cleanStr = (s) => (s || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+                const cityName = cleanStr(locationVal.split(',')[0]);
+                const itemCity = cleanStr(item.city);
+                const itemLoc = cleanStr(item.location);
+                const matchesDirectCity = (cityName !== '' && (itemCity.includes(cityName) || itemLoc.includes(cityName)));
 
                 if (radiusVal !== 'all') {
                     const maxRadius = parseFloat(radiusVal);

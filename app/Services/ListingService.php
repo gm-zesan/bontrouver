@@ -43,18 +43,35 @@ class ListingService
 
     /**
      * Fetch all active listings from the DB and transform into the
-     * canonical array shape used by views and JS. Supports distance radius filtering.
+     * canonical array shape used by views and JS. Supports distance radius filtering, category, and keyword filtering.
      */
-    public function getDatabaseListings(?string $selectedCity = null, string|int $radius = 'all', ?int $sellerId = null, ?string $sellerName = null): array
-    {
+    public function getDatabaseListings(
+        ?string $selectedCity = null,
+        string|int $radius = 'all',
+        ?int $sellerId = null,
+        ?string $sellerName = null,
+        ?array $categoryIds = null,
+        ?string $searchQuery = null
+    ): array {
         $query = Listing::with([
-            'category.parent',
+            'category.parent.parent',
             'primaryImage',
             'images',
             'user',
             'city.province',
             'attributes.categoryAttribute',
         ])->where('status', 'active');
+
+        if (!empty($categoryIds)) {
+            $query->whereIn('category_id', $categoryIds);
+        }
+
+        if (!empty($searchQuery)) {
+            $query->where(function ($q) use ($searchQuery) {
+                $q->where('title', 'like', '%' . $searchQuery . '%')
+                  ->orWhere('description', 'like', '%' . $searchQuery . '%');
+            });
+        }
 
         if ($sellerId) {
             $query->where('user_id', $sellerId);
@@ -842,11 +859,27 @@ class ListingService
     {
         $dist = $this->calculateDistance($listing, $refLat, $refLng, $selectedCity);
 
-        $cat             = $listing->category;
-        $rootSlug        = $cat?->parent ? $cat->parent->slug : ($cat?->slug ?? 'category');
-        $rootName        = $cat?->parent ? $cat->parent->name : ($cat?->name ?? 'Category');
-        $subSlug         = $cat?->slug ?? 'subcategory';
-        $subName         = $cat?->name ?? 'Subcategory';
+        $cat   = $listing->category;
+        $curr  = $cat;
+        $chain = [];
+        while ($curr) {
+            array_unshift($chain, $curr);
+            $curr = $curr->parent;
+        }
+
+        $rootCat  = $chain[0] ?? $cat;
+        $subCat   = $chain[1] ?? null;
+        $childCat = $chain[2] ?? null;
+
+        $rootSlug  = $rootCat?->slug ?? 'category';
+        $rootName  = $rootCat?->name ?? 'Category';
+        $subSlug   = $subCat ? $subCat->slug : ($cat?->slug ?? 'subcategory');
+        $subName   = $subCat ? $subCat->name : ($cat?->name ?? 'Subcategory');
+        $childSlug = $childCat?->slug;
+        $childName = $childCat?->name;
+
+        $categorySlugs = array_values(array_filter(array_map(fn ($c) => $c->slug ?? null, $chain)));
+        $categoryIds   = array_values(array_filter(array_map(fn ($c) => (int) ($c->id ?? 0), $chain)));
 
         $rawAttrs        = $this->extractEavAttributes($listing);
         $derived         = $this->deriveAttributes($rawAttrs, $subSlug, $subName, $listing);
@@ -919,6 +952,10 @@ class ListingService
             'category_name'       => $rootName,
             'subcategory'         => $subSlug,
             'subcategory_name'    => $subName,
+            'child_category'      => $childSlug,
+            'child_category_name' => $childName,
+            'category_slugs'      => $categorySlugs,
+            'category_ids'        => $categoryIds,
             'price'               => (float) $listing->price,
             'price_formatted'     => '$' . number_format($listing->price, 2),
             'price_type'          => $listing->price_type,
@@ -930,8 +967,8 @@ class ListingService
             'neighbourhood'       => $listing->location_name,
             'postal_code_prefix'  => $listing->postal_code ?? '',
             'distance_km'         => $dist,
-            'posted_at'           => ($listing->bumped_at ?? $listing->created_at)->diffForHumans(),
-            'posted_date'         => ($listing->bumped_at ?? $listing->created_at)->format('F j, Y'),
+            'posted_at'           => ($listing->bumped_at ?? $listing->created_at ?? now())->diffForHumans(),
+            'posted_date'         => ($listing->bumped_at ?? $listing->created_at ?? now())->format('F j, Y'),
             'bumped_at'           => $listing->bumped_at?->toISOString(),
             'created_at'          => $listing->created_at?->toISOString(),
             'condition'           => $listing->condition,
@@ -968,7 +1005,7 @@ class ListingService
             );
         }
 
-        if ($selectedCity && strcasecmp($listing->city, $selectedCity) === 0) {
+        if ($selectedCity && strcasecmp($listing->city_name, $selectedCity) === 0) {
             return 2.5;
         }
 

@@ -303,9 +303,10 @@ class HomeDataService
             if ($cat) break;
         }
 
-        $count    = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->count() : 0;
-        $minPrice = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->min('price') : null;
-        $latest   = $cat ? Listing::with('primaryImage')->where('category_id', $cat['id'])->where('status', 'active')->latest()->first() : null;
+        $categoryIds = $cat ? CategoryService::collectCategoryIds($cat) : [];
+        $count    = !empty($categoryIds) ? Listing::whereIn('category_id', $categoryIds)->where('status', 'active')->count() : 0;
+        $minPrice = !empty($categoryIds) ? Listing::whereIn('category_id', $categoryIds)->where('status', 'active')->min('price') : null;
+        $latest   = !empty($categoryIds) ? Listing::with('primaryImage')->whereIn('category_id', $categoryIds)->where('status', 'active')->latest()->first() : null;
         $image    = $latest?->primaryImage?->image_path ?? ($opts['default_image'] ?? null);
 
         $tags = [];
@@ -335,18 +336,17 @@ class HomeDataService
 
     private function buildClassifiedsSpotlight(array $allCategories): array
     {
-        $cat   = $allCategories['buy-sell'] ?? null;
-        $count = $cat ? Listing::where('category_id', $cat['id'])->where('status', 'active')->count() : 0;
-        $items = [];
+        $cat         = $allCategories['buy-sell'] ?? null;
+        $categoryIds = $cat ? CategoryService::collectCategoryIds($cat) : [];
+        $count       = !empty($categoryIds) ? Listing::whereIn('category_id', $categoryIds)->where('status', 'active')->count() : 0;
+        $items       = [];
 
         if ($cat) {
-            $subIds   = array_column($cat['children'] ?? [], 'id');
-            $listings = Listing::with('primaryImage')
-                ->where(function ($q) use ($cat, $subIds) {
-                    $q->where('category_id', $cat['id']);
-                    if (!empty($subIds)) $q->orWhereIn('category_id', $subIds);
-                })
-                ->where('status', 'active')->latest()->limit(4)->get();
+            $listings = !empty($categoryIds)
+                ? Listing::with('primaryImage')
+                    ->whereIn('category_id', $categoryIds)
+                    ->where('status', 'active')->latest()->limit(4)->get()
+                : collect();
 
             $fallbackItems = array_slice($cat['children'] ?? [], 0, 4);
             foreach ($listings->isNotEmpty() ? $listings : collect($fallbackItems) as $entry) {
