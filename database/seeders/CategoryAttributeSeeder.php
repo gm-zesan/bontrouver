@@ -39,6 +39,16 @@ class CategoryAttributeSeeder extends Seeder
                     $attributes = $attributeArchetypes['general_goods'];
                 }
 
+                // Remove obsolete attributes previously associated with this category
+                $validSlugs = array_column($attributes, 'slug');
+                $obsoleteAttributes = CategoryAttribute::where('category_id', $category->id)
+                    ->whereNotIn('slug', $validSlugs)
+                    ->get();
+                foreach ($obsoleteAttributes as $oldAttr) {
+                    AttributeOption::where('category_attribute_id', $oldAttr->id)->delete();
+                    $oldAttr->delete();
+                }
+
                 $sortOrder = 1;
                 foreach ($attributes as $attrData) {
                     $attrNameEn = $attrData['name'];
@@ -119,181 +129,181 @@ class CategoryAttributeSeeder extends Seeder
             return $archetypes[$parentSlug];
         }
 
-        // 3. Domain Pattern Matching based on keywords in slug or parent slug
+        // 3. Domain Pattern Matching Partitioned strictly by Root Category
         $combined = "{$rootSlug} {$parentSlug} {$slug}";
 
         // --- HOUSING & REAL ESTATE ---
-        if (Str::contains($combined, ['room-rental', 'roommate', 'room'])) {
-            return $archetypes['room_rentals'];
-        }
-        if (Str::contains($combined, ['condo-rent', 'apartment', 'apartments-condos-rent'])) {
-            return $archetypes['apartments_rent'];
-        }
-        if (Str::contains($combined, ['houses-rent', 'house-rent'])) {
-            return $archetypes['houses_rent'];
-        }
-        if (Str::contains($combined, ['houses-sale', 'house-sale', 'condos-sale', 'condo-sale', 'property-sale'])) {
-            return $archetypes['property_sale'];
-        }
-        if (Str::contains($combined, ['commercial', 'office-space', 'storefront', 'retail-space'])) {
-            return $archetypes['commercial_real_estate'];
-        }
-        if (Str::contains($combined, ['land', 'plot', 'acreage', 'lot'])) {
-            return $archetypes['land_sale'];
-        }
-        if (Str::contains($combined, ['storage', 'parking-rent', 'garage-rent'])) {
-            return $archetypes['storage_parking'];
-        }
-        if (Str::contains($combined, ['housing', 'rental', 'rent', 'lease'])) {
+        if ($rootSlug === 'housing' || $rootSlug === 'real-estate') {
+            if (Str::contains($combined, ['room-rental', 'roommate', 'room'])) {
+                return $archetypes['room_rentals'];
+            }
+            if (Str::contains($combined, ['condo-rent', 'apartment', 'apartments-condos-rent'])) {
+                return $archetypes['apartments_rent'];
+            }
+            if (Str::contains($combined, ['houses-rent', 'house-rent'])) {
+                return $archetypes['houses_rent'];
+            }
+            if (Str::contains($combined, ['houses-sale', 'house-sale', 'condos-sale', 'condo-sale', 'property-sale'])) {
+                return $archetypes['property_sale'];
+            }
+            if (Str::contains($combined, ['commercial', 'office-space', 'storefront', 'retail-space'])) {
+                return $archetypes['commercial_real_estate'];
+            }
+            if (Str::contains($combined, ['land', 'plot', 'acreage', 'lot'])) {
+                return $archetypes['land_sale'];
+            }
+            if (Str::contains($combined, ['storage', 'parking-rent', 'garage-rent'])) {
+                return $archetypes['storage_parking'];
+            }
             return $archetypes['apartments_rent'];
         }
 
         // --- CARS & VEHICLES ---
-        if (Str::contains($combined, ['classic-cars', 'vintage-cars', 'muscle-cars'])) {
-            return $archetypes['classic_cars'];
-        }
-        if (Str::contains($combined, ['cars-trucks', 'cars', 'trucks', 'suvs', 'sedan', 'van', 'automobile', 'hatchback'])) {
+        if ($rootSlug === 'cars-vehicles' || $rootSlug === 'vehicles') {
+            if (Str::contains($combined, ['classic-cars', 'vintage-cars', 'muscle-cars'])) {
+                return $archetypes['classic_cars'];
+            }
+            if (Str::contains($combined, ['motorcycle', 'scooter', 'moped', 'sport-bike', 'cruiser', 'dirt-bike'])) {
+                return $archetypes['motorcycles'];
+            }
+            if (Str::contains($combined, ['atv', 'snowmobile', 'quad', 'side-by-side', 'utv', 'seadoo', 'watercraft', 'boat'])) {
+                return $archetypes['powersports_boats'];
+            }
+            if (Str::contains($combined, ['rvs-campers', 'popup-campers', 'camper', 'motorhome', 'fifth-wheel'])) {
+                return $archetypes['rvs_campers'];
+            }
+            if (Str::contains($combined, ['tire', 'wheel', 'rim', 'parts', 'accessories', 'audio', 'auto-parts'])) {
+                return $archetypes['auto_parts'];
+            }
+            if (Str::contains($combined, ['heavy-equipment', 'farming', 'tractor', 'excavator', 'bobcat', 'industrial-machinery'])) {
+                return $archetypes['heavy_equipment'];
+            }
             return $archetypes['cars_trucks'];
-        }
-        if (Str::contains($combined, ['motorcycle', 'scooter', 'moped', 'sport-bike', 'cruiser', 'dirt-bike'])) {
-            return $archetypes['motorcycles'];
-        }
-        if (Str::contains($combined, ['atv', 'snowmobile', 'quad', 'side-by-side', 'utv', 'seadoo', 'watercraft', 'boat'])) {
-            return $archetypes['powersports_boats'];
-        }
-        if (Str::contains($combined, ['rv', 'camper', 'trailer', 'motorhome', 'fifth-wheel'])) {
-            return $archetypes['rvs_campers'];
-        }
-        if (Str::contains($combined, ['tire', 'wheel', 'rim', 'parts', 'accessories', 'audio', 'auto-parts'])) {
-            return $archetypes['auto_parts'];
-        }
-        if (Str::contains($combined, ['heavy-equipment', 'farming', 'tractor', 'excavator', 'bobcat', 'industrial-machinery'])) {
-            return $archetypes['heavy_equipment'];
-        }
-        if ($rootSlug === 'cars-vehicles') {
-            return $archetypes['cars_trucks'];
-        }
-
-        // --- BUY & SELL / ELECTRONICS / GOODS ---
-        if (Str::contains($combined, ['phone', 'smartphone', 'iphone', 'samsung', 'cellular', 'telecom'])) {
-            return $archetypes['smartphones'];
-        }
-        if (Str::contains($combined, ['computer', 'laptop', 'macbook', 'pc', 'tablet', 'ipad', 'desktop', 'server'])) {
-            return $archetypes['computers_laptops'];
-        }
-        if (Str::contains($combined, ['video-game', 'console', 'playstation', 'xbox', 'nintendo', 'gaming'])) {
-            return $archetypes['video_games_consoles'];
-        }
-        if (Str::contains($combined, ['audio', 'stereo', 'speaker', 'headphone', 'amplifier', 'home-theater', 'soundbar'])) {
-            return $archetypes['audio_electronics'];
-        }
-        if (Str::contains($combined, ['camera', 'camcorder', 'dslr', 'lens', 'photography', 'drone', 'gopro'])) {
-            return $archetypes['cameras'];
-        }
-        if (Str::contains($combined, ['furniture', 'couch', 'sofa', 'table', 'bed', 'mattress', 'desk', 'chair', 'decor'])) {
-            return $archetypes['furniture_home'];
-        }
-        if (Str::contains($combined, ['cloth', 'shoe', 'apparel', 'dress', 'jacket', 'boot', 'sneaker', 'bag', 'fashion'])) {
-            return $archetypes['clothing_shoes'];
-        }
-        if (Str::contains($combined, ['jewelry', 'watch', 'ring', 'diamond', 'gold', 'luxury', 'necklace'])) {
-            return $archetypes['jewelry_watches'];
-        }
-        if (Str::contains($combined, ['instrument', 'guitar', 'piano', 'keyboard', 'drum', 'bass', 'brass', 'violin', 'synth'])) {
-            return $archetypes['musical_instruments'];
-        }
-        if (Str::contains($combined, ['bike', 'cycling', 'bicycle', 'e-bike', 'mountain-bike', 'road-bike'])) {
-            return $archetypes['bikes_cycling'];
-        }
-        if (Str::contains($combined, ['tool', 'hardware', 'power-tool', 'drill', 'saw', 'welder', 'generator', 'lawnmower'])) {
-            return $archetypes['tools_hardware'];
-        }
-        if (Str::contains($combined, ['sport', 'fitness', 'gym', 'hockey', 'golf', 'ski', 'snowboard', 'workout', 'exercise'])) {
-            return $archetypes['sporting_goods'];
-        }
-        if (Str::contains($combined, ['baby', 'toy', 'stroller', 'crib', 'toddler', 'kids', 'infant', 'car-seat'])) {
-            return $archetypes['baby_toys'];
-        }
-        if (Str::contains($combined, ['book', 'media', 'dvd', 'vinyl', 'comic', 'hobby', 'craft', 'collectible', 'card'])) {
-            return $archetypes['books_collectibles'];
-        }
-        if (Str::contains($combined, ['garden', 'outdoor', 'patio', 'lawn', 'plant', 'bbq', 'grill'])) {
-            return $archetypes['home_garden'];
-        }
-        if (Str::contains($combined, ['health', 'beauty', 'skincare', 'cosmetic', 'perfume', 'wellness'])) {
-            return $archetypes['health_beauty'];
-        }
-        if ($rootSlug === 'buy-sell') {
-            return $archetypes['general_goods'];
-        }
-
-        // --- JOBS ---
-        if ($rootSlug === 'jobs' || Str::contains($combined, ['job', 'employment', 'career', 'hiring', 'recruitment', 'work'])) {
-            return $archetypes['jobs_employment'];
         }
 
         // --- SERVICES ---
-        if (Str::contains($combined, ['renovation', 'contractor', 'plumbing', 'electrical', 'hvac', 'roofing', 'handyman', 'carpentry', 'painting'])) {
-            return $archetypes['services_home_trade'];
-        }
-        if (Str::contains($combined, ['clean', 'housekeeping', 'maid', 'janitorial', 'carpet-clean'])) {
-            return $archetypes['services_cleaning'];
-        }
-        if (Str::contains($combined, ['tech-support', 'computer-repair', 'it-service', 'web-design', 'data-recovery'])) {
-            return $archetypes['services_tech'];
-        }
-        if (Str::contains($combined, ['tutor', 'lesson', 'class', 'language', 'coach', 'music-lesson', 'driving-school'])) {
-            return $archetypes['services_tutoring'];
-        }
-        if (Str::contains($combined, ['financial', 'legal', 'tax', 'accounting', 'notary', 'lawyer', 'bookkeeping'])) {
-            return $archetypes['services_financial_legal'];
-        }
-        if (Str::contains($combined, ['childcare', 'babysitt', 'nanny', 'daycare'])) {
-            return $archetypes['services_childcare'];
-        }
-        if (Str::contains($combined, ['moving', 'storage-service', 'hauling', 'delivery-service'])) {
-            return $archetypes['services_moving_hauling'];
-        }
-        if (Str::contains($combined, ['event', 'entertainment', 'dj', 'catering', 'party', 'wedding', 'photography', 'videography'])) {
-            return $archetypes['services_events_creative'];
-        }
         if ($rootSlug === 'services') {
+            if (Str::contains($combined, ['renovation', 'contractor', 'plumbing', 'electrical', 'hvac', 'roofing', 'handyman', 'carpentry', 'painting', 'certified-electricians', 'licensed-plumbers', 'decks-fences'])) {
+                return $archetypes['services_home_trade'];
+            }
+            if (Str::contains($combined, ['clean', 'housekeeping', 'maid', 'janitorial', 'carpet-clean'])) {
+                return $archetypes['services_cleaning'];
+            }
+            if (Str::contains($combined, ['tech-support', 'computer-repair', 'it-service', 'web-design', 'data-recovery', 'web-app'])) {
+                return $archetypes['services_tech'];
+            }
+            if (Str::contains($combined, ['tutor', 'lesson', 'class', 'language', 'coach', 'music-lesson', 'driving-school', 'driving-instructors'])) {
+                return $archetypes['services_tutoring'];
+            }
+            if (Str::contains($combined, ['financial', 'legal', 'tax', 'accounting', 'notary', 'lawyer', 'bookkeeping'])) {
+                return $archetypes['services_financial_legal'];
+            }
+            if (Str::contains($combined, ['childcare', 'babysitt', 'nanny', 'daycare'])) {
+                return $archetypes['services_childcare'];
+            }
+            if (Str::contains($combined, ['moving', 'storage-service', 'hauling', 'delivery-service'])) {
+                return $archetypes['services_moving_hauling'];
+            }
+            if (Str::contains($combined, ['event', 'entertainment', 'dj', 'catering', 'party', 'wedding', 'photography', 'videography'])) {
+                return $archetypes['services_events_creative'];
+            }
             return $archetypes['services_general'];
         }
 
+        // --- JOBS ---
+        if ($rootSlug === 'jobs') {
+            return $archetypes['jobs_employment'];
+        }
+
         // --- PETS ---
-        if (Str::contains($combined, ['dog', 'puppy', 'puppies', 'canine'])) {
-            return $archetypes['pets_dogs'];
-        }
-        if (Str::contains($combined, ['cat', 'kitten', 'kittens', 'feline'])) {
-            return $archetypes['pets_cats'];
-        }
-        if (Str::contains($combined, ['bird', 'parrot', 'fish', 'aquarium', 'reptile', 'amphibian', 'small-animal', 'rabbit', 'hamster'])) {
-            return $archetypes['pets_small_animals'];
-        }
-        if (Str::contains($combined, ['pet-sitting', 'grooming', 'boarding', 'walking', 'pet-service'])) {
-            return $archetypes['pets_services'];
-        }
-        if (Str::contains($combined, ['pet-accessories', 'pet-food', 'supplies', 'crate', 'cage', 'aquarium-tank'])) {
-            return $archetypes['pets_supplies'];
-        }
         if ($rootSlug === 'pets') {
+            if (Str::contains($combined, ['dog', 'puppy', 'puppies', 'canine'])) {
+                return $archetypes['pets_dogs'];
+            }
+            if (Str::contains($combined, ['cat', 'kitten', 'kittens', 'feline'])) {
+                return $archetypes['pets_cats'];
+            }
+            if (Str::contains($combined, ['bird', 'parrot', 'fish', 'aquarium', 'reptile', 'amphibian', 'small-animal', 'rabbit', 'hamster'])) {
+                return $archetypes['pets_small_animals'];
+            }
+            if (Str::contains($combined, ['pet-sitting', 'grooming', 'boarding', 'walking', 'pet-service'])) {
+                return $archetypes['pets_services'];
+            }
+            if (Str::contains($combined, ['pet-accessories', 'pet-food', 'supplies', 'crate', 'cage', 'aquarium-tank'])) {
+                return $archetypes['pets_supplies'];
+            }
             return $archetypes['pets_dogs'];
         }
 
         // --- RIDESHARING & CARPOOL ---
-        if ($rootSlug === 'ridesharing' || $rootSlug === 'rideshare-carpool' || Str::contains($combined, ['rideshare', 'carpool', 'ride', 'commute', 'trip', 'shuttle'])) {
+        if ($rootSlug === 'ridesharing' || $rootSlug === 'rideshare-carpool') {
             return $archetypes['rideshare_carpool'];
         }
 
         // --- COMMUNITY ---
-        if ($rootSlug === 'community' || Str::contains($combined, ['community', 'volunteer', 'charity', 'club', 'group', 'meetup', 'activity', 'lost-found'])) {
+        if ($rootSlug === 'community') {
             return $archetypes['community_social'];
         }
 
         // --- VACATION RENTALS ---
-        if ($rootSlug === 'vacation-rentals' || Str::contains($combined, ['vacation', 'cottage', 'cabin', 'chalet', 'beachfront', 'lodge', 'glamping', 'resort'])) {
+        if ($rootSlug === 'vacation-rentals') {
+            if (Str::contains($combined, ['rvs-campgrounds', 'rv-campsites', 'campground'])) {
+                return $archetypes['rvs_campers'];
+            }
             return $archetypes['vacation_rentals'];
+        }
+
+        // --- BUY & SELL / ELECTRONICS / GOODS ---
+        if ($rootSlug === 'buy-sell') {
+            if (Str::contains($combined, ['phone', 'smartphone', 'iphone', 'samsung', 'cellular', 'telecom'])) {
+                return $archetypes['smartphones'];
+            }
+            if (Str::contains($combined, ['computer', 'laptop', 'macbook', 'pc', 'tablet', 'ipad', 'desktop', 'server'])) {
+                return $archetypes['computers_laptops'];
+            }
+            if (Str::contains($combined, ['video-game', 'console', 'playstation', 'xbox', 'nintendo', 'gaming'])) {
+                return $archetypes['video_games_consoles'];
+            }
+            if (Str::contains($combined, ['audio', 'stereo', 'speaker', 'headphone', 'amplifier', 'home-theater', 'soundbar'])) {
+                return $archetypes['audio_electronics'];
+            }
+            if (Str::contains($combined, ['camera', 'camcorder', 'dslr', 'lens', 'photography', 'drone', 'gopro'])) {
+                return $archetypes['cameras'];
+            }
+            if (Str::contains($combined, ['furniture', 'couch', 'sofa', 'table', 'bed', 'mattress', 'desk', 'chair', 'decor'])) {
+                return $archetypes['furniture_home'];
+            }
+            if (Str::contains($combined, ['cloth', 'shoe', 'apparel', 'dress', 'jacket', 'boot', 'sneaker', 'bag', 'fashion'])) {
+                return $archetypes['clothing_shoes'];
+            }
+            if (Str::contains($combined, ['jewelry', 'watch', 'ring', 'diamond', 'gold', 'luxury', 'necklace'])) {
+                return $archetypes['jewelry_watches'];
+            }
+            if (Str::contains($combined, ['instrument', 'guitar', 'piano', 'keyboard', 'drum', 'bass', 'brass', 'violin', 'synth'])) {
+                return $archetypes['musical_instruments'];
+            }
+            if (Str::contains($combined, ['bike', 'cycling', 'bicycle', 'e-bike', 'mountain-bike', 'road-bike'])) {
+                return $archetypes['bikes_cycling'];
+            }
+            if (Str::contains($combined, ['tool', 'hardware', 'power-tool', 'drill', 'saw', 'welder', 'generator', 'lawnmower'])) {
+                return $archetypes['tools_hardware'];
+            }
+            if (Str::contains($combined, ['sport', 'fitness', 'gym', 'hockey', 'golf', 'ski', 'snowboard', 'workout', 'exercise'])) {
+                return $archetypes['sporting_goods'];
+            }
+            if (Str::contains($combined, ['baby', 'toy', 'stroller', 'crib', 'toddler', 'kids', 'infant', 'car-seat'])) {
+                return $archetypes['baby_toys'];
+            }
+            if (Str::contains($combined, ['book', 'media', 'dvd', 'vinyl', 'comic', 'hobby', 'craft', 'collectible', 'card'])) {
+                return $archetypes['books_collectibles'];
+            }
+            if (Str::contains($combined, ['garden', 'outdoor', 'patio', 'lawn', 'plant', 'bbq', 'grill'])) {
+                return $archetypes['home_garden'];
+            }
+            if (Str::contains($combined, ['health', 'beauty', 'skincare', 'cosmetic', 'perfume', 'wellness'])) {
+                return $archetypes['health_beauty'];
+            }
+            return $archetypes['general_goods'];
         }
 
         // Default Fallback

@@ -9,37 +9,37 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'all' ? 'active' : '' }}" 
                                 data-status="all" type="button">
-                            All <span class="tab-badge ms-1" id="tabCountAll">({{ $counts['all'] ?? 0 }})</span>
+                            {{ __('All') }} <span class="tab-badge ms-1" id="tabCountAll">({{ $counts['all'] ?? 0 }})</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'active' ? 'active' : '' }}" 
                                 data-status="active" type="button">
-                            Active <span class="tab-badge ms-1" id="tabCountActive">({{ $counts['active'] ?? 0 }})</span>
+                            {{ __('Active') }} <span class="tab-badge ms-1" id="tabCountActive">({{ $counts['active'] ?? 0 }})</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'draft' ? 'active' : '' }}" 
                                 data-status="draft" type="button">
-                            Drafts <span class="tab-badge ms-1" id="tabCountDrafts">({{ $counts['drafts'] ?? 0 }})</span>
+                            {{ __('Drafts') }} <span class="tab-badge ms-1" id="tabCountDrafts">({{ $counts['drafts'] ?? 0 }})</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'sold' ? 'active' : '' }}" 
                                 data-status="sold" type="button">
-                            Sold <span class="tab-badge ms-1" id="tabCountSold">({{ $counts['sold'] ?? 0 }})</span>
+                            {{ __('Sold') }} <span class="tab-badge ms-1" id="tabCountSold">({{ $counts['sold'] ?? 0 }})</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'expired' ? 'active' : '' }}" 
                                 data-status="expired" type="button">
-                            Expired <span class="tab-badge ms-1" id="tabCountExpired">({{ $counts['expired'] ?? 0 }})</span>
+                            {{ __('Expired') }} <span class="tab-badge ms-1" id="tabCountExpired">({{ $counts['expired'] ?? 0 }})</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link dark-tab-pill {{ ($currentStatus ?? 'all') === 'paused' ? 'active' : '' }}" 
                                 data-status="paused" type="button">
-                            Paused <span class="tab-badge ms-1" id="tabCountPaused">({{ $counts['paused'] ?? 0 }})</span>
+                            {{ __('Paused') }} <span class="tab-badge ms-1" id="tabCountPaused">({{ $counts['paused'] ?? 0 }})</span>
                         </button>
                     </li>
                 </ul>
@@ -56,7 +56,7 @@
                             <i class="bi bi-search"></i>
                         </span>
                         <input type="text" id="listingSearchInput" class="form-control dark-filter-input rounded-0" 
-                                placeholder="Search my listings..." 
+                                placeholder="{{ __('Search my listings...') }}" 
                                 value="{{ $searchQuery }}"
                                 style="border-left: none !important; border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; border-top-right-radius: {{ $searchQuery ? '0' : '10px' }} !important; border-bottom-right-radius: {{ $searchQuery ? '0' : '10px' }} !important;">
                         <button class="btn dark-search-btn-clear" type="button" id="clearSearchBtn" style="display: {{ $searchQuery ? 'block' : 'none' }};">
@@ -68,10 +68,10 @@
                 <!-- Category Filter -->
                 <div class="col-6 col-md-3">
                     <select id="categoryFilter" class="form-select dark-filter-select">
-                        <option value="all" {{ $currentCategory === 'all' ? 'selected' : '' }}>All Categories</option>
+                        <option value="all" {{ $currentCategory === 'all' ? 'selected' : '' }}>{{ __('All Categories') }}</option>
                         @foreach($categories as $category)
                             <option value="{{ $category['name'] }}" {{ $currentCategory === $category['name'] ? 'selected' : '' }}>
-                                {{ $category['name'] }}
+                                {{ __($category['name']) }}
                             </option>
                         @endforeach
                     </select>
@@ -80,12 +80,12 @@
                 <!-- Sort Select -->
                 <div class="col-6 col-md-4">
                     <select id="sortFilter" class="form-select dark-filter-select">
-                        <option value="newest" {{ $currentSort === 'newest' ? 'selected' : '' }}>Newest Posted</option>
-                        <option value="oldest" {{ $currentSort === 'oldest' ? 'selected' : '' }}>Oldest</option>
-                        <option value="price_high" {{ $currentSort === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                        <option value="price_low" {{ $currentSort === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="views" {{ $currentSort === 'views' ? 'selected' : '' }}>Most Viewed</option>
-                        <option value="saves" {{ $currentSort === 'saves' ? 'selected' : '' }}>Most Favorited</option>
+                        <option value="newest" {{ $currentSort === 'newest' ? 'selected' : '' }}>{{ __('Newest Posted') }}</option>
+                        <option value="oldest" {{ $currentSort === 'oldest' ? 'selected' : '' }}>{{ __('Oldest') }}</option>
+                        <option value="price_high" {{ $currentSort === 'price_high' ? 'selected' : '' }}>{{ __('Price: High to Low') }}</option>
+                        <option value="price_low" {{ $currentSort === 'price_low' ? 'selected' : '' }}>{{ __('Price: Low to High') }}</option>
+                        <option value="views" {{ $currentSort === 'views' ? 'selected' : '' }}>{{ __('Most Viewed') }}</option>
+                        <option value="saves" {{ $currentSort === 'saves' ? 'selected' : '' }}>{{ __('Most Favorited') }}</option>
                     </select>
                 </div>
             </div>
@@ -101,14 +101,14 @@
             <div class="empty-state-icon mx-auto mb-3 rounded-circle p-4" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: #081D33;">
                 <i class="bi bi-folder2-open fs-1 text-success"></i>
             </div>
-            <h3 class="h4 fw-bold text-white mb-2" id="emptyStateTitle">No active listings yet</h3>
+            <h3 class="h4 fw-bold text-white mb-2" id="emptyStateTitle">{{ __('No active listings yet') }}</h3>
             <p class="text-secondary mb-4 mx-auto" style="max-width: 460px;" id="emptyStateDesc">
-                Post your first ad and start reaching verified Canadian buyers in your area.
+                {{ __('Post your first ad and start reaching verified Canadian buyers in your area.') }}
             </p>
             <div>
                 <a href="{{ url('/post-ad') }}" class="btn-theme-primary px-4 py-2 d-inline-flex align-items-center gap-2 rounded-pill">
                     <i class="bi bi-plus-lg"></i>
-                    <span>Post an Ad</span>
+                    <span>{{ __('Post an Ad') }}</span>
                 </a>
             </div>
         </div>

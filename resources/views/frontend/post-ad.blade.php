@@ -13,18 +13,18 @@
             <div class="container-xl">
                 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
                     <div>
-                        <span class="post-ad-eyebrow"><i class="bi bi-stars text-success me-1"></i> SELLER PORTAL</span>
-                        <h1 class="post-ad-title">Post an Ad</h1>
-                        <p class="post-ad-subtitle">Create your listing and reach thousands of active buyers across Canada.
+                        <span class="post-ad-eyebrow"><i class="bi bi-stars text-success me-1"></i> {{ __('SELLER PORTAL') }}</span>
+                        <h1 class="post-ad-title">{{ __('Post an Ad') }}</h1>
+                        <p class="post-ad-subtitle">{{ __('Create your listing and reach thousands of active buyers across Canada.') }}
                         </p>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" class="btn-draft-action" id="btnSaveDraftManual" onclick="saveDraftManual()">
                             <i class="bi bi-cloud-arrow-up"></i>
-                            <span>Save Draft</span>
+                            <span>{{ __('Save Draft') }}</span>
                         </button>
                         <span class="draft-status-pill" id="draftStatusBadge">
-                            <i class="bi bi-check2-circle text-success"></i> Auto-saved
+                            <i class="bi bi-check2-circle text-success"></i> {{ __('Auto-saved') }}
                         </span>
                     </div>
                 </div>
@@ -76,20 +76,19 @@
                             <div class="step-card-header">
                                 <div class="step-header-icon"><i class="bi bi-grid-fill"></i></div>
                                 <div>
-                                    <h2 class="step-card-title">Choose a Category</h2>
-                                    <p class="step-card-desc">Select the primary category and subcategory that best fits
-                                        what you are posting.</p>
+                                    <h2 class="step-card-title">{{ __('Choose a Category') }}</h2>
+                                    <p class="step-card-desc">{{ __('Select the primary category and subcategory that best fits what you are posting.') }}</p>
                                 </div>
                             </div>
 
                             <div class="step-card-body">
                                 <!-- Category Quick Cards Grid -->
-                                <label class="form-label-custom">Select Main Category <span
+                                <label class="form-label-custom">{{ __('Select Main Category') }} <span
                                         class="text-danger">*</span></label>
                                 <div class="category-select-grid" id="categoryCardsGrid">
                                     @foreach($categories as $catSlug => $cat)
                                         @php
-                                            $catName = $cat['name'] ?? ucfirst($catSlug);
+                                            $catName = __($cat['name'] ?? ucfirst($catSlug));
                                             $catIcon = $cat['icon'] ?? 'bi-tag';
                                             $isPreselected = ($preselectedCategory === $catSlug);
                                         @endphp
@@ -115,7 +114,7 @@
                                     style="display: none;">
                                     <div class="d-flex align-items-center gap-2 flex-wrap">
                                         <span class="text-success fw-bold small"><i class="bi bi-folder-check me-1"></i>
-                                            Selected Path:</span>
+                                            {{ __('Selected Path:') }}</span>
                                         <div class="d-flex align-items-center gap-1 flex-wrap" id="categoryBreadcrumbTrail">
                                         </div>
                                     </div>
@@ -133,7 +132,7 @@
                                     <div></div>
                                     <button type="button" class="btn-step-next" id="btnNextStep1"
                                         onclick="validateAndGoToStep(2)">
-                                        <span>Continue to Details</span>
+                                        <span>{{ __('Continue to Details') }}</span>
                                         <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
                                 </div>
@@ -145,9 +144,8 @@
                             <div class="step-card-header">
                                 <div class="step-header-icon"><i class="bi bi-card-text"></i></div>
                                 <div>
-                                    <h2 class="step-card-title">Listing Details</h2>
-                                    <p class="step-card-desc">Provide accurate item details, pricing, condition, and full
-                                        description.</p>
+                                    <h2 class="step-card-title">{{ __('Listing Details') }}</h2>
+                                    <p class="step-card-desc">{{ __('Provide accurate item details, pricing, condition, and full description.') }}</p>
                                 </div>
                             </div>
 
@@ -155,17 +153,16 @@
                                 <!-- Title Input -->
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label for="listingTitleInput" class="form-label-custom">Listing Title <span
+                                        <label for="listingTitleInput" class="form-label-custom">{{ __('Listing Title') }} <span
                                                 class="text-danger">*</span></label>
                                         <span class="char-counter" id="titleCharCounter">0 / 100</span>
                                     </div>
                                     <input type="text" class="form-control form-control-custom" id="listingTitleInput"
                                         name="title"
-                                        placeholder="e.g. 2024 Toyota RAV4 Hybrid XSE AWD or Apple iPhone 16 Pro Max"
+                                        placeholder="{{ __('e.g. 2024 Toyota RAV4 Hybrid XSE AWD or Apple iPhone 16 Pro Max') }}"
                                         maxlength="100" required oninput="updateTitlePreview(this.value)">
                                     <div class="form-hint-text">
-                                        <i class="bi bi-info-circle me-1"></i> Use a clear, specific title including brand,
-                                        model, and key specs.
+                                        <i class="bi bi-info-circle me-1"></i> {{ __('Use a clear, specific title including brand, model, and key specs.') }}
                                     </div>
                                     <div class="invalid-feedback-custom" id="err-title"></div>
                                 </div>
@@ -173,7 +170,7 @@
                                 <!-- Price & Price Type Row -->
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-4">
-                                        <label class="form-label-custom">Price (CAD) <span
+                                        <label class="form-label-custom">{{ __('Price (CAD)') }} <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-group-custom">
                                             <span class="input-prefix">$</span>
@@ -184,78 +181,78 @@
                                         <div class="invalid-feedback-custom" id="err-price"></div>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label-custom">Price Type</label>
+                                        <label class="form-label-custom">{{ __('Price Type') }}</label>
                                         <div class="price-type-pills">
                                             <label class="price-type-pill active">
                                                 <input type="radio" name="price_type" value="fixed" checked
                                                     onchange="handlePriceTypeChange('fixed')">
-                                                <span>Fixed</span>
+                                                <span>{{ __('Fixed') }}</span>
                                             </label>
                                             <label class="price-type-pill">
                                                 <input type="radio" name="price_type" value="negotiable"
                                                     onchange="handlePriceTypeChange('negotiable')">
-                                                <span>Negotiable</span>
+                                                <span>{{ __('Negotiable') }}</span>
                                             </label>
                                             <label class="price-type-pill">
                                                 <input type="radio" name="price_type" value="free"
                                                     onchange="handlePriceTypeChange('free')">
-                                                <span>Free</span>
+                                                <span>{{ __('Free') }}</span>
                                             </label>
                                             <label class="price-type-pill">
                                                 <input type="radio" name="price_type" value="contact"
                                                     onchange="handlePriceTypeChange('contact')">
-                                                <span>Contact</span>
+                                                <span>{{ __('Contact') }}</span>
                                             </label>
                                         </div>
                                     </div>
                                     <div class="col-md-4" id="pricePeriodWrapper">
-                                        <label class="form-label-custom">Price Period <span
-                                                class="text-muted small fw-normal">(Optional)</span></label>
+                                        <label class="form-label-custom">{{ __('Price Period') }} <span
+                                                class="text-muted small fw-normal">{{ __('(Optional)') }}</span></label>
                                         <select class="form-select form-control-custom" name="price_period"
                                             id="pricePeriodSelect" onchange="handlePricePeriodChange(this.value)">
-                                            <option value="one_time" selected>One-Time / Total</option>
-                                            <option value="hour">Per Hour (/hr)</option>
-                                            <option value="day">Per Day (/day)</option>
-                                            <option value="week">Per Week (/wk)</option>
-                                            <option value="month">Per Month (/mo)</option>
-                                            <option value="year">Per Year (/yr)</option>
+                                            <option value="one_time" selected>{{ __('One-Time / Total') }}</option>
+                                            <option value="hour">{{ __('Per Hour (/hr)') }}</option>
+                                            <option value="day">{{ __('Per Day (/day)') }}</option>
+                                            <option value="week">{{ __('Per Week (/wk)') }}</option>
+                                            <option value="month">{{ __('Per Month (/mo)') }}</option>
+                                            <option value="year">{{ __('Per Year (/yr)') }}</option>
                                         </select>
                                     </div>
                                 </div>
 
                                 <!-- Condition Selector (Category Adaptive) -->
                                 <div class="mb-4" id="conditionSection">
-                                    <label class="form-label-custom">Condition <span class="text-danger">*</span></label>
+                                    <label class="form-label-custom">{{ __('Condition') }} <span class="text-danger">*</span></label>
                                     <div class="condition-pills-row" id="conditionPillsRow">
                                         <label class="condition-pill active">
                                             <input type="radio" name="condition" value="New" checked
                                                 onchange="updateConditionPreview('New')">
                                             <i class="bi bi-sparkles text-warning me-1"></i>
-                                            <span>New / Sealed</span>
+                                            <span>{{ __('New / Sealed') }}</span>
                                         </label>
                                         <label class="condition-pill">
                                             <input type="radio" name="condition" value="Used — Like New"
                                                 onchange="updateConditionPreview('Used — Like New')">
                                             <i class="bi bi-star me-1"></i>
-                                            <span>Used — Like New</span>
+                                            <span>{{ __('Used — Like New') }}</span>
                                         </label>
                                         <label class="condition-pill">
                                             <input type="radio" name="condition" value="Used — Good"
                                                 onchange="updateConditionPreview('Used — Good')">
                                             <i class="bi bi-check2 me-1"></i>
-                                            <span>Used — Good</span>
+                                            <span>{{ __('Used — Good') }}</span>
                                         </label>
                                         <label class="condition-pill">
                                             <input type="radio" name="condition" value="Used — Fair"
                                                 onchange="updateConditionPreview('Used — Fair')">
                                             <i class="bi bi-dash-circle me-1"></i>
-                                            <span>Used — Fair</span>
+                                            <span>{{ __('Used — Fair') }}</span>
                                         </label>
                                         <label class="condition-pill">
                                             <input type="radio" name="condition" value="For Parts / Repair"
                                                 onchange="updateConditionPreview('For Parts / Repair')">
                                             <i class="bi bi-tools me-1"></i>
-                                            <span>For Parts / Repair</span>
+                                            <span>{{ __('For Parts / Repair') }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -264,10 +261,10 @@
                                 <div class="dynamic-attributes-card mb-4" id="dynamicAttributesContainer">
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <h4 class="attributes-card-title mb-0">
-                                            <i class="bi bi-sliders text-success me-2"></i>Item Specifications
+                                            <i class="bi bi-sliders text-success me-2"></i>{{ __('Item Specifications') }}
                                         </h4>
                                         <span class="badge bg-dark-subtle text-secondary"
-                                            id="attributesCategoryBadge">Category Specific</span>
+                                            id="attributesCategoryBadge">{{ __('Category Specific') }}</span>
                                     </div>
                                     <div class="row g-3" id="dynamicAttributesFields">
                                         <!-- Dynamic fields injected via JS based on Category Schema -->
@@ -277,17 +274,16 @@
                                 <!-- Description Textarea -->
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <label for="listingDescInput" class="form-label-custom">Description <span
+                                        <label for="listingDescInput" class="form-label-custom">{{ __('Description') }} <span
                                                 class="text-danger">*</span></label>
                                         <span class="char-counter" id="descCharCounter">0 / 5000</span>
                                     </div>
                                     <textarea class="form-control form-control-custom form-textarea-custom"
                                         id="listingDescInput" name="description" rows="6"
-                                        placeholder="Describe your item, condition, history, included accessories, reason for selling, and pickup details..."
+                                        placeholder="{{ __('Describe your item, condition, history, included accessories, reason for selling, and pickup details...') }}"
                                         maxlength="5000" required oninput="updateDescPreview(this.value)"></textarea>
                                     <div class="form-hint-text">
-                                        <i class="bi bi-lightbulb me-1"></i> Tip: Accurate and honest descriptions sell 3x
-                                        faster and minimize buyer questions.
+                                        <i class="bi bi-lightbulb me-1"></i> {{ __('Tip: Accurate and honest descriptions sell 3x faster and minimize buyer questions.') }}
                                     </div>
                                     <div class="invalid-feedback-custom" id="err-description"></div>
                                 </div>
@@ -296,10 +292,10 @@
                                 <div class="step-actions-footer mt-4">
                                     <button type="button" class="btn-step-prev" onclick="goToStep(1)">
                                         <i class="bi bi-arrow-left me-2"></i>
-                                        <span>Back</span>
+                                        <span>{{ __('Back') }}</span>
                                     </button>
                                     <button type="button" class="btn-step-next" onclick="validateAndGoToStep(3)">
-                                        <span>Continue to Photos</span>
+                                        <span>{{ __('Continue to Photos') }}</span>
                                         <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
                                 </div>
@@ -311,9 +307,8 @@
                             <div class="step-card-header">
                                 <div class="step-header-icon"><i class="bi bi-images"></i></div>
                                 <div>
-                                    <h2 class="step-card-title">Add Photos</h2>
-                                    <p class="step-card-desc">Listings with multiple clear photos receive significantly more
-                                        messages and sell faster.</p>
+                                    <h2 class="step-card-title">{{ __('Add Photos') }}</h2>
+                                    <p class="step-card-desc">{{ __('Listings with multiple clear photos receive significantly more messages and sell faster.') }}</p>
                                 </div>
                             </div>
 
@@ -328,15 +323,12 @@
                                         <div class="dropzone-icon-circle">
                                             <i class="bi bi-cloud-arrow-up"></i>
                                         </div>
-                                        <h4 class="dropzone-title">Drag & drop photos here, or <span
-                                                class="text-success text-decoration-underline">Browse Files</span></h4>
-                                        <p class="dropzone-subtitle">Supported formats: JPG, PNG, WEBP (Max 10MB each • Up
-                                            to 10 photos)</p>
+                                        <h4 class="dropzone-title">{{ __('Drag & drop photos here, or') }} <span
+                                                class="text-success text-decoration-underline">{{ __('Browse Files') }}</span></h4>
+                                        <p class="dropzone-subtitle">{{ __('Supported formats: JPG, PNG, WEBP (Max 25MB each • Up to 10 photos)') }}</p>
                                         <div class="dropzone-badges">
-                                            <span class="dz-badge"><i class="bi bi-shield-check me-1"></i> Safe
-                                                Upload</span>
-                                            <span class="dz-badge"><i class="bi bi-star-fill text-warning me-1"></i> First
-                                                photo is Cover</span>
+                                            <span class="dz-badge"><i class="bi bi-shield-check me-1"></i> {{ __('Safe Upload') }}</span>
+                                            <span class="dz-badge"><i class="bi bi-star-fill text-warning me-1"></i> {{ __('First photo is Cover') }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -348,9 +340,8 @@
 
                                 <div
                                     class="photo-upload-stats mt-3 d-flex align-items-center justify-content-between text-muted small">
-                                    <span id="photoCountText"><i class="bi bi-image me-1"></i> 0 of 10 photos added</span>
-                                    <span class="text-secondary"><i class="bi bi-arrows-move me-1"></i> Drag to
-                                        reorder</span>
+                                    <span id="photoCountText"><i class="bi bi-image me-1"></i> {{ __('0 of 10 photos added') }}</span>
+                                    <span class="text-secondary"><i class="bi bi-arrows-move me-1"></i> {{ __('Drag to reorder') }}</span>
                                 </div>
 
                                 <div class="invalid-feedback-custom" id="err-photos"></div>
@@ -359,10 +350,10 @@
                                 <div class="step-actions-footer mt-4">
                                     <button type="button" class="btn-step-prev" onclick="goToStep(2)">
                                         <i class="bi bi-arrow-left me-2"></i>
-                                        <span>Back</span>
+                                        <span>{{ __('Back') }}</span>
                                     </button>
                                     <button type="button" class="btn-step-next" onclick="validateAndGoToStep(4)">
-                                        <span>Continue to Location</span>
+                                        <span>{{ __('Continue to Location') }}</span>
                                         <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
                                 </div>
@@ -374,8 +365,8 @@
                             <div class="step-card-header">
                                 <div class="step-header-icon"><i class="bi bi-geo-alt-fill"></i></div>
                                 <div>
-                                    <h2 class="step-card-title">Location Details</h2>
-                                    <p class="step-card-desc">Set where buyers can find your item in Canada.</p>
+                                    <h2 class="step-card-title">{{ __('Location Details') }}</h2>
+                                    <p class="step-card-desc">{{ __('Set where buyers can find your item in Canada.') }}</p>
                                 </div>
                             </div>
 
@@ -384,11 +375,11 @@
                                 <div class="row g-3 mb-4">
                                     <!-- 1. Province / Territory (First) -->
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Province / Territory <span
+                                        <label class="form-label-custom">{{ __('Province / Territory') }} <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-select form-control-custom" id="provinceSelect" name="province"
                                             required onchange="handleProvinceChange(this.value)">
-                                            <option value="">Select Province...</option>
+                                            <option value="">{{ __('Select Province...') }}</option>
                                             @foreach($provinces as $prov)
                                                 <option value="{{ $prov->code }}" data-id="{{ $prov->id }}" {{ $prov->code === ($defaultProvince ?? 'QC') ? 'selected' : '' }}>
                                                     {{ $prov->name }} ({{ $prov->code }})
@@ -399,12 +390,12 @@
 
                                     <!-- 2. City / Town (Second - Rendered based on selected Province) -->
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">City / Town <span
+                                        <label class="form-label-custom">{{ __('City / Town') }} <span
                                                 class="text-danger">*</span></label>
                                         <div class="input-icon-wrap" id="citySelectContainer" style="position: relative;">
                                             <select class="form-select form-control-custom select2-city-select"
                                                 id="citySelect" name="city_id" required>
-                                                <option value="">Select a city...</option>
+                                                <option value="">{{ __('Select a city...') }}</option>
                                             </select>
                                             <input type="hidden" id="cityInput" name="city" value="{{ $defaultCity ?? 'Montreal' }}">
                                             <input type="hidden" id="provinceIdInput" name="province_id" value="{{ optional($provinces->firstWhere('code', $defaultProvince ?? 'QC'))->id ?? 2 }}">
@@ -414,26 +405,26 @@
 
                                     <!-- 3. Neighbourhood / Area -->
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Neighbourhood / Area</label>
+                                        <label class="form-label-custom">{{ __('Neighbourhood / Area') }}</label>
                                         <input type="text" class="form-control form-control-custom" id="neighbourhoodInput"
-                                            name="neighbourhood" placeholder="e.g. Downtown, North York, Kitsilano"
+                                            name="neighbourhood" placeholder="{{ __('e.g. Downtown, North York, Kitsilano') }}"
                                             oninput="updateLocationPreview()">
                                     </div>
 
                                     <!-- 4. Postal Code Prefix -->
                                     <div class="col-md-6">
-                                        <label class="form-label-custom">Postal Code Prefix (Optional)</label>
+                                        <label class="form-label-custom">{{ __('Postal Code Prefix (Optional)') }}</label>
                                         <input type="text" class="form-control form-control-custom text-uppercase"
-                                            id="postalCodeInput" name="postal_code" placeholder="e.g. M5V or V6B"
+                                            id="postalCodeInput" name="postal_code" placeholder="{{ __('e.g. H2X 1Y4 or M5V') }}"
                                             maxlength="7">
                                     </div>
 
                                     <!-- 5. Specific Location / Landmark -->
                                     <div class="col-12">
-                                        <label class="form-label-custom">Specific Location / Landmark (Optional)</label>
+                                        <label class="form-label-custom">{{ __('Street Address / Cross Streets (Optional)') }}</label>
                                         <input type="text" class="form-control form-control-custom" id="postLocationName"
                                             name="location_name"
-                                            placeholder="e.g. Near Eaton Centre, Yonge & Bloor, Robson St, Downtown"
+                                            placeholder="{{ __('e.g. Rue Sainte-Catherine & St-Laurent') }}"
                                             maxlength="100" oninput="updateLocationPreview()">
                                     </div>
                                 </div>
@@ -446,31 +437,30 @@
                                         <div>
                                             <div class="fw-bold text-white small d-flex align-items-center gap-2">
                                                 <i class="bi bi-crosshair2 text-success"></i>
-                                                <span>GPS Coordinates (Latitude & Longitude)</span>
+                                                <span>{{ __('Precise GPS Coordinates & Interactive Map Pin') }}</span>
                                             </div>
                                             <div class="text-secondary small" style="font-size: 0.78rem;">
-                                                Auto-synced from your city or current location, or enter exact coordinates
-                                                manually.
+                                                {{ __('Auto-synced from your city or current location, or enter exact coordinates manually.') }}
                                             </div>
                                         </div>
                                         <button type="button"
                                             class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm"
                                             id="btnUseCurrentLocation" onclick="fetchCurrentGeolocation()">
                                             <i class="bi bi-geo-fill"></i>
-                                            <span>Use My Current Location</span>
+                                            <span>{{ __('Use My Current Location') }}</span>
                                         </button>
                                     </div>
 
                                     <div class="row g-3">
                                         <div class="col-md-6">
-                                            <label class="form-label-custom small mb-1">Latitude</label>
+                                            <label class="form-label-custom small mb-1">{{ __('Latitude') }}</label>
                                             <input type="number" step="any"
                                                 class="form-control form-control-custom py-2 font-monospace"
                                                 id="postLatitude" name="latitude" value="43.6532" placeholder="e.g. 43.6532"
                                                 oninput="handleManualCoordInput()">
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label-custom small mb-1">Longitude</label>
+                                            <label class="form-label-custom small mb-1">{{ __('Longitude') }}</label>
                                             <input type="number" step="any"
                                                 class="form-control form-control-custom py-2 font-monospace"
                                                 id="postLongitude" name="longitude" value="-79.3832"
@@ -485,12 +475,12 @@
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                             <div class="small fw-semibold text-white d-flex align-items-center gap-1">
                                                 <i class="bi bi-pin-map-fill text-success"></i>
-                                                <span>Interactive Location Pin (Click map or drag pin to adjust)</span>
+                                                <span>{{ __('Interactive Location Pin (Click map or drag pin to adjust)') }}</span>
                                             </div>
                                             <span
                                                 class="badge bg-success text-white border border-success border-opacity-25"
                                                 style="font-size: 0.72rem;">
-                                                <i class="bi bi-arrows-move me-1"></i> Draggable Pin
+                                                <i class="bi bi-arrows-move me-1"></i> {{ __('Draggable Pin') }}
                                             </span>
                                         </div>
                                         <div class="rounded-3 overflow-hidden position-relative shadow-sm"
@@ -499,8 +489,7 @@
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between text-secondary small mt-1"
                                             style="font-size: 0.76rem;">
-                                            <span><i class="bi bi-info-circle me-1"></i> Click anywhere on the map to place
-                                                the pin.</span>
+                                            <span><i class="bi bi-info-circle me-1"></i> {{ __('Click anywhere on the map to place the pin.') }}</span>
                                             <span id="postAdCoordsDisplay" class="font-monospace text-white-50">43.6532,
                                                 -79.3832</span>
                                         </div>
@@ -518,10 +507,10 @@
                                 <div class="step-actions-footer mt-4">
                                     <button type="button" class="btn-step-prev" onclick="goToStep(3)">
                                         <i class="bi bi-arrow-left me-2"></i>
-                                        <span>Back</span>
+                                        <span>{{ __('Back') }}</span>
                                     </button>
                                     <button type="button" class="btn-step-next" onclick="validateAndGoToStep(5)">
-                                        <span>Review Listing</span>
+                                        <span>{{ __('Review Listing') }}</span>
                                         <i class="bi bi-arrow-right ms-2"></i>
                                     </button>
                                 </div>
@@ -533,9 +522,8 @@
                             <div class="step-card-header">
                                 <div class="step-header-icon"><i class="bi bi-check-circle-fill text-success"></i></div>
                                 <div>
-                                    <h2 class="step-card-title">Review & Publish</h2>
-                                    <p class="step-card-desc">Review your listing details below before publishing live on
-                                        the marketplace.</p>
+                                    <h2 class="step-card-title">{{ __('Review & Publish') }}</h2>
+                                    <p class="step-card-desc">{{ __('Review your listing details below before publishing live on the marketplace.') }}</p>
                                 </div>
                             </div>
 
@@ -543,40 +531,40 @@
                                 <!-- Review Summary Box -->
                                 <div class="review-summary-card mb-4">
                                     <div class="review-row">
-                                        <div class="review-label">Category</div>
+                                        <div class="review-label">{{ __('Category') }}</div>
                                         <div class="review-val" id="revCategoryVal">—</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(1)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                     <div class="review-row">
-                                        <div class="review-label">Title</div>
+                                        <div class="review-label">{{ __('Title') }}</div>
                                         <div class="review-val" id="revTitleVal">—</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(2)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                     <div class="review-row">
-                                        <div class="review-label">Price</div>
+                                        <div class="review-label">{{ __('Price') }}</div>
                                         <div class="review-val text-success fw-bold" id="revPriceVal">—</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(2)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                     <div class="review-row">
-                                        <div class="review-label">Condition</div>
+                                        <div class="review-label">{{ __('Condition') }}</div>
                                         <div class="review-val" id="revConditionVal">—</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(2)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                     <div class="review-row">
-                                        <div class="review-label">Photos</div>
-                                        <div class="review-val" id="revPhotosVal">0 photos</div>
+                                        <div class="review-label">{{ __('Photos') }}</div>
+                                        <div class="review-val" id="revPhotosVal">0 {{ __('photos added') }}</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(3)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                     <div class="review-row">
-                                        <div class="review-label">Location</div>
+                                        <div class="review-label">{{ __('Location') }}</div>
                                         <div class="review-val" id="revLocationVal">—</div>
                                         <button type="button" class="btn-review-edit" onclick="goToStep(4)"><i
-                                                class="bi bi-pencil"></i> Edit</button>
+                                                class="bi bi-pencil"></i> {{ __('Edit') }}</button>
                                     </div>
                                 </div>
 
@@ -586,12 +574,10 @@
                                     <div class="d-flex align-items-center justify-content-between mb-3">
                                         <div>
                                             <h4 class="promo-title mb-0 text-white fw-bold"><i
-                                                    class="bi bi-rocket-takeoff-fill text-warning me-2"></i> Boost Your
-                                                Listing (Optional)</h4>
-                                            <p class="promo-sub mb-0 text-muted small">Get up to 10x more buyer views,
-                                                priority search placement, and sell faster.</p>
+                                                    class="bi bi-rocket-takeoff-fill text-warning me-2"></i> {{ __('Promote Your Listing (Optional)') }}</h4>
+                                            <p class="promo-sub mb-0 text-muted small">{{ __('Get up to 10x more inquiries by featuring your ad across Canadian search results.') }}</p>
                                         </div>
-                                        <span class="badge bg-warning text-dark fw-bold px-2 py-1">Optional Upgrades</span>
+                                        <span class="badge bg-warning text-dark fw-bold px-2 py-1">{{ __('Optional') }}</span>
                                     </div>
 
                                     <div class="promo-options-list d-flex flex-column gap-2">
@@ -606,18 +592,16 @@
                                                     <div
                                                         class="promo-name text-white fw-bold d-flex align-items-center gap-2">
                                                         <i class="bi bi-rocket-takeoff-fill text-warning"></i>
-                                                        <span>Sponsored Spotlight</span>
+                                                        <span>{{ __('Sponsored Hero Carousel') }}</span>
                                                         <span class="badge"
-                                                            style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; font-size: 0.7rem; border: 1px solid rgba(245, 158, 11, 0.3);">7
-                                                            DAYS • TOP HERO SLIDER</span>
+                                                            style="background: rgba(245, 158, 11, 0.15); color: #F59E0B; font-size: 0.7rem; border: 1px solid rgba(245, 158, 11, 0.3);">{{ __('7 DAYS • TOP OF HOMEPAGE') }}</span>
                                                     </div>
-                                                    <div class="promo-desc text-muted small mt-1">Pinned to the top hero
-                                                        slider on homepage & top rank across Canadian search.</div>
+                                                    <div class="promo-desc text-muted small mt-1">{{ __('Prime placement in the homepage hero carousel seen by all Canadian visitors.') }}</div>
                                                 </div>
                                             </div>
                                             <div class="text-end">
                                                 <div class="promo-price text-warning fw-bold fs-6">$9.99 CAD</div>
-                                                <div class="text-muted" style="font-size: 0.72rem;">or 300 pts</div>
+                                                <div class="text-muted" style="font-size: 0.72rem;">{{ __('or') }} 300 pts</div>
                                             </div>
                                         </label>
 
@@ -632,19 +616,17 @@
                                                     <div
                                                         class="promo-name text-white fw-bold d-flex align-items-center gap-2">
                                                         <i class="bi bi-star-fill text-primary"></i>
-                                                        <span>Featured Ad Badge</span>
+                                                        <span>{{ __('Featured Ad Badge') }}</span>
                                                         <span class="badge"
-                                                            style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; font-size: 0.7rem; border: 1px solid rgba(59, 130, 246, 0.3);">7
-                                                            DAYS • FEATURED GRID</span>
+                                                            style="background: rgba(59, 130, 246, 0.15); color: #60A5FA; font-size: 0.7rem; border: 1px solid rgba(59, 130, 246, 0.3);">{{ __('7 DAYS • FEATURED GRID') }}</span>
                                                     </div>
-                                                    <div class="promo-desc text-muted small mt-1">Highlighted verified badge
-                                                        & prioritized placement in category search feeds.</div>
+                                                    <div class="promo-desc text-muted small mt-1">{{ __('Highlighted verified badge & prioritized placement in category search feeds.') }}</div>
                                                 </div>
                                             </div>
                                             <div class="text-end">
                                                 <div class="promo-price text-primary fw-bold fs-6"
                                                     style="color: #60A5FA !important;">$4.99 CAD</div>
-                                                <div class="text-muted" style="font-size: 0.72rem;">or 150 pts</div>
+                                                <div class="text-muted" style="font-size: 0.72rem;">{{ __('or') }} 150 pts</div>
                                             </div>
                                         </label>
 
@@ -659,18 +641,16 @@
                                                     <div
                                                         class="promo-name text-white fw-bold d-flex align-items-center gap-2">
                                                         <i class="bi bi-arrow-up-circle-fill text-success"></i>
-                                                        <span>Instant Bump-Up</span>
+                                                        <span>{{ __('Instant Bump-Up') }}</span>
                                                         <span class="badge"
-                                                            style="background: rgba(73, 209, 125, 0.15); color: #49D17D; font-size: 0.7rem; border: 1px solid rgba(73, 209, 125, 0.3);">INSTANT
-                                                            REFRESH</span>
+                                                            style="background: rgba(73, 209, 125, 0.15); color: #49D17D; font-size: 0.7rem; border: 1px solid rgba(73, 209, 125, 0.3);">{{ __('INSTANT REFRESH') }}</span>
                                                     </div>
-                                                    <div class="promo-desc text-muted small mt-1">Push your listing
-                                                        immediately to the #1 spot in search results.</div>
+                                                    <div class="promo-desc text-muted small mt-1">{{ __('Push your listing immediately to the #1 spot in search results.') }}</div>
                                                 </div>
                                             </div>
                                             <div class="text-end">
                                                 <div class="promo-price text-success fw-bold fs-6">$1.99 CAD</div>
-                                                <div class="text-muted" style="font-size: 0.72rem;">or 60 pts</div>
+                                                <div class="text-muted" style="font-size: 0.72rem;">{{ __('or') }} 60 pts</div>
                                             </div>
                                         </label>
                                     </div>
@@ -681,13 +661,11 @@
                                         style="display: none;">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <h5 class="text-white fw-bold mb-0 fs-6">
-                                                <i class="bi bi-credit-card-2-front-fill text-primary me-2"></i> Select
-                                                Payment Method
+                                                <i class="bi bi-credit-card-2-front-fill text-primary me-2"></i> {{ __('Select Payment Method') }}
                                             </h5>
                                             <div
                                                 class="badge bg-dark border border-secondary border-opacity-50 text-white px-3 py-2">
-                                                Total: <span id="postPromoTotalDisplay" class="text-success fw-bold">$0.00
-                                                    CAD</span>
+                                                {{ __('Total:') }} <span id="postPromoTotalDisplay" class="text-success fw-bold">$0.00 CAD</span>
                                             </div>
                                         </div>
 
@@ -705,11 +683,10 @@
                                                             <div
                                                                 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
                                                                 <i class="bi bi-credit-card-fill text-primary"></i>
-                                                                <span>Pay with Card / CAD ($)</span>
+                                                                <span>{{ __('Pay with Card / CAD ($)') }}</span>
                                                             </div>
                                                             <div class="text-secondary small" style="font-size: 0.8rem;">
-                                                                Instant secure checkout via Stripe • Credit, Debit, Apple
-                                                                Pay, Google Pay
+                                                                {{ __('Instant secure checkout via Stripe • Credit, Debit, Apple Pay, Google Pay') }}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -727,10 +704,10 @@
                                                             <div
                                                                 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
                                                                 <i class="bi bi-award-fill text-warning"></i>
-                                                                <span>Redeem Community Points</span>
+                                                                <span>{{ __('Redeem Community Points') }}</span>
                                                             </div>
                                                             <div class="text-secondary small" style="font-size: 0.8rem;">
-                                                                Use your mutual aid points for a 100% free boost • Balance:
+                                                                {{ __('Use your mutual aid points for a 100% free boost • Balance:') }}
                                                                 <strong
                                                                     class="text-warning">{{ auth()->user()?->community_points ?? 0 }}
                                                                     pts</strong>
@@ -753,14 +730,11 @@
                                         <div id="post_stripe_badges"
                                             class="d-flex align-items-center justify-content-center gap-3 mt-3 pt-2 text-secondary small flex-wrap"
                                             style="font-size: 0.78rem;">
-                                            <span><i class="bi bi-shield-check text-success me-1"></i> 256-bit Encrypted
-                                                SSL</span>
+                                            <span><i class="bi bi-shield-check text-success me-1"></i> {{ __('256-bit Encrypted SSL') }}</span>
                                             <span>•</span>
-                                            <span><i class="bi bi-patch-check-fill text-info me-1"></i> Powered by Stripe
-                                                Canada</span>
+                                            <span><i class="bi bi-patch-check-fill text-info me-1"></i> {{ __('Powered by Stripe Canada') }}</span>
                                             <span>•</span>
-                                            <span><i class="bi bi-credit-card-2-front me-1"></i> Visa, Mastercard, AMEX,
-                                                Apple Pay, Google Pay</span>
+                                            <span><i class="bi bi-credit-card-2-front me-1"></i> Visa, Mastercard, AMEX, Apple Pay, Google Pay</span>
                                         </div>
                                     </div>
                                 </div>
@@ -770,10 +744,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="termsCheck" required checked>
                                         <label class="form-check-label text-secondary small" for="termsCheck">
-                                            I agree to the <a href="#" class="text-success text-decoration-underline">Terms
-                                                of Use</a> and <a href="#"
-                                                class="text-success text-decoration-underline">Posting Guidelines</a>. I
-                                            certify that this item is authentic and complies with local laws.
+                                            {{ __("I agree to Bontrouver's Terms of Service and Canadian Community Guidelines. I confirm this item is legal, accurately represented, and located in Canada.") }}
                                         </label>
                                     </div>
                                 </div>
@@ -782,12 +753,12 @@
                                 <div class="step-actions-footer mt-4">
                                     <button type="button" class="btn-step-prev" onclick="goToStep(4)">
                                         <i class="bi bi-arrow-left me-2"></i>
-                                        <span>Back</span>
+                                        <span>{{ __('Back') }}</span>
                                     </button>
                                     <button type="submit" class="btn-publish-ad" id="btnPublishAd">
-                                        <span class="btn-text"><i class="bi bi-check2-circle me-2"></i> Publish Ad</span>
+                                        <span class="btn-text"><i class="bi bi-check2-circle me-2"></i> {{ __('Publish Listing Now') }}</span>
                                         <span class="btn-spinner" style="display: none;"><span
-                                                class="spinner-border spinner-border-sm me-2"></span> Publishing...</span>
+                                                class="spinner-border spinner-border-sm me-2"></span> {{ __('Publishing...') }}</span>
                                     </button>
                                 </div>
                             </div>
@@ -802,7 +773,7 @@
                         <div class="preview-sticky-wrapper">
                             <div class="preview-card-header">
                                 <div class="d-flex align-items-center justify-content-between">
-                                    <span class="preview-badge"><i class="bi bi-eye-fill me-1"></i> Live Preview</span>
+                                    <span class="preview-badge"><i class="bi bi-eye-fill me-1"></i> {{ __('LIVE PREVIEW') }}</span>
                                     <span class="preview-platform-tag">Bontrouver Web & App</span>
                                 </div>
                             </div>
@@ -815,7 +786,7 @@
                                         class="prev-image"
                                         onerror="this.onerror=null; this.src='{{ asset('images/no-image.svg') }}';">
                                     <div class="prev-badge-pill" id="prevBadgePill">
-                                        <i class="bi bi-star-fill me-1"></i> PREVIEW
+                                        <i class="bi bi-star-fill me-1"></i> {{ __('PREVIEW') }}
                                     </div>
                                     <div class="prev-photo-count" id="prevPhotoCount">
                                         <i class="bi bi-camera-fill me-1"></i> <span>1 Photo</span>
@@ -826,17 +797,17 @@
                                 <div class="prev-card-body">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <div class="prev-price" id="prevPrice">$0</div>
-                                        <span class="prev-category-pill" id="prevCategoryPill">Buy & Sell</span>
+                                        <span class="prev-category-pill" id="prevCategoryPill">{{ __('Buy & Sell') }}</span>
                                     </div>
 
-                                    <h3 class="prev-title" id="prevTitle">Your listing title will appear here</h3>
+                                    <h3 class="prev-title" id="prevTitle">{{ __('Your listing title will appear here') }}</h3>
 
                                     <div class="prev-condition-tag mb-2" id="prevConditionTag">
-                                        <i class="bi bi-tag-fill me-1"></i> New
+                                        <i class="bi bi-tag-fill me-1"></i> {{ __('New') }}
                                     </div>
 
                                     <p class="prev-desc-snippet" id="prevDescSnippet">
-                                        Enter a description to see how your listing preview appears to Canadian buyers...
+                                        {{ __('Enter a description to see how your listing preview appears to Canadian buyers...') }}
                                     </p>
 
                                     <div class="prev-card-footer">
@@ -844,19 +815,18 @@
                                             <i class="bi bi-geo-alt"></i>
                                             <span>{{ $defaultCity ?? 'Montreal' }}, {{ $defaultProvince ?? 'QC' }}</span>
                                         </div>
-                                        <span class="prev-time">Just now</span>
+                                        <span class="prev-time">{{ __('Just now') }}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Quick Selling Tips Callout Box -->
                             <div class="selling-tips-box mt-3">
-                                <div class="tips-title"><i class="bi bi-lightbulb-fill text-warning me-2"></i> Quick Tips
-                                    for Fast Selling</div>
+                                <div class="tips-title"><i class="bi bi-lightbulb-fill text-warning me-2"></i> {{ __('Quick Tips for Fast Selling') }}</div>
                                 <ul class="tips-list">
-                                    <li>Use clear, high-resolution daylight photos</li>
-                                    <li>Price competitively based on similar active ads</li>
-                                    <li>Respond quickly to incoming chat inquiries</li>
+                                    <li>{{ __('Use clear, high-resolution daylight photos') }}</li>
+                                    <li>{{ __('Price competitively based on similar active ads') }}</li>
+                                    <li>{{ __('Respond quickly to incoming chat inquiries') }}</li>
                                 </ul>
                             </div>
                         </div>
@@ -880,25 +850,25 @@
                             <i class="bi bi-check-lg"></i>
                         </div>
                     </div>
-                    <h2 class="modal-title-custom mb-2" id="adSuccessModalLabel">Your Ad is Live!</h2>
+                    <h2 class="modal-title-custom mb-2" id="adSuccessModalLabel">{{ __('Your Ad is Live!') }}</h2>
                     <p class="modal-subtitle-custom mb-4">
-                        Congratulations! Your listing has been published and is now visible to buyers across Canada.
+                        {{ __('Congratulations! Your listing has been published and is now visible to buyers across Canada.') }}
                     </p>
 
                     <div class="success-preview-pill mb-4" id="successPillDetails">
-                        <div class="fw-bold text-white text-truncate" id="successListingTitle">Listing Title</div>
+                        <div class="fw-bold text-white text-truncate" id="successListingTitle">{{ __('Listing Title') }}</div>
                         <div class="text-success small fw-semibold" id="successListingPrice">$0.00 CAD</div>
                     </div>
 
                     <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
                         <a href="{{ url('/listings') }}" class="btn-success-primary" id="btnViewLiveAd">
-                            <i class="bi bi-box-arrow-up-right me-1"></i> View Listing
+                            <i class="bi bi-box-arrow-up-right me-1"></i> {{ __('View Listing') }}
                         </a>
                         <a href="{{ url('/post-ad') }}" class="btn-success-secondary" onclick="window.location.reload()">
-                            <i class="bi bi-plus-lg me-1"></i> Post Another Ad
+                            <i class="bi bi-plus-lg me-1"></i> {{ __('Post Another Ad') }}
                         </a>
                         <a href="{{ url('/') }}" class="btn-success-outline">
-                            Back to Home
+                            {{ __('Back to Home') }}
                         </a>
                     </div>
                 </div>
@@ -1005,7 +975,7 @@
 
             if (nextStep === 2) {
                 if (!postAdState.categorySlug) {
-                    showError('err-category', 'Please select a main category.');
+                    showError('err-category', "{{ __('Please select a main category.') }}");
                     isValid = false;
                 }
             } else if (nextStep === 3) {
@@ -1014,21 +984,21 @@
                 const priceInput = document.getElementById('listingPriceInput');
 
                 if (!titleInput.value || titleInput.value.trim().length < 6) {
-                    showError('err-title', 'Title must be at least 6 characters.');
+                    showError('err-title', "{{ __('Title must be at least 6 characters.') }}");
                     titleInput.focus();
                     isValid = false;
                 }
 
                 if (postAdState.priceType !== 'free' && postAdState.priceType !== 'contact') {
                     if (!priceInput.value || parseFloat(priceInput.value) < 0) {
-                        showError('err-price', 'Please enter a valid price.');
+                        showError('err-price', "{{ __('Please enter a valid price.') }}");
                         if (isValid) priceInput.focus();
                         isValid = false;
                     }
                 }
 
                 if (!descInput.value || descInput.value.trim().length < 15) {
-                    showError('err-description', 'Description must be at least 15 characters.');
+                    showError('err-description', "{{ __('Description must be at least 15 characters.') }}");
                     if (isValid) descInput.focus();
                     isValid = false;
                 }
@@ -1042,14 +1012,14 @@
                 const lng = parseFloat(document.getElementById('postLongitude')?.value);
 
                 if (postAdState.isOutsideCanada || (!isNaN(lat) && !isNaN(lng) && !isPointInCanada(lat, lng))) {
-                    showError('err-city', 'Selected location is outside Canada. Please choose a location within Canada or click "Snap to Canada".');
+                    showError('err-city', "{{ __('Selected location is outside Canada. Please choose a location within Canada or click "Snap to Canada".') }}");
                     isValid = false;
                 } else if (!cityInput.value.trim()) {
-                    showError('err-city', 'Please enter your city.');
+                    showError('err-city', "{{ __('Please enter your city.') }}");
                     cityInput.focus();
                     isValid = false;
                 } else if (provSelect && !provSelect.value) {
-                    showError('err-city', 'Please select a Canadian province.');
+                    showError('err-city', "{{ __('Please select a Canadian province.') }}");
                     provSelect.focus();
                     isValid = false;
                 }
@@ -1988,15 +1958,15 @@
 
             if (postAdState.images.length === 0) {
                 grid.style.display = 'none';
-                countText.innerHTML = `<i class="bi bi-image me-1"></i> 0 of {{ site_setting('max_images_per_listing', 15) }} photos added`;
+                countText.innerHTML = `<i class="bi bi-image me-1"></i> 0 {{ __('of') }} {{ site_setting('max_images_per_listing', 15) }} {{ __('photos added') }}`;
                 prevCover.src = '{{ asset('images/no-image.svg') }}';
-                prevCount.innerHTML = `<i class="bi bi-camera-fill me-1"></i> <span>0 Photos</span>`;
+                prevCount.innerHTML = `<i class="bi bi-camera-fill me-1"></i> <span>0 {{ __('Photos') }}</span>`;
                 return;
             }
 
             grid.style.display = 'grid';
             grid.innerHTML = '';
-            countText.innerHTML = `<i class="bi bi-image me-1"></i> ${postAdState.images.length} of {{ site_setting('max_images_per_listing', 15) }} photos added`;
+            countText.innerHTML = `<i class="bi bi-image me-1"></i> ${postAdState.images.length} {{ __('of') }} {{ site_setting('max_images_per_listing', 15) }} {{ __('photos added') }}`;
 
             postAdState.images.forEach((img, idx) => {
                 const isCover = (idx === postAdState.coverIndex);
@@ -2004,10 +1974,10 @@
                 card.className = 'photo-thumb-card' + (isCover ? ' is-cover' : '');
                 card.innerHTML = `
                         <img src="${img.dataUrl}" alt="Photo ${idx + 1}" class="thumb-img">
-                        ${isCover ? '<span class="cover-badge"><i class="bi bi-star-fill me-1"></i> Cover</span>' : ''}
+                        ${isCover ? '<span class="cover-badge"><i class="bi bi-star-fill me-1"></i> {{ __('Cover') }}</span>' : ''}
                         <div class="thumb-overlay-actions">
-                            ${!isCover ? `<button type="button" class="btn-thumb-action" title="Set as Cover" onclick="setCoverPhoto(${idx})"><i class="bi bi-star"></i></button>` : ''}
-                            <button type="button" class="btn-thumb-action btn-thumb-delete" title="Remove Photo" onclick="removePhoto(${idx})"><i class="bi bi-trash3"></i></button>
+                            ${!isCover ? `<button type="button" class="btn-thumb-action" title="{{ __('Set as Cover') }}" onclick="setCoverPhoto(${idx})"><i class="bi bi-star"></i></button>` : ''}
+                            <button type="button" class="btn-thumb-action btn-thumb-delete" title="{{ __('Remove Photo') }}" onclick="removePhoto(${idx})"><i class="bi bi-trash3"></i></button>
                         </div>
                     `;
                 grid.appendChild(card);
@@ -2285,7 +2255,7 @@
                     restoreDraft(draft);
                     const badge = document.getElementById('draftStatusBadge');
                     if (badge && draft.timestamp) {
-                        badge.innerHTML = `<i class="bi bi-arrow-counterclockwise text-success"></i> Restored draft (${draft.timestamp})`;
+                        badge.innerHTML = `<i class="bi bi-arrow-counterclockwise text-success"></i> {{ __('Restored draft') }} (${draft.timestamp})`;
                     }
                 } catch (e) {
                     console.warn('Failed to auto-restore draft:', e);

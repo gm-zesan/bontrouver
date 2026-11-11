@@ -590,147 +590,147 @@
                         {{-- 3. DYNAMIC HOUSING SPECIFIC FACET --}}
                         <div class="filter-section category-facet" id="facetHousing" style="display: {{ in_array($categorySlug, ['housing', 'real-estate']) ? 'block' : 'none' }};">
                             <div class="mb-3">
-                                <div class="filter-section-title">Property Type</div>
+                                <div class="filter-section-title">{{ __('Property Type') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="apartment" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Apartment / Condo</span>
+                                        <span class="checkbox-label">{{ __('Apartment / Condo') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="house" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">House</span>
+                                        <span class="checkbox-label">{{ __('House') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="townhouse" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Townhouse</span>
+                                        <span class="checkbox-label">{{ __('Townhouse') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="room" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Room / Roommate</span>
+                                        <span class="checkbox-label">{{ __('Room / Roommate') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="basement" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Basement Suite</span>
+                                        <span class="checkbox-label">{{ __('Basement Suite') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="commercial" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Commercial / Office</span>
+                                        <span class="checkbox-label">{{ __('Commercial / Office') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_prop_type" value="land" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Land / Plot</span>
+                                        <span class="checkbox-label">{{ __('Land / Plot') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <div class="filter-section-title">Bedrooms</div>
+                                <div class="filter-section-title">{{ __('Bedrooms') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_bedrooms" value="1" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">1 Bedroom / Studio</span>
+                                        <span class="checkbox-label">{{ __('1 Bedroom / Studio') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_bedrooms" value="2" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">2 Bedrooms</span>
+                                        <span class="checkbox-label">{{ __('2 Bedrooms') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_bedrooms" value="3" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">3+ Bedrooms</span>
+                                        <span class="checkbox-label">{{ __('3+ Bedrooms') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <div class="filter-section-title">Bathrooms</div>
+                                <div class="filter-section-title">{{ __('Bathrooms') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_bathrooms" value="1" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">1 Bathroom</span>
+                                        <span class="checkbox-label">{{ __('1 Bathroom') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_bathrooms" value="2" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">2+ Bathrooms</span>
+                                        <span class="checkbox-label">{{ __('2+ Bathrooms') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <div class="filter-section-title">Furnishing</div>
+                                <div class="filter-section-title">{{ __('Furnishing') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_furnished" value="furnished" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Furnished</span>
+                                        <span class="checkbox-label">{{ __('Furnished') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_furnished" value="unfurnished" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Unfurnished</span>
+                                        <span class="checkbox-label">{{ __('Unfurnished') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <div class="filter-section-title">Amenities & Features</div>
+                                <div class="filter-section-title">{{ __('Amenities & Features') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="parking" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Parking Included</span>
+                                        <span class="checkbox-label">{{ __('Parking Included') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="pet_friendly" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Pet Friendly</span>
+                                        <span class="checkbox-label">{{ __('Pet Friendly') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="utilities" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Utilities Included</span>
+                                        <span class="checkbox-label">{{ __('Utilities Included (Heat/Hydro)') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="laundry" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">In-Suite Laundry</span>
+                                        <span class="checkbox-label">{{ __('In-Unit Laundry') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="balcony" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Balcony / Terrace</span>
+                                        <span class="checkbox-label">{{ __('Balcony / Terrace') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_amenity" value="ac" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Air Conditioning</span>
+                                        <span class="checkbox-label">{{ __('Air Conditioning') }}</span>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="mb-2">
-                                <div class="filter-section-title">Lease Term</div>
+                                <div class="filter-section-title">{{ __('Lease Term') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_lease" value="1 Year" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">1 Year / Long-term</span>
+                                        <span class="checkbox-label">{{ __('1 Year / Long-term') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="h_lease" value="Short-term" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Short-term / Month-to-Month</span>
+                                        <span class="checkbox-label">{{ __('Short-term / Month-to-Month') }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -739,37 +739,37 @@
                         {{-- 4. DYNAMIC CARS & VEHICLES FACET --}}
                         <div class="filter-section category-facet" id="facetCarsVehicles" style="display: {{ ($categorySlug === 'cars-vehicles') ? 'block' : 'none' }};">
                             <div class="mb-3">
-                                <div class="filter-section-title">Fuel Type</div>
+                                <div class="filter-section-title">{{ __('Fuel Type') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="fuel" value="hybrid" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Hybrid / EV</span>
+                                        <span class="checkbox-label">{{ __('Hybrid / EV') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="fuel" value="gas" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Gasoline</span>
+                                        <span class="checkbox-label">{{ __('Gasoline') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="fuel" value="diesel" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Diesel</span>
+                                        <span class="checkbox-label">{{ __('Diesel') }}</span>
                                     </label>
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <div class="filter-section-title">Transmission</div>
+                                <div class="filter-section-title">{{ __('Transmission') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="transmission" value="automatic" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Automatic</span>
+                                        <span class="checkbox-label">{{ __('Automatic') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="transmission" value="manual" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Manual</span>
+                                        <span class="checkbox-label">{{ __('Manual') }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -778,42 +778,42 @@
                         {{-- 5. DYNAMIC JOBS FACET --}}
                         <div class="filter-section category-facet" id="facetJobs" style="display: {{ ($categorySlug === 'jobs') ? 'block' : 'none' }};">
                             <div class="mb-3">
-                                <div class="filter-section-title">Job Type</div>
+                                <div class="filter-section-title">{{ __('Job Type') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="job_type" value="full-time" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Full-time</span>
+                                        <span class="checkbox-label">{{ __('Full-time') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="job_type" value="part-time" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Part-time</span>
+                                        <span class="checkbox-label">{{ __('Part-time') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="job_type" value="contract" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Contract / Temp</span>
+                                        <span class="checkbox-label">{{ __('Contract / Temp') }}</span>
                                     </label>
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <div class="filter-section-title">Work Setup</div>
+                                <div class="filter-section-title">{{ __('Work Setup') }}</div>
                                 <div class="filter-options-list">
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="work_setup" value="remote" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Remote</span>
+                                        <span class="checkbox-label">{{ __('Remote') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="work_setup" value="hybrid" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">Hybrid</span>
+                                        <span class="checkbox-label">{{ __('Hybrid') }}</span>
                                     </label>
                                     <label class="custom-filter-checkbox">
                                         <input type="checkbox" name="work_setup" value="onsite" onchange="triggerLiveFilter()">
                                         <span class="checkbox-box"></span>
-                                        <span class="checkbox-label">On-site</span>
+                                        <span class="checkbox-label">{{ __('On-site') }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -824,61 +824,61 @@
 
                         {{-- 6. GENERIC CONDITION FILTER (Hidden for Housing & Jobs) --}}
                         <div class="filter-section generic-facet" id="genericConditionSection" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
-                            <div class="filter-section-title">Condition</div>
+                            <div class="filter-section-title">{{ __('Condition') }}</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="condition" value="new" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Brand New / Sealed</span>
+                                    <span class="checkbox-label">{{ __('Brand New / Sealed') }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="condition" value="used" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Used (Good / Like New)</span>
+                                    <span class="checkbox-label">{{ __('Used (Good / Like New)') }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="condition" value="refurbished" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label">Refurbished</span>
+                                    <span class="checkbox-label">{{ __('Refurbished') }}</span>
                                 </label>
                             </div>
                         </div>
 
                         {{-- 7. PROMOTED ADS FILTER --}}
                         <div class="filter-section" id="boostFilterSection">
-                            <div class="filter-section-title">Promoted Ads</div>
+                            <div class="filter-section-title">{{ __('Promoted Ads') }}</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="badge_filter" value="featured" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> Featured Ads</span>
+                                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> {{ __('Featured Ads') }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="badge_filter" value="sponsored" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> Sponsored Spotlights</span>
+                                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> {{ __('Sponsored Spotlights') }}</span>
                                 </label>
                             </div>
                         </div>
 
                         {{-- 8. COMMUNITY MEMBER TIER & TRUST FILTER --}}
                         <div class="filter-section" id="memberTierFilterSection">
-                            <div class="filter-section-title">Community Trust & Tier</div>
+                            <div class="filter-section-title">{{ __('Community Trust & Tier') }}</div>
                             <div class="filter-options-list">
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="min_tier" value="3" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label"><span class="me-1">🥇</span> Trusted Members (Level 3+)</span>
+                                    <span class="checkbox-label"><span class="me-1">🥇</span> {{ __('Trusted Members (Level 3+)') }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="min_tier" value="2" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label"><span class="me-1">🥈</span> Active Members (Level 2+)</span>
+                                    <span class="checkbox-label"><span class="me-1">🥈</span> {{ __('Active Members (Level 2+)') }}</span>
                                 </label>
                                 <label class="custom-filter-checkbox">
                                     <input type="checkbox" name="verified_only" value="1" onchange="triggerLiveFilter()">
                                     <span class="checkbox-box"></span>
-                                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> Verified Sellers Only</span>
+                                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> {{ __('Verified Sellers Only') }}</span>
                                 </label>
                             </div>
                         </div>
@@ -1197,11 +1197,11 @@
     <div class="mobile-drawer-header">
         <div class="d-flex align-items-center gap-2">
             <i class="bi bi-sliders2-vertical text-success"></i>
-            <h3 class="mobile-drawer-title" id="mobileDrawerTitle">Filters</h3>
+            <h3 class="mobile-drawer-title" id="mobileDrawerTitle">{{ __('Filters') }}</h3>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="mobile-reset-btn" onclick="resetAllFilters()">Clear</button>
-            <button type="button" class="mobile-drawer-close" onclick="closeMobileFilterDrawer()" aria-label="Close filters">
+            <button type="button" class="mobile-reset-btn" onclick="resetAllFilters()">{{ __('Clear') }}</button>
+            <button type="button" class="mobile-drawer-close" onclick="closeMobileFilterDrawer()" aria-label="{{ __('Close') }}">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
@@ -1210,12 +1210,12 @@
     <div class="mobile-drawer-body">
         <!-- Category & Subcategory Selection for Mobile -->
         <div class="mobile-filter-group">
-            <label class="mobile-group-label" for="mobileCategorySelect">Category</label>
+            <label class="mobile-group-label" for="mobileCategorySelect">{{ __('Category') }}</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileCategorySelect" class="mobile-drawer-select" onchange="handleMobileCategoryChange(this.value)">
-                    <option value="" {{ empty($categorySlug) ? 'selected' : '' }}>All Categories</option>
+                    <option value="" {{ empty($categorySlug) ? 'selected' : '' }}>{{ __('All Categories') }}</option>
                     @foreach($categories as $catKey => $cat)
-                        <option value="{{ $catKey }}" {{ ($categorySlug === $catKey) ? 'selected' : '' }}>{{ $cat['name'] }}</option>
+                        <option value="{{ $catKey }}" {{ ($categorySlug === $catKey) ? 'selected' : '' }}>{{ __($cat['name']) }}</option>
                     @endforeach
                 </select>
                 <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
@@ -1223,13 +1223,13 @@
         </div>
 
         <div class="mobile-filter-group" id="mobileSubcategoryGroup" style="{{ (empty($categorySlug) || empty($categories[$categorySlug]['children'])) ? 'display: none;' : '' }}">
-            <label class="mobile-group-label" for="mobileSubcategorySelect">Subcategory</label>
+            <label class="mobile-group-label" for="mobileSubcategorySelect">{{ __('Subcategory') }}</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileSubcategorySelect" class="mobile-drawer-select" onchange="handleMobileSubcategoryChange(this.value)">
-                    <option value="">All Subcategories</option>
+                    <option value="">{{ __('All Subcategories') }}</option>
                     @if(!empty($categorySlug) && !empty($categories[$categorySlug]['children']))
                         @foreach($categories[$categorySlug]['children'] as $subcat)
-                            <option value="{{ $subcat['slug'] }}" {{ ($subSlug === ($subcat['slug'] ?? '')) ? 'selected' : '' }}>{{ $subcat['name'] }}</option>
+                            <option value="{{ $subcat['slug'] }}" {{ ($subSlug === ($subcat['slug'] ?? '')) ? 'selected' : '' }}>{{ __($subcat['name']) }}</option>
                         @endforeach
                     @endif
                 </select>
@@ -1239,10 +1239,10 @@
 
         <!-- Location Selector for Mobile -->
         <div class="mobile-filter-group">
-            <label class="mobile-group-label" for="mobileFilterLocation">Location</label>
+            <label class="mobile-group-label" for="mobileFilterLocation">{{ __('Location') }}</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileFilterLocation" class="mobile-drawer-select" onchange="syncLocationFilter(this.value)">
-                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>All Canada (Nationwide)</option>
+                    <option value="All Canada" {{ (empty($selectedCity) || $selectedCity === 'All Canada' || ($location ?? '') === 'All Canada') ? 'selected' : '' }}>{{ __('All Canada (Nationwide)') }}</option>
                     @if(!empty($canadianCities))
                         @foreach($canadianCities as $cName => $cInfo)
                             @php
@@ -1258,32 +1258,32 @@
 
         <!-- Reusable Filter Blocks rendered directly for mobile with instantaneous live event listeners -->
         <div class="mobile-filter-group">
-            <label class="mobile-group-label" for="mobileFilterRadiusSelect">Distance</label>
+            <label class="mobile-group-label" for="mobileFilterRadiusSelect">{{ __('Distance') }}</label>
             <div class="mobile-drawer-select-wrap">
                 <select id="mobileFilterRadiusSelect" class="mobile-drawer-select" onchange="syncRadius(this.value)">
-                    <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>Any distance</option>
-                    <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>Within 5 km</option>
-                    <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>Within 10 km</option>
-                    <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>Within 25 km</option>
-                    <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>Within 50 km</option>
-                    <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>Within 100 km</option>
-                    <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>Within 250 km</option>
+                    <option value="all" {{ ($radius ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Any distance') }}</option>
+                    <option value="5" {{ ($radius ?? 'all') == '5' ? 'selected' : '' }}>{{ __('Within 5 km') }}</option>
+                    <option value="10" {{ ($radius ?? 'all') == '10' ? 'selected' : '' }}>{{ __('Within 10 km') }}</option>
+                    <option value="25" {{ ($radius ?? 'all') == '25' ? 'selected' : '' }}>{{ __('Within 25 km') }}</option>
+                    <option value="50" {{ ($radius ?? 'all') == '50' ? 'selected' : '' }}>{{ __('Within 50 km') }}</option>
+                    <option value="100" {{ ($radius ?? 'all') == '100' ? 'selected' : '' }}>{{ __('Within 100 km') }}</option>
+                    <option value="250" {{ ($radius ?? 'all') == '250' ? 'selected' : '' }}>{{ __('Within 250 km') }}</option>
                 </select>
                 <i class="bi bi-chevron-down mobile-drawer-select-arrow"></i>
             </div>
         </div>
 
         <div class="mobile-filter-group">
-            <label class="mobile-group-label">Price Range ($ CAD)</label>
+            <label class="mobile-group-label">{{ __('Price Range ($ CAD)') }}</label>
             <div class="price-inputs-row">
                 <div class="price-input-wrap">
                     <span class="currency-prefix">$</span>
-                    <input type="number" id="mobilePriceMin" class="price-field" placeholder="Min" oninput="syncMobilePrice()">
+                    <input type="number" id="mobilePriceMin" class="price-field" placeholder="{{ __('Min') }}" oninput="syncMobilePrice()">
                 </div>
-                <span class="price-separator">to</span>
+                <span class="price-separator">{{ __('to') }}</span>
                 <div class="price-input-wrap">
                     <span class="currency-prefix">$</span>
-                    <input type="number" id="mobilePriceMax" class="price-field" placeholder="Max" oninput="syncMobilePrice()">
+                    <input type="number" id="mobilePriceMax" class="price-field" placeholder="{{ __('Max') }}" oninput="syncMobilePrice()">
                 </div>
             </div>
         </div>
@@ -1291,84 +1291,84 @@
         {{-- Mobile Housing Facet --}}
         <div id="mobileFacetHousing" class="mobile-category-facet" style="display: {{ in_array($categorySlug, ['housing', 'real-estate']) ? 'block' : 'none' }};">
             <div class="mobile-filter-group">
-                <label class="mobile-group-label">Property Type</label>
+                <label class="mobile-group-label">{{ __('Property Type') }}</label>
                 <div class="filter-options-list">
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="apartment" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Apartment / Condo</span>
+                        <span class="checkbox-label">{{ __('Apartment / Condo') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="house" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">House</span>
+                        <span class="checkbox-label">{{ __('House') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="townhouse" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Townhouse</span>
+                        <span class="checkbox-label">{{ __('Townhouse') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="room" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Room / Roommate</span>
+                        <span class="checkbox-label">{{ __('Room / Roommate') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="basement" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Basement Suite</span>
+                        <span class="checkbox-label">{{ __('Basement Suite') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_prop_type" value="commercial" onchange="syncMobileCheckboxes('m_h_prop_type', 'h_prop_type')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Commercial / Office</span>
+                        <span class="checkbox-label">{{ __('Commercial / Office') }}</span>
                     </label>
                 </div>
             </div>
 
             <div class="mobile-filter-group">
-                <label class="mobile-group-label">Bedrooms</label>
+                <label class="mobile-group-label">{{ __('Bedrooms') }}</label>
                 <div class="filter-options-list">
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_bedrooms" value="1" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">1 Bedroom / Studio</span>
+                        <span class="checkbox-label">{{ __('1 Bedroom / Studio') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_bedrooms" value="2" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">2 Bedrooms</span>
+                        <span class="checkbox-label">{{ __('2 Bedrooms') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_bedrooms" value="3" onchange="syncMobileCheckboxes('m_h_bedrooms', 'h_bedrooms')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">3+ Bedrooms</span>
+                        <span class="checkbox-label">{{ __('3+ Bedrooms') }}</span>
                     </label>
                 </div>
             </div>
 
             <div class="mobile-filter-group">
-                <label class="mobile-group-label">Amenities & Features</label>
+                <label class="mobile-group-label">{{ __('Amenities & Features') }}</label>
                 <div class="filter-options-list">
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_amenity" value="parking" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Parking Included</span>
+                        <span class="checkbox-label">{{ __('Parking Included') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_amenity" value="pet_friendly" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Pet Friendly</span>
+                        <span class="checkbox-label">{{ __('Pet Friendly') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_amenity" value="utilities" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">Utilities Included</span>
+                        <span class="checkbox-label">{{ __('Utilities Included') }}</span>
                     </label>
                     <label class="custom-filter-checkbox">
                         <input type="checkbox" name="m_h_amenity" value="laundry" onchange="syncMobileCheckboxes('m_h_amenity', 'h_amenity')">
                         <span class="checkbox-box"></span>
-                        <span class="checkbox-label">In-Suite Laundry</span>
+                        <span class="checkbox-label">{{ __('In-Suite Laundry') }}</span>
                     </label>
                 </div>
             </div>
@@ -1379,61 +1379,61 @@
 
         {{-- Mobile Generic Condition --}}
         <div class="mobile-filter-group mobile-generic-facet" id="mobileGenericConditionGroup" style="display: {{ in_array($categorySlug, ['housing', 'real-estate', 'jobs']) ? 'none' : 'block' }};">
-            <label class="mobile-group-label">Condition</label>
+            <label class="mobile-group-label">{{ __('Condition') }}</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_condition" value="new" onchange="syncMobileCondition()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Brand New / Sealed</span>
+                    <span class="checkbox-label">{{ __('Brand New / Sealed') }}</span>
                 </label>
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_condition" value="used" onchange="syncMobileCondition()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Used</span>
+                    <span class="checkbox-label">{{ __('Used (Good / Like New)') }}</span>
                 </label>
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_condition" value="refurbished" onchange="syncMobileCondition()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label">Refurbished</span>
+                    <span class="checkbox-label">{{ __('Refurbished') }}</span>
                 </label>
             </div>
         </div>
 
         {{-- Mobile Promoted Filter --}}
         <div class="mobile-filter-group" id="mobileBoostGroup">
-            <label class="mobile-group-label">Promoted Ads</label>
+            <label class="mobile-group-label">{{ __('Promoted Ads') }}</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_badge_filter" value="featured" onchange="syncMobileBadgeFilter()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> Featured Ads</span>
+                    <span class="checkbox-label"><i class="bi bi-star-fill text-primary me-1"></i> {{ __('Featured Ads') }}</span>
                 </label>
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_badge_filter" value="sponsored" onchange="syncMobileBadgeFilter()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> Sponsored Spotlights</span>
+                    <span class="checkbox-label"><i class="bi bi-rocket-takeoff-fill text-warning me-1"></i> {{ __('Sponsored Spotlights') }}</span>
                 </label>
             </div>
         </div>
 
         {{-- Mobile Member Tier & Trust Filter --}}
         <div class="mobile-filter-group" id="mobileMemberTierGroup">
-            <label class="mobile-group-label">Community Trust & Tier</label>
+            <label class="mobile-group-label">{{ __('Community Trust & Tier') }}</label>
             <div class="filter-options-list">
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_min_tier" value="3" onchange="syncMobileTier()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label"><span class="me-1">🥇</span> Trusted Members (Level 3+)</span>
+                    <span class="checkbox-label"><span class="me-1">🥇</span> {{ __('Trusted Members (Level 3+)') }}</span>
                 </label>
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_min_tier" value="2" onchange="syncMobileTier()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label"><span class="me-1">🥈</span> Active Members (Level 2+)</span>
+                    <span class="checkbox-label"><span class="me-1">🥈</span> {{ __('Active Members (Level 2+)') }}</span>
                 </label>
                 <label class="custom-filter-checkbox">
                     <input type="checkbox" name="m_verified_only" value="1" onchange="syncMobileTier()">
                     <span class="checkbox-box"></span>
-                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> Verified Only</span>
+                    <span class="checkbox-label"><i class="bi bi-shield-check text-success me-1"></i> {{ __('Verified Sellers Only') }}</span>
                 </label>
             </div>
         </div>
@@ -1443,10 +1443,10 @@
     <div class="mobile-drawer-footer">
         <div class="text-white small fw-bold">
             <i class="bi bi-check2-circle text-success me-1"></i>
-            <span id="mobileLiveCountLabel">{{ count($listings) }} results live updated</span>
+            <span id="mobileLiveCountLabel">{{ count($listings) }} {{ __('results live updated') }}</span>
         </div>
         <button type="button" class="btn btn-primary-custom btn-sm px-4" onclick="closeMobileFilterDrawer()">
-            Done
+            {{ __('Done') }}
         </button>
     </div>
 </div>

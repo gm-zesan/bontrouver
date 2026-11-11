@@ -71,7 +71,7 @@ class ListingSearchService
                 'required'    => (bool) $attr->is_required,
                 'filterable'  => (bool) $attr->is_filterable,
                 'options'     => !empty($options) ? $options : null,
-                'placeholder' => 'Enter ' . $attr->name,
+                'placeholder' => app()->getLocale() === 'fr' ? 'Entrez ' . $attr->name : 'Enter ' . $attr->name,
                 'col'         => ($attr->type === 'checkbox' || $attr->type === 'textarea' || count($options) > 6) ? 12 : 6,
             ];
         })->values()->toArray();
