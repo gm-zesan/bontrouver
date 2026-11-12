@@ -17,12 +17,29 @@
         $siteFavicon = site_setting('site_favicon');
         $siteOgImage = site_setting('og_default_image');
         $resolvedOgImage = $siteOgImage ? Storage::url($siteOgImage) : url('/images/hero/hero-1.jpg');
+
+        $rawCanonical = trim($__env->yieldContent('canonical_url'));
+        if (!$rawCanonical) {
+            $rawCanonical = request()->url();
+        }
+        $canonicalUrl = preg_replace('#^http://#i', 'https://', $rawCanonical);
+        $canonicalUrl = preg_replace('#/public(?=/|$)#', '', $canonicalUrl);
     @endphp
 
     <title>@yield('title', $title ?? $defaultMetaTitle)</title>
     <meta name="description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
     <meta name="keywords" content="@yield('meta_keywords', $defaultMetaKeywords)">
-    <link rel="canonical" href="@yield('canonical_url', request()->url())">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+
+    <!-- Multilingual Hreflang Tags for Canadian Regional SEO (English & Quebec French) -->
+    @php
+        $hreflangSep = str_contains($canonicalUrl, '?') ? '&' : '?';
+        $enHreflang = $canonicalUrl . $hreflangSep . 'lang=en';
+        $frHreflang = $canonicalUrl . $hreflangSep . 'lang=fr';
+    @endphp
+    <link rel="alternate" hreflang="en-CA" href="{{ $enHreflang }}">
+    <link rel="alternate" hreflang="fr-CA" href="{{ $frHreflang }}">
+    <link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}">
 
     <!-- Canadian Regional Geo Tags -->
     <meta name="geo.region" content="@yield('geo_region', $geoRegion)">
@@ -41,7 +58,7 @@
     <!-- Open Graph / Facebook (Canada Locale) -->
     <meta property="og:site_name" content="{{ $siteName }}">
     <meta property="og:type" content="@yield('og_type', $ogType ?? 'website')">
-    <meta property="og:url" content="@yield('canonical_url', request()->url())">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
     <meta property="og:title" content="@yield('title', $title ?? $defaultMetaTitle)">
     <meta property="og:description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
     <meta property="og:image" content="@yield('og_image', $ogImage ?? $resolvedOgImage)">
@@ -50,7 +67,7 @@
 
     <!-- Twitter Card -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="@yield('canonical_url', request()->url())">
+    <meta property="twitter:url" content="{{ $canonicalUrl }}">
     <meta property="twitter:title" content="@yield('title', $title ?? $defaultMetaTitle)">
     <meta property="twitter:description" content="@yield('meta_description', $metaDescription ?? $defaultMetaDesc)">
     <meta property="twitter:image" content="@yield('og_image', $ogImage ?? $resolvedOgImage)">

@@ -1,11 +1,29 @@
 <IfModule mod_rewrite.c>
     Options +FollowSymLinks
     RewriteEngine On
+
+    # 1. Force HTTPS (301 Permanent Redirect)
+    RewriteCond %{HTTPS} !on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. Prevent /public/ from appearing in the URL (External 301 Redirect)
+    # If the client requests /public/... directly, strip /public and redirect
+    RewriteCond %{THE_REQUEST} \s/public/([^\s?]*) [NC]
+    RewriteRule ^ /%1 [L,R=301]
+
+    # 3. Redirect Trailing Slashes If Not A Directory (301 Permanent Redirect)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # 4. Route remaining requests to /public/ folder internally
     RewriteCond %{REQUEST_URI} !^/public/ 
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ /public/$1 
-    #RewriteRule ^ index.php [L]
+    RewriteRule ^(.*)$ /public/$1 [L]
+
+    # 5. Handle Root Domain -> public/index.php
     RewriteRule ^(/)?$ public/index.php [L] 
 </IfModule>
 

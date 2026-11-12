@@ -6,9 +6,14 @@
     $listingRegion = !empty($listing['province_code']) ? 'CA-' . $listing['province_code'] : 'CA';
     $listingPlace = $listingCity . (!empty($listingProv) ? ', ' . $listingProv : '') . ', Canada';
     $rawPrice = $listing['price'] ?? 0;
+
+    $locationPrep = app()->getLocale() === 'fr' ? 'à' : 'in';
+    $seoListingTitle = $listing 
+        ? "{$listing['title']} {$locationPrep} {$listingCity} | " . site_setting('site_name', 'Bon Trouver')
+        : 'Listing Unavailable - ' . site_setting('site_name', 'Bon Trouver');
 @endphp
 
-@section('title', ($listing ? $listing['title'] . ' | ' . $listingCity . ' - ' . site_setting('site_name', 'Bon Trouver') : 'Listing Unavailable - ' . site_setting('site_name', 'Bon Trouver')))
+@section('title', $seoListingTitle)
 @section('meta_description', Str::limit(strip_tags($listing['description'] ?? ('Find ' . ($listing['title'] ?? 'classifieds') . ' in ' . $listingPlace . ' on Bon Trouver Canada.')), 155))
 @section('meta_keywords', ($listing['title'] ?? '') . ', ' . ($listing['category_name'] ?? '') . ', ' . $listingCity . ', ' . $listingProv . ', Canada classifieds, buy and sell canada')
 @section('geo_region', $listingRegion)

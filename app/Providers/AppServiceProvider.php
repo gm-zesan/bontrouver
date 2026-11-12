@@ -26,6 +26,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Enforce HTTPS in production
+        if (app()->environment('production') || config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         // Policy registrations
         Gate::policy(CompanionshipRequest::class, CompanionshipRequestPolicy::class);
 
