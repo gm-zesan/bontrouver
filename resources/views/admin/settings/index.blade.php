@@ -443,6 +443,30 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-dark">TikTok URL</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light text-muted border-end-0"
+                                            style="border: 1px solid #cbd5e1;"><i class="ri-tiktok-line"></i></span>
+                                        <input type="url" class="form-control form-control-sm" name="social_tiktok"
+                                            value="{{ $settings['seo']['social_tiktok'] ?? '' }}"
+                                            placeholder="https://www.tiktok.com/@bontrouver.ca"
+                                            style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold text-dark">YouTube Channel URL</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light text-muted border-end-0"
+                                            style="border: 1px solid #cbd5e1;"><i class="ri-youtube-line"></i></span>
+                                        <input type="url" class="form-control form-control-sm" name="social_youtube"
+                                            value="{{ $settings['seo']['social_youtube'] ?? '' }}"
+                                            placeholder="https://www.youtube.com/channel/..."
+                                            style="border: 1px solid #cbd5e1; border-radius: 0 6px 6px 0;">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <label class="form-label small fw-semibold text-dark">LinkedIn URL</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-light text-muted border-end-0"

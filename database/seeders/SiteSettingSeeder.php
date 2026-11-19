@@ -139,17 +139,31 @@ class SiteSettingSeeder extends Seeder
             ],
             [
                 'key'         => 'social_facebook',
-                'value'       => 'https://facebook.com/bontrouver',
+                'value'       => 'https://www.facebook.com/957497320775666',
                 'group'       => 'seo',
                 'type'        => 'string',
                 'description' => 'Official Facebook page URL.',
             ],
             [
                 'key'         => 'social_instagram',
-                'value'       => 'https://instagram.com/bontrouver',
+                'value'       => 'https://www.instagram.com/bontrouver',
                 'group'       => 'seo',
                 'type'        => 'string',
                 'description' => 'Official Instagram handle URL.',
+            ],
+            [
+                'key'         => 'social_tiktok',
+                'value'       => 'https://www.tiktok.com/@bontrouver.ca',
+                'group'       => 'seo',
+                'type'        => 'string',
+                'description' => 'Official TikTok handle URL.',
+            ],
+            [
+                'key'         => 'social_youtube',
+                'value'       => 'https://www.youtube.com/channel/UCu5Ov5WZXvU2nmnb9MTf1gw',
+                'group'       => 'seo',
+                'type'        => 'string',
+                'description' => 'Official YouTube channel URL.',
             ],
             [
                 'key'         => 'social_linkedin',

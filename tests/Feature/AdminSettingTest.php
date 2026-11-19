@@ -150,6 +150,8 @@ class AdminSettingTest extends TestCase
             'social_twitter'   => 'https://twitter.com/bontrouver_ca',
             'social_facebook'  => 'https://facebook.com/bontrouver_ca',
             'social_instagram' => 'https://instagram.com/bontrouver_ca',
+            'social_tiktok'    => 'https://tiktok.com/@bontrouver.ca',
+            'social_youtube'   => 'https://youtube.com/channel/UCu5Ov5WZXvU2nmnb9MTf1gw',
             'social_linkedin'  => 'https://linkedin.com/company/bontrouver-ca',
         ]);
 
@@ -160,6 +162,8 @@ class AdminSettingTest extends TestCase
         $this->assertEquals('CA-QC', site_setting('geo_region'));
         $this->assertEquals('Montreal, Quebec, Canada', site_setting('geo_placename'));
         $this->assertEquals('https://twitter.com/bontrouver_ca', site_setting('social_twitter'));
+        $this->assertEquals('https://tiktok.com/@bontrouver.ca', site_setting('social_tiktok'));
+        $this->assertEquals('https://youtube.com/channel/UCu5Ov5WZXvU2nmnb9MTf1gw', site_setting('social_youtube'));
     }
 
     public function test_admin_can_update_marketplace_rules(): void

@@ -49,6 +49,8 @@ class UpdateSiteSettingsRequest extends FormRequest
                 'social_twitter'   => ['nullable', 'url', 'max:255'],
                 'social_facebook'  => ['nullable', 'url', 'max:255'],
                 'social_instagram' => ['nullable', 'url', 'max:255'],
+                'social_tiktok'    => ['nullable', 'url', 'max:255'],
+                'social_youtube'   => ['nullable', 'url', 'max:255'],
                 'social_linkedin'  => ['nullable', 'url', 'max:255'],
             ],
             'marketplace' => [

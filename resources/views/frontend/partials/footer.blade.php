@@ -10,8 +10,10 @@
                     $siteBrandName = site_setting('site_name', 'Bontrouver');
                     $siteTagline = site_setting('site_tagline', 'A local marketplace to buy, sell, discover, and connect with your community.');
                     $socialTwitter = site_setting('social_twitter', 'https://twitter.com/bontrouver');
-                    $socialFacebook = site_setting('social_facebook', 'https://facebook.com/bontrouver');
-                    $socialInstagram = site_setting('social_instagram', 'https://instagram.com/bontrouver');
+                    $socialFacebook = site_setting('social_facebook', 'https://www.facebook.com/957497320775666');
+                    $socialInstagram = site_setting('social_instagram', 'https://www.instagram.com/bontrouver');
+                    $socialTikTok = site_setting('social_tiktok', 'https://www.tiktok.com/@bontrouver.ca');
+                    $socialYouTube = site_setting('social_youtube', 'https://www.youtube.com/channel/UCu5Ov5WZXvU2nmnb9MTf1gw');
                     $socialLinkedIn = site_setting('social_linkedin', 'https://linkedin.com/company/bontrouver');
                     $footerCopyright = site_setting('footer_copyright', '© ' . date('Y') . ' ' . $siteBrandName . '. All rights reserved.');
                 @endphp
@@ -90,6 +92,16 @@
                 @if($socialInstagram)
                     <a href="{{ $socialInstagram }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on Instagram">
                         <i class="bi bi-instagram" aria-hidden="true"></i>
+                    </a>
+                @endif
+                @if($socialTikTok)
+                    <a href="{{ $socialTikTok }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on TikTok">
+                        <i class="bi bi-tiktok" aria-hidden="true"></i>
+                    </a>
+                @endif
+                @if($socialYouTube)
+                    <a href="{{ $socialYouTube }}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Follow {{ $siteBrandName }} on YouTube">
+                        <i class="bi bi-youtube" aria-hidden="true"></i>
                     </a>
                 @endif
                 @if($socialTwitter)

@@ -37,6 +37,8 @@ class SiteSettingService
             'social_twitter'   => 'string',
             'social_facebook'  => 'string',
             'social_instagram' => 'string',
+            'social_tiktok'    => 'string',
+            'social_youtube'   => 'string',
             'social_linkedin'  => 'string',
         ],
         'marketplace' => [

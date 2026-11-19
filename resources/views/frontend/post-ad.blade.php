@@ -996,7 +996,9 @@
                 }
 
                 if (postAdState.priceType !== 'free' && postAdState.priceType !== 'contact') {
-                    if (!priceInput.value || parseFloat(priceInput.value) < 0) {
+                    const priceRaw = priceInput.value !== undefined ? String(priceInput.value).trim().replace(',', '.') : '';
+                    const parsedPrice = parseFloat(priceRaw);
+                    if (!priceRaw || isNaN(parsedPrice) || parsedPrice < 0) {
                         showError('err-price', "{{ __('Please enter a valid price.') }}");
                         if (isValid) priceInput.focus();
                         isValid = false;
@@ -1041,6 +1043,14 @@
             if (el) {
                 el.textContent = msg;
                 el.style.display = 'block';
+            }
+        }
+
+        function clearError(elId) {
+            const el = document.getElementById(elId);
+            if (el) {
+                el.textContent = '';
+                el.style.display = 'none';
             }
         }
 
@@ -1526,12 +1536,24 @@
          */
         function updateTitlePreview(val) {
             postAdState.title = val;
+            if (val && val.trim().length >= 6) {
+                clearError('err-title');
+            }
             document.getElementById('titleCharCounter').textContent = `${val.length} / 100`;
             document.getElementById('prevTitle').textContent = val.trim() || 'Your listing title will appear here';
         }
 
         function updatePricePreview(val) {
             postAdState.price = val;
+            if (val !== '' && val !== null && val !== undefined) {
+                const cleanVal = String(val).trim().replace(',', '.');
+                const num = parseFloat(cleanVal);
+                if (!isNaN(num) && num >= 0) {
+                    clearError('err-price');
+                }
+            } else if (postAdState.priceType === 'free' || postAdState.priceType === 'contact') {
+                clearError('err-price');
+            }
             const priceEl = document.getElementById('prevPrice');
             if (!priceEl) return;
 
@@ -1552,7 +1574,8 @@
             } else if (postAdState.priceType === 'contact') {
                 priceEl.innerHTML = 'Contact for Price';
             } else {
-                const num = parseFloat(val);
+                const cleanVal = String(val).trim().replace(',', '.');
+                const num = parseFloat(cleanVal);
                 priceEl.innerHTML = ((!isNaN(num) && num >= 0) ? ('$' + num.toLocaleString('en-CA')) : '$0') + periodSuffix;
             }
         }
@@ -1563,6 +1586,7 @@
         }
 
         function handlePriceTypeChange(type) {
+            clearError('err-price');
             postAdState.priceType = type;
             const priceInput = document.getElementById('listingPriceInput');
             const periodWrapper = document.getElementById('pricePeriodWrapper');
@@ -1610,6 +1634,9 @@
 
         function updateDescPreview(val) {
             postAdState.description = val;
+            if (val && val.trim().length >= 15) {
+                clearError('err-description');
+            }
             document.getElementById('descCharCounter').textContent = `${val.length} / 5000`;
             const snippetEl = document.getElementById('prevDescSnippet');
             if (snippetEl) {
