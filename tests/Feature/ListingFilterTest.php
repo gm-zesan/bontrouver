@@ -15,6 +15,7 @@ class ListingFilterTest extends TestCase
     {
         parent::setUp();
         $this->seed();
+        $this->seed(\Database\Seeders\ListingSeeder::class);
     }
 
     public function test_listings_page_loads_with_dynamic_data_and_radius_all(): void

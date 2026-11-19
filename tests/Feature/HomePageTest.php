@@ -18,6 +18,8 @@ class HomePageTest extends TestCase
     {
         parent::setUp();
         $this->seed();
+        $this->seed(\Database\Seeders\ListingSeeder::class);
+        $this->seed(\Database\Seeders\CompanionshipSeeder::class);
     }
 
     public function test_home_page_loads_with_all_dynamic_sections(): void
